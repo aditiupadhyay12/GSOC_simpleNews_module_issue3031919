@@ -431,6 +431,12 @@ function simplenews_user_create(UserInterface $account) {
  * Update uid and preferred language when the new account was already subscribed.
  */
 function simplenews_user_insert(UserInterface $account) {
+
+  // Don't do anything if the user has no email.
+  if (!$account->getEmail()) {
+    return;
+  }
+
   // Use the email address to check if new account is already subscribed.
   $subscriber = simplenews_subscriber_load_by_mail($account->getEmail());
   // If the user is subscribed, we update the subscriber with uid and language.
@@ -478,6 +484,11 @@ function simplenews_user_login(UserInterface $account) {
  */
 function simplenews_user_presave(UserInterface $account) {
   $syncing = &drupal_static(__FUNCTION__, FALSE);
+
+  // Don't do anything if the user has no email.
+  if (!$account->getEmail()) {
+    return;
+  }
 
   /** @var \Drupal\simplenews\Entity\Subscriber $subscriber */
   $subscriber = $account->isNew() ?
