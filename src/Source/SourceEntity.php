@@ -406,9 +406,6 @@ class SourceEntity implements SourceEntityInterface {
    *   format.
    */
   protected function buildFooter($format = NULL) {
-    if ($format == 'plain') {
-      //debug(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
-    }
     if (empty($format)) {
       $format = $this->getFormat();
     }

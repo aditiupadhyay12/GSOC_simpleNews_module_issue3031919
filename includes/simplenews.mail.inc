@@ -829,15 +829,31 @@ function simplenews_build_newsletter_mail(&$message, SourceInterface $source) {
   $message['body']['body'] = $source->getBody();
   $message['body']['footer'] = $source->getFooter();
 
-  // Optional params for HTML mails.
   if ($source->getFormat() == 'html') {
+    // Set the necessary headers to detect this as an HTML mail. Set both the
+    // Content-Type header, and the format (Swiftmailer) and plain (Mime Mail)
+    // params.
+    $message['headers']['Content-Type'] = 'text/html; charset=UTF-8';
+    $message['params']['format'] = 'text/html';
     $message['params']['plain'] = NULL;
+
+    // Provide a plain text version, both in params][plaintext (Mime Mail) and
+    // plain (Swiftmailer).
     $message['params']['plaintext'] = $source->getPlainBody() . "\n" . $source->getPlainFooter();
+    $message['plain'] = $message['params']['plaintext'];
+
+    // Add attachments, again, both for the attachments key (Mime Mail) and
+    // files (Swiftmailer).
     $message['params']['attachments'] = $source->getAttachments();
+    $message['params']['files'] = $message['params']['attachments'];
   }
   else {
+    // This is a plain text email, explicitly mark it as such, the default
+    // Content-Type header already defaults to that.
     $message['params']['plain'] = TRUE;
+    $message['params']['format'] = 'text/plain';
   }
+
 }
 
 /**

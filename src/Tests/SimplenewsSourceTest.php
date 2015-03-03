@@ -230,6 +230,11 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       // Verify title.
       $this->assertTrue(strpos($mail['body'], '<h2>' . htmlentities($node->getTitle()) . '</h2>') !== FALSE);
 
+      // Verify the format/content type.
+      $this->assertEqual($mail['params']['format'], 'text/html');
+      $this->assertEqual($mail['params']['plain'], NULL);
+      $this->assertEqual($mail['headers']['Content-Type'], 'text/html; charset=UTF-8');
+
       // Make sure that the same mail was used in the body token as it has been
       // sent to.
       $this->assertTrue(strpos($mail['body'], '<strong>' . $mail['to'] . '</strong>') !== FALSE);
@@ -237,11 +242,17 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       // Make sure the body is only attached once.
       $this->assertEqual(1, preg_match_all('/Mail token/', $mail['body'], $matches));
 
-      // Check the plaintext version.
+      // Check the plaintext version, both params][plaintext (Mime Mail) and
+      // plain (Swiftmailer).
       $this->assertTrue(strpos($mail['params']['plaintext'], $mail['to']) !== FALSE);
       $this->assertFalse(strpos($mail['params']['plaintext'], '<strong>'));
+      $this->assertEqual($mail['params']['plaintext'], $mail['plain']);
       // Make sure the body is only attached once.
       $this->assertEqual(1, preg_match_all('/Mail token/', $mail['params']['plaintext'], $matches));
+
+      // Check the attachments and files arrays.
+      $this->assertTrue(is_array($mail['params']['attachments']));
+      $this->assertEqual($mail['params']['attachments'], $mail['params']['files']);
 
       // Make sure formatted address is properly encoded.
       $from = '"' . addslashes(Unicode::mimeHeaderEncode($edit_newsletter['from_name'])) . '" <' . $edit_newsletter['from_address'] . '>';
