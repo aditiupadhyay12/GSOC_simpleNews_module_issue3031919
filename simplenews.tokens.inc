@@ -78,7 +78,7 @@ function simplenews_tokens($type, $tokens, $data = array(), $options = array()) 
   $replacements = array();
   $sanitize = !empty($options['sanitize']);
   if (isset($options['langcode'])) {
-    $url_options['language'] = language_load($options['langcode']);
+    $url_options['language'] = \Drupal::languageManager()->getLanguage($options['langcode']);
     $langcode = $options['langcode'];
   }
   else {
