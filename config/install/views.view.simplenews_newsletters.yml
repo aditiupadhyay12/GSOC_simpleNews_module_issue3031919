@@ -1,3 +1,4 @@
+uuid: b19ea247-6a8e-4c13-a61b-27dcd1139678
 langcode: en
 status: true
 dependencies:
@@ -25,7 +26,7 @@ display:
       access:
         type: perm
         options:
-          perm: 'access content'
+          perm: 'send newsletter'
       cache:
         type: none
         options: {  }
@@ -35,7 +36,7 @@ display:
           disable_sql_rewrite: false
           distinct: false
           replica: false
-          query_comment: false
+          query_comment: ''
           query_tags: {  }
       exposed_form:
         type: basic
@@ -99,7 +100,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -154,7 +155,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: false
             ellipsis: false
             more_link: false
@@ -206,7 +207,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -236,7 +237,7 @@ display:
           group_columns: {  }
           group_rows: true
           delta_limit: 0
-          delta_offset: '0'
+          delta_offset: 0
           delta_reversed: false
           delta_first_last: false
           multi_type: separator
@@ -269,7 +270,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: 0
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -291,13 +292,25 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
-          type: unicode-yes-no
-          type_custom_true: ''
-          type_custom_false: ''
-          not: '0'
+          click_sort_column: value
+          type: boolean
+          settings:
+            format: unicode-yes-no
+            format_custom_true: ''
+            format_custom_false: ''
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
           entity_type: node
           entity_field: status
-          plugin_id: boolean
+          plugin_id: field
         created:
           id: created
           table: node_field_data
@@ -324,7 +337,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -378,7 +391,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -428,7 +441,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -479,7 +492,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -530,7 +543,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -676,6 +689,13 @@ display:
       relationships: {  }
       arguments: {  }
       display_extenders: {  }
+    cache_metadata:
+      contexts:
+        0: node_view_grants
+        1: user
+        4: cache.context.url
+        5: language
+      cacheable: false
   page_1:
     display_plugin: page
     id: page_1
@@ -692,3 +712,10 @@ display:
         weight: 0
         context: '0'
         menu_name: admin
+    cache_metadata:
+      contexts:
+        0: node_view_grants
+        1: user
+        4: cache.context.url
+        5: language
+      cacheable: false

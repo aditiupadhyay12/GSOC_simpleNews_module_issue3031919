@@ -745,6 +745,17 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
    * Test content subscription status filter in subscriber view.
    */
   function testSubscriberStatusFilter() {
+    // Make sure subscription overview can't be accessed without permission.
+    $this->drupalGet('admin/people/simplenews');
+    $this->assertResponse(403);
+
+    $admin_user = $this->drupalCreateUser(array(
+      'administer newsletters',
+      'create simplenews_issue content',
+      'administer nodes',
+      'administer simplenews subscriptions'
+    ));
+    $this->drupalLogin($admin_user);
 
     $subscribers = array();
     // Create some subscribers.
@@ -783,13 +794,19 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
    * Test newsletter issue overview.
    */
   function testNewsletterIssuesOverview() {
+    // Verify newsletter overview isn't available without permission.
+    $this->drupalGet('admin/content/simplenews');
+    $this->assertResponse(403);
+
     $admin_user = $this->drupalCreateUser(array(
       'administer newsletters',
       'create simplenews_issue content',
       'administer simplenews subscriptions',
       'administer nodes',
+      'send newsletter'
     ));
     $this->drupalLogin($admin_user);
+
     // Create a newsletter.
     $edit = array(
       'name' => $name = $this->randomMachineName(),

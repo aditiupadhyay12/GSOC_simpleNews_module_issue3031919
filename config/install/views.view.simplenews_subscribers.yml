@@ -5,6 +5,7 @@ dependencies:
     - field.storage.simplenews_subscriber.subscriptions
   module:
     - simplenews
+    - user
 id: simplenews_subscribers
 label: Subscribers
 module: views
@@ -21,8 +22,9 @@ display:
     position: 0
     display_options:
       access:
-        type: none
-        options: {  }
+        type: perm
+        options:
+          perm: 'administer simplenews subscriptions'
       cache:
         type: none
         options: {  }
@@ -32,7 +34,7 @@ display:
           disable_sql_rewrite: false
           distinct: true
           replica: false
-          query_comment: false
+          query_comment: ''
           query_tags: {  }
       exposed_form:
         type: basic
@@ -99,7 +101,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -147,7 +149,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -197,7 +199,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -226,7 +228,7 @@ display:
           group_columns: {  }
           group_rows: true
           delta_limit: 0
-          delta_offset: '0'
+          delta_offset: 0
           delta_reversed: false
           delta_first_last: false
           multi_type: separator
@@ -259,7 +261,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -281,10 +283,10 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
-          type: unicode-yes-no
+          type: boolean
           type_custom_true: ''
           type_custom_false: ''
-          not: '0'
+          not: false
           entity_type: simplenews_subscriber
           entity_field: status
           plugin_id: boolean
@@ -314,7 +316,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -368,7 +370,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -419,7 +421,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -470,7 +472,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: ''
+            max_length: null
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -683,6 +685,12 @@ display:
       relationships: {  }
       arguments: {  }
       display_extenders: {  }
+    cache_metadata:
+      contexts:
+        0: user
+        3: cache.context.url
+        7: language
+      cacheable: false
   page_1:
     display_plugin: page
     id: page_1
@@ -699,3 +707,9 @@ display:
         weight: 11
         context: '0'
         menu_name: admin
+    cache_metadata:
+      contexts:
+        0: user
+        3: cache.context.url
+        7: language
+      cacheable: false
