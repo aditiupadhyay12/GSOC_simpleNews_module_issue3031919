@@ -236,8 +236,8 @@ block.settings.simplenews_subscription_block:
       type: sequence
       label: Newsletters
       sequence:
-        - type: string
-          label: Newsletter ID
+        type: string
+        label: Newsletter ID
     message:
       type: label
       label: Message
