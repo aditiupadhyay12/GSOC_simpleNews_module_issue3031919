@@ -7,7 +7,6 @@ dependencies:
     - node.type.simplenews_issue
   module:
     - options
-    - path
     - text
 id: node.simplenews_issue.default
 targetEntityType: node
@@ -20,11 +19,6 @@ content:
     settings:
       size: 60
       placeholder: ''
-    third_party_settings: {  }
-  path:
-    type: path
-    weight: 1
-    settings: {  }
     third_party_settings: {  }
   body:
     type: text_textarea_with_summary
