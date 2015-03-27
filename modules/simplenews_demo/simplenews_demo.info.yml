@@ -1,0 +1,9 @@
+description: Demo module for simplenews.
+core: 8.x
+dependencies:
+  - simplenews
+  - simplenews_scheduler
+hidden: false
+name: Simplenews demo
+package: Simplenews
+type: module
