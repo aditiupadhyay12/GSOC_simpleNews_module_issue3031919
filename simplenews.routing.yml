@@ -145,6 +145,8 @@ simplenews.newsletter_confirm_combined:
     _title: 'Confirm newsletter subscriptions'
   requirements:
     _permission: 'subscribe to newsletters'
+  options:
+    no_cache: TRUE
 
 simplenews.newsletter_confirm_subscription:
   path: 'newsletter/confirm/{action}/{snid}/{newsletter_id}/{timestamp}/{hash}'
@@ -153,6 +155,8 @@ simplenews.newsletter_confirm_subscription:
     _title: 'Confirm newsletter subscriptions'
   requirements:
     _permission: 'subscribe to newsletters'
+  options:
+    no_cache: TRUE
 
 simplenews.newsletter_confirm_combined_immediate:
   path: 'newsletter/confirm/combined/{snid}/{timestamp}/{hash}/ok'
@@ -162,6 +166,8 @@ simplenews.newsletter_confirm_combined_immediate:
     immediate: true
   requirements:
     _permission: 'subscribe to newsletters'
+  options:
+    no_cache: TRUE
 
 simplenews.newsletter_confirm_subscription_immediate:
   path: 'newsletter/confirm/{action}/{snid}/{newsletter_id}/{timestamp}/{hash}/ok'
@@ -171,6 +177,8 @@ simplenews.newsletter_confirm_subscription_immediate:
     immediate: true
   requirements:
     _permission: 'subscribe to newsletters'
+  options:
+    no_cache: TRUE
 
 simplenews.node_tab:
   path: '/node/{node}/simplenews'
@@ -181,4 +189,5 @@ simplenews.node_tab:
     _custom_access: 'Drupal\simplenews\Form\NodeTabForm::checkAccess'
   options:
     _admin_route: true
+    no_cache: TRUE
 

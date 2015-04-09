@@ -728,7 +728,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       'message' => $this->randomMachineName(4),
     );
     $single_block = $this->setupSubscriptionBlock($block_settings);
-
     $subscriber_user = $this->drupalCreateUser(array('subscribe to newsletters'));
     $this->drupalLogin($subscriber_user);
 
@@ -736,7 +735,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     // Subscribe + submit
     // Assert confirmation message
 
-    $this->drupalPostForm('', array(), t('Subscribe'));
+    $this->drupalPostForm(NULL, [], t('Subscribe'));
     $this->assertText(t('You have been subscribed.'), t('Authenticated user subscribed using the subscription block.'));
 
     // 2. Unsubscribe authenticated via subscription page
