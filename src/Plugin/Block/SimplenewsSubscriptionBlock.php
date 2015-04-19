@@ -7,6 +7,7 @@
 
 namespace Drupal\simplenews\Plugin\Block;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
@@ -99,7 +100,7 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
    */
   protected function blockAccess(AccountInterface $account) {
     // Only grant access to users with the 'subscribe to newsletters' permission.
-    return $account->hasPermission('subscribe to newsletters');
+    return AccessResult::allowedIfHasPermission($account, 'subscribe to newsletters');
   }
 
   /**
