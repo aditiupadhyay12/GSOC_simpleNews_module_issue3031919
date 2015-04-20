@@ -8,7 +8,7 @@
 namespace Drupal\simplenews\Tests;
 
 use Drupal\block\Entity\Block;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Unicode;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
@@ -477,7 +477,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertFalse(simplenews_user_is_subscribed($tested_subscribers[0], $first, t('Subscriber not resubscribed through mass subscription.')));
     $this->assertFalse(simplenews_user_is_subscribed($tested_subscribers[1], $first, t('Subscriber not resubscribed through mass subscription.')));
     $this->assertTrue(simplenews_user_is_subscribed($tested_subscribers[2], $first, t('Subscriber subscribed through mass subscription.')));
-    $substitutes = array('@name' => String::checkPlain(simplenews_newsletter_load($first)->label()), '@mail' => $unsubscribed);
+    $substitutes = array('@name' => SafeMarkup::checkPlain(simplenews_newsletter_load($first)->label()), '@mail' => $unsubscribed);
     $this->assertText(t('The following addresses were skipped because they have previously unsubscribed from @name: @mail.', $substitutes));
     $this->assertText(t("If you would like to resubscribe them, use the 'Force resubscription' option."));
 
@@ -598,12 +598,12 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     simplenews_subscribe($xss_mail, $this->getRandomNewsletter(), FALSE);
     $this->drupalGet('admin/people/simplenews');
     $this->assertNoRaw($xss_mail);
-    $this->assertRaw(String::checkPlain($xss_mail));
+    $this->assertRaw(SafeMarkup::checkPlain($xss_mail));
 
     $xss_subscriber = simplenews_subscriber_load_by_mail($xss_mail);
     $this->drupalGet('admin/people/simplenews/edit/' . $xss_subscriber->id());
     $this->assertNoRaw($xss_mail);
-    $this->assertRaw(String::checkPlain($xss_mail));
+    $this->assertRaw(SafeMarkup::checkPlain($xss_mail));
 
     // Create a new user for the next test.
     $new_user = $this->drupalCreateUser(array('subscribe to newsletters'));

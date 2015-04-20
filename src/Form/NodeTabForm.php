@@ -7,7 +7,6 @@
 
 namespace Drupal\simplenews\Form;
 
-use Drupal\Component\Utility\String;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;

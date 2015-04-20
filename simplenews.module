@@ -6,7 +6,7 @@
  */
 
 use Drupal\Component\Utility\Crypt;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -994,7 +994,7 @@ function simplenews_newsletter_load($newsletter_id, $reset = FALSE) {
 function simplenews_newsletter_list() {
   $newsletters = array();
   foreach (simplenews_newsletter_get_all() as $id => $newsletter) {
-    $newsletters[$id] = String::checkPlain($newsletter->label());
+    $newsletters[$id] = SafeMarkup::checkPlain($newsletter->label());
   }
   return $newsletters;
 }
@@ -1222,7 +1222,7 @@ function template_preprocess_simplenews_field(&$variables, $hook) {
   $element = $variables['element'];
 
   $variables['label_hidden'] = ($element['#label_display'] == 'hidden');
-  $variables['label'] = $variables['label_hidden'] ? NULL : String::checkPlain($element['#title']);
+  $variables['label'] = $variables['label_hidden'] ? NULL : SafeMarkup::checkPlain($element['#title']);
 
   $variables['items'] = array();
   foreach ($element['#items'] as $delta => $item) {

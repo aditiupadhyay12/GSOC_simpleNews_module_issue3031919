@@ -7,7 +7,7 @@
 
 namespace Drupal\simplenews\Form;
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -43,7 +43,7 @@ class SubscriberMassSubscribeForm extends FormBase {
     );
 
     foreach (simplenews_newsletter_get_all() as $id => $newsletter) {
-      $form['newsletters'][$id]['#description'] = String::checkPlain($newsletter->description);
+      $form['newsletters'][$id]['#description'] = SafeMarkup::checkPlain($newsletter->description);
     }
 
     $form['resubscribe'] = array(
@@ -119,7 +119,7 @@ class SubscriberMassSubscribeForm extends FormBase {
             $added[] = $email;
           }
           else {
-            $unsubscribed[String::checkPlain($newsletter->label())][] = $email;
+            $unsubscribed[SafeMarkup::checkPlain($newsletter->label())][] = $email;
           }
         }
       }

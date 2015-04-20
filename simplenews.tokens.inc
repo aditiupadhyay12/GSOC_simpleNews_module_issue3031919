@@ -5,7 +5,7 @@
  * Token related hook implementations.
  */
 
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Url;
 use Drupal\user\Entity\User;
 
@@ -138,7 +138,7 @@ function simplenews_tokens($type, $tokens, $data = array(), $options = array()) 
             break;
 
           case 'mail':
-            $replacements[$original] = $sanitize ? String::checkPlain($subscriber->getMail()) : $subscriber->getMail();
+            $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($subscriber->getMail()) : $subscriber->getMail();
             break;
         }
       }
@@ -158,7 +158,7 @@ function simplenews_tokens($type, $tokens, $data = array(), $options = array()) 
         switch ($name) {
           case 'name':
             if (isset($newsletter->name)) {
-              $replacements[$original] = $sanitize ? String::checkPlain($newsletter->name) : $newsletter->name;
+              $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($newsletter->name) : $newsletter->name;
             }
             else {
               $replacements[$original] = t('Unassigned newsletter');
