@@ -33,4 +33,3 @@ mail:
   debug: FALSE
   source_cache: \Drupal\simplenews\Source\SourceCacheBuild
   source: \Drupal\simplenews\Source\SourceEntity
-  source_node: \Drupal\simplenews\Source\SourceNode

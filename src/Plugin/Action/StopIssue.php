@@ -26,11 +26,10 @@ class StopIssue extends ActionBase {
    * {@inheritdoc}
    */
   public function executeMultiple(array $entities) {
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
     foreach ($entities as $node) {
       if ($node->simplenews_issue->status == SIMPLENEWS_STATUS_SEND_PENDING) {
         // Delete the mail spool entries of this newsletter issue.
-        $count = simplenews_delete_spool(array('nid' => $node->id()));
+        $count = \Drupal::service('simplenews.spool_storage')->deleteMails(array('nid' => $node->id()));
         // Set newsletter issue to not sent yet.
         $node->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_NOT;
         $node->save();

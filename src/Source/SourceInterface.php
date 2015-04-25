@@ -100,6 +100,11 @@ interface SourceInterface {
   function getKey();
 
   /**
+   * Set the mail key.
+   */
+  function setKey($key);
+
+  /**
    * Returns the formatted from mail address.
    */
   function getFromFormatted();

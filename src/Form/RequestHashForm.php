@@ -79,8 +79,7 @@ class RequestHashForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-    $params['from'] = _simplenews_set_from();
+    $params['from'] = \Drupal::service('simplenews.mailer')->getFrom();
     $params['context'] = $form_state->get('context');
     $subscriber = $params['context']['simplenews_subscriber'];
     \Drupal::service('plugin.manager.mail')->mail('simplenews', $form_state->get('key'), $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);

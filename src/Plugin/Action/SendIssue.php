@@ -28,7 +28,6 @@ class SendIssue extends ActionBase {
   public function executeMultiple(array $entities) {
     $nodes = array();
     $labels = array();
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
     foreach ($entities as $node) {
       if ($node->simplenews_issue->status != SIMPLENEWS_STATUS_SEND_NOT) {
         continue;
@@ -38,7 +37,7 @@ class SendIssue extends ActionBase {
         drupal_set_message(t('Newsletter issue %title is unpublished and will be sent on publish.', array('%title' => $node->label())));
         continue;
       }
-      simplenews_add_node_to_spool($node);
+      \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
       $nodes[$node->id()] = $node;
       $labels[$node->id()] = $node->label();
     }
@@ -46,7 +45,7 @@ class SendIssue extends ActionBase {
     if (!empty($nodes)) {
       $conditions = array('entity_id' => array_keys($nodes), 'entity_type' => 'node');
       // Attempt to send immediatly, if configured to do so.
-      if (simplenews_mail_attempt_immediate_send($conditions)) {
+      if (\Drupal::service('simplenews.mailer')->attemptImmediateSend($conditions)) {
         drupal_set_message(t('Sent the following newsletter(s): %titles.', array('%titles' => implode(', ', $labels))));
         $status = SIMPLENEWS_STATUS_SEND_READY;
       }

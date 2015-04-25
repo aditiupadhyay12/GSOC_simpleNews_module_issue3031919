@@ -20,7 +20,7 @@ abstract class SourceCacheStatic implements SourceCacheInterface {
   /**
    * The simplenews source for which this cache is used.
    *
-   * @var SourceNodeInterface
+   * @var \Drupal\simplenews\Source\SourceEntityInterface
    */
   protected $source;
 
@@ -35,7 +35,7 @@ abstract class SourceCacheStatic implements SourceCacheInterface {
   protected static $cache = array();
 
   /**
-   * Implements SourceCacheInterface::__construct().
+   * {@inheritdoc}
    */
   public function __construct(SourceEntityInterface $source) {
     $this->source = $source;
@@ -49,13 +49,13 @@ abstract class SourceCacheStatic implements SourceCacheInterface {
   protected function getCid() {
     if (empty($this->cid)) {
       $entity_id = $this->source->getEntity()->id();
-      $this->cid = $this->source->getEntityType() . ':' . $entity_id . ':' . $this->source->getLanguage();
+      $this->cid = $this->source->getEntity()->getEntityTypeId() . ':' . $entity_id . ':' . $this->source->getLanguage();
     }
     return $this->cid;
   }
 
   /**
-   * Implements SourceNodeInterface::get().
+   * {@inheritdoc}
    */
   public function get($group, $key) {
     if (!$this->isCacheable($group, $key)) {
@@ -68,7 +68,7 @@ abstract class SourceCacheStatic implements SourceCacheInterface {
   }
 
   /**
-   * Implements SourceNodeInterface::set().
+   * {@inheritdoc}
    */
   public function set($group, $key, $data) {
     if (!$this->isCacheable($group, $key)) {

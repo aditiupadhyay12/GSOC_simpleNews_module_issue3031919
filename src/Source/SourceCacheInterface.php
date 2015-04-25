@@ -10,7 +10,7 @@ namespace Drupal\simplenews\Source;
 /**
  * Interface for a simplenews source cache implementation.
  *
- * This is only compatible with the SourceNodeInterface interface.
+ * This is only compatible with the SourceEntityInterface interface.
  *
  * @ingroup source
  */

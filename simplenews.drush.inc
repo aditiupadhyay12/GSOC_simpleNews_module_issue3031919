@@ -4,6 +4,8 @@
  *
  * Drush commands for administer Simplenews.
  */
+use Drupal\simplenews\Mail\MailerInterface;
+use Drupal\simplenews\Spool\SpoolStorageInterface;
 
 /**
  * Implements hook_drush_command().
@@ -41,8 +43,8 @@ function simplenews_drush_command() {
  * Drush command to count the mail spool queue.
  */
 function drush_simplenews_spool_count() {
-  module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-  $count = simplenews_count_spool();
+
+  $count = \Drupal::service('simplenews.spool_storage')->countMails();
 
   $no_description = drush_get_option(array('p', 'pipe'));
   if ($no_description) {
@@ -62,26 +64,24 @@ function drush_simplenews_spool_send($limit = FALSE) {
     return;
   }
 
-  module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-
   if ($limit === FALSE) {
     $limit = variable_get('simplenews_throttle');
   }
   elseif ($limit == 0) {
-    $limit = SIMPLENEWS_UNLIMITED;
+    $limit = SpoolStorageInterface::UNLIMITED;
   }
 
   $start_time = microtime(TRUE);
 
-  $sent = simplenews_mail_spool($limit);
-  simplenews_clear_spool();
-  simplenews_send_status_update();
+  $sent = \Drupal::service('simplenews.mailer')->sendSpool($limit);
+  \Drupal::service('simplenews.spool_storage')->clear();
+  \Drupal::service('simplenews.mailer')->updateSendStatus();
 
   $durance = round(microtime(TRUE) - $start_time, 2);
 
   // Report the number of sent mails.
   if ($sent > 0) {
-    $remaining = simplenews_count_spool();
+    $remaining = \Drupal::service('simplenews.spool_storage')->countMesages();
     if (drush_get_option(array('p', 'pipe'))) {
       // For pipe, print the sent first and then the remaining count, separated by a space.
       drush_print_pipe($sent . " " . $remaining);

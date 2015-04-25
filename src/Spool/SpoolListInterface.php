@@ -2,38 +2,23 @@
 
 /**
  * @file
- * Contains \Drupal\simplenews\Source\SpoolInterface.
+ * Contains \Drupal\simplenews\Spool\SpoolListInterface.
  */
 
-namespace Drupal\simplenews\Source;
-
+namespace Drupal\simplenews\Spool;
 
 /**
- * A Simplenews spool implementation is a factory for Simplenews sources.
- *
- * Their main functionility is to return a number of sources based on the passed
- * in array of mail spool rows. Additionally, it needs to return the processed
- * mail rows after a source was sent.
- *
- * @todo: Move spool functions into this interface.
- *
- * @ingroup spool
+ * A list of spooled mails.
  */
-interface SpoolInterface {
-
-  /**
-   * Initalizes the spool implementation.
-   *
-   * @param $spool_list
-   *   An array of rows from the {simplenews_mail_spool} table.
-   */
-  function __construct($pool_list);
+interface SpoolListInterface extends \Countable {
 
   /**
    * Returns a Simplenews source to be sent.
    *
    * A single source may represent any number of mail spool rows, e.g. by
    * addressing them as BCC.
+   *
+   * @return \Drupal\simplenews\Source\SourceInterface
    */
   function nextSource();
 

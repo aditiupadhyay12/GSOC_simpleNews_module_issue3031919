@@ -2,24 +2,22 @@
 
 /**
  * @file
- * Contains \Drupal\simplenews\Source\Spool.
+ * Contains \Drupal\simplenews\Spool\SpoolList.
  */
 
-namespace Drupal\simplenews\Source;
+namespace Drupal\simplenews\Spool;
 
 /**
- * Simplenews Spool implementation.
- *
- * @ingroup spool
+ * List of mail spool entries.
  */
-class Spool implements SpoolInterface {
+class SpoolList implements SpoolListInterface {
 
   /**
    * Array with mail spool rows being processed.
    *
    * @var array
    */
-  protected $spool_list;
+  protected $mails;
 
   /**
    * Array of the processed mail spool rows.
@@ -27,19 +25,29 @@ class Spool implements SpoolInterface {
   protected $processed = array();
 
   /**
-   * Implements SpoolInterface::_construct($spool_list);
+   * Creates a spool list.
+   *
+   * @param array $mails
+   *   List of mail spool rows.
    */
-  public function __construct($spool_list) {
-    $this->spool_list = $spool_list;
+  public function __construct(array $mails) {
+    $this->mails = $mails;
   }
 
   /**
-   * Implements SpoolInterface::nextSource();
+   * {@inheritdoc}
+   */
+  public function count() {
+    return count($this->mails);
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function nextSource() {
     // Get the current mail spool row and update the internal pointer to the
     // next row.
-    $return = each($this->spool_list);
+    $return = each($this->mails);
     // If we're done, return false.
     if (!$return) {
       return FALSE;
@@ -54,7 +62,7 @@ class Spool implements SpoolInterface {
       // If the entity load failed, set the processed status done and proceed with
       // the next mail.
       $this->processed[$spool_data->msid]->result = array(
-        'status' => SIMPLENEWS_SPOOL_DONE,
+        'status' => SpoolStorageInterface::STATUS_DONE,
         'error' => TRUE
       );
       return $this->nextSource();
@@ -71,13 +79,15 @@ class Spool implements SpoolInterface {
       // If loading the subscriber failed, set the processed status done and
       // proceed with the next mail.
       $this->processed[$spool_data->msid]->result = array(
-        'status' => SIMPLENEWS_SPOOL_DONE,
+        'status' => SpoolStorageInterface::STATUS_DONE,
         'error' => TRUE
       );
       return $this->nextSource();
     }
 
-    $source_class = $this->getSourceImplementation($spool_data) ? '\Drupal\simplenews\Source\SourceNode' : '\Drupal\simplenews\Source\SourceNode';
+    $source_class = $this->getSourceImplementation($spool_data);
+
+    /** @var \Drupal\simplenews\Source\SourceEntityInterface $source */
     $source = new $source_class($entity, $subscriber, $spool_data->entity_type);
 
     // Set the langcode langcode.
@@ -86,7 +96,7 @@ class Spool implements SpoolInterface {
   }
 
   /**
-   * Implements SpoolInterface::getProcessed();
+   * {@inheritdoc}
    */
   function getProcessed() {
     $processed = $this->processed;
@@ -95,7 +105,10 @@ class Spool implements SpoolInterface {
   }
 
   /**
-   * Return the Simplenews source implementation for the given mail spool row.
+   * Return the source implementation for the given mail spool row.
+   *
+   * @return string
+   *   Source class name.
    */
   protected function getSourceImplementation($spool_data) {
     $config = \Drupal::config('simplenews.settings');

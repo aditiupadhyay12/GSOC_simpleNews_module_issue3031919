@@ -53,17 +53,15 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $node->simplenews_issue->handler = 'simplenews_all';
     $node->save();
 
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-
     // Send the node.
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     $node->save();
 
     // Send mails.
-    simplenews_mail_spool();
-    simplenews_clear_spool();
+    \Drupal::service('simplenews.mailer')->sendSpool();
+    \Drupal::service('simplenews.spool_storage')->clear();
     // Update sent status for newsletter admin panel.
-    simplenews_send_status_update();
+    \Drupal::service('simplenews.mailer')->updateSendStatus();
 
     // Verify mails.
     $mails = $this->drupalGetMails();
@@ -87,23 +85,23 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $node->save();
 
     // Send the node.
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     $node->save();
 
     // Make sure that they have been added.
-    $this->assertEqual(simplenews_count_spool(), 5);
+    $this->assertEqual(\Drupal::service('simplenews.spool_storage')->countMails(), 5);
 
     // Mark them as pending, fake a currently running send process.
-    $this->assertEqual(count(simplenews_get_spool(2)), 2);
+    $this->assertEqual(count(\Drupal::service('simplenews.spool_storage')->getMails(2)), 2);
 
     // Those two should be excluded from the count now.
-    $this->assertEqual(simplenews_count_spool(), 3);
+    $this->assertEqual(\Drupal::service('simplenews.spool_storage')->countMails(), 3);
 
     // Get two additional spool entries.
-    $this->assertEqual(count(simplenews_get_spool(2)), 2);
+    $this->assertEqual(count(\Drupal::service('simplenews.spool_storage')->getMails(2)), 2);
 
     // Now only one should be returned by the count.
-    $this->assertEqual(simplenews_count_spool(), 1);
+    $this->assertEqual(\Drupal::service('simplenews.spool_storage')->countMails(), 1);
   }
 
   /**
@@ -387,8 +385,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Send on publish does not send immediately.
     \Drupal::entityManager()->getStorage('node')->resetCache(array($node->id()));
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-    simplenews_mail_attempt_immediate_send(array(), FALSE);
+    \Drupal::service('simplenews.mailer')->attemptImmediateSend(array(), FALSE);
 
     // Verify state.
     \Drupal::entityManager()->getStorage('node')->resetCache(array($node->id()));
@@ -523,13 +520,13 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Update timestamp to simulate pending lock expiration.
     db_update('simplenews_mail_spool')
       ->fields(array(
-        'timestamp' => simplenews_get_expiration_time() - 1,
+        'timestamp' => REQUEST_TIME - $this->config('simplenews.settings')->get('mail.spool_progress_expiration') - 1,
       ))
       ->execute();
 
     // Verify that kept mail spool rows are not re-sent.
     simplenews_cron();
-    simplenews_get_spool();
+    \Drupal::service('simplenews.spool_storage')->getMails();
     $mails = $this->drupalGetMails();
     $this->assertEqual(5, count($mails), t('No additional mails have been sent.'));
 
@@ -581,17 +578,15 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $node->simplenews_issue->handler = 'simplenews_all';
     $node->save();
 
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-
     // Send the node.
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     $node->save();
 
     // Send mails.
-    simplenews_mail_spool();
-    simplenews_clear_spool();
+    \Drupal::service('simplenews.mailer')->sendSpool();
+    \Drupal::service('simplenews.spool_storage')->clear();
     // Update sent status for newsletter admin panel.
-    simplenews_send_status_update();
+    \Drupal::service('simplenews.mailer')->updateSendStatus();
 
     // Verify mails.
     $mails = $this->drupalGetMails();
@@ -635,17 +630,15 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $node->simplenews_issue->handler = 'simplenews_all';
     $node->save();
 
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-
     // Send the node.
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     $node->save();
 
     // Send mails.
-    simplenews_mail_spool();
-    simplenews_clear_spool();
+    \Drupal::service('simplenews.mailer')->sendSpool();
+    \Drupal::service('simplenews.spool_storage')->clear();
     // Update sent status for newsletter admin panel.
-    simplenews_send_status_update();
+    \Drupal::service('simplenews.mailer')->updateSendStatus();
 
     $mails = $this->drupalGetMails();
 

@@ -8,7 +8,10 @@
 namespace Drupal\simplenews\Source;
 
 use Drupal\Component\Utility\Unicode;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\file\Entity\File;
+use Drupal\simplenews\Mail\MailFormatHelper;
+use Drupal\simplenews\SubscriberInterface;
 use Drupal\user\Entity\User;
 
 /**
@@ -24,11 +27,6 @@ class SourceEntity implements SourceEntityInterface {
   protected $entity;
 
   /**
-   * The entity type.
-   */
-  protected $entity_type;
-
-  /**
    * The cached build render array.
    */
   protected $build;
@@ -40,6 +38,8 @@ class SourceEntity implements SourceEntityInterface {
 
   /**
    * The subscriber and therefore recipient of this mail.
+   *
+   * @var \Drupal\simplenews\SubscriberInterface
    */
   protected $subscriber;
 
@@ -58,9 +58,9 @@ class SourceEntity implements SourceEntityInterface {
   /**
    * Implements SourceEntityInterface::_construct();
    */
-  public function __construct($entity, $subscriber, $entity_type) {
+  public function __construct(ContentEntityInterface $entity, SubscriberInterface $subscriber) {
     $this->setSubscriber($subscriber);
-    $this->setEntity($entity, $entity_type);
+    $this->setEntity($entity);
     $this->initCache();
     $this->newsletter = $entity->simplenews_issue->entity;
   }
@@ -68,8 +68,7 @@ class SourceEntity implements SourceEntityInterface {
   /**
    * Set the entity of this source.
    */
-  public function setEntity($entity, $entity_type) {
-    $this->entity_type = $entity_type;
+  public function setEntity(ContentEntityInterface $entity) {
     $this->entity = $entity;
     if ($this->entity->hasTranslation($this->getLanguage())) {
       $this->entity = $this->entity->getTranslation($this->getLanguage());
@@ -95,7 +94,7 @@ class SourceEntity implements SourceEntityInterface {
   /**
    * Set the active subscriber.
    */
-  public function setSubscriber($subscriber) {
+  public function setSubscriber(SubscriberInterface $subscriber) {
     $this->subscriber = $subscriber;
   }
 
@@ -162,7 +161,7 @@ class SourceEntity implements SourceEntityInterface {
     return array(
       'newsletter' => $this->getNewsletter(),
       'simplenews_subscriber' => $this->getSubscriber(),
-      $this->getEntityType() => $this->getEntity(),
+      $this->getEntity()->getEntityTypeId() => $this->getEntity(),
     );
   }
 
@@ -220,17 +219,10 @@ class SourceEntity implements SourceEntityInterface {
   }
 
   /**
-   * Implements SourceEntityInterface::getEntity().
+   * {@inheritdoc}
    */
   function getEntity() {
     return $this->entity;
-  }
-
-  /**
-   * Implements SourceEntityInterface::getEntityType().
-   */
-  function getEntityType() {
-    return $this->entity_type;
   }
 
   /**
@@ -309,17 +301,17 @@ class SourceEntity implements SourceEntityInterface {
 
     // Build message body
     // Supported view modes: 'email_plain', 'email_html', 'email_textalt'
-    $build = \Drupal::entityManager()->getViewBuilder($this->getEntityType())->view($this->getEntity(), 'email_' . $format, $this->getLanguage());
-    $build['#entity_type'] = $this->getEntityType();
+    $build = \Drupal::entityManager()->getViewBuilder($this->getEntity()->getEntityTypeId())->view($this->getEntity(), 'email_' . $format, $this->getLanguage());
+    $build['#entity_type'] = $this->getEntity()->getEntityTypeId();
 
     // We need to prevent the standard theming hooks, but we do want to allow
     // modules such as panelizer that override it, so only clear the standard
     // entity hook and entity type hooks.
-    if ($build['#theme'] == 'entity' || $build['#theme'] == $this->getEntityType()) {
+    if ($build['#theme'] == 'entity' || $build['#theme'] == $this->getEntity()->getEntityTypeId()) {
       unset($build['#theme']);
     }
 
-    foreach (\Drupal::entityManager()->getFieldDefinitions($this->getEntityType(), $this->getEntity()->bundle()) as $field_name => $field) {
+    foreach (\Drupal::entityManager()->getFieldDefinitions($this->getEntity()->getEntityTypeId(), $this->getEntity()->bundle()) as $field_name => $field) {
       if (isset($build[$field_name])) {
         $build[$field_name]['#theme'] = 'simplenews_field';
       }
@@ -391,7 +383,7 @@ class SourceEntity implements SourceEntityInterface {
     $body = \Drupal::token()->replace($body, $this->getTokenContext(), array('sanitize' => FALSE, 'langcode' => $this->getLanguage()));
     if ($format == 'plain') {
       // Convert HTML to text if requested to do so.
-      $body = simplenews_html_to_text($body, $this->getNewsletter()->hyperlinks);
+      $body = MailFormatHelper::htmlToText($body, $this->getNewsletter()->hyperlinks);
     }
     $this->cache->set('final', 'body:' . $format, $body);
     $this->resetContext();
@@ -476,14 +468,13 @@ class SourceEntity implements SourceEntityInterface {
     $attachments = array();
     $build = $this->build();
     $fids = array();
-    $bundle = $this->getEntity()->bundle();
-    foreach ($this->getEntity()->getFieldDefinitions($this->getEntityType(), $bundle) as $field_name => $field_definition) {
+    foreach ($this->getEntity()->getFieldDefinitions() as $field_name => $field_definition) {
       // @todo: Find a better way to support more field types.
       // Only add fields of type file which are enabled for the current view
       // mode as attachments.
       if ($field_definition->getType() == 'file' && isset($build[$field_name])) {
 
-        if ($items = $this->node->get($field_name)) {
+        if ($items = $this->getEntity()->get($field_name)) {
           foreach ($items as $item) {
             $fids[] = $item->target_id;
           }

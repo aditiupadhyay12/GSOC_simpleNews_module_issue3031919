@@ -18,7 +18,6 @@ use Drupal\user\Entity\User;
 function simplenews_demo_install() {
 
   \Drupal::service('router.builder')->rebuild();
-  module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
 
   // Set the default values for test_address, from_address and from_name.
   $site_mail = \Drupal::config('system.site')->get('mail');
@@ -166,14 +165,14 @@ function simplenews_demo_install() {
   ));
   $node->save();
   // Send the node.
-  simplenews_add_node_to_spool($node);
+  \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
   $node->save();
   // Send mails.
-  simplenews_mail_spool();
+  \Drupal::service('simplenews.mailer')->sendSpool();
   // Run cron.
   \Drupal::service('cron')->run();
   // Update send status of newsletter issues.
-  simplenews_send_status_update();
+  \Drupal::service('simplenews.mailer')->updateSendStatus();
 
   // Create a newsletter issues with different send status.
   // Published newsletter, not yet sent.

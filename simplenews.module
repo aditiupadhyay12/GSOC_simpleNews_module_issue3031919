@@ -52,25 +52,6 @@ define('SIMPLENEWS_STATUS_SEND_READY', 2);
 define('SIMPLENEWS_STATUS_SEND_PUBLISH', 3);
 
 /**
- * MAIL SPOOL SENT STATUS
- */
-define('SIMPLENEWS_SPOOL_HOLD', 0);
-define('SIMPLENEWS_SPOOL_PENDING', 1);
-define('SIMPLENEWS_SPOOL_DONE', 2);
-define('SIMPLENEWS_SPOOL_IN_PROGRESS', 3);
-
-/**
- * AFTER EACH 100 NEWSLETTERS
- * simplenews_mail_spool() CHECKS IF LIMITS ARE EXCEEDED
- */
-define('SIMPLENEWS_SEND_CHECK_INTERVAL', 100);
-
-/**
- * AT 80% OF PHP MAX EXECUTION TIME EMAIL SENDING IS INTERRUPTED
- */
-define('SIMPLENEWS_SEND_TIME_LIMIT', 0.8);
-
-/**
  * SUBSCRIPTION STATUS
  */
 define('SIMPLENEWS_SUBSCRIPTION_INACTIVE', 0);
@@ -79,11 +60,6 @@ define('SIMPLENEWS_SUBSCRIPTION_ACTIVE', 1);
 define('SIMPLENEWS_OPT_INOUT_HIDDEN', 'hidden');
 define('SIMPLENEWS_OPT_INOUT_SINGLE', 'single');
 define('SIMPLENEWS_OPT_INOUT_DOUBLE', 'double');
-
-/**
- * Used when sending an unlimited amount of mails from the spool.
- */
-define('SIMPLENEWS_UNLIMITED', -1);
 
 /**
  * Implements hook_node_type_delete().
@@ -146,8 +122,7 @@ function simplenews_node_presave(NodeInterface $node) {
 
   // Check if the newsletter is set to send on publish and needs to be send.
   if ($node->simplenews_issue->status == SIMPLENEWS_STATUS_SEND_PUBLISH && $node->isPublished()) {
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
   }
 }
 
@@ -159,8 +134,7 @@ function simplenews_node_delete($node) {
     return;
   }
   // Check if pending emails of this newsletter issue exist and delete these too.
-  module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-  $count = simplenews_delete_spool(array('entity_id' => $node->id(), 'entity_type' => 'node'));
+  $count = \Drupal::service('simplenews.spool_storage')->deleteMails(array('entity_id' => $node->id(), 'entity_type' => 'node'));
   if ($count) {
     drupal_set_message(t('@count pending emails for %title were found and deleted.', array(
         '%title' => $node->getTitle(),
@@ -331,12 +305,11 @@ function simplenews_cron() {
   if (!simplenews_assert_uri()) {
     return;
   }
-  module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
   $config = \Drupal::config('simplenews.settings');
-  simplenews_mail_spool($config->get('mail.throttle'));
-  simplenews_clear_spool();
+  \Drupal::service('simplenews.mailer')->sendSpool($config->get('mail.throttle'));
+  \Drupal::service('simplenews.spool_storage')->clear();
   // Update sent status for newsletter admin panel.
-  simplenews_send_status_update();
+  \Drupal::service('simplenews.mailer')->updateSendStatus();
 }
 
 /**
@@ -532,6 +505,7 @@ function simplenews_user_delete(UserInterface $account) {
  */
 function simplenews_user_view(array &$build, UserInterface $account, EntityViewDisplayInterface $display, $view_mode, $langcode) {
   $user = \Drupal::currentUser();
+  $build['#cache']['contexts'][] = 'user.permissions';
   if ($user->id() == $account->id() || $user->hasPermission('administer users')) {
     if ($display->getComponent('simplenews')) {
       $build['simplenews'] = array(
@@ -658,7 +632,7 @@ function simplenews_subscribe($mail, $newsletter_id, $confirm = TRUE, $source = 
       $subscriber->save();
     }
 
-    simplenews_confirmation_send('subscribe', $subscriber, simplenews_newsletter_load($newsletter_id));
+    \Drupal::service('simplenews.mailer')->sendConfirmation('subscribe', $subscriber, simplenews_newsletter_load($newsletter_id));
   }
   elseif (!$subscriber->isSubscribed($newsletter_id)) {
     // Subscribe the user if not already subscribed.
@@ -706,7 +680,7 @@ function simplenews_unsubscribe($mail, $newsletter_id, $confirm = TRUE, $source 
       $subscriber->setMail($mail);
       $subscriber->save();
     }
-    simplenews_confirmation_send('unsubscribe', $subscriber, simplenews_newsletter_load($newsletter_id));
+    \Drupal::service('simplenews.mailer')->sendConfirmation('unsubscribe', $subscriber, simplenews_newsletter_load($newsletter_id));
   }
   elseif ($subscriber && $subscriber->isSubscribed($newsletter_id)) {
     // Unsubscribe the user from the mailing list.
@@ -920,22 +894,22 @@ function simplenews_recent_newsletters($newsletter_id, $count = 5) {
  *     provides the necessary information to build the newsletter mail.
  */
 function simplenews_mail($key, &$message, $params) {
-  module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
+  /** @var \Drupal\simplenews\Mail\MailBuilder $builder */
+  $builder = \Drupal::service('simplenews.mail_builder');
 
   switch ($key) {
     case 'node':
     case 'test':
-      simplenews_build_newsletter_mail($message, $params['simplenews_source']);
+      $builder->buildNewsletterMail($message, $params['simplenews_source']);
       break;
     case 'subscribe':
-      simplenews_build_subscribe_mail($message, $params);
-      break;
+      $builder->buildSubscribeMail($message, $params);
       break;
     case 'subscribe_combined':
-      simplenews_build_combined_mail($message, $params);
+      $builder->buildCombinedMail($message, $params);
       break;
     case 'unsubscribe':
-      simplenews_build_unsubscribe_mail($message, $params);
+      $builder->buildUnsubscribeMail($message, $params);
       break;
   }
 
@@ -955,8 +929,8 @@ function simplenews_mail($key, &$message, $params) {
  * @param $configuration
  *   An array of settings to pass to the handler class.
  *
- * @return SimplenewsRecipientHandlerInterface
- *   A constructed SimplenewsRecipientHandler class.
+ * @return \Drupal\simplenews\RecipientHandler\RecipientHandlerInterface
+ *   A constructed recipient handler plugin.
  *
  * @throws Exception if the handler class does not exist.
  */
@@ -977,7 +951,7 @@ function simplenews_get_recipient_handler($newsletter, $handler, $configuration 
  * @ingroup newsletter
  */
 function simplenews_newsletter_load($newsletter_id, $reset = FALSE) {
-  $newsletter = simplenews_newsletter_load_multiple(array($newsletter_id), array(), $reset);
+  $newsletter = simplenews_newsletter_load_multiple(array($newsletter_id), $reset);
   return $newsletter ? reset($newsletter) : NULL;
 }
 
@@ -1526,91 +1500,6 @@ function simplenews_confirmation_add_combined($action = NULL, $subscriber = NULL
 }
 
 /**
- * Send collected confirmations.
- *
- * Depending on the settings, always sends a combined confirmation,
- * only when there are multiple changes for a subscriber or never.
- *
- * Calling this functions also resets the combine flag so that later
- * confirmations are sent separately. simplenews_combine_confirmations() needs
- * to be called again to re-enable combining.
- *
- * @return
- *   TRUE if any confirmation mails have been sent.
- *
- * @todo This function currently does not return information about which
- *       subscriber received a confirmation.
- */
-function simplenews_confirmation_send_combined() {
-
-  // Disable combining for further confirmations.
-  simplenews_confirmation_combine(FALSE);
-  $group = simplenews_confirmation_add_combined();
-  foreach ($group as $mail => $changes) {
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-    $params['from'] = _simplenews_set_from();
-    $subscriber = simplenews_subscriber_load_by_mail($mail);
-    if (!$subscriber) {
-      $subscriber = Subscriber::create(array());
-      $subscriber->setMail($mail);
-      $subscriber->setLangcode(\Drupal::languageManager()->getCurrentLanguage());
-      $subscriber->save();
-    }
-    $params['context']['simplenews_subscriber'] = $subscriber;
-    // Send multiple if there is more than one change for this subscriber
-    // single otherwise.
-    $config = \Drupal::config('simplenews.settings');
-    $use_combined = $config->get('subscription.use_combined');
-    $subscriber->setChanges($changes);
-    if ((count($changes) > 1 && $use_combined != 'never') || $use_combined == 'always') {
-      $key = 'subscribe_combined';
-      \Drupal::service('plugin.manager.mail')->mail('simplenews', $key, $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
-    }
-    else {
-      foreach ($changes as $newsletter_id => $key) {
-        $params['context']['newsletter'] = simplenews_newsletter_load($newsletter_id);
-        \Drupal::service('plugin.manager.mail')->mail('simplenews', $key, $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
-      }
-    }
-
-    // Save the changes in the subscriber if there is a real subscriber object.
-    if ($subscriber && $subscriber->id()) {
-      $subscriber->save();
-    }
-  }
-  return !empty($group);
-}
-
-/**
- * Send a confirmation mail.
- *
- * Either sends a mail immediatly or collects them for a combined mail.
- *
- * @param $action
- *   The confirmation type, either subscribe or unsubscribe.
- * @param $subscriber
- *   The subscriber object.
- * @param $newsletter
- *   The newsletter object.
- */
-function simplenews_confirmation_send($action, $subscriber, $newsletter) {
-  // Check if confirmation should be sent immediatly or grouped.
-  if (simplenews_confirmation_combine()) {
-    simplenews_confirmation_add_combined($action, $subscriber, $newsletter);
-  }
-  else {
-    // Send confirmation email to user to complete (un)subscription.
-    // Confirmation mail is in the user preferred language which is by default the
-    // language_default().
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-    $params['from'] = _simplenews_set_from();
-    $params['context']['newsletter'] = $newsletter;
-    $params['context']['simplenews_subscriber'] = $subscriber;
-    \Drupal::service('plugin.manager.mail')->mail('simplenews', $action, $subscriber->mail, $subscriber->language, $params, $params['from']['address']);
-  }
-}
-
-/**
  * Converts an array of subscription changes into descriptions.
  *
  * @param $subscriber
@@ -1703,4 +1592,13 @@ function simplenews_mask_mail($mail) {
 function simplenews_field_formatter_info_alter(&$info) {
   $info['entity_reference_label']['field_types'][] = 'simplenews_subscription';
   $info['entity_reference_label']['field_types'][] = 'simplenews_issue';
+}
+
+/**
+ * Batch callback to dispatch batch operations to a service.
+ */
+function _simplenews_batch_dispatcher() {
+  $args = func_get_args();
+  list($service, $method) = explode(':', array_shift($args));
+  call_user_func_array(array(\Drupal::service($service), $method), $args);
 }

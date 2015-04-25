@@ -257,7 +257,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
       $confirm = simplenews_require_double_opt_in($newsletter_id, $this->entity->getUserId());
       simplenews_subscribe($this->entity->getMail(), $newsletter_id, $confirm, 'website');
     }
-    $sent = simplenews_confirmation_send_combined();
+    $sent = \Drupal::service('simplenews.mailer')->sendCombinedConfirmation();
     drupal_set_message($this->getSubmitMessage($form_state, static::SUBMIT_SUBSCRIBE, $sent));
   }
 
@@ -275,7 +275,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
       $confirm = simplenews_require_double_opt_in($newsletter_id, $this->entity->getUserId());
       simplenews_unsubscribe($this->entity->getMail(), $newsletter_id, $confirm, 'website');
     }
-    $sent = simplenews_confirmation_send_combined();
+    $sent = \Drupal::service('simplenews.mailer')->sendCombinedConfirmation();
     drupal_set_message($this->getSubmitMessage($form_state, static::SUBMIT_UNSUBSCRIBE, $sent));
   }
 

@@ -9,6 +9,8 @@ namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\simplenews\Mail\MailerInterface;
+use Drupal\simplenews\Spool\SpoolStorageInterface;
 
 /**
  * Configure simplenews newsletter settings.
@@ -59,7 +61,7 @@ class MailSettingsForm extends ConfigFormBase {
 
     $throttle_val = array(1, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000);
     $throttle = array_combine($throttle_val, $throttle_val);
-    $throttle[SIMPLENEWS_UNLIMITED] = $this->t('Unlimited');
+    $throttle[SpoolStorageInterface::UNLIMITED] = $this->t('Unlimited');
     if (function_exists('getrusage')) {
       $description_extra = '<br />' . $this->t('Cron execution must not exceed the PHP maximum execution time of %max seconds. You find the time spend to send emails in the <a href="/admin/reports/dblog">Recent log entries</a>.', array('%max' => ini_get('max_execution_time')));
     }

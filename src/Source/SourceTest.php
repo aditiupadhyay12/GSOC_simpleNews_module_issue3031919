@@ -63,6 +63,9 @@ class SourceTest implements SourceInterface {
     return 'node';
   }
 
+  public function setKey($key) {
+  }
+
   public function getLanguage() {
     return 'en';
   }

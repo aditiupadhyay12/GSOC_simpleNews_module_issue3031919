@@ -148,12 +148,11 @@ class NodeTabForm extends FormBase {
         $form['status']['#title'] = t('This newsletter issue has been sent to @count subscribers', array('@count' => $node->simplenews_issue->sent_count));
       }
       else {
-        module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
         if ($status == SIMPLENEWS_STATUS_SEND_PUBLISH) {
           $form['status']['#title'] = t('The newsletter issue will be sent when the content is published.');
         }
         else {
-          $form['status']['#title'] = t('This newsletter issue is pending, @count of @total mails already sent.', array('@count' => $node->simplenews_issue->sent_count, '@total' => simplenews_count_spool()));
+          $form['status']['#title'] = t('This newsletter issue is pending, @count of @total mails already sent.', array('@count' => $node->simplenews_issue->sent_count, '@total' => \Drupal::service('simplenews.spool_storage')->countMails(['entity_type' => 'node', 'entity_id' => $node->id()])));
         }
         $form['actions'] = array(
           '#type' => 'actions',
@@ -245,8 +244,7 @@ class NodeTabForm extends FormBase {
    *   An associative array containing the structure of the form.
    */
   public function submitTestMail(array &$form, FormStateInterface $form_state) {
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-    simplenews_send_test($form_state->get('node'), $form_state->get('test_addresses'));
+    \Drupal::service('simplenews.mailer')->sendTest($form_state->get('node'), $form_state->get('test_addresses'));
   }
 
   /**
@@ -257,10 +255,9 @@ class NodeTabForm extends FormBase {
    */
   public function submitSendNow(array &$form, FormStateInterface $form_state) {
     $node = $form_state->get('node');
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     // Attempt to send immediatly, if configured to do so.
-    if (simplenews_mail_attempt_immediate_send(array('entity_id' => $node->id(), 'entity_type' => 'node'))) {
+    if (\Drupal::service('simplenews.mailer')->attemptImmediateSend(array('entity_id' => $node->id(), 'entity_type' => 'node'))) {
       drupal_set_message(t('Newsletter %title sent.', array('%title' => $node->getTitle())));
     }
     else {
@@ -289,9 +286,8 @@ class NodeTabForm extends FormBase {
   public function submitStop(array &$form, FormStateInterface $form_state) {
     $node = $form_state->get('node');
 
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
     // Delete the mail spool entries of this newsletter issue.
-    $count = simplenews_delete_spool(array('nid' => $node->id()));
+    $count = \Drupal::service('simplenews.spool_storage')->deleteMails(array('nid' => $node->id()));
 
     // Set newsletter issue to not sent yet.
     $node->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_NOT;

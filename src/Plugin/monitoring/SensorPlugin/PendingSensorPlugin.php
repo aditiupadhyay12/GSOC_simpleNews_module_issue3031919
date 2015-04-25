@@ -8,6 +8,7 @@ namespace Drupal\simplenews\Plugin\monitoring\SensorPlugin;
 
 use Drupal\monitoring\Result\SensorResultInterface;
 use Drupal\monitoring\SensorPlugin\SensorPluginBase;
+use Drupal\simplenews\Spool\SpoolStorageInterface;
 
 /**
  * Monitors pending items in the simplenews mail spool.
@@ -30,7 +31,6 @@ class PendingSensorPlugin extends SensorPluginBase {
    * {@inheritdoc}
    */
   public function runSensor(SensorResultInterface $result) {
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-    $result->setValue(simplenews_count_spool(array('status' => SIMPLENEWS_SPOOL_PENDING)));
+    $result->setValue(\Drupal::service('simplenews.spool_storage')->countMails(array('status' => SpoolStorageInterface::STATUS_PENDING)));
   }
 }

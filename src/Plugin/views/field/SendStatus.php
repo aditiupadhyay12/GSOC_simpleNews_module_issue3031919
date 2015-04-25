@@ -55,7 +55,6 @@ class SendStatus extends FieldPluginBase {
    *   An array containing the elements of the message to be rendered.
    */
   protected function getMessage($node) {
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
     $status = $node->simplenews_issue->status;
     $sent_count = $node->simplenews_issue->sent_count;
     $published = $node->isPublished();

@@ -14,7 +14,7 @@ use Drupal\Component\Annotation\Plugin;
  *
  * Plugin Namespace: Plugin\RecipientHandler
  *
- * For a working example, see \Drupal\simplenews\Plugin\RecipientHandler\RecipientHandler
+ * For a working example, see \Drupal\simplenews\Plugin\simplenews\RecipientHandler\RecipientHandler
  *
  * @see \Drupal\simplenews\RecipientHandler\RecipientHandlerManager
  * @see \Drupal\simplenews\RecipientHandler\RecipientHandlerInterface

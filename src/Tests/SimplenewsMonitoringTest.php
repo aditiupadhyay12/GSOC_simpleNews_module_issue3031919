@@ -41,7 +41,7 @@ class SimplenewsMonitoringTest extends KernelTestBase {
     $this->assertEqual($result->getValue(), 0);
 
     // Crate a spool item in state pending.
-    simplenews_save_spool(array(
+    \Drupal::service('simplenews.spool_storage')->addMail(array(
       'mail' => 'mail@example.com',
       'entity_type' => 'node',
       'entity_id' => 1,

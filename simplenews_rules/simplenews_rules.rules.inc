@@ -188,8 +188,7 @@ function simplenews_rules_rules_event_info() {
 function simplenews_rules_action_send($node) {
   $newsletter = simplenews_newsletter_load($node->nid);
   if ($newsletter && ($newsletter->status != SIMPLENEWS_STATUS_SEND_PENDING || $newsletter->status != SIMPLENEWS_STATUS_SEND_PENDING)) {
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
   }
 }
 

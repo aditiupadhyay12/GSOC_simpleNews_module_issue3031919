@@ -12,6 +12,7 @@ namespace Drupal\simplenews\Tests;
 use Drupal\Component\Utility\Unicode;
 use Drupal\node\Entity\Node;
 use \Drupal\simplenews\Source\SourceTest;
+use Drupal\simplenews\Spool\SpoolStorageInterface;
 
 /**
  * Test cases for creating and sending newsletters.
@@ -22,8 +23,6 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
 
   function setUp() {
     parent::setUp();
-
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
 
     // Create the filtered_html text format.
     $filtered_html_format = entity_create('filter_format', array(
@@ -56,9 +55,6 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     ));
     $filtered_html_format->save();
 
-    // Refresh permissions.
-    $this->checkPermissions(array(), TRUE);
-
     $admin_user = $this->drupalCreateUser(array(
       'administer newsletters',
       'send newsletter',
@@ -80,7 +76,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
 
     // Create a basic plaintext test source and send it.
     $plain_source = new SourceTest('plain');
-    simplenews_send_source($plain_source);
+    \Drupal::service('simplenews.mailer')->sendSource($plain_source);
     $mails = $this->drupalGetMails();
     $mail = $mails[0];
 
@@ -102,7 +98,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertTrue(strpos($mail['body'], 'the plain footer') !== FALSE);
 
     $html_source = new SourceTest('html');
-    simplenews_send_source($html_source);
+    \Drupal::service('simplenews.mailer')->sendSource($html_source);
     $mails = $this->drupalGetMails();
     $mail = $mails[1];
 
@@ -149,13 +145,13 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = Node::load($matches[1]);
 
     // Add node to spool.
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     // Unsubscribe one of the recipients to make sure that he doesn't receive
     // the mail.
     simplenews_unsubscribe(array_shift($this->subscribers), $this->getRandomNewsletter(), FALSE, 'test');
 
     $before = microtime(TRUE);
-    simplenews_mail_spool();
+    \Drupal::service('simplenews.mailer')->sendSpool();
     $after = microtime(TRUE);
 
     // Make sure that 99 mails have been sent.
@@ -218,9 +214,9 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = Node::load($matches[1]);
 
     // Add node to spool.
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     // Send mails.
-    simplenews_mail_spool();
+    \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that 5 mails have been sent.
     $this->assertEqual(5, count($this->drupalGetMails()));
@@ -296,9 +292,9 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = Node::load($matches[1]);
 
     // Add node to spool.
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     // Send mails.
-    simplenews_mail_spool();
+    \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that 5 mails have been sent.
     $this->assertEqual(5, count($this->drupalGetMails()));
@@ -331,10 +327,10 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = Node::load($matches[1]);
 
     // Add node to spool.
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
 
     $before = microtime(TRUE);
-    simplenews_mail_spool();
+    \Drupal::service('simplenews.mailer')->sendSpool();
     $after = microtime(TRUE);
 
     // Make sure that 100 mails have been sent.
@@ -370,7 +366,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = Node::load($matches[1]);
 
     // Add node to spool.
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
 
     // Delete the node manually in the database.
     db_delete('node')
@@ -381,13 +377,13 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       ->execute();
     \Drupal::entityManager()->getStorage('node')->resetCache();
 
-    simplenews_mail_spool();
+    \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that no mails have been sent.
     $this->assertEqual(0, count($this->drupalGetMails()));
 
     $spool_row = db_query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
-    $this->assertEqual(SIMPLENEWS_SPOOL_DONE, $spool_row->status);
+    $this->assertEqual(SpoolStorageInterface::STATUS_DONE, $spool_row->status);
   }
 
   /**
@@ -406,18 +402,18 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = Node::load($matches[1]);
 
     // Add node to spool.
-    simplenews_add_node_to_spool($node);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
 
     // Delete the subscriber.
     $subscriber = simplenews_subscriber_load_by_mail(reset($this->subscribers));
     $subscriber->delete();
 
-    simplenews_mail_spool();
+    \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that no mails have been sent.
     $this->assertEqual(0, count($this->drupalGetMails()));
 
     $spool_row = db_query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
-    $this->assertEqual(SIMPLENEWS_SPOOL_DONE, $spool_row->status);
+    $this->assertEqual(SpoolStorageInterface::STATUS_DONE, $spool_row->status);
   }
 }

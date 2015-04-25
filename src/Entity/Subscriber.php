@@ -254,8 +254,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
       $this->subscriptions->appendItem($data);
     }
     // Clear eventually existing mail spool rows for this subscriber.
-    module_load_include('inc', 'simplenews', 'includes/simplenews.mail');
-    simplenews_delete_spool(array('snid' => $this->id(), 'newsletter_id' => $newsletter_id));
+    \Drupal::service('simplenews.spool_storage')->deleteMails(array('snid' => $this->id(), 'newsletter_id' => $newsletter_id));
 
     \Drupal::moduleHandler()->invokeAll('simplenews_unsubscribe', array($this, $newsletter_id));
   }
