@@ -91,7 +91,7 @@ interface SubscriberInterface extends ContentEntityInterface {
   /**
    * Returns the changes.
    *
-   * @return string
+   * @return array
    *   The subscriber changes.
    */
   public function getChanges();

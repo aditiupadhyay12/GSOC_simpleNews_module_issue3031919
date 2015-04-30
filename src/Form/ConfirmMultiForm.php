@@ -54,9 +54,12 @@ class ConfirmMultiForm extends ConfirmFormBase {
       '#markup' => '<p>' . t('Are you sure you want to confirm the following subscription changes for %user?', array('%user' => simplenews_mask_mail($subscriber->getMail()))) . "<p>\n",
     );
 
+    /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
+
     $form['changes'] = array(
       '#theme' => 'item_list',
-      '#items' => simplenews_confirmation_get_changes_list($subscriber),
+      '#items' => $subscription_manager->getChangesList($subscriber),
     );
 
     $form['subscriber'] = array(

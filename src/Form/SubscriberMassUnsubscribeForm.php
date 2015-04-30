@@ -68,12 +68,14 @@ class SubscriberMassUnsubscribeForm extends FormBase {
     $invalid = array();
     $checked_lists = array_keys(array_filter($form_state->getValue('newsletters')));
 
+    /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
     $emails = preg_split("/[\s,]+/", $form_state->getValue('emails'));
     foreach ($emails as $email) {
       $email = trim($email);
       if (valid_email_address($email)) {
         foreach ($checked_lists as $newsletter_id) {
-          simplenews_unsubscribe($email, $newsletter_id, FALSE, 'mass unsubscribe');
+          $subscription_manager->unsubscribe($email, $newsletter_id, FALSE, 'mass unsubscribe');
           $removed[] = $email;
         }
       }

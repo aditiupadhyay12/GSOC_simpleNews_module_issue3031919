@@ -417,13 +417,15 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertTrue(in_array($all_mail, $exported_mails));
     $this->assertTrue(in_array($first_mail, $exported_mails));
 
+    /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
 
     // Make sure there are unconfirmed subscriptions.
     $unconfirmed = array();
     $unconfirmed[] = $this->randomEmail();
     $unconfirmed[] = $this->randomEmail();
     foreach ($unconfirmed as $mail) {
-      simplenews_subscribe($mail, $first, TRUE);
+      $subscription_manager->subscribe($mail, $first, TRUE);
     }
 
     // Only export unconfirmed mail addresses.
@@ -443,7 +445,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertTrue(in_array($unconfirmed[1], $exported_mails));
 
     // Make sure the user is subscribed to the first newsletter_id.
-    simplenews_subscribe($user_mail, $first, FALSE);
+    $subscription_manager->subscribe($user_mail, $first, FALSE);
     $before_count = simplenews_count_subscriptions($first);
 
     // Block the user.
@@ -461,10 +463,10 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     for ($i = 0; $i < 3; $i++) {
       $tested_subscribers[] = $this->randomEmail();
     }
-    simplenews_subscribe($tested_subscribers[0], $first, FALSE);
-    simplenews_subscribe($tested_subscribers[1], $first, FALSE);
-    simplenews_unsubscribe($tested_subscribers[0], $first, FALSE);
-    simplenews_unsubscribe($tested_subscribers[1], $first, FALSE);
+    $subscription_manager->subscribe($tested_subscribers[0], $first, FALSE);
+    $subscription_manager->subscribe($tested_subscribers[1], $first, FALSE);
+    $subscription_manager->unsubscribe($tested_subscribers[0], $first, FALSE);
+    $subscription_manager->unsubscribe($tested_subscribers[1], $first, FALSE);
     $unsubscribed = implode(', ', array_slice($tested_subscribers, 0, 2));
     $edit = array(
       'emails' => implode(', ', $tested_subscribers),
@@ -473,10 +475,10 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $this->drupalPostForm('admin/people/simplenews/import', $edit, t('Subscribe'));
     \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
-    drupal_static_reset('simplenews_user_is_subscribed');
-    $this->assertFalse(simplenews_user_is_subscribed($tested_subscribers[0], $first, t('Subscriber not resubscribed through mass subscription.')));
-    $this->assertFalse(simplenews_user_is_subscribed($tested_subscribers[1], $first, t('Subscriber not resubscribed through mass subscription.')));
-    $this->assertTrue(simplenews_user_is_subscribed($tested_subscribers[2], $first, t('Subscriber subscribed through mass subscription.')));
+    $subscription_manager->reset();
+    $this->assertFalse($subscription_manager->isSubscribed($tested_subscribers[0], $first), t('Subscriber not resubscribed through mass subscription.'));
+    $this->assertFalse($subscription_manager->isSubscribed($tested_subscribers[1], $first), t('Subscriber not resubscribed through mass subscription.'));
+    $this->assertTrue($subscription_manager->isSubscribed($tested_subscribers[2], $first), t('Subscriber subscribed through mass subscription.'));
     $substitutes = array('@name' => SafeMarkup::checkPlain(simplenews_newsletter_load($first)->label()), '@mail' => $unsubscribed);
     $this->assertText(t('The following addresses were skipped because they have previously unsubscribed from @name: @mail.', $substitutes));
     $this->assertText(t("If you would like to resubscribe them, use the 'Force resubscription' option."));
@@ -501,11 +503,11 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     );
     $this->drupalPostForm('admin/people/simplenews/import', $edit, t('Subscribe'));
 
-    drupal_static_reset('simplenews_user_is_subscribed');
+    $subscription_manager->reset();
     \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
-    $this->assertTrue(simplenews_user_is_subscribed($tested_subscribers[0], $first, t('Subscriber resubscribed trough mass subscription.')));
-    $this->assertTrue(simplenews_user_is_subscribed($tested_subscribers[1], $first, t('Subscriber resubscribed trough mass subscription.')));
-    $this->assertTrue(simplenews_user_is_subscribed($tested_subscribers[2], $first, t('Subscriber subscribed trough mass subscription.')));
+    $this->assertTrue($subscription_manager->isSubscribed($tested_subscribers[0], $first, t('Subscriber resubscribed trough mass subscription.')));
+    $this->assertTrue($subscription_manager->isSubscribed($tested_subscribers[1], $first, t('Subscriber resubscribed trough mass subscription.')));
+    $this->assertTrue($subscription_manager->isSubscribed($tested_subscribers[2], $first, t('Subscriber subscribed trough mass subscription.')));
 
     // Try to mass unsubscribe without specifying newsletters.
     $tested_subscribers[2] = $this->randomEmail();
@@ -560,8 +562,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     );
     $this->drupalPostForm(NULL, $edit, t('Save'));
     \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
-    drupal_static_reset('simplenews_user_is_subscribed');
-    $this->assertFalse(simplenews_user_is_subscribed($subscriber->getMail(), $this->getRandomNewsletter(), t('Subscriber is not active')));
+    $subscription_manager->reset();
+    $this->assertFalse($subscription_manager->isSubscribed($subscriber->getMail(), $this->getRandomNewsletter()), t('Subscriber is not active'));
 
     // Re-enable account.
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
@@ -572,8 +574,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     );
     $this->drupalPostForm(NULL, $edit, t('Save'));
     \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
-    drupal_static_reset('simplenews_user_is_subscribed');
-    $this->assertTrue(simplenews_user_is_subscribed($subscriber->getMail(), $this->getRandomNewsletter(), t('Subscriber is active again.')));
+    $subscription_manager->reset();
+    $this->assertTrue($subscription_manager->isSubscribed($subscriber->getMail(), $this->getRandomNewsletter()), t('Subscriber is active again.'));
 
     // Remove the newsletter.
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
@@ -586,16 +588,16 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $edit['subscriptions[' . $newsletter_id . ']'] = FALSE;
     $this->drupalPostForm(NULL, $edit, t('Save'));
     \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
-    drupal_static_reset('simplenews_user_is_subscribed');
+    $subscription_manager->reset();
     $nlids = $subscriber->getSubscribedNewsletterIds();
-    $this->assertFalse(simplenews_user_is_subscribed($subscriber->getMail(), reset($nlids), t('Subscriber not subscribed anymore.')));
+    $this->assertFalse($subscription_manager->isSubscribed($subscriber->getMail(), reset($nlids)), t('Subscriber not subscribed anymore.'));
 
     // @todo Test Admin subscriber edit preferred language $subscription->language
 
     // Register a subscriber with an insecure e-mail address through the API
     // and make sure the address is correctly encoded.
     $xss_mail = "<script>alert('XSS');</script>";
-    simplenews_subscribe($xss_mail, $this->getRandomNewsletter(), FALSE);
+    $subscription_manager->subscribe($xss_mail, $this->getRandomNewsletter(), FALSE);
     $this->drupalGet('admin/people/simplenews');
     $this->assertNoRaw($xss_mail);
     $this->assertRaw(SafeMarkup::checkPlain($xss_mail));

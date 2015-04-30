@@ -78,31 +78,13 @@ interface MailerInterface {
    * Depending on the settings, always sends a combined confirmation,
    * only when there are multiple changes for a subscriber or never.
    *
-   * Calling this functions also resets the combine flag so that later
-   * confirmations are sent separately. simplenews_combine_confirmations() needs
-   * to be called again to re-enable combining.
-   *
    * @return bool
    *   TRUE if any confirmation mails have been sent.
    *
    * @todo This function currently does not return information about which
    *       subscriber received a confirmation.
    */
-  function sendCombinedConfirmation();
-
-  /**
-   * Send a confirmation mail.
-   *
-   * Either sends a mail immediatly or collects them for a combined mail.
-   *
-   * @param string $action
-   *   The confirmation type, either subscribe or unsubscribe.
-   * @param \Drupal\simplenews\SubscriberInterface $subscriber
-   *   The subscriber object.
-   * @param \Drupal\simplenews\NewsletterInterface $newsletter
-   *   The newsletter object.
-   */
-  function sendConfirmation($action, SubscriberInterface $subscriber, NewsletterInterface $newsletter);
+  function sendCombinedConfirmation(SubscriberInterface $subscriber);
 
   /**
    * Update newsletter sent status.

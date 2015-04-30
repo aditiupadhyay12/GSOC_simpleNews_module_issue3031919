@@ -13,4 +13,9 @@ services:
     arguments: ['@simplenews.spool_storage', '@plugin.manager.mail', '@state', '@logger.channel.simplenews', '@account_switcher', '@lock', '@config.factory']
   simplenews.mail_builder:
     class: Drupal\simplenews\Mail\MailBuilder
-    arguments: ['@token', '@config.factory']
+    arguments: ['@token', '@config.factory', '@simplenews.subscription_manager']
+  simplenews.subscription_manager:
+    class: Drupal\simplenews\Subscription\SubscriptionManager
+    arguments: ['@language_manager', '@config.factory', '@simplenews.mailer', '@token', '@logger.channel.simplenews', '@current_user']
+    tags:
+      - { name: needs_destruction }

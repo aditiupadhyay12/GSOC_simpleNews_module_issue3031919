@@ -109,13 +109,17 @@ class SubscriberMassSubscribeForm extends FormBase {
       }
       if (valid_email_address($email)) {
         $subscriber = simplenews_subscriber_load_by_mail($email);
+
+        /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+        $subscription_manager = \Drupal::service('simplenews.subscription_manager');
+
         foreach (simplenews_newsletter_load_multiple($checked_newsletters) as $newsletter) {
           // If there is a valid subscriber, check if there is a subscription for
           // the current newsletter and if this subscription has the status
           // unsubscribed.
           $is_unsubscribed = $subscriber ? $subscriber->isUnsubscribed($newsletter->id()) : FALSE;
           if (!$is_unsubscribed || $form_state->getValue('resubscribe') == TRUE) {
-            simplenews_subscribe($email, $newsletter->id(), FALSE, 'mass subscribe', $langcode);
+            $subscription_manager->subscribe($email, $newsletter->id(), FALSE, 'mass subscribe', $langcode);
             $added[] = $email;
           }
           else {

@@ -74,13 +74,17 @@ class ConfirmationController extends ControllerBase {
         return $build;
       }
       else {
+
+        /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+        $subscription_manager = \Drupal::service('simplenews.subscription_manager');
+
         // Redirect and display message if no changes are available.
         foreach ($subscriber->getChanges() as $newsletter_id => $action) {
           if ($action == 'subscribe') {
-            simplenews_subscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
+            $subscription_manager->subscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
           }
           elseif ($action == 'unsubscribe') {
-            simplenews_unsubscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
+            $subscription_manager->unsubscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
           }
         }
 
@@ -180,8 +184,12 @@ class ConfirmationController extends ControllerBase {
         }
       }
       else {
+
+        /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+        $subscription_manager = \Drupal::service('simplenews.subscription_manager');
+
         if ($action == 'remove') {
-          simplenews_unsubscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
+          $subscription_manager->unsubscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
           if ($path = $config->get('subscription.confirm_unsubscribe_page')) {
             return $this->redirect(Url::fromUri("internal:/$path")->getRouteName());
           }
@@ -189,7 +197,7 @@ class ConfirmationController extends ControllerBase {
           return $this->redirect('<front>');
         }
         elseif ($action == 'add') {
-          simplenews_subscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
+          $subscription_manager->subscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
           if ($path = $config->get('subscription.confirm_subscribe_page')) {
             return $this->redirect(Url::fromUri("internal:/$path")->getRouteName());
           }

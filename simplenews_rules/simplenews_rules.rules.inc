@@ -203,7 +203,7 @@ function simplenews_rules_action_subscribe($args, $settings) {
   $confirmation = simplenews_rules_map_confirmation($args);
 
   // Pass the call forward.
-  simplenews_subscribe($args['mail'], $args['tid'], $confirmation, $args['source'], $args['language']);
+  \Drupal::service('simplenews.subscription_manager')->subscribe($args['mail'], $args['tid'], $confirmation, $args['source'], $args['language']);
 }
 
 /**
@@ -217,7 +217,7 @@ function simplenews_rules_action_unsubscribe($args, $settings) {
   $confirmation = simplenews_rules_map_confirmation($args);
 
   // Pass the call forward.
-  simplenews_unsubscribe($args['mail'], $args['tid'], $confirmation, $args['source'], $args['language']);
+  \Drupal::service('simplenews.subscription_manager')->unsubscribe($args['mail'], $args['tid'], $confirmation, $args['source'], $args['language']);
 }
 
 /**
@@ -225,7 +225,7 @@ function simplenews_rules_action_unsubscribe($args, $settings) {
  */
 function simplenews_rules_action_subscription_delete($args, $settings) {
   if (!empty($args['mail']) && !empty($args['tid'])){
-    simplenews_subscription_delete(array('mail' => $args['mail'], 'tid' => $args['tid']));
+    \Drupal::service('simplenews.subscription_manager')->deleteSubscriptions(array('mail' => $args['mail'], 'tid' => $args['tid']));
   }
 }
 
@@ -235,7 +235,7 @@ function simplenews_rules_action_subscription_delete($args, $settings) {
 function simplenews_rules_action_subscriber_delete($args, $settings) {
   $subscriber = simplenews_subscriber_load_by_mail($args['mail']);
   if ($subscriber) {
-    simplenews_subscriber_delete($subscriber->snid);
+    $subscriber->delete();
   }
 }
 
@@ -251,8 +251,7 @@ function simplenews_rules_map_confirmation($args) {
       $confirmation = FALSE;
       break;
     case SIMPLENEWS_RULES_CONFIRMATION_DEFAULT:
-      $account = simplenews_load_user_by_mail($args['mail']);
-      $confirmation = simplenews_require_double_opt_in($args['tid'], $account);
+      $confirmation = NULL;
       break;
   }
   return $confirmation;

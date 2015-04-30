@@ -151,8 +151,12 @@ class Newsletter extends ConfigEntityBase implements NewsletterInterface {
    */
   public static function postDelete(EntityStorageInterface $storage, array $entities) {
     parent::postDelete($storage, $entities);
+
+    /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
+
     foreach ($entities as $newsletter) {
-      simplenews_subscription_delete(array('subscriptions_target_id' => $newsletter->id()));
+      $subscription_manager->deleteSubscriptions(array('subscriptions_target_id' => $newsletter->id()));
       drupal_set_message(t('All subscriptions to newsletter %newsletter have been deleted.', array('%newsletter' => $newsletter->label())));
     }
 

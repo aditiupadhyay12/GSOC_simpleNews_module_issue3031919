@@ -350,59 +350,22 @@ class Mailer implements MailerInterface {
   /**
    * {@inheritdoc}
    */
-  function sendCombinedConfirmation() {
-    // Disable combining for further confirmations.
-    simplenews_confirmation_combine(FALSE);
-    $group = simplenews_confirmation_add_combined();
-    foreach ($group as $mail => $changes) {
-      $params['from'] = $this->getFrom();
-      $subscriber = simplenews_subscriber_load_by_mail($mail);
-      if (!$subscriber) {
-        $subscriber = Subscriber::create(array());
-        $subscriber->setMail($mail);
-        $subscriber->setLangcode(\Drupal::languageManager()->getCurrentLanguage());
-        $subscriber->save();
-      }
-      $params['context']['simplenews_subscriber'] = $subscriber;
-      // Send multiple if there is more than one change for this subscriber
-      // single otherwise.
-      $use_combined = $this->config->get('subscription.use_combined');
-      $subscriber->setChanges($changes);
-      if ((count($changes) > 1 && $use_combined != 'never') || $use_combined == 'always') {
-        $key = 'subscribe_combined';
-        $this->mailManager->mail('simplenews', $key, $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
-      }
-      else {
-        foreach ($changes as $newsletter_id => $key) {
-          $params['context']['newsletter'] = simplenews_newsletter_load($newsletter_id);
-          $this->mailManager->mail('simplenews', $key, $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
-        }
-      }
-
-      // Save the changes in the subscriber if there is a real subscriber object.
-      if ($subscriber && $subscriber->id()) {
-        $subscriber->save();
-      }
-    }
-    return !empty($group);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  function sendConfirmation($action, SubscriberInterface $subscriber, NewsletterInterface $newsletter) {
-    // Check if confirmation should be sent immediatly or grouped.
-    if (simplenews_confirmation_combine()) {
-      simplenews_confirmation_add_combined($action, $subscriber, $newsletter);
+  public function sendCombinedConfirmation(SubscriberInterface $subscriber) {
+    $params['from'] = $this->getFrom();
+    $params['context']['simplenews_subscriber'] = $subscriber;
+    // Send multiple if there is more than one change for this subscriber
+    // single otherwise.
+    $use_combined = $this->config->get('subscription.use_combined');
+    $changes = $subscriber->getChanges();
+    if ((count($changes) > 1 && $use_combined != 'never') || $use_combined == 'always') {
+      $key = 'subscribe_combined';
+      $this->mailManager->mail('simplenews', $key, $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
     }
     else {
-      // Send confirmation email to user to complete (un)subscription.
-      // Confirmation mail is in the user preferred language which is by default the
-      // language_default().
-      $params['from'] = $this->getFrom();
-      $params['context']['newsletter'] = $newsletter;
-      $params['context']['simplenews_subscriber'] = $subscriber;
-      $this->mailManager->mail('simplenews', $action, $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
+      foreach ($changes as $newsletter_id => $key) {
+        $params['context']['newsletter'] = simplenews_newsletter_load($newsletter_id);
+        $this->mailManager->mail('simplenews', $key, $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
+      }
     }
   }
 

@@ -236,7 +236,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
   protected function copyFormValuesToEntity(EntityInterface $entity, array $form, FormStateInterface $form_state) {
     // Subscriptions are handled later, in the submit callbacks through
     // ::getSelectedNewsletters(). Letting them be copied here would break
-    // simplenews_subscribe() and simplenews_unsubscribe().
+    // subscription management.
     $subsciptions_value = $form_state->getValue('subscriptions');
     $form_state->unsetValue('subscriptions');
     parent::copyFormValuesToEntity($entity, $form, $form_state);
@@ -252,12 +252,12 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
    *   The form state object.
    */
   public function submitSubscribe(array $form, FormStateInterface $form_state) {
-    simplenews_confirmation_combine(TRUE);
+    /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
     foreach ($this->extractNewsletterIds($form_state, TRUE) as $newsletter_id) {
-      $confirm = simplenews_require_double_opt_in($newsletter_id, $this->entity->getUserId());
-      simplenews_subscribe($this->entity->getMail(), $newsletter_id, $confirm, 'website');
+      $subscription_manager->subscribe($this->entity->getMail(), $newsletter_id, NULL, 'website');
     }
-    $sent = \Drupal::service('simplenews.mailer')->sendCombinedConfirmation();
+    $sent = $subscription_manager->sendConfirmations();
     drupal_set_message($this->getSubmitMessage($form_state, static::SUBMIT_SUBSCRIBE, $sent));
   }
 
@@ -270,12 +270,12 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
    *   The form state object.
    */
   public function submitUnsubscribe(array $form, FormStateInterface $form_state) {
-    simplenews_confirmation_combine(TRUE);
+    /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
     foreach ($this->extractNewsletterIds($form_state, TRUE) as $newsletter_id) {
-      $confirm = simplenews_require_double_opt_in($newsletter_id, $this->entity->getUserId());
-      simplenews_unsubscribe($this->entity->getMail(), $newsletter_id, $confirm, 'website');
+      $subscription_manager->unsubscribe($this->entity->getMail(), $newsletter_id, NULL, 'website');
     }
-    $sent = \Drupal::service('simplenews.mailer')->sendCombinedConfirmation();
+    $sent = $subscription_manager->sendConfirmations();
     drupal_set_message($this->getSubmitMessage($form_state, static::SUBMIT_UNSUBSCRIBE, $sent));
   }
 
@@ -290,11 +290,13 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
   public function submitUpdate(array $form, FormStateInterface $form_state) {
     // We first subscribe, then unsubscribe. This prevents deletion of
     // subscriptions when unsubscribed from the newsletter.
+    /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
     foreach ($this->extractNewsletterIds($form_state, TRUE) as $newsletter_id) {
-      simplenews_subscribe($this->entity->getMail(), $newsletter_id, FALSE, 'website');
+      $subscription_manager->subscribe($this->entity->getMail(), $newsletter_id, FALSE, 'website');
     }
     foreach ($this->extractNewsletterIds($form_state, FALSE) as $newsletter_id) {
-      simplenews_unsubscribe($this->entity->getMail(), $newsletter_id, FALSE, 'website');
+      $subscription_manager->unsubscribe($this->entity->getMail(), $newsletter_id, FALSE, 'website');
     }
     drupal_set_message($this->getSubmitMessage($form_state, static::SUBMIT_UPDATE, FALSE));
   }

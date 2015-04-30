@@ -368,17 +368,20 @@ function simplenews_form_user_register_form_alter(&$form, FormStateInterface $fo
 function simplenews_user_profile_form_submit($form, FormStateInterface $form_state) {
   $account = $form_state->getFormObject()->getEntity();
   // Process subscription check boxes.
+
+  /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+  $subscription_manager = \Drupal::service('simplenews.subscription_manager');
   if ($form_state->getValue('subscriptions')) {
     $newsletters = simplenews_newsletter_load_multiple(array_filter($form_state->getValue('subscriptions')));
     foreach ($newsletters as $newsletter) {
-      simplenews_subscribe($account->getEmail(), $newsletter->id(), FALSE, 'website', $account->getPreferredLangcode());
+      $subscription_manager->subscribe($account->getEmail(), $newsletter->id(), FALSE, 'website', $account->getPreferredLangcode());
       drupal_set_message(t('You have been subscribed to %newsletter.', array('%newsletter' => $newsletter->name)));
     }
   }
   // Process hidden (automatic) subscriptions.
   if ($form_state->getValue('simplenews_hidden')) {
     foreach (explode(',', $form_state->getValue('simplenews_hidden')) as $newsletter_id) {
-      simplenews_subscribe($account->getEmail(), $newsletter_id, FALSE, 'automatically', $account->getPreferredLangcode());
+      $subscription_manager->subscribe($account->getEmail(), $newsletter_id, FALSE, 'automatically', $account->getPreferredLangcode());
     }
   }
 
@@ -554,216 +557,6 @@ function simplenews_user_view(array &$build, UserInterface $account, EntityViewD
       }
     }
   }
-}
-
-/**
- * Subscribe a user to a newsletter or send a confirmation mail.
- *
- * The $confirm parameter determines the action:
- *   FALSE = The user is subscribed
- *   TRUE  = User receives an email to verify the address and complete the subscription
- * A new subscription account is created when the user is subscribed to the first newsletter
- *
- * @param string $mail
- *   The email address to subscribe to the newsletter.
- * @param integer $newsletter_id
- *   The newsletter ID.
- * @param boolean $confirm
- *   TRUE = send confirmation mail; FALSE = subscribe immediate to the newsletter
- * @param string $preferred_langcode
- *   The language code (i.e. 'en', 'nl') of the user preferred language.
- *   Use '' for the site default language.
- *   Use NULL for the language of the current page.
- * @param string $source
- *   Indication for source of subscription. Simplenews uses these sources:
- *    website: via any website form (with or without confirmation email)
- *    mass subscribe: mass admin UI
- *    mass unsubscribe: mass admin UI
- *    action: Drupal actions
- *
- * @ingroup subscription
- */
-function simplenews_subscribe($mail, $newsletter_id, $confirm = TRUE, $source = 'unknown', $preferred_langcode = NULL) {
-  // Get current subscriptions if any.
-  $subscriber = simplenews_subscriber_load_by_mail($mail);
-
-  // If user is not subscribed to ANY newsletter, create a subscription account
-  if (!$subscriber) {
-    // To subscribe a user:
-    //   - Fetch the users uid.
-    //   - Determine the user preferred language.
-    //   - Add the user to the database.
-    //   - Get the full subscription object based on the mail address.
-    // Note that step 3 gets subscription data based on mail address because the uid can be 0 (for anonymous users)
-    $account = user_load_by_mail($mail);
-
-    // If the site is multilingual:
-    //  - Anonymous users are subscribed with their preferred language
-    //    equal to the language of the current page.
-    //  - Registered users will be subscribed with their default language as
-    //    set in their account settings.
-    // By default the preferred language is not set.
-    if (\Drupal::languageManager()->isMultilingual()) {
-      if ($account) {
-        $preferred_langcode = $account->getPreferredLangcode();
-      }
-      else {
-        $preferred_langcode = isset($preferred_langcode) ? $preferred_langcode : \Drupal::languageManager()->getCurrentLanguage();
-      }
-    }
-    else {
-      $preferred_langcode = '';
-    }
-
-    $subscriber = Subscriber::create(array());
-    $subscriber->setMail($mail);
-    if ($account) {
-      $subscriber->setUserId($account->id());
-    }
-    $subscriber->setLangcode($preferred_langcode);
-    $subscriber->setStatus(1);
-    $subscriber->save();
-  }
-
-  if ($confirm) {
-    // Create an unconfirmed subscription object if it doesn't exist yet.
-    if (!$subscriber->isSubscribed($newsletter_id)) {
-      $subscriber->subscribe($newsletter_id, SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED, $source);
-      $subscriber->save();
-    }
-
-    \Drupal::service('simplenews.mailer')->sendConfirmation('subscribe', $subscriber, simplenews_newsletter_load($newsletter_id));
-  }
-  elseif (!$subscriber->isSubscribed($newsletter_id)) {
-    // Subscribe the user if not already subscribed.
-    $subscriber->subscribe($newsletter_id, SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $source);
-    $subscriber->save();
-  }
-  return TRUE;
-}
-
-/**
- * Unsubscribe a user from a mailing list or send a confirmation mail.
- *
- * The $confirm parameter determines the action:
- *   FALSE = The user is unsubscribed
- *   TRUE  = User receives an email to verify the address and complete the subscription cancellation
- *
- * @param $mail
- *   The email address to unsubscribe from the mailing list.
- * @param $newsletter_id
- *   The newsletter ID.
- * @param $confirm
- *   If TRUE, send a confirmation mail; if FALSE, unsubscribe immediately.
- * @param $source
- *   Indicates the unsubscribe source. Simplenews uses these sources:
- *   - website: Via any website form (with or without confirmation email).
- *   - mass subscribe: Mass admin UI.
- *   - mass unsubscribe: Mass admin UI.
- *   - action: Drupal actions.
- *
- * @ingroup subscription
- */
-function simplenews_unsubscribe($mail, $newsletter_id, $confirm = TRUE, $source = 'unknown') {
-  $subscriber = simplenews_subscriber_load_by_mail($mail);
-
-  // The unlikely case that a user is unsubscribed from a non existing mailing list is logged
-  if (!$newsletter = simplenews_newsletter_load($newsletter_id)) {
-    \Drupal::logger('simplenews')->error('Attempt to unsubscribe from non existing mailing list ID %id', array('%id' => $newsletter_id));
-    return FALSE;
-  }
-
-  if ($confirm) {
-    // Make sure the mail address is set.
-    if (empty($subscriber)) {
-      $subscriber = Subscriber::create(array());
-      $subscriber->setMail($mail);
-      $subscriber->save();
-    }
-    \Drupal::service('simplenews.mailer')->sendConfirmation('unsubscribe', $subscriber, simplenews_newsletter_load($newsletter_id));
-  }
-  elseif ($subscriber && $subscriber->isSubscribed($newsletter_id)) {
-    // Unsubscribe the user from the mailing list.
-    $subscriber->unsubscribe($newsletter_id, $source);
-    $subscriber->save();
-
-  }
-  return TRUE;
-}
-
-/**
- * Check if the email address is subscribed to the given mailing list.
- *
- * @param string $mail
- *   The email address to be checked.
- * @param string $newsletter_id
- *   The mailing list id.
- *
- * @return boolean
- *   TRUE if the email address is subscribed; otherwise false.
- *
- * @ingroup subscription
- *
- * @todo Caching should be done in simplenews_load_user_by_mail().
- */
-function simplenews_user_is_subscribed($mail, $newsletter_id) {
-  $subscribed = &drupal_static(__FUNCTION__, array());
-  if (!isset($subscribed[$mail][$newsletter_id])) {
-    $subscriber = simplenews_subscriber_load_by_mail($mail);
-    // Check that a subscriber was found, he is active and subscribed to the
-    // requested newsletter_id.
-    $subscribed[$mail][$newsletter_id] = $subscriber && $subscriber->getStatus() && $subscriber->isSubscribed($newsletter_id);
-  }
-  return $subscribed[$mail][$newsletter_id];
-}
-
-/**
- * Returns a list of active subscriptions for a given newsletter.
- *
- * WARNING: Use with caution - this might return a huge list
- *
- * @param $newsletter_id
- *   The newsletter id.
- *
- * @return
- *   An array keyed by the mail address, containing another array with the keys
- *   mail, uid, language, snid and status.
- *
- * @ingroup subscription
- */
-function simplenews_get_subscriptions_by_list($newsletter_id) {
-  $query = db_select('simplenews_subscriber', 'sn');
-  $query->innerJoin('simplenews_subscription', 'ss', 'ss.snid = sn.snid');
-  $query->fields('sn', array('mail', 'uid', 'language', 'snid'))
-    ->fields('ss', array('status'))
-    ->condition('sn.activated', 1)
-    ->condition('ss.newsletter_id', $newsletter_id)
-    ->condition('ss.status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
-  return $query->execute()->fetchAllAssoc('mail');
-}
-
-/**
- * Delete subscriptions.
- *
- * @param $conditions
- *   An associative array of conditions matching the records to be delete.
- *   Example: array('newsletter_id' => 5, 'snid' => 12)
- *   Delete the subscription of subscriber 12 to newsletter newsletter_id 5.
- *
- * @ingroup subscription
- */
-function simplenews_subscription_delete($conditions = array()) {
-  // @todo: redo this in a proper way
-  if (!db_table_exists('simplenews_subscriber__subscriptions')) {
-    // This can happen if this is called during uninstall.
-    return;
-  }
-  $query = db_delete('simplenews_subscriber__subscriptions');
-  foreach ($conditions as $key => $condition) {
-    $query->condition($key, $condition);
-  }
-  $query->execute();
-  \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
 }
 
 /**
@@ -1408,24 +1201,6 @@ function simplenews_node_access(NodeInterface $node, $op, $account) {
 }
 
 /**
- * Returns TRUE if the newsletter requires double opt in.
- *
- * @ingroup newsletter
- */
-function simplenews_require_double_opt_in($newsletter_id, $uid) {
-  $user = \Drupal::currentUser();
-  // If user is currently logged in, don't send confirmation.
-  // Other addresses receive a confirmation if double opt-in is selected.
-  if ($user->id() && $uid && $user->id() == $uid) {
-    return FALSE;
-  }
-  else {
-    $newsletter = simplenews_newsletter_load($newsletter_id);
-    return $newsletter->opt_inout == 'double';
-  }
-}
-
-/**
  * Returns the available simplenews sources.
  *
  * @ingroup source
@@ -1452,105 +1227,6 @@ function simplenews_simplenews_source_cache_info() {
       'description' => t('This caches the rendered content to be sent for multiple recipients. It is not possible to use subscriber specific theming but tokens can be used for personalization.'),
     ),
   );
-}
-
-/**
- * Starts combining confirmation mails.
- *
- * If combining mails is enabled, it is mandatory to call
- * simplenews_send_combined_confirmation() after all subscription changes have
- * been applied or no mails will be sent.
- *
- * @param $collect
- *   TRUE to start combining mail conformations, FALSE to disable it.
- *
- * @return
- *   TRUE if combining has been started, FALSE otherwise.
- */
-function simplenews_confirmation_combine($collect = NULL) {
-  $static_collect = &drupal_static(__FUNCTION__, FALSE);
-  if (isset($collect)) {
-    $static_collect = $collect;
-  }
-  return $static_collect;
-}
-
-/**
- * Add a mail confirmation or fetch them.
- *
- * @param $action
- *   (Optional) The confirmation type, either subscribe or unsubscribe.
- * @param $subscriber
- *   (Optional) The subscriber object.
- * @param $newsletter
- *   (Optional) The newsletter object.
- *
- * @return
- *   If no arguments are passed in, an array of current confirmations, keyed by
- *   subscriber id, the value is an array with the keys action and newsletter_id.
- */
-function simplenews_confirmation_add_combined($action = NULL, $subscriber = NULL, $newsletter = NULL) {
-  $group = &drupal_static(__FUNCTION__, array());
-  if (!empty($action)) {
-    $group[$subscriber->getMail()][$newsletter->id()] = $action;
-  }
-  else {
-    return $group;
-  }
-}
-
-/**
- * Converts an array of subscription changes into descriptions.
- *
- * @param $subscriber
- *   Simplenews subscriber object.
- * @param $changes
- *   (Optional) Array of changes, each is an array with the keys action and newsletter_id.
- *   Defaults to $subscriber->getChanges(), which contains the currently saved
- *   changes for the subscriber.
- * @param $langcode
- *   (Optional) Specify the language of the description strings, defaults to the
- *   current language.
- *
- * @return
- *   Array of description strings describing the changes.
- */
-function simplenews_confirmation_get_changes_list(Subscriber $subscriber, $changes = NULL, $langcode = NULL) {
-  if (empty($langcode)) {
-    $language = \Drupal::languageManager()->getCurrentLanguage();
-    $langcode = $language->getId();
-  }
-
-  if (empty($changes)) {
-    $changes = $subscriber->getChanges();
-  }
-
-  // Load simplenews settings config object.
-  $config = \Drupal::config('simplenews.settings');
-
-  $changes_list = array();
-  foreach ($changes as $newsletter_id => $action) {
-    $subscribed = $subscriber->isSubscribed($newsletter_id);
-    // Get text for each possible combination.
-    if ($action == 'subscribe' && !$subscribed) {
-      $line = $config->get('subscription.confirm_combined_line_subscribe_unsubscribed');
-    }
-    elseif ($action == 'subscribe' && $subscribed) {
-      $line = $config->get('subscription.confirm_combined_line_subscribe_subscribed');
-    }
-    elseif ($action == 'unsubscribe' && !$subscribed) {
-      $line = $config->get('subscription.confirm_combined_line_unsubscribe_unsubscribed');
-    }
-    elseif ($action == 'unsubscribe' && $subscribed) {
-      $line = $config->get('subscription.confirm_combined_line_unsubscribe_subscribed');
-    }
-    $newsletter_context = array(
-      'simplenews_subscriber' => $subscriber,
-      'newsletter' => simplenews_newsletter_load($newsletter_id),
-    );
-    $changes_list[$newsletter_id] = \Drupal::token()->replace($line, $newsletter_context, array('sanitize' => FALSE));
-  }
-  return $changes_list;
 }
 
 /**

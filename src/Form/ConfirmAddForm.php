@@ -82,7 +82,7 @@ class ConfirmAddForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    simplenews_subscribe($form_state->getValue('mail'), $form_state->getValue('newsletter')->id(), FALSE, 'website');
+    \Drupal::service('simplenews.subscription_manager')->subscribe($form_state->getValue('mail'), $form_state->getValue('newsletter')->id(), FALSE, 'website');
 
     $config = \Drupal::config('simplenews.settings');
     if (!$path = $config->get('subscription.confirm_subscribe_page')) {

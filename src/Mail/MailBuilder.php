@@ -10,6 +10,7 @@ namespace Drupal\simplenews\Mail;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Utility\Token;
 use Drupal\simplenews\Source\SourceInterface;
+use Drupal\simplenews\Subscription\SubscriptionManagerInterface;
 
 /**
  * Default mail builder.
@@ -27,6 +28,11 @@ class MailBuilder implements MailBuilderInterface {
   protected $config;
 
   /**
+   * @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface
+   */
+  protected $subscriptionManager;
+
+  /**
    * Constructs a MailBuilder.
    *
    * @param \Drupal\Core\Utility\Token $token
@@ -34,9 +40,10 @@ class MailBuilder implements MailBuilderInterface {
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    */
-  public function __construct(Token $token, ConfigFactoryInterface $config_factory) {
+  public function __construct(Token $token, ConfigFactoryInterface $config_factory, SubscriptionManagerInterface $subscription_manager) {
     $this->token = $token;
     $this->config = $config_factory->get('simplenews.settings');
+    $this->subscriptionManager = $subscription_manager;
   }
 
   /**
@@ -112,7 +119,7 @@ class MailBuilder implements MailBuilderInterface {
 
     $changes_list = '';
     $actual_changes = 0;
-    foreach (simplenews_confirmation_get_changes_list($context['simplenews_subscriber'], $subscriber->getChanges(), $langcode) as $newsletter_id => $change) {
+    foreach ($this->subscriptionManager->getChangesList($context['simplenews_subscriber'], $subscriber->getChanges(), $langcode) as $newsletter_id => $change) {
       $changes_list .= ' - ' . $change . "\n";
 
       // Count the actual changes.

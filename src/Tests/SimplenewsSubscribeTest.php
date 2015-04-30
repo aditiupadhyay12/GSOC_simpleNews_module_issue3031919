@@ -89,11 +89,13 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->drupalPostForm($confirm_url, array(), t('Confirm'));
     $this->assertRaw(t('Subscription changes confirmed for %user.', array('%user' => $mail)), t('Anonymous subscriber added to newsletter'));
 
-    drupal_static_reset('simplenews_user_is_subscribed');
+    /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
+    $subscription_manager->reset();
     \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
     // Verify subscription changes.
     foreach ($newsletters as $newsletter_id => $newsletter) {
-      $is_subscribed = simplenews_user_is_subscribed($mail, $newsletter_id);
+      $is_subscribed = $subscription_manager->isSubscribed($mail, $newsletter_id);
       if (in_array($newsletter_id, $enable)) {
         $this->assertTrue($is_subscribed);
       }
@@ -146,10 +148,10 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     // Verify subscription changes.
     \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
-    drupal_static_reset('simplenews_user_is_subscribed');
+    $subscription_manager->reset();
     $still_enabled = array_diff($enable, $disable);
     foreach ($newsletters as $newsletter_id => $newsletter) {
-      $is_subscribed = simplenews_user_is_subscribed($mail, $newsletter_id);
+      $is_subscribed = $subscription_manager->isSubscribed($mail, $newsletter_id);
       if (in_array($newsletter_id, $still_enabled)) {
         $this->assertTrue($is_subscribed);
       }
@@ -215,9 +217,9 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $controller = \Drupal::entityManager()->getStorage('simplenews_subscriber');
 
     $controller->resetCache();
-    drupal_static_reset('simplenews_user_is_subscribed');
+    $subscription_manager->reset();
     foreach (array_keys($newsletters) as $newsletter_id) {
-      $this->assertFalse(simplenews_user_is_subscribed($mail, $newsletter_id));
+      $this->assertFalse($subscription_manager->isSubscribed($mail, $newsletter_id));
     }
 
     // Call confirmation url after it is allready used.
