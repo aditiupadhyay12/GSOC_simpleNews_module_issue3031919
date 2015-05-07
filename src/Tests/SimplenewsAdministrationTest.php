@@ -697,9 +697,33 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $node = $this->drupalGetNodeByTitle($edit['title[0][value]']);
 
-    // Send newsletter.
+    // Assert subscriber count.
     $this->clickLink(t('Newsletter'));
-    $this->assertText(t('Send newsletter'));
+    $this->assertText(t('Send newsletter issue to 0 subscribers.'));
+
+    // Create some subscribers.
+    $subscribers = array();
+    for ($i = 0; $i < 3; $i++) {
+      $subscribers[] = Subscriber::create(array('mail' => $this->randomEmail()));
+    }
+    foreach ($subscribers as $subscriber) {
+      $subscriber->setStatus(SIMPLENEWS_SUBSCRIPTION_ACTIVE);
+    }
+
+    // Subscribe to the default newsletter and set subscriber status.
+    $subscribers[0]->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
+    $subscribers[1]->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
+    $subscribers[2]->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
+
+    foreach ($subscribers as $subscriber) {
+      $subscriber->save();
+    }
+
+    // Check if the subscribers are listed in the newsletter tab.
+    $this->drupalGet('node/1/simplenews');
+    $this->assertText('Send newsletter issue to 3 subscribers.');
+
+    // Send mails.
     $this->assertField('test_address', $admin_user->getEmail());
     // Test newsletter to empty address and check the error message.
     $this->drupalPostForm(NULL, array('test_address' => ''), t('Send test newsletter issue'));
@@ -916,4 +940,5 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       }
     }
   }
+
 }
