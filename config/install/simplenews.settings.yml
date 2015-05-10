@@ -3,7 +3,7 @@ hash_expiration: 86400
 newsletter:
   format: plain
   priority: 0
-  receipt: 0
+  receipt: TRUE
 
 subscriber:
   sync_fields: TRUE

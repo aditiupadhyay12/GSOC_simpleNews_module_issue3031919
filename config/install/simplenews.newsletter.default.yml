@@ -3,11 +3,11 @@ name: 'Default newsletter'
 description: 'This is an example newsletter. Change it.'
 format: plain
 priority: 0
-receipt: 0
+receipt: TRUE
 from_name: ''
 subject: '[[simplenews-newsletter:name]] [node:title]'
 from_address: 'replace@example.org'
-hyperlinks: 1
+hyperlinks: FALSE
 new_account: none
 opt_inout: double
 weight: 0

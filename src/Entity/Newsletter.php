@@ -32,6 +32,21 @@ use Drupal\simplenews\NewsletterInterface;
  *     "id" = "id",
  *     "label" = "name"
  *   },
+ *   config_export = {
+ *     "name",
+ *     "id",
+ *     "description",
+ *     "format",
+ *     "priority",
+ *     "receipt",
+ *     "from_name",
+ *     "subject",
+ *     "from_address",
+ *     "hyperlinks",
+ *     "new_account",
+ *     "opt_inout",
+ *     "weight",
+ *   },
  *   links = {
  *     "delete-form" = "/admin/config/services/simplenews/manage/{simplenews_newsletter}/delete",
  *     "edit-form" = "/admin/config/services/simplenews/manage/{simplenews_newsletter}"
