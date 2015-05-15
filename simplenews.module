@@ -1072,7 +1072,7 @@ function template_preprocess_simplenews_newsletter_body(&$variables) {
   $entity_type = $variables['build']['#entity_type'];
   $entity = !empty($variables['build']['#' . $entity_type]) ? $variables['build']['#' . $entity_type] : $variables['build']['#entity'];
 
-  $theme = function_exists('mailsystem_get_mail_theme') ? mailsystem_get_mail_theme() : \Drupal::theme()->getActiveTheme()->getPath();
+  $theme = function_exists('mailsystem_get_mail_theme') ? mailsystem_get_mail_theme() : \Drupal::theme()->getActiveTheme()->getName();
   $variables['simplenews_theme'] = drupal_get_path('theme', $theme);
 
   $variables['title'] = $entity->label();
@@ -1103,7 +1103,7 @@ function template_preprocess_simplenews_newsletter_footer(&$variables) {
   unset($variables['build']['links']);
   unset($variables['build']['comments']);
 
-  $theme = function_exists('mailsystem_get_mail_theme') ? mailsystem_get_mail_theme() : \Drupal::theme()->getActiveTheme()->getPath();
+  $theme = function_exists('mailsystem_get_mail_theme') ? mailsystem_get_mail_theme() : \Drupal::theme()->getActiveTheme()->getName();
   $variables['simplenews_theme'] = drupal_get_path('theme', $theme);
 
   $variables['unsubscribe_text'] = t('Unsubscribe from this newsletter', array(), array('langcode' => $variables['language']));
