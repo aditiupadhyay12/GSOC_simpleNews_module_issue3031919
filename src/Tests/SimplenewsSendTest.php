@@ -532,7 +532,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Now delete.
     \Drupal::entityManager()->getStorage('node')->resetCache();
-    $this->drupalGet($node->getSystemPath('edit-form'));
+    $this->drupalGet($node->urlInfo('edit-form'));
     $this->clickLink(t('Delete'));
     $this->drupalPostForm(NULL, array(), t('Delete'));
 
