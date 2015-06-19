@@ -1,9 +1,9 @@
-description: Demo module for simplenews.
+name: Simplenews Demo
+type: module
+description: Demo module for Simplenews.
 core: 8.x
 dependencies:
   - simplenews
   - simplenews_scheduler
 hidden: false
-name: Simplenews demo
-package: Simplenews
-type: module
+package: Mail
