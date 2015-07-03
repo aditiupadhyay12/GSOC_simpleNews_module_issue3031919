@@ -235,7 +235,7 @@ abstract class SimplenewsTestBase extends WebTestBase {
   protected function resetPassLogin($user) {
     $uid = $user->id();
     $timestamp = REQUEST_TIME;
-    $hash = user_pass_rehash($user->getPassword(), $timestamp, $user->getLastLoginTime(), $uid);
+    $hash = user_pass_rehash($user, $timestamp);
     $this->drupalPostForm("/user/reset/$uid/$timestamp/$hash", array(), t('Log in'));
   }
 
