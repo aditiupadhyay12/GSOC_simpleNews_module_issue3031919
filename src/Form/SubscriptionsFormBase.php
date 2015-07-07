@@ -164,7 +164,6 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
         '#access' => (!$options && !$subscribed) || !$mail,
         '#type' => 'submit',
         '#value' => t('Subscribe'),
-        '#validate' => array('::validate'),
         '#submit' => array('::submitForm', '::save', '::submitSubscribe'),
       ),
       static::SUBMIT_UNSUBSCRIBE => array(
@@ -172,7 +171,6 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
         '#access' => (!$options && $subscribed) || (!$mail && $options),
         '#type' => 'submit',
         '#value' => t('Unsubscribe'),
-        '#validate' => array('::validate'),
         '#submit' => array('::submitForm', '::save', '::submitUnsubscribe'),
       ),
       static::SUBMIT_UPDATE => array(
@@ -180,7 +178,6 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
         '#access' => $options && $mail,
         '#type' => 'submit',
         '#value' => t('Update'),
-        '#validate' => array('::validate'),
         '#submit' => array('::submitForm', '::save', '::submitUpdate'),
       ),
     );
