@@ -190,7 +190,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
   /**
    * {@inheritdoc}
    */
-  public function validate(array $form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state) {
     $mail = $form_state->getValue(array('mail', 0, 'value'));
     // Users should login to manage their subscriptions.
     if (\Drupal::currentUser()->isAnonymous() && $user = user_load_by_mail($mail)) {
@@ -212,7 +212,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
       $form_state->setErrorByName('subscriptions', t('You must select at least one newsletter.'));
     }
 
-    parent::validate($form, $form_state);
+    parent::validateForm($form, $form_state);
   }
 
   /**
