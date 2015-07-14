@@ -31,6 +31,7 @@ use Drupal\user\UserInterface;
  *       "delete" = "Drupal\simplenews\Form\SubscriberDeleteForm",
  *     },
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
+ *     "list_builder" = "Drupal\Core\Entity\EntityListBuilder",
  *     "views_data" = "Drupal\simplenews\SubscriberViewsData"
  *   },
  *   base_table = "simplenews_subscriber",

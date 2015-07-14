@@ -344,112 +344,10 @@ display:
           entity_type: simplenews_subscriber
           entity_field: created
           plugin_id: date
-        edit_link:
-          id: edit_link
+        operations:
+          id: operations
           table: simplenews_subscriber
-          field: edit_link
-          relationship: none
-          group_type: group
-          admin_label: ''
-          label: 'Link to edit'
-          exclude: true
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: null
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: true
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          text: ''
-          entity_type: simplenews_subscriber
-          plugin_id: subscriber_link_edit
-        delete_link:
-          id: delete_link
-          table: simplenews_subscriber
-          field: delete_link
-          relationship: none
-          group_type: group
-          admin_label: ''
-          label: 'Link to delete'
-          exclude: true
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: null
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: true
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          text: ''
-          entity_type: simplenews_subscriber
-          plugin_id: subscriber_link_delete
-        dropbutton:
-          id: dropbutton
-          table: views
-          field: dropbutton
+          field: operations
           relationship: none
           group_type: group
           admin_label: ''
@@ -472,7 +370,7 @@ display:
             suffix: ''
             target: ''
             nl2br: false
-            max_length: null
+            max_length: 0
             word_boundary: true
             ellipsis: true
             more_link: false
@@ -494,16 +392,9 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
-          fields:
-            edit_link: edit_link
-            delete_link: delete_link
-            mail: '0'
-            uid: '0'
-            status: '0'
-            langcode: '0'
-            created: '0'
           destination: true
-          plugin_id: dropbutton
+          entity_type: simplenews_subscriber
+          plugin_id: entity_operations
       filters:
         mail:
           id: mail
@@ -687,9 +578,11 @@ display:
       display_extenders: {  }
     cache_metadata:
       contexts:
-        0: user
-        3: cache.context.url
-        7: language
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - 'url.query_args.pagers:0'
+        - user.permissions
       cacheable: false
   page_1:
     display_plugin: page
@@ -709,7 +602,9 @@ display:
         menu_name: admin
     cache_metadata:
       contexts:
-        0: user
-        3: cache.context.url
-        7: language
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - 'url.query_args.pagers:0'
+        - user.permissions
       cacheable: false
