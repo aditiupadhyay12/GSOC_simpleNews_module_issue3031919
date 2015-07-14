@@ -3,6 +3,8 @@ type: module
 description: Demo module for Simplenews.
 core: 8.x
 dependencies:
+  - block
+  - views
   - simplenews
   - simplenews_scheduler
 hidden: false

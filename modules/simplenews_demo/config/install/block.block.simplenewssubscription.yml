@@ -3,8 +3,6 @@ status: true
 dependencies:
   module:
     - simplenews
-  theme:
-    - bartik
 id: simplenewssubscription
 theme: bartik
 region: sidebar_first
@@ -18,7 +16,6 @@ settings:
   label_display: visible
   cache:
     max_age: 0
-    contexts: {  }
   newsletters:
     default: default
   message: 'Stay informed - subscribe to our newsletter.'
