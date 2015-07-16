@@ -61,8 +61,8 @@ class SimplenewsDemoTest extends WebTestBase {
     $this->assertText('Stopped special offers');
     $this->assertText('Scheduled weekly content newsletter issue - Week ');
     $this->assertRaw(t('Newsletter issue sent to 2 subscribers.'));
-    $this->assertRaw(t('Newsletter issue is pending, mails sent out of 3.'));
-    $this->assertRaw(t('Newsletter issue is pending, mails sent out of 1.'));
+    $this->assertRaw(t('Newsletter issue is pending, 0 mails sent out of 3.'));
+    $this->assertRaw(t('Newsletter issue is pending, 0 mails sent out of 1.'));
     // Assert demo subscribers.
     $this->drupalGet('admin/people/simplenews');
     $this->assertText('a@example.com');

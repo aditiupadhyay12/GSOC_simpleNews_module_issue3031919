@@ -56,7 +56,7 @@ class SendStatus extends FieldPluginBase {
    */
   protected function getMessage($node) {
     $status = $node->simplenews_issue->status;
-    $sent_count = $node->simplenews_issue->sent_count;
+    $sent_count = (int) $node->simplenews_issue->sent_count;
     $published = $node->isPublished();
     $subscriber_count = $node->simplenews_issue->status == SIMPLENEWS_STATUS_SEND_READY ? $node->simplenews_issue->subscribers : simplenews_count_subscriptions($node->simplenews_issue->target_id);
     $message = array();
@@ -67,14 +67,14 @@ class SendStatus extends FieldPluginBase {
       SIMPLENEWS_STATUS_SEND_READY => 'images/sn-sent.png',
     );
     if ($status == SIMPLENEWS_STATUS_SEND_READY) {
-      $message['description'] = 'Newsletter issue sent to ' . $sent_count . ' subscribers.';
+      $message['description'] = t('Newsletter issue sent to @sent_count subscribers.', ['@sent_count' => $sent_count]);
       $message['uri'] = drupal_get_path('module', 'simplenews') . '/' . $images[$status];
     }
     elseif ($status == SIMPLENEWS_STATUS_SEND_PENDING) {
-      $message['description'] = t('Newsletter issue is pending,@sent_count mails sent out of @count.', array(
-          '@sent_count' => $sent_count,
-          '@count' => $subscriber_count
-        ));
+      $message['description'] = t('Newsletter issue is pending, @sent_count mails sent out of @count.', array(
+        '@sent_count' => $sent_count,
+        '@count' => $subscriber_count
+      ));
       $message['uri'] = drupal_get_path('module', 'simplenews') . '/' . $images[$status];
     }
     elseif (($status == SIMPLENEWS_STATUS_SEND_NOT)) {

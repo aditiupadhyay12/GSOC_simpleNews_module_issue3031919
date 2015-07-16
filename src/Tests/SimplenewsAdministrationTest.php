@@ -894,7 +894,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
         $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim((string) $row->td[5]->span['title']));
       }
       else {
-        $this->assertEqual('Newsletter issue is pending,0 mails sent out of 3.', trim((string) $row->td[5]->img['title']));
+        $this->assertEqual('Newsletter issue is pending, 0 mails sent out of 3.', trim((string) $row->td[5]->img['title']));
         $this->assertEqual(file_create_url(drupal_get_path('module', 'simplenews')) . '/images/sn-cron.png', trim((string) $row->td[5]->img['src']));
       }
     }

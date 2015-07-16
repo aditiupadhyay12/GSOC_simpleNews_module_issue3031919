@@ -152,7 +152,7 @@ class NodeTabForm extends FormBase {
           $form['status']['#title'] = t('The newsletter issue will be sent when the content is published.');
         }
         else {
-          $form['status']['#title'] = t('This newsletter issue is pending, @count of @total mails already sent.', array('@count' => $node->simplenews_issue->sent_count, '@total' => \Drupal::service('simplenews.spool_storage')->countMails(['entity_type' => 'node', 'entity_id' => $node->id()])));
+          $form['status']['#title'] = t('This newsletter issue is pending, @count of @total mails already sent.', array('@count' => (int) $node->simplenews_issue->sent_count, '@total' => \Drupal::service('simplenews.spool_storage')->countMails(['entity_type' => 'node', 'entity_id' => $node->id()])));
         }
         $form['actions'] = array(
           '#type' => 'actions',
