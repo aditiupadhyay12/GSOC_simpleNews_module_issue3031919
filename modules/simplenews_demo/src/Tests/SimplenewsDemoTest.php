@@ -6,7 +6,7 @@
 
 namespace Drupal\simplenews_demo\Tests;
 
-use Drupal\search_api\Tests\WebTestBase;
+use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests the demo module for Simplenews.
@@ -20,25 +20,33 @@ class SimplenewsDemoTest extends WebTestBase {
    *
    * @var string[]
    */
-  public static $modules = array('simplenews_demo');
+  public static $modules = [];
 
   /**
    * {@inheritdoc}
    */
-  function setUp() {
+  public function setUp() {
     parent::setUp();
     // Install bartik theme.
     \Drupal::service('theme_handler')->install(array('bartik'));
     $theme_settings = $this->config('system.theme');
     $theme_settings->set('default', 'bartik')->save();
+    // Install simplenews_demo module.
+    \Drupal::service('module_installer')->install(['simplenews_demo']);
     // Log in with all relevant permissions.
     $this->drupalLogin($this->drupalCreateUser(['administer simplenews subscriptions', 'send newsletter', 'administer newsletters', 'administer simplenews settings']));
   }
 
   /**
-   * Asserts the demo instructions on the frontpage.
+   * Asserts the demo module has been installed successfully.
    */
   protected function testInstalled() {
+    // Check for the two subscription blocks.
+    $this->assertText('Simplenews multiple subscriptions');
+    $this->assertText('Stay informed - subscribe to our newsletters.');
+    $this->assertText('Simplenews subscription');
+    $this->assertText('Stay informed - subscribe to our newsletter.');
+
     $this->drupalGet('admin/config/services/simplenews');
     $this->clickLink(t('Edit'));
     // Assert default description is present.
