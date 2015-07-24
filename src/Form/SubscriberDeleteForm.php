@@ -7,14 +7,14 @@
 
 namespace Drupal\simplenews\Form;
 
-use Drupal\Core\Entity\EntityConfirmFormBase;
+use Drupal\Core\Entity\ContentEntityConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
 /**
  * Builds the form to delete a contact category.
  */
-class SubscriberDeleteForm extends EntityConfirmFormBase {
+class SubscriberDeleteForm extends ContentEntityConfirmFormBase {
 
   /**
    * {@inheritdoc}

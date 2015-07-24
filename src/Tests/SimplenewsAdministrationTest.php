@@ -632,11 +632,10 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Test for adding a subscriber.
     $subscribe = array(
-      'subscriptions[' . $newsletter_name . ']' => TRUE,
-      'status' => TRUE,
-      'mail[0][value]' => 'drupaltest@example.com',
+      'newsletters[' . $newsletter_name . ']' => TRUE,
+      'emails' => 'drupaltest@example.com',
     );
-    $this->drupalPostForm('admin/people/simplenews/add', $subscribe, t('Subscribe'));
+    $this->drupalPostForm('admin/people/simplenews/import', $subscribe, t('Subscribe'));
 
     // The subscriber should appear once in the list.
     $rows = $this->xpath('//tbody/tr');
@@ -647,7 +646,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       }
     }
     $this->assertEqual(1, $counter);
-    $this->assertText('Subscriber drupaltest@example.com has been added.');
+    $this->assertText(t('The following addresses were added or updated: @email.', ['@email' => 'drupaltest@example.com']));
+    $this->assertText(t('The addresses were subscribed to the following newsletters: @newsletter.', ['@newsletter' => $newsletter_name]));
 
     // Check exact subscription statuses.
     $subscriber = simplenews_subscriber_load_by_mail('drupaltest@example.com');

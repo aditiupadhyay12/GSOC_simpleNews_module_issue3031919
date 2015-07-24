@@ -4,12 +4,6 @@ simplenews.newsletter_add:
   appears_on:
     - simplenews.newsletter_list
 
-simplenews.subscriber_add:
-  route_name: simplenews.subscriber_add
-  title: 'Add subscriber'
-  appears_on:
-    - view.simplenews_subscribers.page_1
-
 simplenews.subscriber_import:
   route_name: simplenews.subscriber_import
   title: 'Mass subscribe'
