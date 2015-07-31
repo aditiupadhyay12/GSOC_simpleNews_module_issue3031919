@@ -801,6 +801,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       $subscriber->save();
     }
 
+    $newsletters = simplenews_newsletter_get_all();
+
     // Filter out subscribers by their subscription status and assert the output.
     $this->drupalGet('admin/people/simplenews', array('query' => array('subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED)));
     $row = $this->xpath('//tbody/tr');
@@ -810,10 +812,12 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $row = $this->xpath('//tbody/tr');
     $this->assertEqual(1, count($row));
     $this->assertEqual($subscribers[1]->getMail(), trim((string) $row[0]->td[0]));
+    $this->assertText($newsletters['default']->name . ' (' . t('Unconfirmed') . ')');
     $this->drupalGet('admin/people/simplenews', array('query' => array('subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED)));
     $row = $this->xpath('//tbody/tr');
     $this->assertEqual(1, count($row));
     $this->assertEqual($subscribers[2]->getMail(), trim((string) $row[0]->td[0]));
+    $this->assertText($newsletters['default']->name . ' (' . t('Unsubscribed') . ')');
   }
 
   /**

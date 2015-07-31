@@ -85,6 +85,8 @@ function simplenews_demo_install() {
   // Unsubscribed subscriber.
   $subscription_manager->subscribe('c@example.com', $newsletters['press_releases']->id(), FALSE);
   $subscription_manager->unsubscribe('c@example.com', $newsletters['press_releases']->id(), FALSE);
+  // Unconfirmed subscriber.
+  $subscription_manager->subscribe('d@example.com', $newsletters['special_offers']->id(), TRUE);
 
   // Create an active demo user.
   $demo_user_active = User::create(array(
