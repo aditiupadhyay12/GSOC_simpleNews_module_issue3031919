@@ -6,6 +6,7 @@
  */
 
 use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Url;
 use Drupal\user\Entity\User;
 
@@ -74,7 +75,7 @@ function simplenews_token_info() {
 /**
  * Implements hook_tokens().
  */
-function simplenews_tokens($type, $tokens, $data = array(), $options = array()) {
+function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $bubbleable_metadata) {
   $replacements = array();
   $sanitize = !empty($options['sanitize']);
   if (isset($options['langcode'])) {
@@ -102,6 +103,7 @@ function simplenews_tokens($type, $tokens, $data = array(), $options = array()) 
         switch ($name) {
           case 'subscribe-url':
             $hash = simplenews_generate_hash($subscriber->getMail(), 'add');
+            $bubbleable_metadata->setCacheMaxAge(0);
             $route_parameters += array(
               'action' => 'add',
               'newsletter_id' => $newsletter->id(),
@@ -117,6 +119,7 @@ function simplenews_tokens($type, $tokens, $data = array(), $options = array()) 
               continue;
             }
             $hash = simplenews_generate_hash($subscriber->getMail(), 'remove');
+            $bubbleable_metadata->setCacheMaxAge(0);
             $route_parameters += array(
               'action' => 'remove',
               'newsletter_id' => $newsletter->id(),
@@ -127,12 +130,14 @@ function simplenews_tokens($type, $tokens, $data = array(), $options = array()) 
 
           case 'combined-url':
             $hash = simplenews_generate_hash($subscriber->getMail(), 'combined' . serialize($subscriber->getChanges()));
+            $bubbleable_metadata->setCacheMaxAge(0);
             $route_parameters += array('hash' => $hash);
             $replacements[$original] = \Drupal::url('simplenews.newsletter_confirm_combined', $route_parameters, $url_arguments);
             break;
 
           case 'manage-url':
             $hash = simplenews_generate_hash($subscriber->getMail(), 'manage');
+            $bubbleable_metadata->setCacheMaxAge(0);
             $route_parameters += array('hash' => $hash);
             $replacements[$original] = \Drupal::url('simplenews.newsletter_subscriptions_arguments', $route_parameters, $url_arguments);
             break;
@@ -144,7 +149,7 @@ function simplenews_tokens($type, $tokens, $data = array(), $options = array()) 
       }
 
       if (($user_tokens = \Drupal::token()->findWithPrefix($tokens, 'user')) && !empty($subscriber->uid)) {
-        $replacements += \Drupal::token()->generate('user', $user_tokens, array('user' => User::load($subscriber->uid)), $options);
+        $replacements += \Drupal::token()->generate('user', $user_tokens, array('user' => User::load($subscriber->uid)), $options, $bubbleable_metadata);
       }
 
       break;
@@ -166,8 +171,7 @@ function simplenews_tokens($type, $tokens, $data = array(), $options = array()) 
             break;
 
           case 'url':
-            $uri = entity_uri('simplenews_newsletter', $newsletter);
-            $replacements[$original] = Url::fromUri($uri['path'], $uri['options'])->toString();
+            $replacements[$original] = $newsletter->url();
             break;
         }
       }
