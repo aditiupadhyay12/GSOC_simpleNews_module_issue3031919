@@ -1,6 +1,6 @@
 # Settings schema.
 simplenews.settings:
-  type: mapping
+  type: config_object
   label: 'Simplenews settings'
   mapping:
     hash_expiration:
