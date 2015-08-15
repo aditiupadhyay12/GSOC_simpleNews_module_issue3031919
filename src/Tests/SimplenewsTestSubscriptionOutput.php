@@ -19,6 +19,14 @@ class SimplenewsTestSubscriptionOutput extends SimplenewsTestBase {
    */
   public function testSubscriptionVisiblity() {
 
+    // Enable the extra field.
+    entity_get_display('user', 'user', 'default')
+      ->setComponent('simplenews', array(
+          'label' => 'hidden',
+          'type' => 'simplenews',
+        ))
+      ->save();
+
     // Create admin user.
     $admin_user = $this->drupalCreateUser(array(
       'administer users',

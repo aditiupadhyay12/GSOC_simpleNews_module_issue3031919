@@ -753,6 +753,10 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertNoText(t('Replacement patterns'));
     $this->assertText(t('Issue'));
 
+    // Test the visibility of subscription user component.
+    $this->drupalGet('node/' . $node->id());
+    $this->assertNoText('Subscribed to');
+
     // Delete the created node.
     $node->delete();
 

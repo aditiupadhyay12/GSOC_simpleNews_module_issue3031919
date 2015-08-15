@@ -1180,6 +1180,7 @@ function simplenews_entity_extra_field_info() {
         'label' => 'Newsletters',
         'description' => t('Newsletter subscriptions of the user'),
         'weight' => 5,
+        'visible' => FALSE,
       ),
     ),
   );
