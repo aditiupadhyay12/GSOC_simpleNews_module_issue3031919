@@ -55,6 +55,7 @@ class SimplenewsSynchronizeFieldsTest extends KernelTestBase {
     // Create user with same email.
     /** @var \Drupal\user\Entity\User $user */
     $user = User::create(array(
+      'name' => 'user',
       'mail' => 'user@example.com',
       'preferred_langcode' => 'fr',
     ));
@@ -104,6 +105,7 @@ class SimplenewsSynchronizeFieldsTest extends KernelTestBase {
     $subscriber->save();
     /** @var \Drupal\user\Entity\User $user */
     $user = User::create(array(
+      'name' => 'user',
       'field_on_both' => 'foo',
       'mail' => 'user@example.com',
       'created' => 1000,
@@ -143,6 +145,7 @@ class SimplenewsSynchronizeFieldsTest extends KernelTestBase {
     // Create a user with values for the fields.
     /** @var \Drupal\user\Entity\User $user */
     $user = User::create(array(
+      'name' => 'user',
       'field_on_both' => 'foo',
       'mail' => 'user@example.com',
     ));
@@ -166,6 +169,7 @@ class SimplenewsSynchronizeFieldsTest extends KernelTestBase {
 
     // Create a user.
     $user = User::create(array(
+      'name' => 'user',
       'mail' => 'user@example.com',
     ));
 
