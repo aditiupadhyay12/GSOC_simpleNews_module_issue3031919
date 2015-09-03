@@ -38,6 +38,8 @@ abstract class SimplenewsTestBase extends WebTestBase {
 
   public function setUp() {
     parent::setUp();
+    $this->drupalPlaceBlock('local_tasks_block');
+    $this->drupalPlaceBlock('local_actions_block');
     $this->config = $this->config('simplenews.settings');
 
     $site_config = $this->config('system.site');
