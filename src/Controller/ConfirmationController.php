@@ -36,7 +36,7 @@ class ConfirmationController extends ControllerBase {
     $config = \Drupal::config('simplenews.settings');
 
     // Prevent search engines from indexing this page.
-    $attached['html_head'][] = array(
+    $html_head = array(
       array(
         '#tag' => 'meta',
         '#attributes' => array(
@@ -63,14 +63,14 @@ class ConfirmationController extends ControllerBase {
           'simplenews_subscriber' => $subscriber,
         );
         $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', 'subscribe_combined', $context);
-        $build['#attached'] = $attached;
+        $build['#attached']['html_head'][] = $html_head;
         return $build;
       }
       // When not called with immediate parameter the user will be directed to the
       // (un)subscribe confirmation page.
       if (!$immediate) {
         $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmMultiForm', $subscriber);
-        $build['#attached'] = $attached;
+        $build['#attached']['html_head'][] = $html_head;
         return $build;
       }
       else {
@@ -141,7 +141,7 @@ class ConfirmationController extends ControllerBase {
     $config = \Drupal::config('simplenews.settings');
 
     // Prevent search engines from indexing this page.
-    $attached['html_head'][] = array(
+    $html_head = array(
       array(
         '#tag' => 'meta',
         '#attributes' => array(
@@ -165,7 +165,7 @@ class ConfirmationController extends ControllerBase {
         );
         $token = $action == 'add' ? 'subscribe' : 'unsubscribe';
         $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', $token, $context);
-        $build['#attached'] = $attached;
+        $build['#attached']['html_head'][] = $html_head;
         return $build;
       }
       // When called with additional arguments the user will be directed to the
@@ -174,12 +174,12 @@ class ConfirmationController extends ControllerBase {
       if (!$immediate) {
         if ($action == 'remove') {
           $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmRemovalForm', $subscriber->getMail(), $newsletter);
-          $build['#attached'] = $attached;
+          $build['#attached']['html_head'][] = $html_head;
           return $build;
         }
         elseif ($action == 'add') {
           $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmAddForm', $subscriber->getMail(), $newsletter);
-          $build['#attached'] = $attached;
+          $build['#attached']['html_head'][] = $html_head;
           return $build;
         }
       }
