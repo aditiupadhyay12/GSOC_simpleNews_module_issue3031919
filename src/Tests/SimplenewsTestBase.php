@@ -288,7 +288,7 @@ abstract class SimplenewsTestBase extends WebTestBase {
   protected function assertMailText($needle, $offset, $exist = TRUE) {
     $body = preg_replace('/\s+/', ' ', $this->getMail($offset));
     $this->verbose($body);
-    $pos = strpos($body, $needle);
+    $pos = strpos($body, (string) $needle);
     return $this->assertEqual($exist, $pos !== FALSE, "$needle found in mail");
   }
 }

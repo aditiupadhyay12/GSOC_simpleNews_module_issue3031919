@@ -166,7 +166,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       // Make sure the body is only attached once.
       $this->assertEqual(1, preg_match_all('/Mail token/', $mail['body'], $matches));
 
-      $this->assertTrue(strpos($mail['body'], t('Unsubscribe from this newsletter')));
+      $this->assertTrue(strpos($mail['body'], (string) t('Unsubscribe from this newsletter')));
       // Make sure the mail has the correct unsubscribe hash.
       $hash = simplenews_generate_hash($mail['to'], 'remove');
       $this->assertTrue(strpos($mail['body'], $hash), 'Correct hash is used in footer');
@@ -302,7 +302,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     // Test that tokens are correctly replaced.
     foreach (array_slice($this->drupalGetMails(), 0, 3) as $mail) {
       // Verify the footer is not displayed for hidden newsletters.
-      $this->assertFalse(strpos($mail['body'], t('Unsubscribe from this newsletter')));
+      $this->assertFalse(strpos($mail['body'], (string) t('Unsubscribe from this newsletter')));
     }
   }
 
