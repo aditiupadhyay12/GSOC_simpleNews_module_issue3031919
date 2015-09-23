@@ -95,10 +95,6 @@ abstract class SimplenewsTestBase extends WebTestBase {
       'newsletters' => array(),
       'message' => t('Select the newsletter(s) to which you want to subscribe or unsubscribe.'),
       'unique_id' => \Drupal::service('uuid')->generate(),
-      // @todo: Support block caching. See https://www.drupal.org/node/2467373
-      'cache' => array(
-        'max_age' => 0,
-      ),
     ];
 
     // Simplify confirmation form submission by hiding the subscribe block on
