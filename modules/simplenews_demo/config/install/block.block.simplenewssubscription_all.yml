@@ -14,8 +14,6 @@ settings:
   label: 'Simplenews multiple subscriptions'
   provider: simplenews
   label_display: visible
-  cache:
-    max_age: 0
   newsletters:
     weekly_content_update: weekly_content_update
     special_offers: special_offers

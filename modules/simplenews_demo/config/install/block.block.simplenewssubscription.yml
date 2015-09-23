@@ -14,8 +14,6 @@ settings:
   label: 'Simplenews subscription'
   provider: simplenews
   label_display: visible
-  cache:
-    max_age: 0
   newsletters:
     default: default
   message: 'Stay informed - subscribe to our newsletter.'
