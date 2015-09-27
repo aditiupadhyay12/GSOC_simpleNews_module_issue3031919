@@ -29,7 +29,7 @@ class SimplenewsSubscriptionStatusFormatter extends EntityReferenceFormatterBase
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $elements = array();
 
-    foreach ($this->getEntitiesToView($items) as $delta => $entity) {
+    foreach ($this->getEntitiesToView($items, $langcode) as $delta => $entity) {
       $label = $entity->label();
 
       // Do not explicitly display the status for confirmed subscriptions.
