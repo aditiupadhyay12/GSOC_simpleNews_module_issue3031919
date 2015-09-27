@@ -40,8 +40,8 @@ class NewsletterSettingsForm extends ConfigFormBase {
       '#collapsible' => FALSE,
       '#description' => $this->t('These options will be the defaults for new newsletters, but can be overridden in the newsletter editing form.'),
     );
-    $links = array('!mime_mail_url' => 'http://drupal.org/project/mimemail', '!html_url' => 'http://drupal.org/project/htmlmail');
-    $description = $this->t('Default newsletter format. Install <a href="!mime_mail_url">Mime Mail</a> module or <a href="!html_url">HTML Mail</a> module to send newsletters in HTML format.', $links);
+    $links = array(':mime_mail_url' => 'http://drupal.org/project/mimemail', ':html_url' => 'http://drupal.org/project/htmlmail');
+    $description = $this->t('Default newsletter format. Install <a href=":mime_mail_url">Mime Mail</a> module or <a href=":html_url">HTML Mail</a> module to send newsletters in HTML format.', $links);
     $form['simplenews_default_options']['simplenews_format'] = array(
       '#type' => 'select',
       '#title' => $this->t('Format'),

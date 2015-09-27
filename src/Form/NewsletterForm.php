@@ -48,8 +48,8 @@ class NewsletterForm extends EntityForm {
       '#default_value' => $newsletter->description,
       '#description' => t("A description of the newsletter."),
     );
-    $links = array('!mime_mail_url' => 'http://drupal.org/project/mimemail', '!html_url' => 'http://drupal.org/project/htmlmail');
-    $description = t('Newsletter format. Install <a href="!mime_mail_url">Mime Mail</a> module or <a href="!html_url">HTML Mail</a> module to send newsletters in HTML format.', $links);
+    $links = array(':mime_mail_url' => 'http://drupal.org/project/mimemail', ':html_url' => 'http://drupal.org/project/htmlmail');
+    $description = t('Newsletter format. Install <a href=":mime_mail_url">Mime Mail</a> module or <a href=":html_url">HTML Mail</a> module to send newsletters in HTML format.', $links);
     $form['weight'] = array(
       '#type' => 'hidden',
       '#value' => $newsletter->weight,
