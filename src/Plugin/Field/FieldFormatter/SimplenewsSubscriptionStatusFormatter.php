@@ -26,7 +26,7 @@ class SimplenewsSubscriptionStatusFormatter extends EntityReferenceFormatterBase
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items) {
+  public function viewElements(FieldItemListInterface $items, $langcode) {
     $elements = array();
 
     foreach ($this->getEntitiesToView($items) as $delta => $entity) {
