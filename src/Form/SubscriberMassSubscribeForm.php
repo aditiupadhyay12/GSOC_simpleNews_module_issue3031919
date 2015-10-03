@@ -123,7 +123,7 @@ class SubscriberMassSubscribeForm extends FormBase {
             $added[] = $email;
           }
           else {
-            $unsubscribed[SafeMarkup::checkPlain($newsletter->label())][] = $email;
+            $unsubscribed[$newsletter->label()][] = $email;
           }
         }
       }
