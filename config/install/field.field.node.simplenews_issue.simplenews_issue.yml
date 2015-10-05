@@ -26,5 +26,5 @@ default_value_callback: ''
 settings:
   handler: default
   handler_settings:
-    target_bundles: {  }
+    target_bundles: null
 field_type: simplenews_issue

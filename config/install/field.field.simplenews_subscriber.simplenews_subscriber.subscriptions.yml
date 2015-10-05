@@ -13,7 +13,7 @@ translatable: false
 settings:
   handler: default
   handler_settings:
-    target_bundles: {  }
+    target_bundles: null
 dependencies:
   config:
     - field.storage.simplenews_subscriber.subscriptions
