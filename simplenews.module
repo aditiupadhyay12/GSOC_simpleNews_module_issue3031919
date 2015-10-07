@@ -1076,7 +1076,6 @@ function template_preprocess_simplenews_newsletter_body(&$variables) {
   $variables['simplenews_theme'] = drupal_get_path('theme', $theme);
 
   $variables['title'] = $entity->label();
-  $variables['language'] = $variables['build']["#langcode"];
   $variables['view_mode'] = $variables['build']['#view_mode'];
 }
 
