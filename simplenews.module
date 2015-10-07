@@ -506,7 +506,7 @@ function simplenews_user_delete(UserInterface $account) {
 /**
  * Implements hook_user_view().
  */
-function simplenews_user_view(array &$build, UserInterface $account, EntityViewDisplayInterface $display, $view_mode, $langcode) {
+function simplenews_user_view(array &$build, UserInterface $account, EntityViewDisplayInterface $display, $view_mode) {
   $user = \Drupal::currentUser();
   $build['#cache']['contexts'][] = 'user.permissions';
   if ($user->id() == $account->id() || $user->hasPermission('administer users')) {
