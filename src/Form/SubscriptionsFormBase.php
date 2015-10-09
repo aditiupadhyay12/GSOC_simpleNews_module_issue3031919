@@ -197,11 +197,6 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
       $form_state->setErrorByName('mail', $message);
     }
 
-    $valid_email = valid_email_address($mail);
-    if (!$valid_email && $form['mail']['#access']) {
-      $form_state->setErrorByName('mail', t('The e-mail address you supplied is not valid.'));
-    }
-
     // Unless the submit handler is 'update', if the newsletter checkboxes are
     // available, at least one must be checked.
     $update = in_array('::submitUpdate', $form_state->getSubmitHandlers());

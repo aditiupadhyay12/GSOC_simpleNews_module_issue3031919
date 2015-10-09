@@ -354,6 +354,15 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     );
     $single_block = $this->setupSubscriptionBlock($block_settings);
 
+    // Testing invalid email error message.
+    $mail = '@example.com';
+    $edit = array(
+      'mail[0][value]' => $mail,
+    );
+    $this->drupalPostForm('', $edit, t('Subscribe'));
+    $this->assertText(t("The email address $mail is not valid"), t("Invalid email shows error."));
+
+    // Now with valid email.
     $mail = $this->randomEmail(8);
     $edit = array(
       'mail[0][value]' => $mail,
