@@ -7,7 +7,7 @@
 
 namespace Drupal\simplenews\Plugin\Field\FieldType;
 
-use \Drupal\entity_reference\ConfigurableEntityReferenceItem;
+use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\TypedData\DataDefinition;
 
@@ -34,7 +34,7 @@ use Drupal\Core\TypedData\DataDefinition;
  *   list_class = "\Drupal\Core\Field\EntityReferenceFieldItemList"
  * )
  */
-class SubscriptionItem extends ConfigurableEntityReferenceItem {
+class SubscriptionItem extends EntityReferenceItem {
 
   /**
    * {@inheritdoc}

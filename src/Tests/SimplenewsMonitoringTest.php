@@ -23,7 +23,7 @@ class SimplenewsMonitoringTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = array('node', 'system', 'views', 'user', 'field', 'text', 'simplenews', 'monitoring', 'monitoring_test', 'entity_reference');
+  public static $modules = array('node', 'system', 'views', 'user', 'field', 'text', 'simplenews', 'monitoring', 'monitoring_test');
 
   /**
    * Tests individual sensors.

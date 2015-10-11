@@ -5,7 +5,6 @@ package: Mail
 core: 8.x
 dependencies:
   - node
-  - entity_reference
   - field
   - options
   - views

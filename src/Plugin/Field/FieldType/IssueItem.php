@@ -7,8 +7,8 @@
 
 namespace Drupal\simplenews\Plugin\Field\FieldType;
 
+use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\TypedData\MapDataDefinition;
-use \Drupal\entity_reference\ConfigurableEntityReferenceItem;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\TypedData\DataDefinition;
 
@@ -37,7 +37,7 @@ use Drupal\Core\TypedData\DataDefinition;
  *   list_class = "\Drupal\Core\Field\EntityReferenceFieldItemList"
  * )
  */
-class IssueItem extends ConfigurableEntityReferenceItem {
+class IssueItem extends EntityReferenceItem {
 
   /**
    * {@inheritdoc}

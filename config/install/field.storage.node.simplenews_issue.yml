@@ -12,5 +12,4 @@ cardinality: 1
 indexes: {  }
 dependencies:
   module:
-    - entity_reference
     - simplenews
