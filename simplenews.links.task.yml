@@ -40,6 +40,14 @@ simplenews.settings_mail:
   parent_id: simplenews.settings
   weight: -5
 
+simplenews.settings_prepare_uninstall:
+  title: 'Prepare uninstall'
+  description: 'Remove fields and data created by Simplenews module.'
+  base_route: simplenews.newsletter_list
+  route_name: simplenews.settings_prepare_uninstall
+  parent_id: simplenews.settings
+  weight: -4
+
 simplenews.newsletter_subscriptions_user:
   title: Newsletters
   description: 'Configure your newsletter subscriptions.'

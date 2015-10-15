@@ -184,7 +184,7 @@ function simplenews_get_content_types() {
 
   if (!$simplenews_types) {
     $field_map = \Drupal::entityManager()->getFieldMapByFieldType('simplenews_issue');
-    $simplenews_types = $field_map['node']['simplenews_issue']['bundles'] ?: array();
+    $simplenews_types = isset($field_map['node']['simplenews_issue']) ? $field_map['node']['simplenews_issue']['bundles'] : array();
   }
   return $simplenews_types;
 }
