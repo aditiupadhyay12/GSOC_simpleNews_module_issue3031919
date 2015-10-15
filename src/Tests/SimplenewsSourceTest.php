@@ -10,6 +10,7 @@
 namespace Drupal\simplenews\Tests;
 
 use Drupal\Component\Utility\Unicode;
+use Drupal\Component\Utility\Html;
 use Drupal\node\Entity\Node;
 use \Drupal\simplenews\Source\SourceTest;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
@@ -205,7 +206,8 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->clickLink(t('Edit'));
 
     $edit = array(
-      'title[0][value]' => $this->randomString(),
+      // Always use a character that is escaped.
+      'title[0][value]' => $this->randomString() . '\'<',
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue' => 'default',
     );
@@ -224,7 +226,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     // Test that tokens are correctly replaced.
     foreach (array_slice($this->drupalGetMails(), 0, 3) as $mail) {
       // Verify title.
-      $this->assertTrue(strpos($mail['body'], '<h2>' . htmlentities($node->getTitle()) . '</h2>') !== FALSE);
+      $this->assertTrue(strpos($mail['body'], '<h2>' . Html::escape($node->getTitle()) . '</h2>') !== FALSE);
 
       // Verify the format/content type.
       $this->assertEqual($mail['params']['format'], 'text/html');
