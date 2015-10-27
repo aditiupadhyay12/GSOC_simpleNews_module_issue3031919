@@ -345,7 +345,6 @@ function simplenews_form_user_register_form_alter(&$form, FormStateInterface $fo
     $form['simplenews'] = array(
       '#type' => 'fieldset',
       '#description' => t('Select the newsletter(s) to which you wish to subscribe.'),
-      '#weight' => 5,
     );
     $form['simplenews']['subscriptions'] = array(
       '#type' => 'checkboxes',
@@ -1180,6 +1179,13 @@ function simplenews_entity_extra_field_info() {
         'description' => t('Newsletter subscriptions of the user'),
         'weight' => 5,
         'visible' => FALSE,
+      ),
+    ),
+    'form' => array(
+      'simplenews' => array(
+        'label' => 'Newsletters',
+        'description' => t('Newsletter subscriptions of the user'),
+        'weight' => 5,
       ),
     ),
   );
