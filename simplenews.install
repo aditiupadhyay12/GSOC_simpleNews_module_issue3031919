@@ -129,7 +129,7 @@ function simplenews_install() {
     $site_name = 'Drupal';
   }
   $config->set('newsletter.from_name', $site_name);
-  $config->save();
+  $config->save(TRUE);
 
   user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('subscribe to newsletters'));
   user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('subscribe to newsletters'));
@@ -138,6 +138,7 @@ function simplenews_install() {
   $newsletter = Newsletter::load('default');
   $newsletter->from_name = $site_name;
   $newsletter->from_address = $site_mail;
+  $newsletter->trustData();
   $newsletter->save();
 }
 

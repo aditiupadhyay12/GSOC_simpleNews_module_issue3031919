@@ -6,3 +6,7 @@ targetEntityType: node
 dependencies:
   module:
     - node
+    - simplenews
+  enforced:
+    module:
+      - simplenews

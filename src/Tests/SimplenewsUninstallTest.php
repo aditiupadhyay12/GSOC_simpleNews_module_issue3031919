@@ -34,13 +34,6 @@ class SimplenewsUninstallTest extends SimplenewsTestBase {
   }
 
   /**
-   * Modules to enable.
-   *
-   * @var array
-   */
-  public static $modules = array('simplenews');
-
-  /**
    * Tests that Simplenews module can be uninstalled.
    */
   public function testUninstall() {
@@ -56,6 +49,10 @@ class SimplenewsUninstallTest extends SimplenewsTestBase {
     $this->drupalPostForm(NULL, [], t('Uninstall'));
     $this->assertText(t('The selected modules have been uninstalled.'));
     $this->assertNoText(t('Simplenews'));
+
+    // Make sure that the module can be installed again.
+    $this->drupalPostForm('admin/modules', ['modules[Mail][simplenews][enable]' => TRUE], t('Install'));
+    $this->assertText('Module Simplenews has been enabled.');
   }
 
 }
