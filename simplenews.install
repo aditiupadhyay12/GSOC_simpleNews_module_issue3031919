@@ -111,6 +111,10 @@ function simplenews_schema() {
  * Implements hook_install().
  */
 function simplenews_install() {
+  if (\Drupal::service('config.installer')->isSyncing()) {
+    return;
+  }
+
   // Set the default values for test_address, from_address and from_name.
   $site_mail = \Drupal::config('system.site')->get('mail');
   $site_name = \Drupal::config('system.site')->get('name');
