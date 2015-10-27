@@ -697,6 +697,18 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $node = $this->drupalGetNodeByTitle($edit['title[0][value]']);
 
+    $edit = array(
+      'title[0][value]' => $this->randomMachineName(),
+      'body[0][value]' => 'Sample body text - Newsletter issue',
+      'simplenews_issue' => $this->getRandomNewsletter(),
+    );
+    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
+
+    // Assert that body text is displayed.
+    $this->assertText('Sample body text - Newsletter issue');
+
+    $node2 = $this->drupalGetNodeByTitle($edit['title[0][value]']);
+
     // Assert subscriber count.
     $this->clickLink(t('Newsletter'));
     $this->assertText(t('Send newsletter issue to 0 subscribers.'));
@@ -757,8 +769,9 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalGet('node/' . $node->id());
     $this->assertNoText('Subscribed to');
 
-    // Delete the created node.
+    // Delete created nodes.
     $node->delete();
+    $node2->delete();
 
     // @todo: Test node update/delete.
     // Delete content type.
