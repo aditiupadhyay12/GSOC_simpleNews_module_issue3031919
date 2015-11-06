@@ -1177,7 +1177,7 @@ function simplenews_entity_extra_field_info() {
       'simplenews' => array(
         'label' => 'Newsletters',
         'description' => t('Newsletter subscriptions of the user'),
-        'weight' => 5,
+        'weight' => 30,
         'visible' => FALSE,
       ),
     ),
