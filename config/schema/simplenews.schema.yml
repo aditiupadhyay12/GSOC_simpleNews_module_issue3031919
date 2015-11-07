@@ -102,16 +102,6 @@ simplenews.settings:
         debug:
           type: boolean
           label: Debug
-        source_cache:
-          type: string
-          label: Source cache implementation
-        source:
-          type: string
-          label: Source implementation
-        source_node:
-          type: string
-          label: Source implementation for nodes
-
 
 # Newsletter config entity schema.
 simplenews.newsletter.*:

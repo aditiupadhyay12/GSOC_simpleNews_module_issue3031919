@@ -20,8 +20,8 @@ use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\NewsletterInterface;
-use Drupal\simplenews\Source\SourceEntity;
-use Drupal\simplenews\Source\SourceInterface;
+use Drupal\simplenews\Mail\MailEntity;
+use Drupal\simplenews\Mail\MailInterface;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\SubscriberInterface;
 
@@ -167,9 +167,9 @@ class Mailer implements MailerInterface {
 
       $this->startTimer();
 
-      while ($source = $spool->nextSource()) {
-        $source->setKey('node');
-        $result = $this->sendSource($source);
+      while ($mail = $spool->nextMail()) {
+        $mail->setKey('node');
+        $result = $this->sendMail($mail);
 
         // Update spool status.
         // This is not optimal for performance but prevents duplicate emails
@@ -264,19 +264,19 @@ class Mailer implements MailerInterface {
   /**
    * {@inheritdoc}
    */
-  public function sendSource(SourceInterface $source) {
-    $params['simplenews_source'] = $source;
+  public function sendMail(MailInterface $mail) {
+    $params['simplenews_mail'] = $mail;
 
     // Send mail.
-    $message = $this->mailManager->mail('simplenews', $source->getKey(), $source->getRecipient(), $source->getLanguage(), $params, $source->getFromFormatted());
+    $message = $this->mailManager->mail('simplenews', $mail->getKey(), $mail->getRecipient(), $mail->getLanguage(), $params, $mail->getFromFormatted());
 
     // Log sent result in watchdog.
     if ($this->config->get('mail.debug')) {
       if ($message['result']) {
-        $this->logger->debug('Outgoing email. Message type: %type<br />Subject: %subject<br />Recipient: %to', array('%type' => $source->getKey(), '%to' => $message['to'], '%subject' => $message['subject']));
+        $this->logger->debug('Outgoing email. Message type: %type<br />Subject: %subject<br />Recipient: %to', array('%type' => $mail->getKey(), '%to' => $message['to'], '%subject' => $message['subject']));
       }
       else {
-        $this->logger->error('Outgoing email failed. Message type: %type<br />Subject: %subject<br />Recipient: %to', array('%type' => $source->getKey(), '%to' => $message['to'], '%subject' => $message['subject']));
+        $this->logger->error('Outgoing email failed. Message type: %type<br />Subject: %subject<br />Recipient: %to', array('%type' => $mail->getKey(), '%to' => $message['to'], '%subject' => $message['subject']));
       }
     }
 
@@ -330,9 +330,9 @@ class Mailer implements MailerInterface {
         else {
           $recipients['anonymous'][] = $mail;
         }
-        $source = new SourceEntity($node, $subscriber);
-        $source->setKey('test');
-        $this->sendSource($source);
+        $mail = new MailEntity($node, $subscriber, \Drupal::service('simplenews.mail_cache'));
+        $mail->setKey('test');
+        $this->sendMail($mail);
       }
     }
     if (count($recipients['user'])) {

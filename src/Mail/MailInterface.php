@@ -2,17 +2,31 @@
 
 /**
  * @file
- * Contains \Drupal\simplenews\Source\SourceInterface.
+ * Contains \Drupal\simplenews\Mail\MailInterface.
  */
 
-namespace Drupal\simplenews\Source;
+namespace Drupal\simplenews\Mail;
 
 /**
- * The source used to build a newsletter mail.
+ * A newsletter mail.
  *
- * @ingroup source
+ * @ingroup mail
  */
-interface SourceInterface {
+interface MailInterface {
+
+  /**
+   * Returns the used entity for this mail.
+   *
+   * @return \Drupal\Core\Entity\ContentEntityInterface
+   */
+  function getEntity();
+
+  /**
+   * Returns the subscriber object.
+   *
+   * @return \Drupal\simplenews\SubscriberInterface
+   */
+  function getSubscriber();
 
   /**
    * Returns the mail headers.

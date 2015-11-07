@@ -19,3 +19,5 @@ services:
     arguments: ['@language_manager', '@config.factory', '@simplenews.mailer', '@token', '@logger.channel.simplenews', '@current_user']
     tags:
       - { name: needs_destruction }
+  simplenews.mail_cache:
+    class: Drupal\simplenews\Mail\MailCacheBuild

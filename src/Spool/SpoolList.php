@@ -6,6 +6,7 @@
  */
 
 namespace Drupal\simplenews\Spool;
+use Drupal\simplenews\Mail\MailEntity;
 
 /**
  * List of mail spool entries.
@@ -44,7 +45,7 @@ class SpoolList implements SpoolListInterface {
   /**
    * {@inheritdoc}
    */
-  public function nextSource() {
+  public function nextMail() {
     // Get the current mail spool row and update the internal pointer to the
     // next row.
     $return = each($this->mails);
@@ -65,7 +66,7 @@ class SpoolList implements SpoolListInterface {
         'status' => SpoolStorageInterface::STATUS_DONE,
         'error' => TRUE
       );
-      return $this->nextSource();
+      return $this->nextMail();
     }
 
     if ($spool_data->data) {
@@ -82,17 +83,14 @@ class SpoolList implements SpoolListInterface {
         'status' => SpoolStorageInterface::STATUS_DONE,
         'error' => TRUE
       );
-      return $this->nextSource();
+      return $this->nextMail();
     }
 
-    $source_class = $this->getSourceImplementation($spool_data);
-
-    /** @var \Drupal\simplenews\Source\SourceEntityInterface $source */
-    $source = new $source_class($entity, $subscriber, $spool_data->entity_type);
+    $mail = new MailEntity($entity, $subscriber, \Drupal::service('simplenews.mail_cache'));
 
     // Set the langcode langcode.
-    $this->processed[$spool_data->msid]->langcode = $source->getEntity()->language()->getId();
-    return $source;
+    $this->processed[$spool_data->msid]->langcode = $mail->getEntity()->language()->getId();
+    return $mail;
   }
 
   /**
@@ -104,25 +102,4 @@ class SpoolList implements SpoolListInterface {
     return $processed;
   }
 
-  /**
-   * Return the source implementation for the given mail spool row.
-   *
-   * @return string
-   *   Source class name.
-   */
-  protected function getSourceImplementation($spool_data) {
-    $config = \Drupal::config('simplenews.settings');
-
-    // First check if there is a class set for this entity type (default
-    // 'source_node' to SourceNode.
-    $class = $config->get('mail.source_' . $spool_data->entity_type);
-
-    // If no class was found, fall back to the generic 'source'
-    // variable.
-    if (empty($class)) {
-      $class = $config->get('mail.source');
-    }
-
-    return $class;
-  }
 }

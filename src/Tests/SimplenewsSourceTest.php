@@ -12,8 +12,9 @@ namespace Drupal\simplenews\Tests;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Html;
 use Drupal\node\Entity\Node;
-use \Drupal\simplenews\Source\SourceTest;
+use Drupal\simplenews\Mail\MailTest;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Test cases for creating and sending newsletters.
@@ -76,8 +77,8 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   function testSendMinimalSourceImplementation() {
 
     // Create a basic plaintext test source and send it.
-    $plain_source = new SourceTest('plain');
-    \Drupal::service('simplenews.mailer')->sendSource($plain_source);
+    $plain_mail = new MailTest('plain');
+    \Drupal::service('simplenews.mailer')->sendMail($plain_mail);
     $mails = $this->drupalGetMails();
     $mail = $mails[0];
 
@@ -85,21 +86,21 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertEqual('simplenews_node', $mail['id']);
     $this->assertEqual('simplenews', $mail['module']);
     $this->assertEqual('node', $mail['key']);
-    $this->assertEqual($plain_source->getRecipient(), $mail['to']);
-    $this->assertEqual($plain_source->getFromAddress(), $mail['from']);
-    $this->assertEqual($plain_source->getFromFormatted(), $mail['reply-to']);
-    $this->assertEqual($plain_source->getLanguage(), $mail['langcode']);
+    $this->assertEqual($plain_mail->getRecipient(), $mail['to']);
+    $this->assertEqual($plain_mail->getFromAddress(), $mail['from']);
+    $this->assertEqual($plain_mail->getFromFormatted(), $mail['reply-to']);
+    $this->assertEqual($plain_mail->getLanguage(), $mail['langcode']);
     $this->assertTrue($mail['params']['plain']);
 
     $this->assertFalse(isset($mail['params']['plaintext']));
     $this->assertFalse(isset($mail['params']['attachments']));
 
-    $this->assertEqual($plain_source->getSubject(), $mail['subject']);
+    $this->assertEqual($plain_mail->getSubject(), $mail['subject']);
     $this->assertTrue(strpos($mail['body'], 'the plain body') !== FALSE);
     $this->assertTrue(strpos($mail['body'], 'the plain footer') !== FALSE);
 
-    $html_source = new SourceTest('html');
-    \Drupal::service('simplenews.mailer')->sendSource($html_source);
+    $html_mail = new MailTest('html');
+    \Drupal::service('simplenews.mailer')->sendMail($html_mail);
     $mails = $this->drupalGetMails();
     $mail = $mails[1];
 
@@ -107,10 +108,10 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertEqual('simplenews_node', $mail['id']);
     $this->assertEqual('simplenews', $mail['module']);
     $this->assertEqual('node', $mail['key']);
-    $this->assertEqual($plain_source->getRecipient(), $mail['to']);
-    $this->assertEqual($plain_source->getFromAddress(), $mail['from']);
-    $this->assertEqual($plain_source->getFromFormatted(), $mail['reply-to']);
-    $this->assertEqual($plain_source->getLanguage(), $mail['langcode']);
+    $this->assertEqual($plain_mail->getRecipient(), $mail['to']);
+    $this->assertEqual($plain_mail->getFromAddress(), $mail['from']);
+    $this->assertEqual($plain_mail->getFromFormatted(), $mail['reply-to']);
+    $this->assertEqual($plain_mail->getLanguage(), $mail['langcode']);
     $this->assertEqual(NULL, $mail['params']['plain']);
 
     $this->assertTrue(isset($mail['params']['plaintext']));
@@ -119,7 +120,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertTrue(isset($mail['params']['attachments']));
     $this->assertEqual('example://test.png', $mail['params']['attachments'][0]['uri']);
 
-    $this->assertEqual($plain_source->getSubject(), $mail['subject']);
+    $this->assertEqual($plain_mail->getSubject(), $mail['subject']);
     $this->assertTrue(strpos($mail['body'], 'the body') !== FALSE);
     $this->assertTrue(strpos($mail['body'], 'the footer') !== FALSE);
   }
@@ -130,11 +131,6 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   function testSendCaching() {
 
     $this->setUpSubscribers(100);
-    // Enable build caching.
-    $edit = array(
-      'simplenews_source_cache' => '\Drupal\simplenews\Source\SourceCacheBuild',
-    );
-    $this->drupalPostForm('admin/config/services/simplenews/settings/mail', $edit, t('Save configuration'));
 
     $edit = array(
       'title[0][value]' => $this->randomString(10),
@@ -313,11 +309,18 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
    */
   function testSendNoCaching() {
     $this->setUpSubscribers(100);
+
     // Disable caching.
-    $edit = array(
-      'simplenews_source_cache' => '\Drupal\simplenews\Source\SourceCacheNone',
-    );
-    $this->drupalPostForm('admin/config/services/simplenews/settings/mail', $edit, t('Save configuration'));
+    $yaml = new Yaml();
+    $directory = DRUPAL_ROOT . '/' . $this->siteDirectory;
+    $content = file_get_contents($directory . '/services.yml');
+    $services = $yaml->parse($content);
+    $services['services']['simplenews.mail_cache'] = [
+      'class' => 'Drupal\simplenews\Mail\MailCacheNone',
+    ];
+    file_put_contents($directory . '/services.yml', $yaml->dump($services));
+    $this->rebuildContainer();
+    \Drupal::moduleHandler()->loadAll();
 
     $edit = array(
       'title[0][value]' => $this->randomString(10),

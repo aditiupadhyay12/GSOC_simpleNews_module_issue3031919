@@ -7,7 +7,7 @@
  */
 namespace Drupal\simplenews\Mail;
 
-use Drupal\simplenews\Source\SourceInterface;
+use Drupal\simplenews\Mail\MailInterface;
 
 /**
  * Builds newsletter and confirmation mails.
@@ -19,10 +19,10 @@ interface MailBuilderInterface {
    *
    * @param array $message
    *   Message array as used by hook_mail().
-   * @param \Drupal\simplenews\Source\SourceInterface $source
-   *   The Source instance.
+   * @param \Drupal\simplenews\Mail\MailInterface $mail
+   *   The mail object.
    */
-  function buildNewsletterMail(array &$message, SourceInterface $source);
+  function buildNewsletterMail(array &$message, MailInterface $mail);
 
   /**
    * Build subject and body of the subscribe confirmation email.

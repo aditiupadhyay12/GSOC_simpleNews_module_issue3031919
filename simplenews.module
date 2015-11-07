@@ -692,7 +692,7 @@ function simplenews_mail($key, &$message, $params) {
   switch ($key) {
     case 'node':
     case 'test':
-      $builder->buildNewsletterMail($message, $params['simplenews_source']);
+      $builder->buildNewsletterMail($message, $params['simplenews_mail']);
       break;
     case 'subscribe':
       $builder->buildSubscribeMail($message, $params);
@@ -1204,35 +1204,6 @@ function simplenews_node_access(NodeInterface $node, $op, $account) {
       return AccessResult::forbidden()->cacheUntilEntityChanges($node);
     }
   }
-}
-
-/**
- * Returns the available simplenews sources.
- *
- * @ingroup source
- */
-function simplenews_get_source_caches() {
-  $sources = \Drupal::moduleHandler()->invokeAll('simplenews_source_cache_info');
-  \Drupal::moduleHandler()->alter('simplenews_source_cache_info', $sources);
-  return $sources;
-}
-
-/**
- * Implements hook_simplenews_source_cache_info().
- *
- * @ingroup source
- */
-function simplenews_simplenews_source_cache_info() {
-  return array(
-    '\Drupal\simplenews\Source\SourceCacheNone' => array(
-      'label' => t('No caching'),
-      'description' => t('This allows to theme each newsletter separately.'),
-    ),
-    '\Drupal\simplenews\Source\SourceCacheBuild' => array(
-      'label' => t('Cached content source'),
-      'description' => t('This caches the rendered content to be sent for multiple recipients. It is not possible to use subscriber specific theming but tokens can be used for personalization.'),
-    ),
-  );
 }
 
 /**

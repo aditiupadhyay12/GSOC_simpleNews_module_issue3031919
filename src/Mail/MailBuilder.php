@@ -9,7 +9,7 @@ namespace Drupal\simplenews\Mail;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Utility\Token;
-use Drupal\simplenews\Source\SourceInterface;
+use Drupal\simplenews\Mail\MailInterface;
 use Drupal\simplenews\Subscription\SubscriptionManagerInterface;
 
 /**
@@ -49,14 +49,14 @@ class MailBuilder implements MailBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  function buildNewsletterMail(array &$message, SourceInterface $source) {
-    // Get message data from source.
-    $message['headers'] = $source->getHeaders($message['headers']);
-    $message['subject'] = $source->getSubject();
-    $message['body']['body'] = $source->getBody();
-    $message['body']['footer'] = $source->getFooter();
+  function buildNewsletterMail(array &$message, MailInterface $mail) {
+    // Get message data from the mail.
+    $message['headers'] = $mail->getHeaders($message['headers']);
+    $message['subject'] = $mail->getSubject();
+    $message['body']['body'] = $mail->getBody();
+    $message['body']['footer'] = $mail->getFooter();
 
-    if ($source->getFormat() == 'html') {
+    if ($mail->getFormat() == 'html') {
       // Set the necessary headers to detect this as an HTML mail. Set both the
       // Content-Type header, and the format (Swiftmailer) and plain (Mime Mail)
       // params.
@@ -66,12 +66,12 @@ class MailBuilder implements MailBuilderInterface {
 
       // Provide a plain text version, both in params][plaintext (Mime Mail) and
       // plain (Swiftmailer).
-      $message['params']['plaintext'] = $source->getPlainBody() . "\n" . $source->getPlainFooter();
+      $message['params']['plaintext'] = $mail->getPlainBody() . "\n" . $mail->getPlainFooter();
       $message['plain'] = $message['params']['plaintext'];
 
       // Add attachments, again, both for the attachments key (Mime Mail) and
       // files (Swiftmailer).
-      $message['params']['attachments'] = $source->getAttachments();
+      $message['params']['attachments'] = $mail->getAttachments();
       $message['params']['files'] = $message['params']['attachments'];
     }
     else {

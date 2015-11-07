@@ -23,7 +23,7 @@ class MailFormatHelper {
    * \Drupal\Core\Mail\MailFormatHelper\MailFormatHelper::htmlToText().
    *
    * @param string $text
-   *   The source text with HTML and special characters.
+   *   The mail text with HTML and special characters.
    * @param bool $inline_hyperlinks
    *   TRUE: URLs will be placed inline.
    *   FALSE: URLs will be converted to numbered reference list.

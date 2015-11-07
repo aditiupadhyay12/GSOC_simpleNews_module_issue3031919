@@ -18,9 +18,9 @@ interface SpoolListInterface extends \Countable {
    * A single source may represent any number of mail spool rows, e.g. by
    * addressing them as BCC.
    *
-   * @return \Drupal\simplenews\Source\SourceInterface
+   * @return \Drupal\simplenews\Mail\MailInterface
    */
-  function nextSource();
+  function nextMail();
 
   /**
    * Returns the processed mail spool rows, keyed by the msid.

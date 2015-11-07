@@ -2,22 +2,22 @@
 
 /**
  * @file
- * Contains \Drupal\simplenews\Source\SourceCacheBuild.
+ * Contains \Drupal\simplenews\Mail\MailCacheBuild.
  */
 
-namespace Drupal\simplenews\Source;
+namespace Drupal\simplenews\Mail;
 
 /**
  * Source cache implementation that caches build and data element.
  *
- * @ingroup source
+ * @ingroup mail
  */
-class SourceCacheBuild extends SourceCacheStatic {
+class MailCacheBuild extends MailCacheStatic {
 
   /**
-   * Implements SourceCacheStatic::set().
+   * {@inheritdoc}
    */
-  function isCacheable($group, $key) {
+  function isCacheable(MailInterface $mail, $group, $key) {
 
     // Only cache for anon users.
     if (\Drupal::currentUser()->isAuthenticated()) {

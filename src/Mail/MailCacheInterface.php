@@ -2,63 +2,62 @@
 
 /**
  * @file
- * Contains \Drupal\simplenews\Source\SourceCacheInterface.
+ * Contains \Drupal\simplenews\Mail\MailCacheInterface.
  */
 
-namespace Drupal\simplenews\Source;
+namespace Drupal\simplenews\Mail;
 
 /**
- * Interface for a simplenews source cache implementation.
+ * Interface for a simplenews mail cache implementation.
  *
- * This is only compatible with the SourceEntityInterface interface.
- *
- * @ingroup source
+ * @ingroup mail
  */
-interface SourceCacheInterface {
-
-  /**
-   * Create a new instance, allows to initialize based on the used
-   * source.
-   */
-  function __construct(SourceEntityInterface $source);
+interface MailCacheInterface {
 
   /**
    * Return a cached element, if existing.
    *
    * Although group and key can be used to identify the requested cache, the
    * implementations are responsible to create a unique cache key themself using
-   * the $source. For example based on the node id and the language.
+   * the $mail. For example based on the node id and the language.
    *
-   * @param $group
+   * @param \Drupal\simplenews\Mail\MailInterface $mail
+   *   The mail object.
+   * @param string $group
    *   Group of the cache key, which allows cache implementations to decide what
    *   they want to cache. Currently used groups:
    *     - data: Raw data, e.g. attachments.
    *     - build: Built and themed content, before personalizations like tokens.
    *     - final: The final returned data. Caching this means that newsletter
    *       can not be personalized anymore.
-   * @param $key
+   * @param string $key
    *   Identifies the requested element, e.g. body, footer or attachments.
+   *
+   * @return mixed
+   *   The cached data or NULL.
    */
-  function get($group, $key);
+  function get(MailInterface $mail, $group, $key);
 
   /**
    * Write an element to the cache.
    *
    * Although group and key can be used to identify the requested cache, the
    * implementations are responsible to create a unique cache key themself using
-   * the $source. For example based on the node id and the language.
+   * the $mail. For example based on the entity id and the language.
    *
-   * @param $group
+   * @param \Drupal\simplenews\Mail\MailInterface $mail
+   *   The mail object.
+   * @param string $group
    *   Group of the cache key, which allows cache implementations to decide what
    *   they want to cache. Currently used groups:
    *     - data: Raw data, e.g. attachments.
    *     - build: Built and themed content, before personalizations like tokens.
    *     - final: The final returned data. Caching this means that newsletter
    *       can not be personalized anymore.
-   * @param $key
+   * @param string $key
    *   Identifies the requested element, e.g. body, footer or attachments.
-   * @param $data
+   * @param mixed $data
    *   The data to be saved in the cache.
    */
-  function set($group, $key, $data);
+  function set(MailInterface $mail, $group, $key, $data);
 }

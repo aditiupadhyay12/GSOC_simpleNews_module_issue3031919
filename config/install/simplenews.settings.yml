@@ -31,5 +31,3 @@ mail:
   spool_progress_expiration: 3600
   spool_expire: 0
   debug: FALSE
-  source_cache: \Drupal\simplenews\Source\SourceCacheBuild
-  source: \Drupal\simplenews\Source\SourceEntity

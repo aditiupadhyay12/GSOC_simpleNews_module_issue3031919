@@ -2,17 +2,17 @@
 
 /**
  * @file
- * Contains \Drupal\simplenews\Source\SourceTest.
+ * Contains \Drupal\simplenews\Mail\MailTest.
  */
 
-namespace Drupal\simplenews\Source;
+namespace Drupal\simplenews\Mail;
 
 /**
- * Example source implementation used for tests.
+ * Example mail implementation used for tests.
  *
- * @ingroup source
+ * @ingroup mail
  */
-class SourceTest implements SourceInterface {
+class MailTest implements MailInterface {
 
   protected $format;
 
@@ -85,4 +85,19 @@ class SourceTest implements SourceInterface {
   public function getTokenContext() {
     return array();
   }
+
+  /**
+   * @inheritDoc
+   */
+  function getEntity() {
+    return NULL;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  function getSubscriber() {
+    return NULL;
+  }
+
 }

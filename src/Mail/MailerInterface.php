@@ -7,7 +7,7 @@
 namespace Drupal\simplenews\Mail;
 
 use Drupal\simplenews\NewsletterInterface;
-use Drupal\simplenews\Source\SourceInterface;
+use Drupal\simplenews\Mail\MailInterface;
 use Drupal\node\NodeInterface;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\SubscriberInterface;
@@ -54,13 +54,13 @@ interface MailerInterface {
   /**
    * Send a node to an email address.
    *
-   * @param \Drupal\simplenews\Source\SourceInterface $source
-   *   The source object.
+   * @param \Drupal\simplenews\Mail\MailInterface $mail
+   *   The mail object.
    *
    * @return bool
    *   TRUE if the email was successfully delivered; otherwise FALSE.
    */
-  public function sendSource(SourceInterface $source);
+  public function sendMail(MailInterface $mail);
 
   /**
    * Send test version of newsletter.

@@ -2,22 +2,21 @@
 
 /**
  * @file
- * Contains \Drupal\simplenews\Source\SourceEntity.
+ * Contains \Drupal\simplenews\Mail\MailEntity.
  */
 
-namespace Drupal\simplenews\Source;
+namespace Drupal\simplenews\Mail;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\file\Entity\File;
-use Drupal\simplenews\Mail\MailFormatHelper;
 use Drupal\simplenews\SubscriberInterface;
 use Drupal\user\Entity\User;
 
 /**
- * Default source class for entities.
+ * Default mail class for entities.
  */
-class SourceEntity implements SourceEntityInterface {
+class MailEntity implements MailInterface {
 
   /**
    * The entity object.
@@ -49,39 +48,30 @@ class SourceEntity implements SourceEntityInterface {
   protected $key = 'test';
 
   /**
-   * Cache implementation used for this source.
+   * Cache implementation used for this mail.
    *
-   * @var SourceCacheInterface
+   * @var MailCacheInterface
    */
   protected $cache;
 
   /**
-   * Implements SourceEntityInterface::_construct();
+   * Constructs a MailEntity object.
    */
-  public function __construct(ContentEntityInterface $entity, SubscriberInterface $subscriber) {
+  public function __construct(ContentEntityInterface $entity, SubscriberInterface $subscriber, MailCacheInterface $mail_cache) {
     $this->setSubscriber($subscriber);
     $this->setEntity($entity);
-    $this->initCache();
+    $this->cache = $mail_cache;
     $this->newsletter = $entity->simplenews_issue->entity;
   }
 
   /**
-   * Set the entity of this source.
+   * Set the entity of this mail.
    */
   public function setEntity(ContentEntityInterface $entity) {
     $this->entity = $entity;
     if ($this->entity->hasTranslation($this->getLanguage())) {
       $this->entity = $this->entity->getTranslation($this->getLanguage());
     }
-  }
-
-  /**
-   * Initialize the cache implementation.
-   */
-  protected function initCache() {
-    $config = \Drupal::configFactory()->get('simplenews.settings');
-    $class = $config->get('mail.source_cache');
-    $this->cache = new $class($this);
   }
 
   /**
@@ -106,7 +96,7 @@ class SourceEntity implements SourceEntityInterface {
   }
 
   /**
-   * Implements SourceInterface::getHeaders().
+   * {@inhertidoc}
    */
   public function getHeaders(array $headers) {
 
@@ -155,7 +145,7 @@ class SourceEntity implements SourceEntityInterface {
   }
 
   /**
-   * Implements SourceInterface::getTokenContext().
+   * {@inhertidoc}
    */
   function getTokenContext() {
     return array(
@@ -173,14 +163,14 @@ class SourceEntity implements SourceEntityInterface {
   }
 
   /**
-   * Implements SourceInterface::getKey().
+   * {@inhertidoc}
    */
   function getKey() {
     return $this->key;
   }
 
   /**
-   * Implements SourceInterface::getFromFormatted().
+   * {@inhertidoc}
    */
   function getFromFormatted() {
     // Windows based PHP systems don't accept formatted email addresses.
@@ -191,28 +181,28 @@ class SourceEntity implements SourceEntityInterface {
   }
 
   /**
-   * Implements SourceInterface::getFromAddress().
+   * {@inhertidoc}
    */
   function getFromAddress() {
     return $this->getNewsletter()->from_address;
   }
 
   /**
-   * Implements SourceInterface::getRecipient().
+   * {@inhertidoc}
    */
   function getRecipient() {
     return $this->getSubscriber()->getMail();
   }
 
   /**
-   * Implements SourceInterface::getFormat().
+   * {@inhertidoc}
    */
   function getFormat() {
     return $this->getNewsletter()->format;
   }
 
   /**
-   * Implements SourceInterface::getLanguage().
+   * {@inhertidoc}
    */
   function getLanguage() {
     return $this->getSubscriber()->getLangcode();
@@ -226,7 +216,7 @@ class SourceEntity implements SourceEntityInterface {
   }
 
   /**
-   * Implements SourceInterface::getSubject().
+   * {@inhertidoc}
    */
   function getSubject() {
     // Build email subject and perform some sanitizing.
@@ -331,7 +321,7 @@ class SourceEntity implements SourceEntityInterface {
     if (empty($format)) {
       $format = $this->getFormat();
     }
-    if ($cache = $this->cache->get('build', 'body:' . $format)) {
+    if ($cache = $this->cache->get($this, 'build', 'body:' . $format)) {
       return $cache;
     }
     $body = array(
@@ -342,19 +332,19 @@ class SourceEntity implements SourceEntityInterface {
       '#simplenews_subscriber' => $this->getSubscriber(),
     );
     $markup = \Drupal::service('renderer')->renderPlain($body);
-    $this->cache->set('build', 'body:' . $format, $markup);
+    $this->cache->set($this, 'build', 'body:' . $format, $markup);
     return $markup;
   }
 
   /**
-   * Implements SourceInterface::getBody().
+   * {@inhertidoc}
    */
   public function getBody() {
     return $this->getBodyWithFormat($this->getFormat());
   }
 
   /**
-   * Implements SourceInterface::getBody().
+   * {@inhertidoc}
    */
   public function getPlainBody() {
     return $this->getBodyWithFormat('plain');
@@ -373,7 +363,7 @@ class SourceEntity implements SourceEntityInterface {
     // Switch to correct user and language context.
     $this->setContext();
 
-    if ($cache = $this->cache->get('final', 'body:' . $format)) {
+    if ($cache = $this->cache->get($this, 'final', 'body:' . $format)) {
       return $cache;
     }
 
@@ -385,7 +375,7 @@ class SourceEntity implements SourceEntityInterface {
       // Convert HTML to text if requested to do so.
       $body = MailFormatHelper::htmlToText($body, $this->getNewsletter()->hyperlinks);
     }
-    $this->cache->set('final', 'body:' . $format, $body);
+    $this->cache->set($this, 'final', 'body:' . $format, $body);
     $this->resetContext();
     return $body;
   }
@@ -402,7 +392,7 @@ class SourceEntity implements SourceEntityInterface {
       $format = $this->getFormat();
     }
 
-    if ($cache = $this->cache->get('build', 'footer:' . $format)) {
+    if ($cache = $this->cache->get($this, 'build', 'footer:' . $format)) {
       return $cache;
     }
 
@@ -418,19 +408,19 @@ class SourceEntity implements SourceEntityInterface {
     );
     $markup = \Drupal::service('renderer')->renderPlain($footer);
 
-    $this->cache->set('build', 'footer:' . $format, $markup);
+    $this->cache->set($this, 'build', 'footer:' . $format, $markup);
     return $markup;
   }
 
   /**
-   * Implements SourceInterface::getFooter().
+   * {@inhertidoc}
    */
   public function getFooter() {
     return $this->getFooterWithFormat($this->getFormat());
   }
 
   /**
-   * Implements SourceInterface::getPlainFooter().
+   * {@inhertidoc}
    */
   public function getPlainFooter() {
     return $this->getFooterWithFormat('plain');
@@ -448,20 +438,20 @@ class SourceEntity implements SourceEntityInterface {
   protected function getFooterWithFormat($format) {
     // Switch to correct user and language context.
     $this->setContext();
-    if ($cache = $this->cache->get('final', 'footer:' . $format)) {
+    if ($cache = $this->cache->get($this, 'final', 'footer:' . $format)) {
       return $cache;
     }
     $final_footer = \Drupal::token()->replace($this->buildFooter($format), $this->getTokenContext(), array('sanitize' => FALSE, 'langcode' => $this->getLanguage()));
-    $this->cache->set('final', 'footer:' . $format, $final_footer);
+    $this->cache->set($this, 'final', 'footer:' . $format, $final_footer);
     $this->resetContext();
     return $final_footer;
   }
 
   /**
-   * Implements SourceInterface::getAttachments().
+   * {@inhertidoc}
    */
   function getAttachments() {
-    if ($cache = $this->cache->get('data', 'attachments')) {
+    if ($cache = $this->cache->get($this, 'data', 'attachments')) {
       return $cache;
     }
 
@@ -485,7 +475,7 @@ class SourceEntity implements SourceEntityInterface {
       $attachments = File::loadMultiple($fids);
     }
 
-    $this->cache->set('data', 'attachments', $attachments);
+    $this->cache->set($this, 'data', 'attachments', $attachments);
     return $attachments;
   }
 

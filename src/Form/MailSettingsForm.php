@@ -43,22 +43,6 @@ class MailSettingsForm extends ConfigFormBase {
       '#description' => $this->t('When checked cron will be used to send newsletters (recommended). Test newsletters and confirmation emails will be sent immediately. Leave unchecked for testing purposes.'),
     );
 
-    $sources = simplenews_get_source_caches();
-    $sources_labels = array();
-    $sources_descriptions = '';
-    foreach ($sources as $name => $source) {
-      $sources_labels[$name] = $source['label'];
-      $sources_descriptions .= $this->t('<strong>@label</strong>: @description <br />', array('@label' => $source['label'], '@description' => $source['description']));
-    }
-
-    $form['simplenews_mail_backend']['simplenews_source_cache'] = array(
-      '#type' => 'select',
-      '#title' => $this->t('Cache'),
-      '#description' => $this->t('Chosing a different cache implementation allows for a different behavior during sending mails.') . '<br /><br />' . $sources_descriptions,
-      '#options' => $sources_labels,
-      '#default_value' => $config->get('mail.source_cache'),
-    );
-
     $throttle_val = array(1, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000);
     $throttle = array_combine($throttle_val, $throttle_val);
     $throttle[SpoolStorageInterface::UNLIMITED] = $this->t('Unlimited');
