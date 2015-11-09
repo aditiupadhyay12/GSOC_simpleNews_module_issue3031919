@@ -17,6 +17,7 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\node\NodeInterface;
 use Drupal\node\NodeTypeInterface;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\SubscriberInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -50,12 +51,6 @@ define('SIMPLENEWS_STATUS_SEND_NOT', 0);
 define('SIMPLENEWS_STATUS_SEND_PENDING', 1);
 define('SIMPLENEWS_STATUS_SEND_READY', 2);
 define('SIMPLENEWS_STATUS_SEND_PUBLISH', 3);
-
-/**
- * SUBSCRIPTION STATUS
- */
-define('SIMPLENEWS_SUBSCRIPTION_INACTIVE', 0);
-define('SIMPLENEWS_SUBSCRIPTION_ACTIVE', 1);
 
 define('SIMPLENEWS_OPT_INOUT_HIDDEN', 'hidden');
 define('SIMPLENEWS_OPT_INOUT_SINGLE', 'single');
@@ -421,9 +416,9 @@ function simplenews_user_insert(UserInterface $account) {
     // set inactive if not created by an administrator.
     if (!\Drupal::currentUser()->hasPermission('administer users')) {
       // this user will be activated on first login (see simplenews_user_login)
-      $subscriber->setStatus(SIMPLENEWS_SUBSCRIPTION_INACTIVE);
+      $subscriber->setStatus(SubscriberInterface::INACTIVE);
     } else {
-      $subscriber->setStatus(SIMPLENEWS_SUBSCRIPTION_ACTIVE);
+      $subscriber->setStatus(SubscriberInterface::ACTIVE);
     }
     $subscriber->save();
   }
@@ -440,7 +435,7 @@ function simplenews_user_login(UserInterface $account) {
   if ($account->getLastAccessedTime() == 0) {
     $subscriber = simplenews_subscriber_load_by_uid($account->id());
     if ($subscriber) {
-      $subscriber->setStatus(SIMPLENEWS_SUBSCRIPTION_ACTIVE);
+      $subscriber->setStatus(SubscriberInterface::ACTIVE);
       $subscriber->save();
     }
   }
@@ -1144,7 +1139,7 @@ function simplenews_count_subscriptions($newsletter_id) {
   $query = db_select('simplenews_subscriber__subscriptions', 'ss');
   $query->leftJoin('simplenews_subscriber', 'sn', 'sn.id = ss.entity_id');
   $query->condition('subscriptions_target_id', $newsletter_id)
-    ->condition('sn.status', 1)
+    ->condition('sn.status', SubscriberInterface::ACTIVE)
     ->condition('ss.subscriptions_status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
   $subscription_count[$newsletter_id] = $query->countQuery()->execute()->fetchField();
   return $subscription_count[$newsletter_id];

@@ -9,6 +9,7 @@ namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\simplenews\SubscriberInterface;
 
 /**
  * Do a mass subscription for a list of email addresses.
@@ -28,10 +29,10 @@ class SubscriberExportForm extends FormBase {
   function getEmails($states, $subscribed, $newsletters) {
     // Build conditions for active state, subscribed state and newsletter selection.
     if (isset($states['active'])) {
-      $condition_active[] = 1;
+      $condition_active[] = SubscriberInterface::ACTIVE;
     }
     if (isset($states['inactive'])) {
-      $condition_active[] = 0;
+      $condition_active[] = SubscriberInterface::INACTIVE;
     }
     if (isset($subscribed['subscribed'])) {
       $condition_subscribed[] = SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED;

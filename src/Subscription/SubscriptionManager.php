@@ -139,7 +139,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
         $subscriber->setUserId($account->id());
       }
       $subscriber->setLangcode($preferred_langcode);
-      $subscriber->setStatus(1);
+      $subscriber->setStatus(SubscriberInterface::ACTIVE);
       $subscriber->save();
     }
 
@@ -225,7 +225,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
     $query->innerJoin('simplenews_subscription', 'ss', 'ss.snid = sn.snid');
     $query->fields('sn', array('mail', 'uid', 'language', 'snid'))
       ->fields('ss', array('status'))
-      ->condition('sn.activated', 1)
+      ->condition('sn.activated', SubscriberInterface::ACTIVE)
       ->condition('ss.newsletter_id', $newsletter_id)
       ->condition('ss.status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
     return $query->execute()->fetchAllAssoc('mail');

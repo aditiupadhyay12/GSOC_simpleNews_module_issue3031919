@@ -16,6 +16,16 @@ use Drupal\user\UserInterface;
 interface SubscriberInterface extends ContentEntityInterface {
 
   /**
+   * Subscriber is inactive.
+   */
+  const INACTIVE = 0;
+
+  /**
+   * Subscriber is active.
+   */
+  const ACTIVE = 1;
+
+  /**
    * Returns if the subscriber is active or not.
    *
    * @return boolean

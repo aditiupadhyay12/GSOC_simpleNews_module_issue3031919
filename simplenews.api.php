@@ -86,12 +86,12 @@ function hook_simplenews_subscription_operations() {
     'activate' => array(
       'label' => t('Activate'),
       'callback' => 'simplenews_subscription_activate',
-      'callback arguments' => array(SIMPLENEWS_SUBSCRIPTION_ACTIVE),
+      'callback arguments' => array(\Drupal\simplenews\SubscriberInterface::ACTIVE),
     ),
     'inactivate' => array(
       'label' => t('Inactivate'),
       'callback' => 'simplenews_subscription_activate',
-      'callback arguments' => array(SIMPLENEWS_SUBSCRIPTION_INACTIVE),
+      'callback arguments' => array(\Drupal\simplenews\SubscriberInterface::INACTIVE),
     ),
     'delete' => array(
       'label' => t('Delete'),

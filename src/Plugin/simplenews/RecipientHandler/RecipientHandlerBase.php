@@ -8,7 +8,7 @@ namespace Drupal\simplenews\Plugin\simplenews\RecipientHandler;
 
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\simplenews\RecipientHandler\RecipientHandlerInterface;
-
+use Drupal\simplenews\SubscriberInterface;
 
 /**
  * Base class for all Recipient Handler classes.
@@ -54,7 +54,7 @@ class RecipientHandlerBase extends PluginBase implements RecipientHandlerInterfa
     $select->addField('t', 'subscriptions_target_id', 'newsletter_id');
     $select->condition('t.subscriptions_target_id', $this->newsletter->id());
     $select->condition('t.subscriptions_status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
-    $select->condition('s.status', SIMPLENEWS_SUBSCRIPTION_ACTIVE);
+    $select->condition('s.status', SubscriberInterface::ACTIVE);
 
     return $select;
   }

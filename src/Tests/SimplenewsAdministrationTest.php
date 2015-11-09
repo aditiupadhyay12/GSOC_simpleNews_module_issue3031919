@@ -12,6 +12,7 @@ use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Unicode;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\SubscriberInterface;
 
 /**
  * Managing of newsletter categories and content types.
@@ -719,7 +720,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       $subscribers[] = Subscriber::create(array('mail' => $this->randomEmail()));
     }
     foreach ($subscribers as $subscriber) {
-      $subscriber->setStatus(SIMPLENEWS_SUBSCRIPTION_ACTIVE);
+      $subscriber->setStatus(SubscriberInterface::ACTIVE);
     }
 
     // Subscribe to the default newsletter and set subscriber status.
@@ -806,7 +807,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       $subscribers[] = Subscriber::create(array('mail' => $this->randomEmail()));
     }
     foreach ($subscribers as $subscriber) {
-      $subscriber->setStatus(SIMPLENEWS_SUBSCRIPTION_ACTIVE);
+      $subscriber->setStatus(SubscriberInterface::ACTIVE);
     }
 
     // Subscribe to the default newsletter and set subscriber status.
