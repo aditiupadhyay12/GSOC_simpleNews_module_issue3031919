@@ -3,8 +3,8 @@ status: true
 dependencies:
   module:
     - simplenews
-title: 'Default cron handler'
-id: simplenews_job
+title: 'Sends newsletters'
+id: simplenews_cron
 module: simplenews
 callback: simplenews_cron
 scheduler:
