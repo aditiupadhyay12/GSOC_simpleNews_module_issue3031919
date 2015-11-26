@@ -948,6 +948,7 @@ function simplenews_theme() {
         'build' => NULL,
         'newsletter' => NULL,
         'language' => NULL,
+        'simplenews_subscriber' => NULL,
       ),
       'path' => $path . '/theme',
       'mail theme' => TRUE,
