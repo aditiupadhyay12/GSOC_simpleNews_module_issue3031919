@@ -9,6 +9,7 @@ namespace Drupal\simplenews\Mail;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\file\Entity\File;
 use Drupal\simplenews\SubscriberInterface;
 use Drupal\user\Entity\User;
@@ -370,10 +371,13 @@ class MailEntity implements MailInterface {
     $body = $this->buildBody($format);
 
     // Build message body, replace tokens.
-    $body = \Drupal::token()->replace($body, $this->getTokenContext(), array('sanitize' => FALSE, 'langcode' => $this->getLanguage()));
+    $body = \Drupal::token()->replace($body, $this->getTokenContext(), array('langcode' => $this->getLanguage()));
     if ($format == 'plain') {
       // Convert HTML to text if requested to do so.
       $body = MailFormatHelper::htmlToText($body, $this->getNewsletter()->hyperlinks);
+    }
+    else {
+      $body = Markup::create($body);
     }
     $this->cache->set($this, 'final', 'body:' . $format, $body);
     $this->resetContext();
@@ -441,7 +445,8 @@ class MailEntity implements MailInterface {
     if ($cache = $this->cache->get($this, 'final', 'footer:' . $format)) {
       return $cache;
     }
-    $final_footer = \Drupal::token()->replace($this->buildFooter($format), $this->getTokenContext(), array('sanitize' => FALSE, 'langcode' => $this->getLanguage()));
+    // @todo Evaluate whether this is safe.
+    $final_footer = Markup::create(\Drupal::token()->replace($this->buildFooter($format), $this->getTokenContext(), array('langcode' => $this->getLanguage())));
     $this->cache->set($this, 'final', 'footer:' . $format, $final_footer);
     $this->resetContext();
     return $final_footer;
