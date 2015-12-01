@@ -8,6 +8,7 @@
 namespace Drupal\simplenews\Mail;
 
 use Drupal\Component\Utility\Unicode;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\file\Entity\File;
@@ -18,6 +19,7 @@ use Drupal\user\Entity\User;
  * Default mail class for entities.
  */
 class MailEntity implements MailInterface {
+  use DependencySerializationTrait;
 
   /**
    * The entity object.
