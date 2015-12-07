@@ -745,14 +745,13 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalPostForm(NULL, array('test_address' => 'invalid_address'), t('Send test newsletter issue'));
     $this->assertText(t('Invalid email address "invalid_address"'));
     $this->drupalPostForm(NULL, array('test_address' => $admin_user->getEmail()), t('Send test newsletter issue'));
-    $this->assertText(t('Test newsletter sent to anonymous @email', array('@email' => $admin_user->getEmail())));
+    $this->assertText(t('Test newsletter sent to user @name &lt;@email&gt;', array('@name' => $admin_user->getAccountName(), '@email' => $admin_user->getEmail())));
 
     $mails = $this->drupalGetMails();
     $this->assertEqual('simplenews_test', $mails[0]['id']);
     $this->assertEqual($admin_user->getEmail(), $mails[0]['to']);
     $this->assertEqual(t('[Default newsletter] @title', array('@title' => $node->getTitle())), $mails[0]['subject']);
-    // @todo: This mail should be sent for the admin user. https://www.drupal.org/node/2421477
-    $this->assertTrue(strpos($mails[0]['body'], 'User ID: not yet assigned'));
+    $this->assertTrue(strpos($mails[0]['body'], 'User ID: ' . $admin_user->id()));
 
     // Update the content type, remove the simpletest checkbox.
     $edit = array(

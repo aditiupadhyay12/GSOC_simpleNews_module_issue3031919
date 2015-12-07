@@ -316,10 +316,15 @@ class Mailer implements MailerInterface {
       if (!empty($mail)) {
         $subscriber = simplenews_subscriber_load_by_mail($mail);
         if (!$subscriber) {
-          // @todo: Find a cleaner way to do this.
-          $subscriber = Subscriber::create(array());
-          $subscriber->setUserId(0);
-          $subscriber->setMail($mail);
+          // Create a stub subscriber. Use values from the user having the given
+          // address, or if there is no such user, the anonymous user.
+          if ($user = user_load_by_mail($mail)) {
+            $subscriber = Subscriber::create()->fillFromAccount($user);
+          }
+          else {
+            $subscriber = Subscriber::create(['mail' => $mail]);
+          }
+          // Keep the current language.
           $subscriber->setLangcode(\Drupal::languageManager()->getCurrentLanguage());
         }
 

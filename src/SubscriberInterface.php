@@ -8,6 +8,7 @@
 namespace Drupal\simplenews;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -97,8 +98,17 @@ interface SubscriberInterface extends ContentEntityInterface {
    *   The subscribers lang code.
    */
   public function setLangcode($langcode);
-  
+
   /**
+   * Fill values from a user account.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *
+   * @return $this
+   */
+  public function fillFromAccount(AccountInterface $account);
+
+    /**
    * Returns the changes.
    *
    * @return array

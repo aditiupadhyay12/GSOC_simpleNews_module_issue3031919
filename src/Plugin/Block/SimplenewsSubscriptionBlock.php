@@ -174,7 +174,7 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
         $form_object->setEntity($subscriber);
       }
       else {
-        $form_object->setEntity(Subscriber::create(array('mail' => $user->getEmail())));
+        $form_object->setEntity(Subscriber::create()->fillFromAccount($user));
       }
     }
     else {
