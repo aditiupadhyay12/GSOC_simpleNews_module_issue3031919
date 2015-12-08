@@ -35,6 +35,11 @@ interface SpoolStorageInterface {
   const STATUS_IN_PROGRESS = 3;
 
   /**
+   * Marks a spool entry as skipped (not sent, but done).
+   */
+  const STATUS_SKIPPED = 4;
+
+  /**
    * Used when sending an unlimited amount of mails from the spool.
    */
   const UNLIMITED = -1;

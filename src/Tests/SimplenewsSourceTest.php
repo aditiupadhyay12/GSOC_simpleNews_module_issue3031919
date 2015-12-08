@@ -356,7 +356,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   }
 
   /**
-   * Test with disabled caching.
+   * Test sending when the issue node is missing.
    */
   function testSendMissingNode() {
     $this->setUpSubscribers(1);
@@ -392,7 +392,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   }
 
   /**
-   * Test with disabled caching.
+   * Test sending when there are no subscribers.
    */
   function testSendMissingSubscriber() {
     $this->setUpSubscribers(1);
@@ -420,5 +420,27 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
 
     $spool_row = db_query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
     $this->assertEqual(SpoolStorageInterface::STATUS_DONE, $spool_row->status);
+  }
+
+  /**
+   * Test handling of the skip exception.
+   */
+  public function testSkip() {
+    $this->setUpSubscribers(1);
+    // Setting the body to "Nothing interesting" provokes an exception in
+    // simplenews_test_mail_alter().
+    $node = $this->drupalCreateNode([
+      'body' => 'Nothing interesting',
+      'type' => 'simplenews_issue',
+      'simplenews_issue' => ['target_id' => 'default'],
+    ]);
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
+    \Drupal::service('simplenews.mailer')->sendSpool();
+    $this->assertEqual(0, count($this->drupalGetMails()));
+    $spool_row = db_select('simplenews_mail_spool', 'ms')
+      ->fields('ms', ['status'])
+      ->execute()
+      ->fetchAssoc();
+    $this->assertEqual(SpoolStorageInterface::STATUS_SKIPPED, $spool_row['status']);
   }
 }

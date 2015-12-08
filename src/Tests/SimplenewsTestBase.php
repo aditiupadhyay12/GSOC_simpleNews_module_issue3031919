@@ -27,7 +27,7 @@ abstract class SimplenewsTestBase extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('simplenews', 'block');
+  public static $modules = array('simplenews', 'simplenews_test', 'block');
 
   /**
    * The Simplenews settings config object.

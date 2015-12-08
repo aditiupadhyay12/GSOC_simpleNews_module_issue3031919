@@ -210,7 +210,7 @@ class SpoolStorage implements SpoolStorageInterface {
 
     $expiration_time = REQUEST_TIME - $this->config->get('mail.spool_expire') * 86400;
     return $this->connection->delete('simplenews_mail_spool')
-      ->condition('status', SpoolStorageInterface::STATUS_DONE)
+      ->condition('status', [SpoolStorageInterface::STATUS_DONE, SpoolStorageInterface::STATUS_SKIPPED], 'IN')
       ->condition('timestamp', $expiration_time, '<=')
       ->execute();
   }

@@ -20,6 +20,8 @@ class SimplenewsUninstallTest extends SimplenewsTestBase {
   public function setUp() {
     parent::setUp();
 
+    \Drupal::service('module_installer')->uninstall(['simplenews_test']);
+
     $admin_user = $this->drupalCreateUser(array(
       'administer nodes',
       'administer simplenews settings',
@@ -37,6 +39,7 @@ class SimplenewsUninstallTest extends SimplenewsTestBase {
    * Tests that Simplenews module can be uninstalled.
    */
   public function testUninstall() {
+
     // Add a newsletter issue.
     $this->drupalCreateNode(['type' => 'simplenews_issue', 'label' => $this->randomMachineName()])->save();
 
