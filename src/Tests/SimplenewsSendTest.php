@@ -646,5 +646,6 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Check if the correct theme was used in mails.
     $this->assertTrue(strpos($mails[0]['body'], 'Simplenews test theme') != FALSE);
+    $this->assertTrue(strpos($mails[0]['body'], $this->getLatestSubscriber()->id()) != FALSE);
   }
 }
