@@ -153,18 +153,6 @@ class NewsletterForm extends EntityForm {
       '#title' => t('Newsletter subject'),
       '#collapsible' => FALSE,
     );
-    if (\Drupal::moduleHandler()->moduleExists('token')) {
-      $form['simplenews_subject']['token_help'] = array(
-        '#title' => t('Replacement patterns'),
-        '#type' => 'fieldset',
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
-      );
-      $form['simplenews_subject']['token_help']['browser'] = array(
-        '#theme' => 'token_tree',
-        '#token_types' => array('simplenews-newsletter', 'node', 'simplenews-subscriber'),
-      );
-    }
 
     $form['simplenews_subject']['email_subject'] = array(
       '#type' => 'textfield',
@@ -174,6 +162,13 @@ class NewsletterForm extends EntityForm {
       '#required' => TRUE,
       '#default_value' => $newsletter->subject,
     );
+
+    if (\Drupal::moduleHandler()->moduleExists('token')) {
+      $form['simplenews_subject']['token_browser'] = array(
+        '#theme' => 'token_tree_link',
+        '#token_types' => array('simplenews-newsletter', 'node', 'simplenews-subscriber'),
+      );
+    }
 
     // Email from address
     $form['simplenews_sender_information']['from_address'] = array(

@@ -62,7 +62,7 @@ class SubscriptionSettingsForm extends ConfigFormBase {
       );
 
       $form['subscription_mail']['token_help']['browser'] = array(
-        '#theme' => 'token_tree',
+        '#theme' => 'token_tree_link',
         '#token_types' => array('simplenews-newsletter', 'simplenews-subscriber'),
       );
     }
