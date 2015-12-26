@@ -41,58 +41,72 @@ interface MailInterface {
 
   /**
    * Returns the mail subject.
+   *
+   * @return string
+   *   The mail subject.
    */
   function getSubject();
 
   /**
    * Returns the mail body.
    *
-   * The body should either be plaintext or html, depending on the format.
+   * @return string
+   *   The body, as plaintext or html depending on the format.
    */
   function getBody();
 
   /**
    * Returns the plaintext body.
+   *
+   * @return string
+   *   The body as plain text.
    */
   function getPlainBody();
 
   /**
    * Returns the mail footer.
    *
-   * The footer should either be plaintext or html, depending on the format.
+   * @return string
+   *   The footer, as plaintext or html depending on the format.
    */
   function getFooter();
 
   /**
    * Returns the plain footer.
+   *
+   * @return string
+   *   The footer as plain text.
    */
   function getPlainFooter();
 
   /**
    * Returns the mail format.
    *
-   * @return
+   * @return string
    *   The mail format as string, either 'plain' or 'html'.
    */
   function getFormat();
 
   /**
-   * Returns the recipent of this newsletter mail.
+   * Returns the recipient of this newsletter mail.
    *
-   * @return
+   * @return string
    *   The recipient mail address(es) of this newsletter as a string.
    */
   function getRecipient();
 
   /**
    * The language that should be used for this newsletter mail.
+   *
+   * @return string
+   *   The langcode.
    */
   function getLanguage();
 
   /**
    * Returns an array of attachments for this newsletter mail.
    *
-   * @return
+   * @return array
    *   An array of managed file objects with properties uri, filemime and so on.
    */
   function getAttachments();
@@ -100,7 +114,7 @@ interface MailInterface {
   /**
    * Returns the token context to be used with token replacements.
    *
-   * @return
+   * @return array
    *   An array of objects as required by token_replace().
    */
   function getTokenContext();
@@ -108,23 +122,32 @@ interface MailInterface {
   /**
    * Returns the mail key to be used for mails.
    *
-   * @return
+   * @return string
    *   The mail key, either test or node.
    */
   function getKey();
 
   /**
    * Set the mail key.
+   *
+   * @param string $key
+   *   The mail key, either 'test' or 'node'.
    */
   function setKey($key);
 
   /**
    * Returns the formatted from mail address.
+   *
+   * @return string
+   *   The mail address with a name.
    */
   function getFromFormatted();
 
   /**
    * Returns the plain mail address.
+   *
+   * @return string
+   *   The mail address.
    */
   function getFromAddress();
 }

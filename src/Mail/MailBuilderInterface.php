@@ -1,13 +1,10 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: berdir
- * Date: 4/25/15
- * Time: 1:47 PM
+ * @file
+ * Contains \Drupal\simplenews\Mail\MailBuilderInterface.
  */
-namespace Drupal\simplenews\Mail;
 
-use Drupal\simplenews\Mail\MailInterface;
+namespace Drupal\simplenews\Mail;
 
 /**
  * Builds newsletter and confirmation mails.

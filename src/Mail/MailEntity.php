@@ -30,11 +30,15 @@ class MailEntity implements MailInterface {
 
   /**
    * The cached build render array.
+   *
+   * @var array
    */
   protected $build;
 
   /**
    * The newsletter.
+   *
+   * @var \Drupal\simplenews\NewsletterInterface
    */
   protected $newsletter;
 
@@ -47,6 +51,8 @@ class MailEntity implements MailInterface {
 
   /**
    * The mail key used for mails.
+   *
+   * @var string
    */
   protected $key = 'test';
 
@@ -69,6 +75,9 @@ class MailEntity implements MailInterface {
 
   /**
    * Set the entity of this mail.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The entity of this mail.
    */
   public function setEntity(ContentEntityInterface $entity) {
     $this->entity = $entity;
@@ -79,6 +88,9 @@ class MailEntity implements MailInterface {
 
   /**
    * Returns the corresponding newsletter.
+   *
+   * @return \Drupal\simplenews\NewsletterInterface
+   *   The newsletter.
    */
   public function getNewsletter() {
     return $this->newsletter;
@@ -86,6 +98,9 @@ class MailEntity implements MailInterface {
 
   /**
    * Set the active subscriber.
+   *
+   * @param \Drupal\simplenews\SubscriberInterface $subscriber
+   *   The active subscriber.
    */
   public function setSubscriber(SubscriberInterface $subscriber) {
     $this->subscriber = $subscriber;
@@ -93,13 +108,16 @@ class MailEntity implements MailInterface {
 
   /**
    * Return the subscriber object.
+   *
+   * @return \Drupal\simplenews\SubscriberInterface
+   *   The subscriber object.
    */
   public function getSubscriber() {
     return $this->subscriber;
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   public function getHeaders(array $headers) {
 
@@ -148,7 +166,7 @@ class MailEntity implements MailInterface {
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   function getTokenContext() {
     return array(
@@ -159,21 +177,21 @@ class MailEntity implements MailInterface {
   }
 
   /**
-   * Set the mail key.
+   * {@inheritdoc}
    */
   function setKey($key) {
     $this->key = $key;
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   function getKey() {
     return $this->key;
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   function getFromFormatted() {
     // Windows based PHP systems don't accept formatted email addresses.
@@ -184,28 +202,28 @@ class MailEntity implements MailInterface {
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   function getFromAddress() {
     return $this->getNewsletter()->from_address;
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   function getRecipient() {
     return $this->getSubscriber()->getMail();
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   function getFormat() {
     return $this->getNewsletter()->format;
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   function getLanguage() {
     return $this->getSubscriber()->getLangcode();
@@ -219,7 +237,7 @@ class MailEntity implements MailInterface {
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   function getSubject() {
     // Build email subject and perform some sanitizing.
@@ -281,7 +299,8 @@ class MailEntity implements MailInterface {
    * Build the entity object.
    *
    * The resulting build array is cached as it is used in multiple places.
-   * @param $format
+   *
+   * @param string|null $format
    *   (Optional) Override the default format. Defaults to getFormat().
    */
   protected function build($format = NULL) {
@@ -317,8 +336,11 @@ class MailEntity implements MailInterface {
   /**
    * Build the themed newsletter body.
    *
-   * @param $format
+   * @param string|null $format
    *   (Optional) Override the default format. Defaults to getFormat().
+   *
+   * @return string
+   *   The newsletter body.
    */
   protected function buildBody($format = NULL) {
     if (empty($format)) {
@@ -340,14 +362,14 @@ class MailEntity implements MailInterface {
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   public function getBody() {
     return $this->getBodyWithFormat($this->getFormat());
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   public function getPlainBody() {
     return $this->getBodyWithFormat('plain');
@@ -356,10 +378,10 @@ class MailEntity implements MailInterface {
   /**
    * Get the body with the requested format.
    *
-   * @param $format
+   * @param string $format
    *   Either html or plain.
    *
-   * @return
+   * @return string
    *   The rendered mail body as a string.
    */
   protected function getBodyWithFormat($format) {
@@ -389,9 +411,12 @@ class MailEntity implements MailInterface {
   /**
    * Builds the themed footer.
    *
-   * @param $format
+   * @param string|null $format
    *   (Optional) Set the format of this footer build, overrides the default
    *   format.
+   *
+   * @return string
+   *   The footer.
    */
   protected function buildFooter($format = NULL) {
     if (empty($format)) {
@@ -419,14 +444,14 @@ class MailEntity implements MailInterface {
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   public function getFooter() {
     return $this->getFooterWithFormat($this->getFormat());
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   public function getPlainFooter() {
     return $this->getFooterWithFormat('plain');
@@ -435,10 +460,10 @@ class MailEntity implements MailInterface {
   /**
    * Get the footer in the specified format.
    *
-   * @param $format
+   * @param string $format
    *   Either html or plain.
    *
-   * @return
+   * @return string
    *   The footer for the requested format.
    */
   protected function getFooterWithFormat($format) {
@@ -455,7 +480,7 @@ class MailEntity implements MailInterface {
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   function getAttachments() {
     if ($cache = $this->cache->get($this, 'data', 'attachments')) {

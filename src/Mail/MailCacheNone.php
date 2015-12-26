@@ -15,7 +15,7 @@ namespace Drupal\simplenews\Mail;
 class MailCacheNone extends MailCacheStatic {
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
   public function isCacheable(MailInterface $mail, $group, $key) {
     return FALSE;

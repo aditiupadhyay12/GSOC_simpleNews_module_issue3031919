@@ -39,6 +39,8 @@ class MailBuilder implements MailBuilderInterface {
    *   The token service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   * @param \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager
+   *   The subscription manager.
    */
   public function __construct(Token $token, ConfigFactoryInterface $config_factory, SubscriptionManagerInterface $subscription_manager) {
     $this->token = $token;
