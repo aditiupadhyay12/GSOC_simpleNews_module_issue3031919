@@ -15,7 +15,7 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simpletest\WebTestBase;
-use Drupal\user\Entity\Role;
+use Drupal\user\UserInterface;
 
 /**
  * Base class for simplenews web tests.
@@ -231,7 +231,7 @@ abstract class SimplenewsTestBase extends WebTestBase {
    * @param \Drupal\user\UserInterface $user
    *   The user to login.
    */
-  protected function resetPassLogin($user) {
+  protected function resetPassLogin(UserInterface $user) {
     $uid = $user->id();
     $timestamp = REQUEST_TIME;
     $hash = user_pass_rehash($user, $timestamp);
