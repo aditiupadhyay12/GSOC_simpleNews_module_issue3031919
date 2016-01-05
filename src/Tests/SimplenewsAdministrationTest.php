@@ -75,6 +75,11 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       }
     }
 
+    // New title should be saved correctly.
+    $this->drupalPostForm('admin/config/services/simplenews/manage/default', ['subject' => 'Edited subject'], t('Save'));
+    $this->drupalGet('admin/config/services/simplenews/manage/default');
+    $this->assertFieldByName('subject', 'Edited subject');
+
     $newsletters = simplenews_newsletter_get_all();
 
     // Check registration form.

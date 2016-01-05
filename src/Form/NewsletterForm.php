@@ -154,7 +154,7 @@ class NewsletterForm extends EntityForm {
       '#collapsible' => FALSE,
     );
 
-    $form['simplenews_subject']['email_subject'] = array(
+    $form['simplenews_subject']['subject'] = array(
       '#type' => 'textfield',
       '#title' => t('Email subject'),
       '#size' => 60,
