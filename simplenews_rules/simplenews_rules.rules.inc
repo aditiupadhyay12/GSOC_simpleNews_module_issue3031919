@@ -225,7 +225,7 @@ function simplenews_rules_action_unsubscribe($args, $settings) {
  */
 function simplenews_rules_action_subscription_delete($args, $settings) {
   if (!empty($args['mail']) && !empty($args['tid'])){
-    \Drupal::service('simplenews.subscription_manager')->deleteSubscriptions(array('mail' => $args['mail'], 'tid' => $args['tid']));
+    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->deleteSubscriptions(array('mail' => $args['mail'], 'tid' => $args['tid']));
   }
 }
 

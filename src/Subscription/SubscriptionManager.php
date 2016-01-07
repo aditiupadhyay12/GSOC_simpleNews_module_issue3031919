@@ -234,23 +234,6 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   /**
    * {@inheritdoc}
    */
-  public function deleteSubscriptions($conditions = array()) {
-    // @todo: redo this in a proper way
-    if (!db_table_exists('simplenews_subscriber__subscriptions')) {
-      // This can happen if this is called during uninstall.
-      return;
-    }
-    $query = db_delete('simplenews_subscriber__subscriptions');
-    foreach ($conditions as $key => $condition) {
-      $query->condition($key, $condition);
-    }
-    $query->execute();
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getChangesList(SubscriberInterface $subscriber, $changes = NULL, $langcode = NULL) {
     if (empty($langcode)) {
       $language = $this->languageManager->getCurrentLanguage();

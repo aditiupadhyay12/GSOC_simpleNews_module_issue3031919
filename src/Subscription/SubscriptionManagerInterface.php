@@ -104,18 +104,6 @@ interface SubscriptionManagerInterface {
   public function getSubscriptionsByNewsletter($newsletter_id);
 
   /**
-   * Delete subscriptions.
-   *
-   * @param array $conditions
-   *   An associative array of conditions matching the records to be delete.
-   *   Example: array('newsletter_id' => 5, 'snid' => 12)
-   *   Delete the subscription of subscriber 12 to newsletter newsletter_id 5.
-   *
-   * @ingroup subscription
-   */
-  public function deleteSubscriptions($conditions = array());
-
-  /**
    * Converts an array of subscription changes into descriptions.
    *
    * @param \Drupal\simplenews\SubscriberInterface $subscriber

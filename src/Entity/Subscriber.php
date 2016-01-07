@@ -24,6 +24,7 @@ use Drupal\user\UserInterface;
  *   id = "simplenews_subscriber",
  *   label = @Translation("Simplenews subscriber"),
  *   handlers = {
+ *     "storage" = "Drupal\simplenews\Subscription\SubscriptionStorage",
  *     "form" = {
  *       "default" = "Drupal\simplenews\Form\SubscriberForm",
  *       "account" = "Drupal\simplenews\Form\SubscriptionsAccountForm",
