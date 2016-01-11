@@ -209,6 +209,9 @@ function simplenews_form_node_type_form_alter(array &$form, FormStateInterface $
   );
 
   $form['actions']['submit']['#submit'][] = 'simplenews_form_node_type_submit';
+  if (isset($form['actions']['save_continue'])) {
+    $form['actions']['save_continue']['#submit'][] = 'simplenews_form_node_type_submit';
+  }
 }
 
 /**

@@ -22,6 +22,13 @@ use Drupal\simplenews\SubscriberInterface;
 class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
   /**
+   * Modules to enable.
+   *
+   * @var array
+   */
+  public static $modules = array('simplenews', 'simplenews_test', 'block');
+
+  /**
    * Implement getNewsletterFieldId($newsletter_id)
    */
   function getNewsletterFieldId($newsletter_id) {
