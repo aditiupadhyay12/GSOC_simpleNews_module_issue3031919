@@ -26,7 +26,15 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
    *
    * @var array
    */
-  public static $modules = array('simplenews', 'simplenews_test', 'block');
+  public static $modules = array('help');
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+    $this->drupalPlaceBlock('help_block');
+  }
 
   /**
    * Implement getNewsletterFieldId($newsletter_id)
@@ -59,6 +67,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalLogin($admin_user);
 
     $this->drupalGet('admin/config/services/simplenews');
+    // Check if the help text is displayed.
+    $this->assertText('Newsletter allow you to send periodic e-mails to subscribers.');
 
     // Create a newsletter for all possible setting combinations.
     $new_account = array('none', 'off', 'on', 'silent');
@@ -243,6 +253,11 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     \Drupal::entityManager()->getStorage('simplenews_newsletter')->resetCache();
     $this->assertFalse(simplenews_newsletter_load($edit_newsletter->newsletter_id));
     $this->assertFalse(db_query('SELECT newsletter_id FROM {simplenews_newsletter} WHERE newsletter_id = :newsletter_id', array(':newsletter_id' => $edit_newsletter->newsletter_id))->fetchField());*/
+    // Check if the help text is displayed.
+    $this->drupalGet('admin/help/simplenews');
+    $this->assertText('Simplenews adds elements to the newsletter node add/edit');
+    $this->drupalGet('admin/config/services/simplenews/add');
+    $this->assertText('You can create different newsletters (or subjects)');
   }
 
   /**
@@ -794,6 +809,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalGet('admin/content/simplenews');
     $this->clickLink(t('Add Newsletter Issue'));
     $this->assertUrl('node/add/simplenews_issue');
+    // Check if the help text is displayed.
+    $this->assertText('Add this newsletter issue to a newsletter by selecting a newsletter from the select list.');
   }
 
   /**

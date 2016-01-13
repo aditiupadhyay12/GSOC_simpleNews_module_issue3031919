@@ -10,7 +10,9 @@ use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
@@ -815,58 +817,62 @@ function simplenews_newsletter_load_multiple($ids = NULL, $reset = FALSE) {
 /**
  * Implements hook_help().
  *
- * @todo Rewrite help text to match the new terminology, the new data architecture, the new admin pages, the news node-form interface.
  */
-function simplenews_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#simplenews':
+function simplenews_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.simplenews':
       $help = "<p>" . t('Simplenews publishes and sends newsletters to lists of subscribers. Both anonymous and authenticated users can opt-in to different mailing lists.') . "</p>\n";
       $help .= "<p>" . t('Simplenews uses nodes for <strong>newsletter issues</strong>. Newsletter issues are grouped in a <strong>newsletter</strong>. Enabled Node types are selectable. A newsletter is send to all email addresses which are subscribed to the newsletter. Newsletter issues can be sent only once. Large mailings should be sent by cron to balance the mailserver load.') . "</p>\n";
       $help .= "<p>" . t('Simplenews adds elements to the newsletter node add/edit form to manage newsletter format and sending of the newsletter issue. A newsletter issue can be sent for test before sending officially.') . "</p>\n";
       $help .= "<p>" . t('Both anonymous and authenticated users can <strong>opt-in and opt-out</strong> to a newsletter. A confirmation message is sent to anonymous users when they (un)subscribe. Users can (un)subscribe using a form and a block. A <strong>subscription block</strong> is available for each newsletter offering a subscription form, a link to recent newsletters and RSS feed. Email addresses can also be imported and exported via the subscription administration pages.') . "</p>\n";
       $help .= "<h2>" . t('Configuration') . "</h2>\n";
       $help .= '<ul>';
-      if (user_access('administer permissions')) {
-        $help .= '<li>' . l(t('Configure permissions'), 'admin/people/permissions', array('fragment' => 'module-simplenews')) . "</li>\n";
+      if (\Drupal::currentUser()->hasPermission('administer permissions')) {
+        $link = Link::fromTextAndUrl(t('Configure permissions'), Url::fromRoute('user.admin_permissions'), array('fragment' => 'module-simplenews'));
+        $help .= '<li>' . $link->toString() . "</li>\n";
       }
-      if (user_access('administer simplenews settings')) {
-        $help .= '<li>' . l(t('Configure Simplenews'), 'admin/config/services/simplenews/settings') . "</li>\n";
+      if (\Drupal::currentUser()->hasPermission('administer simplenews settings')) {
+        $link = Link::fromTextAndUrl(t('Configure Simplenews'), Url::fromRoute('simplenews.settings_newsletter'));
+        $help .= '<li>' . $link->toString() . "</li>\n";
       }
-      if (user_access('administer blocks')) {
-        $help .= '<li>' . t('Enable a newsletter <a href="@admin_blocks">subscription block</a>.', array('@admin_blocks' => url('admin/structure/block'))) . "</li>\n";
+      if (\Drupal::currentUser()->hasPermission('administer blocks')) {
+        $help .= '<li>' . t('Enable a newsletter <a href=":admin_blocks">subscription block</a>.', array(':admin_blocks' => Url::fromRoute('block.admin_display')->toString())) . "</li>\n";
       }
-      if (user_access('administer simplenews settings')) {
-        $help .= '<li>' . t('Manage your <a href="@newsletters">newsletters</a>, <a href="@sent">sent newsletters</a> and <a href="@subscriptions">subscriptions</a>.', array('@newsletters' => url('admin/config/services/simplenews'), '@sent' => url('admin/content/simplenews'), '@subscriptions' => url('admin/people/simplenews'))) . "</li>\n";
+      if (\Drupal::currentUser()->hasPermission('administer simplenews settings')) {
+        $help .= '<li>' . t('Manage your <a href=":newsletters">newsletters</a>, <a href=":sent">sent newsletters</a> and <a href=":subscriptions">subscriptions</a>.', array(':newsletters' => Url::fromRoute('simplenews.newsletter_list')->toString(), ':sent' => Url::fromUri('base:admin/content/simplenews')->toString(), ':subscriptions' => Url::fromUri('base:admin/people/simplenews')->toString())) . "</li>\n";
       }
       $help .= '</ul>';
 
-      $help .= "<p>" . t('For more information, see the online handbook entry for <a href="@handbook">Simplenews</a>.', array('@handbook', 'http://drupal.org/node/197057')) . "</p>\n";
+      $help .= "<p>" . t('For more information, see the online handbook entry for <a href=":handbook">Simplenews</a>.', array(':handbook' => 'http://drupal.org/node/197057')) . "</p>\n";
       return $help;
-    case 'node/add/simplenews_issue':
+    case 'node.add':
+      $type = $route_match->getParameter('node_type');
+      $help = '';
+      if ($type->id() == 'simplenews_issue') {
+        $help = '<p>' . t('Add this newsletter issue to a newsletter by selecting a newsletter from the select list. To send this newsletter issue, first save the node, then use the "Newsletter" tab.') . "</p>\n";
+        if (\Drupal::currentUser()->hasPermission('administer simplenews settings')) {
+          $help .= '<p>' . t('Set default send options at <a href=":configuration">Administration > Configuration > Web services > Newsletters</a>.', array(':configuration' => Url::fromRoute('simplenews.newsletter_list')->toString())) . "</p>\n";
+        }
+        if (\Drupal::currentUser()->hasPermission('administer newsletters')) {
+          $help .= '<p>' . t('Set newsletter specific options at <a href=":configuration">Administration > Content > Newsletters</a>.', array(':configuration' => Url::fromUri('base:admin/content/simplenews')->toString())) . "</p>\n";
+        }
+      }
+      return $help;
+    case 'simplenews.settings_newsletter':
       $help = '<ul>';
-      $help .= '<li>' . t('Add this newsletter issue to a newsletter by selecting a newsletter from the select list. To send this newsletter issue, first save the node, then use the "Newsletter" tab.') . "</li>\n";
-      if (user_access('administer simplenews settings')) {
-        $help .= '<li>' . t('Set default send options at <a href="@configuration">Administration > Configuration > Web services > Newsletters</a>.', array('@configuration' => url('admin/config/services/simplenews'))) . "</li>\n";
-      }
-      if (user_access('administer newsletters')) {
-        $help .= '<li>' . t('Set newsletter specific options at <a href="@configuration">Administration > Content > Newsletters</a>.', array('@configuration' => url('admin/content/simplenews'))) . "</li>\n";
-      }
+      $help .= '<li>' . t('These settings are default to all newsletters. Newsletter specific settings can be found at the <a href=":page">newsletter\'s settings page</a>.', array(':page' => Url::fromRoute('simplenews.newsletter_list')->toString())) . "</li>\n";
+      $help .= '<li>' . t('Install <a href=":swift_mail_url">Swift Mailer</a> to send HTML emails or emails with attachments (both plain text and HTML).', array(':swift_mail_url' => 'https://www.drupal.org/project/swiftmailer')) . "</li>\n";
       $help .= '</ul>';
       return $help;
-    case 'admin/config/services/simplenews/newsletter':
-      $help = '<ul>';
-      $help .= '<li>' . t('These settings are default to all newsletters. Newsletter specific settings can be found at the <a href="@page">newsletter\'s settings page</a>.', array('@page' => url('admin/config/services/simplenews'))) . "</li>\n";
-      $help .= '<li>' . t('Install <a href=":mime_mail_url">Mime Mail</a> or <a href=":html_mail_url">HTML Mail</a> to send HTML emails or emails with attachments (both plain text and HTML).', array(':mime_mail_url' => 'http://drupal.org/project/mimemail', ':html_mail_url' => 'http://drupal.org/project/htmlmail')) . "</li>\n";
-      $help .= '</ul>';
+    case 'simplenews.newsletter_list':
+      $help = '<p>' . t('Newsletter allow you to send periodic e-mails to subscribers. See <a href=":manage_subscribers">Newsletter subscriptions</a> for a listing of the subscribers', array(':manage_subscribers' => Url::fromUri('base:admin/people/simplenews')->toString()));
       return $help;
-    case 'admin/config/services/simplenews':
-      $help = '<p>' . t('Newsletter allow you to send periodic e-mails to subscribers. See <a href=":manage_subscribers">Newsletter subscriptions</a> for a listing of the subscribers', array(':manage_subscribers' => url('admin/people/simplenews')));
-      return $help;
-    case 'admin/config/services/simplenews/add':
+    case 'simplenews.newsletter_add':
       $help = '<p>' . t('You can create different newsletters (or subjects) to categorize your news (e.g. Cats news, Dogs news, ...).') . "</p>\n";
       return $help;
-    case 'admin/structure/types/manage/simplenews_issue/display':
-      $help = '<p>' . t("'Plain' display settings apply to the content of emails send in plain text format. 'HTML' display settings apply to both HTML and plain text alternative content of emails send in HTML format.") . "</p>\n";
+    case 'entity.entity_view_display.node.default':
+      $type = $route_match->getParameter('node_type');
+      $help = ($type->id() == 'simplenews_issue') ? '<p>' . t("'Plain' display settings apply to the content of emails send in plain text format. 'HTML' display settings apply to both HTML and plain text alternative content of emails send in HTML format.") . "</p>\n" : '';
       return $help;
   }
 }
