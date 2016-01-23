@@ -56,7 +56,6 @@ class MailBuilder implements MailBuilderInterface {
     $message['headers'] = $mail->getHeaders($message['headers']);
     $message['subject'] = $mail->getSubject();
     $message['body']['body'] = $mail->getBody();
-    $message['body']['footer'] = $mail->getFooter();
 
     if ($mail->getFormat() == 'html') {
       // Set the necessary headers to detect this as an HTML mail. Set both the
@@ -68,7 +67,7 @@ class MailBuilder implements MailBuilderInterface {
 
       // Provide a plain text version, both in params][plaintext (Mime Mail) and
       // plain (Swiftmailer).
-      $message['params']['plaintext'] = $mail->getPlainBody() . "\n" . $mail->getPlainFooter();
+      $message['params']['plaintext'] = $mail->getPlainBody();
       $message['plain'] = $message['params']['plaintext'];
 
       // Add attachments, again, both for the attachments key (Mime Mail) and

@@ -945,7 +945,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       }
       else {
         $this->assertEqual('Newsletter issue is pending, 0 mails sent out of 3.', trim((string) $row->td[5]->img['title']));
-        $this->assertEqual(file_create_url(drupal_get_path('module', 'simplenews')) . '/images/sn-cron.png', trim((string) $row->td[5]->img['src']));
+        $this->assertEqual(file_url_transform_relative(file_create_url(drupal_get_path('module', 'simplenews') . '/images/sn-cron.png')), trim((string) $row->td[5]->img['src']));
       }
     }
     // Stop sending the pending newsletters.
@@ -986,7 +986,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       }
       else {
         $this->assertEqual('Newsletter issue sent to 3 subscribers.', trim((string) $row->td[5]->img['title']));
-        $this->assertEqual(file_create_url(drupal_get_path('module', 'simplenews')) . '/images/sn-sent.png', trim((string) $row->td[5]->img['src']));
+        $this->assertEqual(file_url_transform_relative(file_create_url(drupal_get_path('module', 'simplenews') . '/images/sn-sent.png')), trim((string) $row->td[5]->img['src']));
       }
     }
   }

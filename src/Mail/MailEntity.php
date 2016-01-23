@@ -315,18 +315,14 @@ class MailEntity implements MailInterface {
     // Supported view modes: 'email_plain', 'email_html', 'email_textalt'
     $build = \Drupal::entityManager()->getViewBuilder($this->getEntity()->getEntityTypeId())->view($this->getEntity(), 'email_' . $format, $this->getLanguage());
     $build['#entity_type'] = $this->getEntity()->getEntityTypeId();
+    // @todo: Consider using render caching.
+    unset($build['#cache']);
 
     // We need to prevent the standard theming hooks, but we do want to allow
     // modules such as panelizer that override it, so only clear the standard
     // entity hook and entity type hooks.
     if ($build['#theme'] == 'entity' || $build['#theme'] == $this->getEntity()->getEntityTypeId()) {
       unset($build['#theme']);
-    }
-
-    foreach (\Drupal::entityManager()->getFieldDefinitions($this->getEntity()->getEntityTypeId(), $this->getEntity()->bundle()) as $field_name => $field) {
-      if (isset($build[$field_name])) {
-        $build[$field_name]['#theme'] = 'simplenews_field';
-      }
     }
 
     $this->build[$format] = $build;
@@ -349,12 +345,13 @@ class MailEntity implements MailInterface {
     if ($cache = $this->cache->get($this, 'build', 'body:' . $format)) {
       return $cache;
     }
-    $body = array(
+    $body = $this->build($format) + array(
       '#theme' => 'simplenews_newsletter_body',
-      '#build' => $this->build($format),
       '#newsletter' => $this->getNewsletter(),
       '#language' => $this->getLanguage(),
       '#simplenews_subscriber' => $this->getSubscriber(),
+      '#key' => $this->getKey(),
+      '#format' => $format,
     );
     $markup = \Drupal::service('renderer')->renderPlain($body);
     $this->cache->set($this, 'build', 'body:' . $format, $markup);
@@ -409,78 +406,7 @@ class MailEntity implements MailInterface {
   }
 
   /**
-   * Builds the themed footer.
-   *
-   * @param string|null $format
-   *   (Optional) Set the format of this footer build, overrides the default
-   *   format.
-   *
-   * @return string
-   *   The footer.
-   */
-  protected function buildFooter($format = NULL) {
-    if (empty($format)) {
-      $format = $this->getFormat();
-    }
-
-    if ($cache = $this->cache->get($this, 'build', 'footer:' . $format)) {
-      return $cache;
-    }
-
-    // Build and buffer message footer
-    $footer = array(
-      '#theme' => 'simplenews_newsletter_footer',
-      '#build' => $this->build($format),
-      '#newsletter' => $this->getNewsletter(),
-      '#context' => $this->getTokenContext(),
-      '#key' => $this->getKey(),
-      '#language' => $this->getLanguage(),
-      '#format' => $format,
-    );
-    $markup = \Drupal::service('renderer')->renderPlain($footer);
-
-    $this->cache->set($this, 'build', 'footer:' . $format, $markup);
-    return $markup;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFooter() {
-    return $this->getFooterWithFormat($this->getFormat());
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getPlainFooter() {
-    return $this->getFooterWithFormat('plain');
-  }
-
-  /**
-   * Get the footer in the specified format.
-   *
-   * @param string $format
-   *   Either html or plain.
-   *
-   * @return string
-   *   The footer for the requested format.
-   */
-  protected function getFooterWithFormat($format) {
-    // Switch to correct user and language context.
-    $this->setContext();
-    if ($cache = $this->cache->get($this, 'final', 'footer:' . $format)) {
-      return $cache;
-    }
-    // @todo Evaluate whether this is safe.
-    $final_footer = Markup::create(\Drupal::token()->replace($this->buildFooter($format), $this->getTokenContext(), array('langcode' => $this->getLanguage())));
-    $this->cache->set($this, 'final', 'footer:' . $format, $final_footer);
-    $this->resetContext();
-    return $final_footer;
-  }
-
-  /**
-   * {@inheritdoc}
+   * {@inhertidoc}
    */
   function getAttachments() {
     if ($cache = $this->cache->get($this, 'data', 'attachments')) {

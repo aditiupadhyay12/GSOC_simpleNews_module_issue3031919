@@ -72,7 +72,7 @@ abstract class MailCacheStatic implements MailCacheInterface {
    *     - final: The final returned data. Caching this means that newsletter
    *       can not be personalized anymore.
    * @param string $key
-   *   Identifies the requested element, e.g. body, footer or attachments.
+   *   Identifies the requested element, e.g. body or attachments.
    *
    * @return bool
    *   TRUE if it should be cached, FALSE otherwise.

@@ -64,22 +64,6 @@ interface MailInterface {
   function getPlainBody();
 
   /**
-   * Returns the mail footer.
-   *
-   * @return string
-   *   The footer, as plaintext or html depending on the format.
-   */
-  function getFooter();
-
-  /**
-   * Returns the plain footer.
-   *
-   * @return string
-   *   The footer as plain text.
-   */
-  function getPlainFooter();
-
-  /**
    * Returns the mail format.
    *
    * @return string

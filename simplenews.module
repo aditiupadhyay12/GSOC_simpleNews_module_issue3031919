@@ -948,170 +948,55 @@ function simplenews_subscriber_status_list() {
  *
  */
 function simplenews_theme() {
-  $path = drupal_get_path('module', 'simplenews');
 
   return array(
     'simplenews_newsletter_body' => array(
-      'variables' => array(
-        'build' => NULL,
-        'newsletter' => NULL,
-        'language' => NULL,
-        'simplenews_subscriber' => NULL,
-      ),
-      'path' => $path . '/theme',
-      'mail theme' => TRUE,
-      'pattern' => 'simplenews-newsletter-body__',
-    ),
-    'simplenews_newsletter_footer' => array(
-      'variables' => array(
-        'build' => NULL,
-        'newsletter' => NULL,
-        'context' => NULL,
-        'key' => NULL,
-        'format' => NULL,
-        'language' => NULL,
-      ),
-      'path' => $path . '/theme',
-      'mail theme' => TRUE,
-      'pattern' => 'simplenews-newsletter-footer__',
-    ),
-    'simplenews_field' => array(
-      'render element' => 'element',
-      'function' => 'theme_simplenews_field',
+      'render element' => 'elements',
     ),
   );
-}
-
-/**
- * @todo
- *
- * @see template_preprocess_field()
- * @see theme_simplenews_field()
- */
-function template_preprocess_simplenews_field(&$variables, $hook) {
-  $element = $variables['element'];
-
-  $variables['label_hidden'] = ($element['#label_display'] == 'hidden');
-  $variables['label'] = $variables['label_hidden'] ? NULL : SafeMarkup::checkPlain($element['#title']);
-
-  $variables['items'] = array();
-  foreach ($element['#items'] as $delta => $item) {
-    if (!empty($element[$delta])) {
-      $variables['items'][$delta] = $element[$delta];
-    }
-  }
-
-  $variables['view_mode'] = $variables['element']['#view_mode'];
-}
-
-/**
- * Implements hook_theme_suggestions_HOOK().
- */
-function simplenews_theme_suggestions_simplenews_field(array $variables) {
-  $element = $variables['element'];
-  return array(
-    'simplenews_field__' . $element['#field_name'],
-    'simplenews_field__' . $element['#view_mode'],
-    'simplenews_field__' . $element['#field_name'] . '__' . $element['#view_mode'],
-  );
-}
-
-/**
- * @todo
- *
- * @see theme_field()
- *
- * @ingroup theming
- */
-// @todo make simplenews_field.tpl.php
-function theme_simplenews_field($variables) {
-  $output = '';
-  switch ($variables['view_mode']) {
-    case 'email_plain':
-    case 'email_textalt':
-      // Render the label, if it's not hidden.
-      if (!$variables['label_hidden']) {
-        $output .= $variables['label'] . ":\n";
-      }
-
-      // Render the items.
-      foreach ($variables['items'] as $item) {
-        $output .= drupal_render($item) . "\n";
-      }
-
-      // Add an extra line break at the end of the field.
-      $output .= "\n";
-      break;
-    case 'email_html':
-    default:
-      // Render the label, if it's not hidden.
-      if (!$variables['label_hidden']) {
-        $output .= '<div class="field-label">' . $variables['label'] . ':&nbsp;</div>';
-      }
-
-      // Render the items.
-      $output .= '<div class="field-items">';
-      foreach ($variables['items'] as $delta => $item) {
-        $classes = 'field-item ' . ($delta % 2 ? 'odd' : 'even');
-        $output .= '<div class="' . $classes . '">' . drupal_render($item) . '</div>';
-      }
-      $output .= '</div>';
-
-      // Render the top-level DIV.
-      $output = '<div class="clearfix">' . $output . '</div>';
-      break;
-  }
-  return $output;
 }
 
 /**
  * Process variables to format the simplenews newsletter body.
  *
- * @see simplenews-newsletter-body.tpl.php
+ * @see simplenews-newsletter-body.html.twig
  *
  * @ingroup theming
  */
 function template_preprocess_simplenews_newsletter_body(&$variables) {
-  $entity_type = $variables['build']['#entity_type'];
-  $entity = !empty($variables['build']['#' . $entity_type]) ? $variables['build']['#' . $entity_type] : $variables['build']['#entity'];
 
-  $theme = function_exists('mailsystem_get_mail_theme') ? mailsystem_get_mail_theme() : \Drupal::theme()->getActiveTheme()->getName();
-  $variables['simplenews_theme'] = drupal_get_path('theme', $theme);
+  $elements = &$variables['elements'];
 
+  $entity_type = $elements['#entity_type'];
+
+  /** @var \Drupal\Core\Entity\FieldableEntityInterface $entity */
+  $entity = !empty($elements['#' . $entity_type]) ? $elements['#' . $entity_type] : $elements['#entity'];
+  if ($elements['#language'] && $entity->hasTranslation($elements['#language'])) {
+    $entity = $entity->getTranslation($elements['#language']);
+  }
+  $variables[$entity_type] = $entity;
+
+  // Provide some common variables.
   $variables['title'] = $entity->label();
-  $variables['view_mode'] = $variables['build']['#view_mode'];
-}
+  $variables['view_mode'] = $elements['#view_mode'];
+  $variables['language'] = $elements['#language'];
+  $variables['format'] = $elements['#format'];
+  $variables['key'] = $elements['#key'];
+  $variables['newsletter'] = $elements['#newsletter'];
+  $variables['simplenews_subscriber'] = $elements['#simplenews_subscriber'];
 
-/**
- * Implements hook_theme_suggestions_HOOK().
- */
-function simplenews_theme_suggestions_simplenews_newsletter_body(array $variables) {
-  return array(
-    'simplenews_newsletter_body__' . $variables['newsletter']->id(),
-    'simplenews_newsletter_body__' . $variables['build']['#view_mode'],
-    'simplenews_newsletter_body__' . $variables['newsletter']->id() . '__' . $variables['build']['#view_mode'],
-  );
-}
-
-/**
- * Process variables to format the simplenews newsletter footer.
- *
- * @see simplenews-newsletter-footer.tpl.php
- *
- * @ingroup theming
- */
-function template_preprocess_simplenews_newsletter_footer(&$variables) {
-  // We don't want to include links and comments in the email.
-  unset($variables['build']['links']);
-  unset($variables['build']['comments']);
-
-  $theme = function_exists('mailsystem_get_mail_theme') ? mailsystem_get_mail_theme() : \Drupal::theme()->getActiveTheme()->getName();
-  $variables['simplenews_theme'] = drupal_get_path('theme', $theme);
+  $variables['build'] = [];
+  foreach (Element::children($elements) as $key) {
+    // In case of nodes, skip the hardcoded formatters for created, title and
+    // uid.
+    if ($entity_type == 'node' && in_array($key,  ['uid', 'created', 'title'])) {
+      continue;
+    }
+    $variables['build'][$key] = $elements[$key];
+  }
 
   $variables['unsubscribe_text'] = t('Unsubscribe from this newsletter', array(), array('langcode' => $variables['language']));
   $variables['test_message'] = t('This is a test version of the newsletter.', array(), array('langcode' => $variables['language']));
-
-  $variables['view_mode'] = $variables['build']['#view_mode'];
 
   // Do not display the unsubscribe link by default for hidden categories.
   $variables['opt_out_hidden'] = $variables['newsletter']->opt_inout == 'hidden';
@@ -1120,11 +1005,11 @@ function template_preprocess_simplenews_newsletter_footer(&$variables) {
 /**
  * Implements hook_theme_suggestions_HOOK().
  */
-function simplenews_theme_suggestions_simplenews_newsletter_footer(array $variables) {
+function simplenews_theme_suggestions_simplenews_newsletter_body(array $variables) {
   return array(
-    'simplenews_newsletter_footer__' . $variables['newsletter']->id(),
-    'simplenews_newsletter_footer__' . $variables['build']['#view_mode'],
-    'simplenews_newsletter_footer__' . $variables['newsletter']->id() . '__' . $variables['build']['#view_mode'],
+    'simplenews_newsletter_body__' . $variables['elements']['#newsletter']->id(),
+    'simplenews_newsletter_body__' . $variables['elements']['#view_mode'],
+    'simplenews_newsletter_body__' . $variables['elements']['#newsletter']->id() . '__' . $variables['elements']['#view_mode'],
   );
 }
 
