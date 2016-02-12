@@ -92,15 +92,21 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
     $subscription_manager = \Drupal::service('simplenews.subscription_manager');
     $subscription_manager->reset();
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
+    $subscriber_storage = \Drupal::entityManager()->getStorage('simplenews_subscriber');
+    $subscriber_storage->resetCache();
+
     // Verify subscription changes.
     foreach ($newsletters as $newsletter_id => $newsletter) {
       $is_subscribed = $subscription_manager->isSubscribed($mail, $newsletter_id);
+      $subscription_newsletter = $subscriber_storage->getSubscriptionsByNewsletter($newsletter_id);
+
       if (in_array($newsletter_id, $enable)) {
         $this->assertTrue($is_subscribed);
+        $this->assertEqual(1, count($subscription_newsletter));
       }
       else {
         $this->assertFalse($is_subscribed);
+        $this->assertEqual(0, count($subscription_newsletter));
       }
     }
 
@@ -147,7 +153,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertRaw(t('Subscription changes confirmed for %user.', array('%user' => $mail)), t('Anonymous subscriber added to newsletter'));
 
     // Verify subscription changes.
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
+    $subscriber_storage->resetCache();
     $subscription_manager->reset();
     $still_enabled = array_diff($enable, $disable);
     foreach ($newsletters as $newsletter_id => $newsletter) {
@@ -214,9 +220,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertRaw(t('Subscription changes confirmed for %user.', array('%user' => $mail)), t('Confirmation message displayed.'));
 
     // Verify subscription changes.
-    $controller = \Drupal::entityManager()->getStorage('simplenews_subscriber');
-
-    $controller->resetCache();
+    $subscriber_storage->resetCache();
     $subscription_manager->reset();
     foreach (array_keys($newsletters) as $newsletter_id) {
       $this->assertFalse($subscription_manager->isSubscribed($mail, $newsletter_id));

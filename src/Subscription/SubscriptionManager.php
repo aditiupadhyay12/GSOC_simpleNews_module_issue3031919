@@ -220,20 +220,6 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   /**
    * {@inheritdoc}
    */
-  public function getSubscriptionsByNewsletter($newsletter_id) {
-    $query = db_select('simplenews_subscriber', 'sn');
-    $query->innerJoin('simplenews_subscription', 'ss', 'ss.snid = sn.snid');
-    $query->fields('sn', array('mail', 'uid', 'language', 'snid'))
-      ->fields('ss', array('status'))
-      ->condition('sn.activated', SubscriberInterface::ACTIVE)
-      ->condition('ss.newsletter_id', $newsletter_id)
-      ->condition('ss.status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
-    return $query->execute()->fetchAllAssoc('mail');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getChangesList(SubscriberInterface $subscriber, $changes = NULL, $langcode = NULL) {
     if (empty($langcode)) {
       $language = $this->languageManager->getCurrentLanguage();
