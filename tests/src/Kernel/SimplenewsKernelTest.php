@@ -2,12 +2,12 @@
 
 /**
  * @file
- * Contains \Drupal\simplenews\Tests\SimplenewsKernelTest.
+ * Contains \Drupal\Tests\simplenews\Kernel\SimplenewsKernelTest.
  */
 
-namespace Drupal\simplenews\Tests;
+namespace Drupal\Tests\simplenews\Kernel;
 
-use Drupal\simpletest\KernelTestBase;
+use Drupal\KernelTests\KernelTestBase;
 
 /**
  * Unit tests for certain functions.

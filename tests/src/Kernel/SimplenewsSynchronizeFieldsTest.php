@@ -1,16 +1,16 @@
 <?php
 /**
  * @file
- * Contains \Drupal\simplenews\Tests\SimplenewsSynchronizeFieldsTest.
+ * Contains \Drupal\Tests\simplenews\Kernel\SimplenewsSynchronizeFieldsTest.
  */
 
-namespace Drupal\simplenews\Tests;
+namespace Drupal\Tests\simplenews\Kernel;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\simplenews\Entity\Subscriber;
-use Drupal\simpletest\KernelTestBase;
+use Drupal\KernelTests\KernelTestBase;
 use Drupal\user\Entity\User;
 
 /**

@@ -6,9 +6,9 @@
  * @ingroup simplenews
  */
 
-namespace Drupal\simplenews\Tests;
+namespace Drupal\Tests\simplenews\Kernel;
 
-use Drupal\simpletest\KernelTestBase;
+use Drupal\KernelTests\KernelTestBase;
 
 /**
  * Tests for simplenews sensor.
