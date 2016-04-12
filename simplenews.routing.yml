@@ -38,14 +38,6 @@ simplenews.settings_prepare_uninstall:
   requirements:
     _permission: 'administer simplenews settings'
 
-simplenews.settings_prepare_uninstall:
-  path: 'admin/config/services/simplenews/settings/uninstall'
-  defaults:
-    _form: '\Drupal\simplenews\Form\PrepareUninstallForm'
-    _title: 'Prepare uninstall'
-  requirements:
-    _permission: 'administer simplenews settings'
-
 simplenews.newsletter_list:
   path: '/admin/config/services/simplenews'
   defaults:
