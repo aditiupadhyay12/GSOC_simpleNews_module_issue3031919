@@ -369,11 +369,16 @@ function simplenews_user_profile_form_submit($form, FormStateInterface $form_sta
 
   /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
   $subscription_manager = \Drupal::service('simplenews.subscription_manager');
-  if ($form_state->getValue('subscriptions')) {
-    $newsletters = simplenews_newsletter_load_multiple(array_filter($form_state->getValue('subscriptions')));
-    foreach ($newsletters as $newsletter) {
-      $subscription_manager->subscribe($account->getEmail(), $newsletter->id(), FALSE, 'website', $account->getPreferredLangcode());
-      drupal_set_message(t('You have been subscribed to %newsletter.', array('%newsletter' => $newsletter->name)));
+  // Invalid input (non-array) could result in a NULL return value, ensure to
+  // only load and subscribe if valid input is provided.
+  if (is_array($form_state->getValue('subscriptions'))) {
+    $ids = array_filter($form_state->getValue('subscriptions'));
+    if ($ids) {
+      $newsletters = simplenews_newsletter_load_multiple($ids);
+      foreach ($newsletters as $newsletter) {
+        $subscription_manager->subscribe($account->getEmail(), $newsletter->id(), FALSE, 'website', $account->getPreferredLangcode());
+        drupal_set_message(t('You have been subscribed to %newsletter.', array('%newsletter' => $newsletter->name)));
+      }
     }
   }
   // Process hidden (automatic) subscriptions.
