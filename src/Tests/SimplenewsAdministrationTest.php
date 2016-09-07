@@ -933,7 +933,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'node_bulk_form[1]' => TRUE,
       'action' => 'simplenews_send_action'
     );
-    $this->drupalPostForm(NULL, $edit, t('Apply'));
+    $this->drupalPostForm(NULL, $edit, t('Apply to selected items'));
     // Check the relevant messages.
     $this->assertText('Newsletter issue Test_issue_2 is unpublished and will be sent on publish.');
     $this->assertText('The following newsletter(s) are now pending: Test_issue_1.');
@@ -954,7 +954,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'node_bulk_form[1]' => TRUE,
       'action' => 'simplenews_stop_action'
     );
-    $this->drupalPostForm(NULL, $edit, t('Apply'));
+    $this->drupalPostForm(NULL, $edit, t('Apply to selected items'));
     // Check the stop message.
     $this->assertText('Sending of Test_issue_1 was stopped. 3 pending email(s) were deleted.');
     $rows = $this->xpath('//tbody/tr');
@@ -974,7 +974,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'node_bulk_form[1]' => TRUE,
       'action' => 'simplenews_send_action'
     );
-    $this->drupalPostForm(NULL, $edit, t('Apply'));
+    $this->drupalPostForm(NULL, $edit, t('Apply to selected items'));
     // Run cron to send the mails.
     $this->cronRun();
     $this->drupalGet('admin/content/simplenews');
