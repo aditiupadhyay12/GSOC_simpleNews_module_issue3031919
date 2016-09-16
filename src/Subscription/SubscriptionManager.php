@@ -171,7 +171,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   /**
    * {@inheritdoc}
    */
-  public function unsubscribe($mail, $newsletter_id, $confirm = TRUE, $source = 'unknown') {
+  public function unsubscribe($mail, $newsletter_id, $confirm = NULL, $source = 'unknown') {
     $subscriber = simplenews_subscriber_load_by_mail($mail);
 
     // The unlikely case that a user is unsubscribed from a non existing mailing list is logged
