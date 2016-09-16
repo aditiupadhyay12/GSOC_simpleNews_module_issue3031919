@@ -20,7 +20,6 @@ launcher:
       max_execution_time: 3600
     launcher:
       max_threads: 1
-      poorman_keepalive: false
 logger:
   id: database
   configuration:
