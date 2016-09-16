@@ -9,13 +9,11 @@ namespace Drupal\simplenews\Plugin\Block;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
-use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Core\Entity\Query\QueryInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -31,18 +29,18 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The injected entity manager.
+   * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
-   * The entity query object for newsletters.
+   * The form builder.
    *
-   * @var \Drupal\Core\Entity\Query\QueryInterface
+   * @var \Drupal\Core\Form\FormBuilderInterface
    */
-  protected $newsletterQuery;
+  protected $formBuilder;
 
   /**
    * Constructs an SimplenewsSubscriptionBlock object.
@@ -53,18 +51,15 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Entity\EntityStorageInterface; $newsletterStorage
-   *   The storage object for newsletters.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Form\FormBuilderInterface $formBuilder
    *   The form builder object.
-   * @param \Drupal\Core\Entity\Query\QueryInterface $newsletterQuery
-   *   The entity query object for newsletters.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManagerInterface $entity_manager, FormBuilderInterface $formBuilder, QueryInterface $newsletterQuery) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, FormBuilderInterface $formBuilder) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->entityManager = $entity_manager;
+    $this->entityTypeManager = $entity_type_manager;
     $this->formBuilder = $formBuilder;
-    $this->newsletterQuery = $newsletterQuery;
   }
 
 
@@ -76,9 +71,8 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.manager'),
-      $container->get('form_builder'),
-      $container->get('entity.query')->get('simplenews_newsletter')
+      $container->get('entity_type.manager'),
+      $container->get('form_builder')
     );
   }
 
@@ -163,7 +157,7 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
    */
   public function build() {
     /** @var \Drupal\simplenews\Form\SubscriptionsBlockForm $form_object */
-    $form_object = \Drupal::entityManager()->getFormObject('simplenews_subscriber', 'block');
+    $form_object = $this->entityTypeManager->getFormObject('simplenews_subscriber', 'block');
     $form_object->setUniqueId($this->configuration['unique_id']);
     $form_object->setNewsletterIds($this->configuration['newsletters']);
     $form_object->message = $this->configuration['message'];
