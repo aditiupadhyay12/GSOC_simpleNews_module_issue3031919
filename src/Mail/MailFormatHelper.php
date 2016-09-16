@@ -41,10 +41,6 @@ class MailFormatHelper {
       $text = preg_replace_callback($pattern, '\Drupal\simplenews\Mail\MailFormatHelper::absoluteMailUrls', $text);
     }
 
-    // Replace some special characters before performing the drupal standard conversion.
-    $preg = static::getReplacePatterns();
-    $text = preg_replace(array_keys($preg), array_values($preg), $text);
-
     // Perform standard drupal html to text conversion.
     return \Drupal\Core\Mail\MailFormatHelper::htmlToText($text);
   }
@@ -75,34 +71,6 @@ class MailFormatHelper {
       }
       return $label . ' ' . $url;
     }
-  }
-
-  /**
-   * List of preg* regular expression patterns to search for and replace with
-   */
-  protected static function getReplacePatterns() {
-    return array(
-      '/&quot;/i'  => '"',
-      '/&gt;/i'    => '>',
-      '/&lt;/i'    => '<',
-      '/&amp;/i'   => '&',
-      '/&copy;/i'  => '(c)',
-      '/&trade;/i' => '(tm)',
-      '/&#8220;/'  => '"',
-      '/&#8221;/'  => '"',
-      '/&#8211;/'  => '-',
-      '/&#8217;/'  => "'",
-      '/&#38;/'    => '&',
-      '/&#169;/'   => '(c)',
-      '/&#8482;/'  => '(tm)',
-      '/&#151;/'   => '--',
-      '/&#147;/'   => '"',
-      '/&#148;/'   => '"',
-      '/&#149;/'   => '*',
-      '/&reg;/i'   => '(R)',
-      '/&bull;/i'  => '*',
-      '/&euro;/i'  => 'Euro ',
-    );
   }
 
 }

@@ -646,6 +646,40 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Check if the correct theme was used in mails.
     $this->assertTrue(strpos($mails[0]['body'], 'Simplenews test theme') != FALSE);
-    $this->assertTrue(strpos($mails[0]['body'], $this->getLatestSubscriber()->id()) != FALSE);
+    $this->assertTrue(preg_match('/ID: [0-9]/', $mails[0]['body']), 'Mail contains the subscriber ID');
+  }
+
+  /**
+   * Test the correct handlling of HTML special characters in plain text mails.
+   */
+  function testHtmlEscaping() {
+
+    $title = '><\'"-&&amp;--*';
+    $node = Node::create(array(
+      'type' => 'simplenews_issue',
+      'title' => $title,
+      'uid' => '0',
+      'status' => 1,
+    ));
+    $node->simplenews_issue->target_id = $this->getRandomNewsletter();
+    $node->simplenews_issue->handler = 'simplenews_all';
+    $node->save();
+
+    // Send the node.
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
+    $node->save();
+
+    // Send mails.
+    \Drupal::service('simplenews.mailer')->sendSpool();
+    \Drupal::service('simplenews.spool_storage')->clear();
+    // Update sent status for newsletter admin panel.
+    \Drupal::service('simplenews.mailer')->updateSendStatus();
+
+    $mails = $this->drupalGetMails();
+
+    // Check that the node title is displayed unaltered in the subject and
+    // unaltered except being uppercased due to the HTML conversion in the body.
+    $this->assertTrue(strpos($mails[0]['body'], strtoupper($title)) != FALSE);
+    $this->assertTrue(strpos($mails[0]['subject'], $title) != FALSE);
   }
 }
