@@ -456,6 +456,23 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       $subscription_manager->subscribe($mail, $first, TRUE);
     }
 
+    // Export unconfirmed active and inactive users.
+    $edit = array(
+      'states[active]' => TRUE,
+      'states[inactive]' => TRUE,
+      'subscribed[subscribed]' => FALSE,
+      'subscribed[unconfirmed]' => TRUE,
+      'subscribed[unsubscribed]' => FALSE,
+      'newsletters[' . $first . ']' => TRUE,
+    );
+    $this->drupalPostForm(NULL, $edit, t('Export'));
+
+    $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
+    $exported_mails = (string) $export_field[0];
+    $exported_mails = explode(', ', $exported_mails);
+    $this->assertTrue(in_array($unconfirmed[0], $exported_mails));
+    $this->assertTrue(in_array($unconfirmed[1], $exported_mails));
+
     // Only export unconfirmed mail addresses.
     $edit = array(
       'subscribed[subscribed]' => FALSE,
