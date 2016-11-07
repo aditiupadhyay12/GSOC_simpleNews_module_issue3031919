@@ -876,4 +876,26 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertNoFieldChecked('edit-subscriptions-' . $newsletter_id);
   }
 
+  /**
+   * Tests Creation of Simplenews Subscription block.
+   */
+  public function testSimplenewsSubscriptionBlock() {
+    $admin_user = $this->drupalCreateUser(array(
+      'administer blocks',
+    ));
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('/admin/structure/block/add/simplenews_subscription_block/classy');
+    // Check for Unique ID field.
+    $this->assertText('Unique ID');
+    $edit = array(
+      'settings[unique_id]' => 'test_simplenews_123',
+      'settings[newsletters][default]' => TRUE,
+      'region' => 'header',
+    );
+    $this->drupalPostForm(NULL, $edit, t('Save block'));
+    $this->drupalGet('');
+    // Provided Unique ID is used as form_id.
+    $this->assertFieldByXPath("//*[@id=\"simplenews-subscriptions-block-test-simplenews-123\"]", NULL, 'Form ID found and contains expected value.');
+  }
+
 }

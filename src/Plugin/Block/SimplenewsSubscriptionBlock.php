@@ -120,6 +120,14 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
       '#maxlength' => 255,
       '#default_value' => $this->configuration['message'],
     );
+    $form['unique_id'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Unique ID'),
+      '#size' => 60,
+      '#maxlength' => 255,
+      '#description' => t('Each subscription block must have a unique form ID. If no value is provided, a random ID will be generated. Use this to have a predictable, short ID, e.g. to configure this form use a CAPTCHA.'),
+      '#default_value' => $this->configuration['unique_id'],
+    );
     /*if (\Drupal::moduleHandler()->moduleExists('views')) {
         $form['link_previous'] = array(
           '#type' => 'checkbox',
@@ -149,7 +157,7 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
     $this->configuration['message'] = $form_state->getValue('message');
     //$this->configuration['link_previous'] = $form_state->getValue('link_previous');
     //$this->configuration['rss_feed'] = $form_state->getValue('rss_feed');
-    $this->configuration['unique_id'] = \Drupal::service('uuid')->generate();
+    $this->configuration['unique_id'] = empty($form_state->getValue('unique_id')) ? \Drupal::service('uuid')->generate() : $form_state->getValue('unique_id');
 }
 
   /**
