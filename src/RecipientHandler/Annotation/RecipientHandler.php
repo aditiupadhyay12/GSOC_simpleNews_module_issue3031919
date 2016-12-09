@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\RecipientHandler\Annotation\RecipientHandler.
- */
-
 namespace Drupal\simplenews\RecipientHandler\Annotation;
 
 use Drupal\Component\Annotation\Plugin;

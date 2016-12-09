@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Spool\SpoolStorageInterface.
- */
-
 namespace Drupal\simplenews\Spool;
 
 use Drupal\node\NodeInterface;

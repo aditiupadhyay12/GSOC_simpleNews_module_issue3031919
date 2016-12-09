@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Form\ConfirmAddForm.
- */
-
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\ConfirmFormBase;

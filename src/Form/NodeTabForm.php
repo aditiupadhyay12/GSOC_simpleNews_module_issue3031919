@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Form\NodeTabForm.
- */
-
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Access\AccessResult;

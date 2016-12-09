@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Plugin\Field\FieldFormatter\SimplenewsSubscriptionStatusFormatter.
- */
-
 namespace Drupal\simplenews\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldItemListInterface;

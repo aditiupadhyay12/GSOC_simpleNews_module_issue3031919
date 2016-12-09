@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Plugin\Field\FieldWidget\SubscriptionWidget.
- */
-
 namespace Drupal\simplenews\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Entity\FieldableEntityInterface;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\simplenews\Form\NewsletterForm.
- */
-
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Entity\EntityForm;

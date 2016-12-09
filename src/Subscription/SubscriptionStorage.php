@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\simplenews\Subscription\SubscriptionStorage.
- */
 
 namespace Drupal\simplenews\Subscription;
 

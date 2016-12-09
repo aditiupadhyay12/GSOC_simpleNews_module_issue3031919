@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\simplenews\Tests\SimplenewsSynchronizeFieldsFormTest.
- */
 
 namespace Drupal\simplenews\Tests;
 

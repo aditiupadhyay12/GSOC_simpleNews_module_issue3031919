@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Plugin\Block\SimplenewsSubscriptionBlock.
- */
-
 namespace Drupal\simplenews\Plugin\Block;
 
 use Drupal\Core\Access\AccessResult;

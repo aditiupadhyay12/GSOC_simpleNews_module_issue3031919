@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\simplenews\Mail\MailBuilderInterface.
- */
 
 namespace Drupal\simplenews\Mail;
 

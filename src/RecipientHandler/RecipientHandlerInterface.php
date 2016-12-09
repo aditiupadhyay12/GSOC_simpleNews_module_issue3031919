@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\simplenews\RecipientHandler\RecipientHandlerInterface.
- */
 
 namespace Drupal\simplenews\RecipientHandler;
 

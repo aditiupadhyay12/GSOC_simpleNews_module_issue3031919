@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Form\SubscriberExportForm.
- */
-
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\FormBase;

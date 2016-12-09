@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Mail\MailInterface.
- */
-
 namespace Drupal\simplenews\Mail;
 
 /**

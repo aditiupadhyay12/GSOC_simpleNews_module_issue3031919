@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\simplenews\Form\SubscriberFormBase.
- */
 
 namespace Drupal\simplenews\Form;
 

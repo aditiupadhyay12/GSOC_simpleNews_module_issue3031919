@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\simplenews\Form\SubscriberForm.
- */
-
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\FormStateInterface;

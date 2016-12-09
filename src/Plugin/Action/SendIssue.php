@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Plugin\Action\SendIssue.
- */
-
 namespace Drupal\simplenews\Plugin\Action;
 
 use Drupal\Core\Access\AccessResult;

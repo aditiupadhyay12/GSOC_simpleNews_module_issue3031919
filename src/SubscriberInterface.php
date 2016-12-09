@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Entity\SubscriberInterface.
- */
-
 namespace Drupal\simplenews;
 
 use Drupal\Core\Entity\ContentEntityInterface;

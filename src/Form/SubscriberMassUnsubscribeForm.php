@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Form\SubscriberMassUnsubscribeForm.
- */
-
 namespace Drupal\simplenews\Form;
 
 use Drupal\Component\Utility\SafeMarkup;

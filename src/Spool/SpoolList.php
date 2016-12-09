@@ -1,11 +1,7 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Spool\SpoolList.
- */
-
 namespace Drupal\simplenews\Spool;
+
 use Drupal\simplenews\Mail\MailEntity;
 
 /**

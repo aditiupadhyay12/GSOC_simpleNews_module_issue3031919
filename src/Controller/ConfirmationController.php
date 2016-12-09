@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Controller\ConfirmationController.
- */
-
 namespace Drupal\simplenews\Controller;
 
 use Drupal\Core\Controller\ControllerBase;

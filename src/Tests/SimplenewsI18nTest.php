@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Tests\SimpleNewsI18nTestCase.
- */
-
 namespace Drupal\simplenews\Tests;
 
 use Drupal\Component\Utility\Unicode;
@@ -13,7 +8,6 @@ use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\language\Entity\ContentLanguageSettings;
 use Drupal\node\Entity\Node;
 use Drupal\simplenews\Entity\Newsletter;
-use Drupal\user\Entity\Role;
 
 /**
  * Translation of newsletters and issues.

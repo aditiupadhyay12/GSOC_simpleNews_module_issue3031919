@@ -1,13 +1,7 @@
 <?php
-/**
- * @file
- * Contains \Drupal\simplenews\Tests\SimplenewsPersonalizationFormsTest.
- */
 
 namespace Drupal\simplenews\Tests;
 use Drupal\Component\Utility\SafeMarkup;
-use Drupal\simplenews\Entity\Newsletter;
-use Drupal\simplenews\Entity\Subscriber;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 

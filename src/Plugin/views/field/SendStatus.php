@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Plugin\views\field\SendStatus.
- */
-
 namespace Drupal\simplenews\Plugin\views\field;
 
 use Drupal\views\Plugin\views\field\FieldPluginBase;

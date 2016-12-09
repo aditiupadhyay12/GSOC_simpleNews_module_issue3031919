@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Mail\MailCacheNone.
- */
-
 namespace Drupal\simplenews\Mail;
 
 /**

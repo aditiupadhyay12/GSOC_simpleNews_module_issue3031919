@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Mail\MailEntity.
- */
-
 namespace Drupal\simplenews\Mail;
 
 use Drupal\Component\Utility\Unicode;

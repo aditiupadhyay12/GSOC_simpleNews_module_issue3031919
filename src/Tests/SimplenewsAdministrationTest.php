@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Tests\SimplenewsAdministrationTest.
- */
-
 namespace Drupal\simplenews\Tests;
 
 use Drupal\block\Entity\Block;

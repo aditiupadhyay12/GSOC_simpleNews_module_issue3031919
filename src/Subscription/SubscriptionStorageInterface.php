@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\simplenews\Subscription\SubscriptionManagerInterface.
- */
 
 namespace Drupal\simplenews\Subscription;
 

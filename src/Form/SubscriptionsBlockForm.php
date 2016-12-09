@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Form\SubscriptionsBlockForm.
- */
-
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\FormStateInterface;

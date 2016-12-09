@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Form\NewsletterDeleteForm.
- */
-
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Entity\EntityConfirmFormBase;

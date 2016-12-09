@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Form\SubscriberDeleteForm.
- */
-
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Entity\ContentEntityConfirmFormBase;

@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\simplenews\SkipMailException.
- */
 
 namespace Drupal\simplenews;
 

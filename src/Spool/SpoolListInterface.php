@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Spool\SpoolListInterface.
- */
-
 namespace Drupal\simplenews\Spool;
 
 /**

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Mail\MailTest.
- */
-
 namespace Drupal\simplenews\Mail;
 
 /**

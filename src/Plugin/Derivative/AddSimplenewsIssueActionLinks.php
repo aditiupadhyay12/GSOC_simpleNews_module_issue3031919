@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Plugin\Derivative\AddSimplenewsIssueActionLinks.
- */
-
 namespace Drupal\simplenews\Plugin\Derivative;
 
 use Drupal\Component\Plugin\Derivative\DeriverBase;

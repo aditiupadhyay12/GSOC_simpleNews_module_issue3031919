@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains DDrupal\simplenews\Plugin\Mail\HTMLTestingMailSystem.
- */
 
 namespace Drupal\simplenews\Plugin\Mail;
 

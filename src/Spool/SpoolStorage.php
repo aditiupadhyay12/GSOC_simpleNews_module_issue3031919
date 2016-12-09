@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Spool\SpoolStorage.
- */
-
 namespace Drupal\simplenews\Spool;
 
 use Drupal\Component\Utility\Unicode;

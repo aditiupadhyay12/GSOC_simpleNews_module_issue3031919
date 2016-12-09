@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Form\RequestHashForm.
- */
-
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\ConfirmFormBase;

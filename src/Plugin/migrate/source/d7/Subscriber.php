@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\simplenews\Plugin\migrate\source\Subscriber.
- */
 
 namespace Drupal\simplenews\Plugin\migrate\source\d7;
 

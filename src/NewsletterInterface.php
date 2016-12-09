@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Entity\NewsletterInterface.
- */
-
 namespace Drupal\simplenews;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;

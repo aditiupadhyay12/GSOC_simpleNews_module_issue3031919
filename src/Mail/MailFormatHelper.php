@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Mail\MailFormatHelper.
- */
-
 namespace Drupal\simplenews\Mail;
 
 use Drupal\Component\Utility\Unicode;

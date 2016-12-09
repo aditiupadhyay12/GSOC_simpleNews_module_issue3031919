@@ -1,16 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Form\PrepareUninstallForm.
- */
-
 namespace Drupal\simplenews\Form;
 
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Removes fields and data used by Simplenews.

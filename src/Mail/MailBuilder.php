@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Mail\MailBuilder.
- */
-
 namespace Drupal\simplenews\Mail;
 
 use Drupal\Core\Config\ConfigFactoryInterface;

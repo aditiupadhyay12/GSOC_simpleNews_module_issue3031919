@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Form\SubscriberSettingsForm.
- */
-
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\ConfigFormBase;

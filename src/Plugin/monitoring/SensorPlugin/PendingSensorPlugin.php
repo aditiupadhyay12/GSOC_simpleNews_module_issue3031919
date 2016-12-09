@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\simplenews\Plugin\monitoring\SensorPlugin\PendingSensorPlugin.
- */
 
 namespace Drupal\simplenews\Plugin\monitoring\SensorPlugin;
 

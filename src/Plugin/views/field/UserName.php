@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\simplenews\Plugin\views\field\UserName.
- */
-
 namespace Drupal\simplenews\Plugin\views\field;
 
 use Drupal\views\Plugin\views\field\FieldPluginBase;

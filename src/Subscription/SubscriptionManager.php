@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Subscription\SubscriptionManager.
- */
-
 namespace Drupal\simplenews\Subscription;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -17,9 +12,6 @@ use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\Mail\MailerInterface;
 use Drupal\simplenews\NewsletterInterface;
 use Drupal\simplenews\SubscriberInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\TerminableInterface;
 
 /**
  * Default subscription manager.

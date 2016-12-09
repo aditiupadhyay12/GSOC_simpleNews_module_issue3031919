@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\simplenews\Kernel\SimplenewsKernelTest.
- */
-
 namespace Drupal\Tests\simplenews\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;

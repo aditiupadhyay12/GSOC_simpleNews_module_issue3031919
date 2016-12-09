@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\NewsletterListBuilder.
- */
-
 namespace Drupal\simplenews;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\simplenews\Entity\Newsletter.
- */
-
 namespace Drupal\simplenews\Entity;
 
 use Drupal\block\Entity\Block;

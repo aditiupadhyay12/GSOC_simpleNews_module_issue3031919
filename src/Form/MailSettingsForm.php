@@ -1,15 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Form\MailSettingsForm.
- */
-
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\simplenews\Mail\MailerInterface;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 
 /**

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Plugin\Field\FieldType\SubscriptionItem.
- */
-
 namespace Drupal\simplenews\Plugin\Field\FieldType;
 
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;

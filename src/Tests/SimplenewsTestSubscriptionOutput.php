@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\modules\simplenews\Tests\SimplenewsTestSubscriptionOutput.
- */
-
 namespace Drupal\simplenews\Tests;
 
 /**

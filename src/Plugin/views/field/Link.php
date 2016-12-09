@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Plugin\views\field\Link.
- */
-
 namespace Drupal\simplenews\Plugin\views\field;
 
 use Drupal\Core\Form\FormStateInterface;

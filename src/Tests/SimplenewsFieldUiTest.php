@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Tests\SimplenewsFieldUiTest.
- */
-
 namespace Drupal\simplenews\Tests;
 
 /**

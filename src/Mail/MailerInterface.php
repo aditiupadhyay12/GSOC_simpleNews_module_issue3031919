@@ -1,12 +1,7 @@
 <?php
-/**
- * @file
- * Contains \Drupal\simplenews\Mail\MailerInterface.
- */
 
 namespace Drupal\simplenews\Mail;
 
-use Drupal\simplenews\NewsletterInterface;
 use Drupal\simplenews\Mail\MailInterface;
 use Drupal\node\NodeInterface;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
