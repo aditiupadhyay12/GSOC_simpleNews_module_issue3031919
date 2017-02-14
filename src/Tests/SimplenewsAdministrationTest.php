@@ -178,6 +178,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'subscriptions[' . $off_double_newsletter_id . ']' => FALSE,
     );
     $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->drupalGet('user/' . $user->id() . '/simplenews');
     $this->assertNoFieldChecked($this->getNewsletterFieldId($off_double_newsletter_id));
 
     // Get a newsletter which has the block enabled.

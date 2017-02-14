@@ -52,6 +52,14 @@ class SubscriptionsAccountForm extends SubscriptionsFormBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    parent::submitUpdate($form, $form_state);
+    $form_state->setRedirectUrl($this->entity->getUser()->toUrl());
+  }
+
+  /**
    * Checks access for the simplenews account form.
    *
    * @param \Drupal\user\UserInterface $user
