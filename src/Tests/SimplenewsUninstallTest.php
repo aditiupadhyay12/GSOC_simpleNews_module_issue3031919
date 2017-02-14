@@ -54,7 +54,7 @@ class SimplenewsUninstallTest extends SimplenewsTestBase {
     $this->assertNoText(t('Simplenews'));
 
     // Make sure that the module can be installed again.
-    $this->drupalPostForm('admin/modules', ['modules[Mail][simplenews][enable]' => TRUE], t('Install'));
+    $this->drupalPostForm('admin/modules', ['modules[simplenews][enable]' => TRUE], t('Install'));
     $this->assertText('Module Simplenews has been enabled.');
   }
 
