@@ -371,10 +371,10 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
 
     // Delete the node manually in the database.
-    db_delete('node')
+    \Drupal::database()->delete('node')
       ->condition('nid', $node->id())
       ->execute();
-    db_delete('node_revision')
+    \Drupal::database()->delete('node_revision')
       ->condition('nid', $node->id())
       ->execute();
     \Drupal::entityManager()->getStorage('node')->resetCache();
@@ -434,7 +434,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     \Drupal::service('simplenews.mailer')->sendSpool();
     $this->assertEqual(0, count($this->drupalGetMails()));
-    $spool_row = db_select('simplenews_mail_spool', 'ms')
+    $spool_row = \Drupal::database()->select('simplenews_mail_spool', 'ms')
       ->fields('ms', ['status'])
       ->execute()
       ->fetchAssoc();

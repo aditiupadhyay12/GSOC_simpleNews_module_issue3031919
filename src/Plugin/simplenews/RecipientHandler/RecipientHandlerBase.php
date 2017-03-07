@@ -43,7 +43,7 @@ class RecipientHandlerBase extends PluginBase implements RecipientHandlerInterfa
    * Implements SimplenewsRecipientHandlerInterface::buildRecipientQuery()
    */
   public function buildRecipientQuery() {
-    $select = db_select('simplenews_subscriber', 's');
+    $select =\Drupal::database()->select('simplenews_subscriber', 's');
     $select->innerJoin('simplenews_subscriber__subscriptions', 't', 's.id = t.entity_id');
     $select->addField('s', 'id', 'snid');
     $select->addField('s', 'mail');

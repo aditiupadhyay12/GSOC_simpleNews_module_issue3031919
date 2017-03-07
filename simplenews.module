@@ -1035,7 +1035,7 @@ function simplenews_count_subscriptions($newsletter_id) {
   }
 
   // @todo: entity query + aggregate
-  $query = db_select('simplenews_subscriber__subscriptions', 'ss');
+  $query = \Drupal::database()->select('simplenews_subscriber__subscriptions', 'ss');
   $query->leftJoin('simplenews_subscriber', 'sn', 'sn.id = ss.entity_id');
   $query->condition('subscriptions_target_id', $newsletter_id)
     ->condition('sn.status', SubscriberInterface::ACTIVE)

@@ -520,7 +520,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(0, count($this->subscribers), t('all subscribers have received a mail'));
 
     // Update timestamp to simulate pending lock expiration.
-    db_update('simplenews_mail_spool')
+    \Drupal::database()->update('simplenews_mail_spool')
       ->fields(array(
         'timestamp' => REQUEST_TIME - $this->config('simplenews.settings')->get('mail.spool_progress_expiration') - 1,
       ))
