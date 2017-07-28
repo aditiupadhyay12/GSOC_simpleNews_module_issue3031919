@@ -121,7 +121,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       'simplenews_issue' => $newsletter_id,
       'body[0][value]' => 'Link to node: [node:url]',
     );
-    $this->drupalPostForm('node/add/simplenews_issue', $english, ('Save and publish'));
+    $this->drupalPostForm('node/add/simplenews_issue', $english, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -131,7 +131,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       'title[0][value]' => $this->randomMachineName(),
       'body[0][value]' => 'Link to node: [node:url] ES',
     );
-    $this->drupalPostForm(NULL, $spanish, t('Save and keep published (this translation)'));
+    $this->drupalPostForm(NULL, $spanish, t('Save (this translation)'));
 
     \Drupal::entityManager()->getStorage('node')->resetCache(array($node->id()));
     $node = Node::load($node->id());
@@ -184,12 +184,12 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       'langcode[0][value]' => 'en',
       'body[0][value]' => 'Link to node: [node:url]',
     );
-    $this->drupalPostForm('node/add/simplenews_issue', $english, ('Save and publish'));
+    $this->drupalPostForm('node/add/simplenews_issue', $english, ('Save'));
     $this->clickLink(t('Edit'));
     $edit = array(
       'langcode[0][value]' => 'es',
     );
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostForm(NULL, $edit, t('Save'));
   }
 
 }

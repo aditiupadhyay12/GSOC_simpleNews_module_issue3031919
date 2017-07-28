@@ -734,7 +734,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'body[0][value]' => 'User ID: [current-user:uid]',
       'simplenews_issue' => $this->getRandomNewsletter(),
     );
-    $this->drupalPostForm(NULL, $edit, ('Save and publish'));
+    $this->drupalPostForm(NULL, $edit, ('Save'));
 
     $node = $this->drupalGetNodeByTitle($edit['title[0][value]']);
 
@@ -743,7 +743,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'body[0][value]' => 'Sample body text - Newsletter issue',
       'simplenews_issue' => $this->getRandomNewsletter(),
     );
-    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
+    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
 
     // Assert that body text is displayed.
     $this->assertText('Sample body text - Newsletter issue');
@@ -907,13 +907,14 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'title[0][value]' => 'Test_issue_1',
       'simplenews_issue'  => Unicode::strtolower($name),
     );
-    $this->drupalPostForm('node/add/simplenews_issue', $edit, t('Save and publish'));
+    $this->drupalPostForm('node/add/simplenews_issue', $edit, t('Save'));
     // Create another newsletter issue and keep unpublished.
     $edit = array(
       'title[0][value]' => 'Test_issue_2',
       'simplenews_issue'  => Unicode::strtolower($name),
+      'status[value]' => FALSE,
     );
-    $this->drupalPostForm('node/add/simplenews_issue', $edit, t('Save as unpublished'));
+    $this->drupalPostForm('node/add/simplenews_issue', $edit, t('Save'));
     // Test mass subscribe with previously unsubscribed users.
     for ($i = 0; $i < 3; $i++) {
       $subscribers[] = $this->randomEmail();

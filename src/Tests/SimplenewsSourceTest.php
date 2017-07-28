@@ -134,7 +134,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue' => 'default',
     );
-    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
+    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -204,7 +204,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue' => 'default',
     );
-    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
+    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -282,7 +282,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue' => 'default',
     );
-    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
+    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -324,7 +324,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue' => 'default',
     );
-    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
+    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -363,7 +363,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue' => 'default',
     );
-    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
+    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -399,7 +399,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue' => 'default',
     );
-    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save and publish'));
+    $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 

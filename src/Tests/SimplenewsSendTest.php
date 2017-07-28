@@ -121,7 +121,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'title[0][value]' => $this->randomString(10),
       'simplenews_issue' => 'default',
     );
-    $this->drupalPostForm(NULL, $edit, ('Save and publish'));
+    $this->drupalPostForm(NULL, $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -172,14 +172,10 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       $edit = array(
         'title[0][value]' => $this->randomString(10),
         'simplenews_issue' => 'default',
+        // The last newsletter shouldn't be published.
+        'status[value]' => $i != 2
       );
-      // The last newsletter shouldn't be published.
-      if ($i != 2) {
-        $this->drupalPostForm(NULL, $edit, ('Save and publish'));
-      }
-      else {
-        $this->drupalPostForm(NULL, $edit, ('Save as unpublished'));
-      }
+      $this->drupalPostForm(NULL, $edit, ('Save'));
       $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
       $nodes[] = Node::load($matches[1]);
 
@@ -205,7 +201,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'title[0][value]' => $this->randomString(10),
       'simplenews_issue' => 'default',
     );
-    $this->drupalPostForm(NULL, $edit, ('Save and publish'));
+    $this->drupalPostForm(NULL, $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -287,7 +283,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->clickLink(t('Back to content editing'));
 
     // Then save.
-    $this->drupalPostForm(NULL, array(), t('Save and publish'));
+    $this->drupalPostForm(NULL, array(), t('Save'));
 
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -360,8 +356,9 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $edit = array(
       'title[0][value]' => $this->randomString(10),
       'simplenews_issue' => 'default',
+      'status[value]' => FALSE,
     );
-    $this->drupalPostForm(NULL, $edit, ('Save as unpublished'));
+    $this->drupalPostForm(NULL, $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -383,7 +380,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_PUBLISH, $node->simplenews_issue->status, t('Newsletter set up for sending on publish.'));
 
     $this->clickLink(t('Edit'));
-    $this->drupalPostForm(NULL, array(), t('Save and publish'));
+    $this->drupalPostForm(NULL, ['status[value]' => TRUE], t('Save'));
 
     // Send on publish does not send immediately.
     \Drupal::entityManager()->getStorage('node')->resetCache(array($node->id()));
@@ -426,7 +423,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'title[0][value]' => $this->randomString(10),
       'simplenews_issue' => $first_newsletter_id,
     );
-    $this->drupalPostForm(NULL, $edit, ('Save and publish'));
+    $this->drupalPostForm(NULL, $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created.');
 
     // Verify newsletter.
@@ -444,7 +441,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $update = array(
       'simplenews_issue' => $second_newsletter_id,
     );
-    $this->drupalPostForm(NULL, $update, t('Save and keep published'));
+    $this->drupalPostForm(NULL, $update, t('Save'));
 
     // Verify newsletter.
     \Drupal::entityManager()->getStorage('node')->resetCache();
@@ -470,7 +467,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'title[0][value]' => $this->randomString(10),
       'simplenews_issue' => 'default',
     );
-    $this->drupalPostForm(NULL, $edit, ('Save and publish'));
+    $this->drupalPostForm(NULL, $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
