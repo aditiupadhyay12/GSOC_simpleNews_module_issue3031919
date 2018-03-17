@@ -129,6 +129,16 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->drupalPostForm('newsletter/subscriptions', $edit, t('Unsubscribe'));
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to cancel your subscription.'), t('Subscription confirmation e-mail sent.'));
 
+    // Unsubscribe with no confirmed email.
+    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
+    try {
+      $subscription_manager->unsubscribe('new@email.com', $newsletter_id, FALSE);
+      $this->fail('Exception not thrown.');
+    }
+    catch (\Exception $e) {
+      $this->assertEqual($e->getMessage(), 'The subscriber does not exist.');
+    }
+
     // Verify listed changes.
     foreach ($newsletters as $newsletter_id => $newsletter) {
       $this->assertMailText(t('Unsubscribe from @name', array('@name' => $newsletter->name)), 1, in_array($newsletter_id, $disable));

@@ -165,7 +165,9 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
    */
   public function unsubscribe($mail, $newsletter_id, $confirm = NULL, $source = 'unknown') {
     $subscriber = simplenews_subscriber_load_by_mail($mail);
-
+    if (!$subscriber) {
+      throw new \Exception('The subscriber does not exist.');
+    }
     // The unlikely case that a user is unsubscribed from a non existing mailing list is logged
     if (!$newsletter = simplenews_newsletter_load($newsletter_id)) {
       $this->logger->error('Attempt to unsubscribe from non existing mailing list ID %id', array('%id' => $newsletter_id));
