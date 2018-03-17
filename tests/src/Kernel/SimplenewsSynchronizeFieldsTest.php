@@ -230,6 +230,70 @@ class SimplenewsSynchronizeFieldsTest extends KernelTestBase {
   }
 
   /**
+   * Tests that recursion is prevented when a user is updated.
+   *
+   * If the synchronization between fields is active, whenever a user gets saved
+   * the related subscriber gets its fields updated and viceversa.
+   *
+   * This test covers a bug that happened when a user gets saved. The checks
+   * to prevent circular updates were not working correctly if the user entity
+   * is the one being saved first.
+   * The bug appeared when trying to use the AddRoleUser or RemoveRoleUser
+   * actions on users with subscriptions.
+   *
+   * @see \Drupal\user\Plugin\Action\AddRoleUser
+   * @see \Drupal\user\Plugin\Action\RemoveRoleUser
+   */
+  public function testUserRecursionPrevention() {
+    // Create a subscriber.
+    /** @var \Drupal\simplenews\Entity\Subscriber $subscriber */
+    $subscriber = Subscriber::create([
+      'mail' => 'user@example.com',
+    ]);
+    $subscriber->save();
+
+    // Create a user with same email.
+    /** @var \Drupal\user\Entity\User $user */
+    $user = User::create([
+      'name' => 'user',
+      'mail' => 'user@example.com',
+      'preferred_langcode' => 'fr',
+    ]);
+    $user->save();
+
+    // Load the user, so that the static cache in the storage gets populated.
+    $user = User::load($user->id());
+
+    // Replicate the behaviour of two actions mentioned. The user entity gets
+    // cloned and set in the original property. This will prevent a call to
+    // ContentEntityStorageBase::loadUnchanged(), so the user entity available
+    // in the static cache is the same object being used here.
+    // @see \Drupal\user\Plugin\Action\AddRoleUser::execute()
+    // @see \Drupal\user\Plugin\Action\RemoveRoleUser::execute()
+    // @see \Drupal\Core\Entity\ContentEntityStorageBase::loadUnchanged()
+    $user->original = clone $user;
+
+    // Make a change to the user.
+    $user->set('preferred_langcode', 'en');
+    // Save the user. This will invoke simplenews_user_presave(), which will
+    // sync the fields on the related subscriber entity and save it.
+    // On post save of the subscriber entity, the user fields should be updated,
+    // but not in this case since the updates are already coming from the user.
+    // If this is not prevented, the user will be loaded (hitting the static
+    // cache) and then saved again. Then, the user object, which is still the
+    // same from the original request, will be modified during the
+    // EntityStorageBase::doPostSave() method.
+    // At this point the initial user presave will continue, but the entity
+    // "original" property has been unset and a critical error will be thrown.
+    // @see \Drupal\Core\Entity\EntityStorageBase::doPostSave()
+    // @see \Drupal\Core\Entity\ContentEntityStorageBase::doPreSave()
+    $user->save();
+
+    // Assert that the field has been synced properly.
+    $this->assertEquals($subscriber->getLangcode(), 'en');
+  }
+
+  /**
    * Creates and saves a field storage and instance.
    *
    * @param string $type

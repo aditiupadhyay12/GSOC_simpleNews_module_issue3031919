@@ -195,6 +195,14 @@ interface SubscriberInterface extends ContentEntityInterface {
   public function isSyncing();
 
   /**
+   * Sets whether the subscriber is syncing from/to the corresponding user.
+   *
+   * @param bool $sync
+   *   (optional) Whether the subscriber is syncing. Defaults to TRUE.
+   */
+  public function setSyncing($sync = TRUE);
+
+  /**
    * Identifies configurable fields shared with a user.
    *
    * @param \Drupal\user\UserInterface $user

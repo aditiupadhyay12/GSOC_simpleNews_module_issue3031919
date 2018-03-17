@@ -464,8 +464,6 @@ function simplenews_user_login(UserInterface $account) {
  * @see simplenews_user_insert()
  */
 function simplenews_user_presave(UserInterface $account) {
-  $syncing = &drupal_static(__FUNCTION__, FALSE);
-
   // Don't do anything if the user has no email.
   if (!$account->getEmail()) {
     return;
@@ -476,7 +474,7 @@ function simplenews_user_presave(UserInterface $account) {
     simplenews_subscriber_load_by_mail($account->getEmail()) :
     simplenews_subscriber_load_by_uid($account->id());
   if ($subscriber && !$subscriber->isSyncing()) {
-    $syncing = TRUE;
+    $subscriber->setSyncing();
     // We only process existing accounts.
     if (!$account->isNew()) {
       // Update mail, status and language if they are changed.
@@ -493,7 +491,7 @@ function simplenews_user_presave(UserInterface $account) {
     }
 
     $subscriber->save();
-    $syncing = FALSE;
+    $subscriber->setSyncing(FALSE);
   }
 }
 

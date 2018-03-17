@@ -178,6 +178,13 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
+  public function setSyncing($sync = TRUE) {
+    static::$syncing = $sync;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function isSubscribed($newsletter_id) {
     foreach ($this->subscriptions as $item) {
       if ($item->target_id == $newsletter_id) {
@@ -274,7 +281,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
     parent::postSave($storage, $update);
 
     // Copy values for shared fields to existing user.
-    if (\Drupal::config('simplenews.settings')->get('subscriber.sync_fields') && $user = $this->getUser()) {
+    if (!static::$syncing === TRUE && \Drupal::config('simplenews.settings')->get('subscriber.sync_fields') && $user = $this->getUser()) {
       static::$syncing = TRUE;
       foreach ($this->getUserSharedFields($user) as $field_name) {
         $user->set($field_name, $this->get($field_name)->getValue());
