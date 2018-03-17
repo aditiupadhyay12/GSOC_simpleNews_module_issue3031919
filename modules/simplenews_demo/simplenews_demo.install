@@ -147,7 +147,7 @@ function simplenews_demo_install() {
   );
 
   // Update scheduler record.
-  db_merge('simplenews_scheduler')
+  \Drupal::database()->merge('simplenews_scheduler')
     ->key(array(
       'nid' => $nid,
     ))
