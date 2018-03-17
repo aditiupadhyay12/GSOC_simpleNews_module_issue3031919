@@ -141,7 +141,7 @@ class SpoolStorage implements SpoolStorageInterface {
       ->condition('msid', (array) $msids, 'IN')
       ->fields(array(
         'status' => $data['status'],
-        'error' => isset($result['error']) ? (int) $data['error'] : 0,
+        'error' => isset($data['error']) ? (int) $data['error'] : 0,
         'timestamp' => REQUEST_TIME,
       ))
       ->execute();
