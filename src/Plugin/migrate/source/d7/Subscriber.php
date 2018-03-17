@@ -13,6 +13,7 @@ use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
  * )
  */
 class Subscriber extends DrupalSqlBase {
+
   /**
    * {@inheritdoc}
    */
@@ -32,7 +33,7 @@ class Subscriber extends DrupalSqlBase {
    * {@inheritdoc}
    */
   public function getIds() {
-    return ['snid' => ['type' => 'serial']];
+    return ['snid' => ['type' => 'integer']];
   }
 
   /**
@@ -50,12 +51,18 @@ class Subscriber extends DrupalSqlBase {
   public function prepareRow(Row $row) {
     $result = parent::prepareRow($row);
 
+    $version = $this->getModuleSchemaVersion('simplenews');
+    $newsletter_id_field = 'newsletter_id';
+    if ($version >= 7000 & $version < 7200) {
+      $newsletter_id_field = 'tid';
+    }
+
     // Add associated data from the subscriptions table.
-    $subscriptions = $this->select('simplenews_subscription', 'sub')
-      ->fields('sub', ['newsletter_id', 'status', 'timestamp', 'source'])
-      ->condition('sub.snid', $row->getSourceProperty('snid'))
-      ->execute()
-      ->fetchAllAssoc('newsletter_id');
+    $q = $this->select('simplenews_subscription', 'sub');
+    $q->addField('sub', $newsletter_id_field, 'newsletter_id');
+    $q->fields('sub', ['status', 'timestamp', 'source']);
+    $q->condition('sub.snid', $row->getSourceProperty('snid'));
+    $subscriptions = $q->execute()->fetchAllAssoc('newsletter_id');
     $row->setSourceProperty('subscriptions', $subscriptions);
 
     return $result;

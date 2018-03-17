@@ -21,3 +21,8 @@ services:
       - { name: needs_destruction }
   simplenews.mail_cache:
     class: Drupal\simplenews\Mail\MailCacheBuild
+  simplenews.migration_subscriber:
+    class: Drupal\simplenews\EventSubscriber\MigrationSubscriber
+    arguments: ['@entity_field.manager']
+    tags:
+      - { name: event_subscriber }

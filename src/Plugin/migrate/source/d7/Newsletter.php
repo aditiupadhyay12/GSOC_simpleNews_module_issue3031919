@@ -12,6 +12,7 @@ use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
  * )
  */
 class Newsletter extends DrupalSqlBase {
+
   /**
    * {@inheritdoc}
    */
@@ -38,13 +39,40 @@ class Newsletter extends DrupalSqlBase {
    * {@inheritdoc}
    */
   public function getIds() {
-    return ['newsletter_id' => ['type' => 'serial']];
+    return ['newsletter_id' => ['type' => 'integer']];
   }
 
   /**
    * {@inheritdoc}
    */
   public function query() {
+    $version = $this->getModuleSchemaVersion('simplenews');
+    if ($version >= 7000 & $version < 7200) {
+      return $this->query71();
+    }
+    else {
+      return $this->query72();
+    }
+  }
+
+  /**
+   * Get query for Simplenews module version 7.x-1.x.
+   */
+  protected function query71() {
+    $q = $this->select('simplenews_category', 'c');
+    $q->innerJoin('taxonomy_term_data', 't', 't.tid = c.tid');
+    $q->addField('c', 'tid', 'newsletter_id');
+    $q->fields('c', ['format', 'priority', 'receipt', 'from_name', 'email_subject', 'from_address', 'hyperlinks', 'new_account', 'opt_inout', 'block']);
+    $q->fields('t', ['name', 'description', 'weight']);
+    $q->orderBy('newsletter_id');
+
+    return $q;
+  }
+
+  /**
+   * Get query for Simplenews module version 7.x-2.x.
+   */
+  protected function query72() {
     return $this->select('simplenews_newsletter', 'n')
       ->fields('n')
       ->orderBy('newsletter_id');
