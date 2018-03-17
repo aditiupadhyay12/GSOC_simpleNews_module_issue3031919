@@ -283,8 +283,11 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
     foreach ($this->extractNewsletterIds($form_state, TRUE) as $newsletter_id) {
       $subscription_manager->subscribe($this->entity->getMail(), $newsletter_id, FALSE, 'website');
     }
-    foreach ($this->extractNewsletterIds($form_state, FALSE) as $newsletter_id) {
-      $subscription_manager->unsubscribe($this->entity->getMail(), $newsletter_id, FALSE, 'website');
+
+    if (!$this->entity->isNew()) {
+      foreach ($this->extractNewsletterIds($form_state, FALSE) as $newsletter_id) {
+        $subscription_manager->unsubscribe($this->entity->getMail(), $newsletter_id, FALSE, 'website');
+      }
     }
     drupal_set_message($this->getSubmitMessage($form_state, static::SUBMIT_UPDATE, FALSE));
   }
