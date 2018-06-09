@@ -44,12 +44,12 @@ class SpoolList implements SpoolListInterface {
   public function nextMail() {
     // Get the current mail spool row and update the internal pointer to the
     // next row.
-    $return = each($this->mails);
+    $spool_data = current($this->mails);
+    next($this->mails);
     // If we're done, return false.
-    if (!$return) {
+    if (!$spool_data) {
       return FALSE;
     }
-    $spool_data = $return['value'];
 
     // Store this spool row as processed.
     $this->processed[$spool_data->msid] = $spool_data;
