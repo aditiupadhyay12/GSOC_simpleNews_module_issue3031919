@@ -63,8 +63,8 @@ class PrepareUninstallForm extends FormBase {
    * Deletes Simplenews subscribers.
    */
   public static function deleteSubscribers(&$context) {
-    $subscriber_ids = \Drupal::entityQuery('simplenews_subscriber')->range(0, 100)->execute();
-    $storage = \Drupal::entityManager()->getStorage('simplenews_subscriber');
+    $storage = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber');
+    $subscriber_ids = $storage->getQuery()->range(0, 100)->execute();
     if ($subscribers = $storage->loadMultiple($subscriber_ids)) {
       $storage->delete($subscribers);
     }
@@ -75,9 +75,11 @@ class PrepareUninstallForm extends FormBase {
    * Removes Simplenews fields.
    */
   public static function removeFields() {
-    $simplenews_fields_ids = \Drupal::entityQuery('field_config')->condition('field_type', 'simplenews_', 'STARTS_WITH')->execute();
-    $simplenews_fields = \Drupal::entityManager()->getStorage('field_config')->loadMultiple($simplenews_fields_ids);
-    $field_config_storage = \Drupal::entityManager()->getStorage('field_config');
+    $field_config_storage = \Drupal::entityTypeManager()->getStorage('field_config');
+    $simplenews_fields_ids = $field_config_storage->getQuery()
+      ->condition('field_type', 'simplenews_', 'STARTS_WITH')->execute();
+    $simplenews_fields = $field_config_storage->loadMultiple($simplenews_fields_ids);
+
     $field_config_storage->delete($simplenews_fields);
   }
 
