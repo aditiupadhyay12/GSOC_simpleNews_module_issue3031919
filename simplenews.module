@@ -789,7 +789,7 @@ function simplenews_newsletter_get_visible($conditions = array()) {
     $query->condition($key, $value);
   }
   $result = $query->execute();
-  return !empty($result) ? simplenews_newsletter_load_multiple($result) : NULL;
+  return !empty($result) ? simplenews_newsletter_load_multiple($result) : [];
 }
 
 /**
