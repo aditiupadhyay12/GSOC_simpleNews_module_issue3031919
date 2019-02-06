@@ -4,10 +4,10 @@ type: module
 package: Mail
 core: 8.x
 dependencies:
-  - node
-  - field
-  - options
-  - views
+  - drupal:node
+  - drupal:field
+  - drupal:options
+  - drupal:views
 test_dependencies:
-  - monitoring
+  - monitoring:monitoring
 configure: simplenews.newsletter_list
