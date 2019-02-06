@@ -3,9 +3,9 @@ type: module
 description: Demo module for Simplenews.
 core: 8.x
 dependencies:
-  - block
-  - views
-  - simplenews
-  - simplenews_scheduler
+  - drupal:block
+  - drupal:views
+  - simplenews:simplenews
+  - simplenews_scheduler:simplenews_scheduler
 hidden: false
 package: Mail
