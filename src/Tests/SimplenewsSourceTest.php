@@ -219,7 +219,8 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     // Test that tokens are correctly replaced.
     foreach (array_slice($this->drupalGetMails(), 0, 3) as $mail) {
       // Verify title.
-      $this->assertTrue(strpos($mail['body'], '<h2>' . Html::escape($node->getTitle()) . '</h2>') !== FALSE);
+      preg_match('|<h2>(.*)</h2>|', $mail['body'], $matches);
+      $this->assertEqual(Html::decodeEntities($matches[1]), $node->getTitle());
 
       // Verify the format/content type.
       $this->assertEqual($mail['params']['format'], 'text/html');

@@ -379,7 +379,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $rows = $this->xpath('//tbody/tr');
     $this->assertEqual(1, count($rows));
     $this->assertEqual(current($subscribers['all']), trim((string) $rows[0]->td[0]));
-    $this->assertEqual($user->label(), trim((string) $rows[0]->td[1]->span));
+    $this->assertEqual($user->label(), trim((string) $rows[0]->td[1]->a));
 
     // Reset the filter.
     $this->drupalGet('admin/people/simplenews');
