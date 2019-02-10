@@ -65,7 +65,7 @@ function drush_simplenews_spool_send($limit = FALSE) {
   }
 
   if ($limit === FALSE) {
-    $limit = variable_get('simplenews_throttle');
+    $limit = \Drupal::config('simplenews.settings')->get('mail.throttle');
   }
   elseif ($limit == 0) {
     $limit = SpoolStorageInterface::UNLIMITED;
@@ -81,7 +81,7 @@ function drush_simplenews_spool_send($limit = FALSE) {
 
   // Report the number of sent mails.
   if ($sent > 0) {
-    $remaining = \Drupal::service('simplenews.spool_storage')->countMesages();
+    $remaining = \Drupal::service('simplenews.spool_storage')->countMails();
     if (drush_get_option(array('p', 'pipe'))) {
       // For pipe, print the sent first and then the remaining count, separated by a space.
       drush_print_pipe($sent . " " . $remaining);
