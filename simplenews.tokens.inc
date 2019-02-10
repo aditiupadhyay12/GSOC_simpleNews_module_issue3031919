@@ -116,7 +116,7 @@ function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $
             if (!$subscriber->id()) {
               // Temporary test subscriber.
               $replacements[$original] = t('No unsubscribe link for test subscribers.');
-              continue;
+              break;
             }
             $hash = simplenews_generate_hash($subscriber->getMail(), 'remove');
             $bubbleable_metadata->setCacheMaxAge(0);
