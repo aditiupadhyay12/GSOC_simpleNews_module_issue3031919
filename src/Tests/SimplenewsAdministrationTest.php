@@ -379,7 +379,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $rows = $this->xpath('//tbody/tr');
     $this->assertEqual(1, count($rows));
     $this->assertEqual(current($subscribers['all']), trim((string) $rows[0]->td[0]));
-    $this->assertEqual($user->label(), trim((string) $rows[0]->td[1]->a));
+    // Mysteriously, the username is sometimes a span and sometimes a link.  Accept both.
+    $this->assertEqual($user->label(), trim((string) $rows[0]->td[1]->xpath('span|a')[0]));
 
     // Reset the filter.
     $this->drupalGet('admin/people/simplenews');
