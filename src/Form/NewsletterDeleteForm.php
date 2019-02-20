@@ -37,7 +37,7 @@ class NewsletterDeleteForm extends EntityConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->delete();
-    drupal_set_message(t('Newsletter %label has been deleted.', array('%label' => $this->entity->label())));
+    $this->messenger()->addMessage(t('Newsletter %label has been deleted.', array('%label' => $this->entity->label())));
     \Drupal::logger('simplenews')->notice('Newsletter %label has been deleted.', array('%label' => $this->entity->label()));
     $form_state->setRedirect('simplenews.newsletter_list');
   }

@@ -246,7 +246,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
       $subscription_manager->subscribe($this->entity->getMail(), $newsletter_id, NULL, 'website');
     }
     $sent = $subscription_manager->sendConfirmations();
-    drupal_set_message($this->getSubmitMessage($form_state, static::SUBMIT_SUBSCRIBE, $sent));
+    $this->messenger()->addMessage($this->getSubmitMessage($form_state, static::SUBMIT_SUBSCRIBE, $sent));
   }
 
   /**
@@ -264,7 +264,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
       $subscription_manager->unsubscribe($this->entity->getMail(), $newsletter_id, NULL, 'website');
     }
     $sent = $subscription_manager->sendConfirmations();
-    drupal_set_message($this->getSubmitMessage($form_state, static::SUBMIT_UNSUBSCRIBE, $sent));
+    $this->messenger()->addMessage($this->getSubmitMessage($form_state, static::SUBMIT_UNSUBSCRIBE, $sent));
   }
 
   /**
@@ -289,7 +289,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
         $subscription_manager->unsubscribe($this->entity->getMail(), $newsletter_id, FALSE, 'website');
       }
     }
-    drupal_set_message($this->getSubmitMessage($form_state, static::SUBMIT_UPDATE, FALSE));
+    $this->messenger()->addMessage($this->getSubmitMessage($form_state, static::SUBMIT_UPDATE, FALSE));
   }
 
   /**

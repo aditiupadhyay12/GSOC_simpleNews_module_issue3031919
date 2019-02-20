@@ -110,9 +110,9 @@ class SubscriberForm extends ContentEntityForm {
     $form_state->setRedirect('view.simplenews_subscribers.page_1');
 
     if ($this->entity->isNew()) {
-      drupal_set_message($this->t('Subscriber %label has been added.', array('%label' => $this->entity->label())));
+      $this->messenger()->addMessage($this->t('Subscriber %label has been added.', array('%label' => $this->entity->label())));
     } else {
-      drupal_set_message($this->t('Subscriber %label has been updated.', array('%label' => $this->entity->label())));
+      $this->messenger()->addMessage($this->t('Subscriber %label has been updated.', array('%label' => $this->entity->label())));
     }
   }
 

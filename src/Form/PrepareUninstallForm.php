@@ -56,7 +56,7 @@ class PrepareUninstallForm extends FormBase {
     ];
     batch_set($batch);
 
-    drupal_set_message($this->t('Simplenews data has been deleted.'));
+    \Drupal::messenger()->addMessage($this->t('Simplenews data has been deleted.'));
   }
 
   /**

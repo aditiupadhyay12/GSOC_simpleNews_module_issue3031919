@@ -37,7 +37,7 @@ class SubscriberDeleteForm extends ContentEntityConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->delete();
-    drupal_set_message(t('Subscriber %label has been deleted.', array('%label' => $this->entity->label())));
+    $this->messenger()->addMessage(t('Subscriber %label has been deleted.', array('%label' => $this->entity->label())));
     \Drupal::logger('simplenews')->notice('Subscriber %label has been deleted.', array('%label' => $this->entity->label()));
     $form_state->setRedirect('view.simplenews_subscribers.page_1');
   }

@@ -29,7 +29,7 @@ class SendIssue extends ActionBase {
       }
       if (!$node->isPublished()) {
         simplenews_issue_update_sent_status($node, SIMPLENEWS_COMMAND_SEND_PUBLISH);
-        drupal_set_message(t('Newsletter issue %title is unpublished and will be sent on publish.', array('%title' => $node->label())));
+        $this->messenger()->addMessage(t('Newsletter issue %title is unpublished and will be sent on publish.', array('%title' => $node->label())));
         continue;
       }
       \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
@@ -41,11 +41,11 @@ class SendIssue extends ActionBase {
       $conditions = array('entity_id' => array_keys($nodes), 'entity_type' => 'node');
       // Attempt to send immediatly, if configured to do so.
       if (\Drupal::service('simplenews.mailer')->attemptImmediateSend($conditions)) {
-        drupal_set_message(t('Sent the following newsletter(s): %titles.', array('%titles' => implode(', ', $labels))));
+        $this->messenger()->addMessage(t('Sent the following newsletter(s): %titles.', array('%titles' => implode(', ', $labels))));
         $status = SIMPLENEWS_STATUS_SEND_READY;
       }
       else {
-        drupal_set_message(t('The following newsletter(s) are now pending: %titles.', array('%titles' => implode(', ', $labels))));
+        $this->messenger()->addMessage(t('The following newsletter(s) are now pending: %titles.', array('%titles' => implode(', ', $labels))));
         $status = SIMPLENEWS_STATUS_SEND_PENDING;
       }
       foreach ($nodes as $node) {

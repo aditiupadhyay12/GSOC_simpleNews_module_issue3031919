@@ -20,11 +20,14 @@ use Drupal\simplenews\Mail\MailInterface;
 use Drupal\simplenews\SkipMailException;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\SubscriberInterface;
+use Drupal\Core\Messenger\MessengerTrait;
 
 /**
  * Default Mailer.
  */
 class Mailer implements MailerInterface {
+
+  use MessengerTrait;
 
   /**
    * Amount of mails after which the execution time should be checked again.
@@ -353,11 +356,11 @@ class Mailer implements MailerInterface {
     }
     if (count($recipients['user'])) {
       $recipients_txt = implode(', ', $recipients['user']);
-      drupal_set_message(t('Test newsletter sent to user %recipient.', array('%recipient' => $recipients_txt)));
+      $this->messenger()->addMessage(t('Test newsletter sent to user %recipient.', array('%recipient' => $recipients_txt)));
     }
     if (count($recipients['anonymous'])) {
       $recipients_txt = implode(', ', $recipients['anonymous']);
-      drupal_set_message(t('Test newsletter sent to anonymous %recipient.', array('%recipient' => $recipients_txt)));
+      $this->messenger()->addMessage(t('Test newsletter sent to anonymous %recipient.', array('%recipient' => $recipients_txt)));
     }
 
     $this->accountSwitcher->switchBack();

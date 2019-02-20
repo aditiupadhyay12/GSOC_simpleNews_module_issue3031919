@@ -83,7 +83,7 @@ class ConfirmRemovalForm extends ConfirmFormBase {
     if (!$path = $config->get('subscription.confirm_unsubscribe_page')) {
       $site_config = \Drupal::config('system.site');
       $path = $site_config->get('page.front');
-      drupal_set_message(t('%user was unsubscribed from the %newsletter mailing list.', array('%user' => $form_state->getValue('mail'), '%newsletter' => $form_state->getValue('newsletter')->name)));
+      $this->messenger()->addMessage(t('%user was unsubscribed from the %newsletter mailing list.', array('%user' => $form_state->getValue('mail'), '%newsletter' => $form_state->getValue('newsletter')->name)));
     }
 
     $form_state->setRedirectUrl(Url::fromUri("internal:/$path"));

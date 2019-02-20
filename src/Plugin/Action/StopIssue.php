@@ -28,7 +28,7 @@ class StopIssue extends ActionBase {
         // Set newsletter issue to not sent yet.
         $node->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_NOT;
         $node->save();
-        drupal_set_message(t('Sending of %title was stopped. @count pending email(s) were deleted.', array(
+        $this->messenger()->addMessage(t('Sending of %title was stopped. @count pending email(s) were deleted.', array(
           '%title' => $node->getTitle(),
           '@count' => $count,
         )));

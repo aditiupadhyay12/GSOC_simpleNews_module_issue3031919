@@ -253,10 +253,10 @@ class NodeTabForm extends FormBase {
     \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     // Attempt to send immediatly, if configured to do so.
     if (\Drupal::service('simplenews.mailer')->attemptImmediateSend(array('entity_id' => $node->id(), 'entity_type' => 'node'))) {
-      drupal_set_message(t('Newsletter %title sent.', array('%title' => $node->getTitle())));
+      $this->messenger()->addMessage(t('Newsletter %title sent.', array('%title' => $node->getTitle())));
     }
     else {
-      drupal_set_message(t('Newsletter issue %title pending.', array('%title' => $node->getTitle())));
+      $this->messenger()->addMessage(t('Newsletter issue %title pending.', array('%title' => $node->getTitle())));
     }
     $node->save();
   }
@@ -271,7 +271,7 @@ class NodeTabForm extends FormBase {
     $node = $form_state->get('node');
     // Set the node to pending status.
     $node->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_PUBLISH;
-    drupal_set_message(t('Newsletter issue %title will be sent when published.', array('%title' => $node->getTitle())));
+    $this->messenger()->addMessage(t('Newsletter issue %title will be sent when published.', array('%title' => $node->getTitle())));
     $node->save();
   }
 
@@ -289,7 +289,7 @@ class NodeTabForm extends FormBase {
 
     $node->save();
 
-    drupal_set_message(t('Sending of %title was stopped. @count pending email(s) were deleted.', array(
+    $this->messenger()->addMessage(t('Sending of %title was stopped. @count pending email(s) were deleted.', array(
       '%title' => $node->getTitle(),
       '@count' => $count,
     )));

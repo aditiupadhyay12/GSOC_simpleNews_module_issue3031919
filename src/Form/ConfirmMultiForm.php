@@ -96,7 +96,7 @@ class ConfirmMultiForm extends ConfirmFormBase {
     $subscriber->setChanges(array());
     $subscriber->save();
 
-    drupal_set_message(t('Subscription changes confirmed for %user.', array('%user' => $subscriber->getMail())));
+    $this->messenger()->addMessage(t('Subscription changes confirmed for %user.', array('%user' => $subscriber->getMail())));
     $form_state->setRedirect('<front>');
   }
 

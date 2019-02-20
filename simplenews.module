@@ -135,10 +135,10 @@ function simplenews_node_delete($node) {
   // Check if pending emails of this newsletter issue exist and delete these too.
   $count = \Drupal::service('simplenews.spool_storage')->deleteMails(array('entity_id' => $node->id(), 'entity_type' => 'node'));
   if ($count) {
-    drupal_set_message(t('@count pending emails for %title were found and deleted.', array(
+    \Drupal::messenger()->addWarning(t('@count pending emails for %title were found and deleted.', array(
         '%title' => $node->getTitle(),
         '@count' => $count,
-      )), 'warning');
+      )));
     \Drupal::logger('simplenews')->alert('Newsletter %title deleted with @count pending emails..', array(
       '%title' => $node->getTitle(),
       '@count' => $count,
@@ -262,7 +262,7 @@ function simplenews_form_node_form_alter(&$form, FormStateInterface $form_state,
     // Display warning if the node is currently being sent.
     if (!$node->isNew()) {
       if ($node->simplenews_issue->status == SIMPLENEWS_STATUS_SEND_PENDING) {
-        drupal_set_message(t('This newsletter issue is currently being sent. Any changes will be reflected in the e-mails which have not been sent yet.'), 'warning');
+        \Drupal::messenger()->addWarning(t('This newsletter issue is currently being sent. Any changes will be reflected in the e-mails which have not been sent yet.'));
       }
     }
 
@@ -379,7 +379,7 @@ function simplenews_user_profile_form_submit($form, FormStateInterface $form_sta
       $newsletters = simplenews_newsletter_load_multiple($ids);
       foreach ($newsletters as $newsletter) {
         $subscription_manager->subscribe($account->getEmail(), $newsletter->id(), FALSE, 'website', $account->getPreferredLangcode());
-        drupal_set_message(t('You have been subscribed to %newsletter.', array('%newsletter' => $newsletter->name)));
+        \Drupal::messenger()->addMessage(t('You have been subscribed to %newsletter.', array('%newsletter' => $newsletter->name)));
       }
     }
   }

@@ -168,7 +168,7 @@ class Newsletter extends ConfigEntityBase implements NewsletterInterface {
 
     foreach ($entities as $newsletter) {
       $subscription_storage->deleteSubscriptions(array('subscriptions_target_id' => $newsletter->id()));
-      drupal_set_message(t('All subscriptions to newsletter %newsletter have been deleted.', array('%newsletter' => $newsletter->label())));
+      \Drupal::messenger()->addMessage(t('All subscriptions to newsletter %newsletter have been deleted.', array('%newsletter' => $newsletter->label())));
     }
 
     if (\Drupal::moduleHandler()->moduleExists('block')) {

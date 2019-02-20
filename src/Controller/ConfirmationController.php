@@ -46,7 +46,7 @@ class ConfirmationController extends ControllerBase {
 
     // Redirect and display message if no changes are available.
     if ($subscriber && !$subscriber->getChanges()) {
-      drupal_set_message(t('All changes to your subscriptions where already applied. No changes made.'));
+      $this->messenger()->addMessage(t('All changes to your subscriptions where already applied. No changes made.'));
       return $this->redirect('<front>');
     }
 
@@ -87,7 +87,7 @@ class ConfirmationController extends ControllerBase {
         $subscriber->setChanges(array());
         $subscriber->save();
 
-        drupal_set_message(t('Subscription changes confirmed for %user.', array('%user' => $subscriber->getMail())));
+        $this->messenger()->addMessage(t('Subscription changes confirmed for %user.', array('%user' => $subscriber->getMail())));
         return $this->redirect('<front>');
       }
     }
@@ -188,7 +188,7 @@ class ConfirmationController extends ControllerBase {
           if ($path = $config->get('subscription.confirm_unsubscribe_page')) {
             return $this->redirect(Url::fromUri("internal:/$path")->getRouteName());
           }
-          drupal_set_message(t('%user was unsubscribed from the %newsletter mailing list.', array('%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name)));
+          $this->messenger()->addMessage(t('%user was unsubscribed from the %newsletter mailing list.', array('%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name)));
           return $this->redirect('<front>');
         }
         elseif ($action == 'add') {
@@ -196,7 +196,7 @@ class ConfirmationController extends ControllerBase {
           if ($path = $config->get('subscription.confirm_subscribe_page')) {
             return $this->redirect(Url::fromUri("internal:/$path")->getRouteName());
           }
-          drupal_set_message(t('%user was added to the %newsletter mailing list.', array('%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name)));
+          $this->messenger()->addMessage(t('%user was added to the %newsletter mailing list.', array('%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name)));
           return $this->redirect('<front>');
         }
       }
