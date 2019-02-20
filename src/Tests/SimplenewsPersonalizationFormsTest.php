@@ -1,7 +1,7 @@
 <?php
 
 namespace Drupal\simplenews\Tests;
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Utility\Html;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 
@@ -54,7 +54,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Assert fields are updated.
     $this->drupalGet("user/$uid");
-    $this->assertText(SafeMarkup::checkPlain($new_value));
+    $this->assertText(Html::escape($new_value));
 
     // Assert subscription remains unconfirmed.
     $subscriber = $this->getLatestSubscriber();
@@ -84,7 +84,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Assert fields are updated.
     $this->drupalGet("user/$uid");
-    $this->assertText(SafeMarkup::checkPlain($new_value));
+    $this->assertText(Html::escape($new_value));
   }
 
   /**

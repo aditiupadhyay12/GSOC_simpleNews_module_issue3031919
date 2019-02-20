@@ -6,7 +6,7 @@
  */
 
 use Drupal\Component\Utility\Crypt;
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -764,7 +764,7 @@ function simplenews_newsletter_load($newsletter_id, $reset = FALSE) {
 function simplenews_newsletter_list() {
   $newsletters = array();
   foreach (simplenews_newsletter_get_all() as $id => $newsletter) {
-    $newsletters[$id] = SafeMarkup::checkPlain($newsletter->label());
+    $newsletters[$id] = Html::escape($newsletter->label());
   }
   return $newsletters;
 }

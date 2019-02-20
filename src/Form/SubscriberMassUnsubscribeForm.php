@@ -2,7 +2,7 @@
 
 namespace Drupal\simplenews\Form;
 
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -38,7 +38,7 @@ class SubscriberMassUnsubscribeForm extends FormBase {
     );
 
     foreach (simplenews_newsletter_get_all() as $id => $newsletter) {
-      $form['newsletters'][$id]['#description'] = SafeMarkup::checkPlain($newsletter->description);
+      $form['newsletters'][$id]['#description'] = Html::escape($newsletter->description);
     }
 
     $form['submit'] = array(
