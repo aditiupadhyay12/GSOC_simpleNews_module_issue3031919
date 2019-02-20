@@ -28,7 +28,7 @@ class UserName extends FieldPluginBase {
       );
       return drupal_render($username);
     }
-    return $data;
+    return [];
   }
 
   /**

@@ -278,8 +278,9 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     );
     $this->drupalPostForm('admin/config/services/simplenews/add', $edit, t('Save'));
 
-    // Add a number of users to each newsletter separately and then add another
-    // bunch to both.
+    // This test adds a number of subscribers to each newsletter separately and
+    // then adds another bunch to both. First step is to create some arrays
+    // that describe the actions to take.
     $subscribers = array();
 
     $groups = array();
@@ -299,6 +300,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     }
 
     // Create a user and assign him one of the mail addresses of the all group.
+    // The other subscribers will not be users, just anonymous subscribers.
     $user = $this->drupalCreateUser(array('subscribe to newsletters'));
     // Make sure that user_save() does not update the user object, as it will
     // override the pass_raw property which we'll need to log this user in
@@ -309,7 +311,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $delimiters = array(',', ' ', "\n");
 
-    // Visit subscribers by clicking menu tab in people.
+    // Add the subscribers using mass subscribe.
     $this->drupalGet('admin/people');
     $this->clickLink('Subscribers');
     $i = 0;
@@ -325,14 +327,20 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       $this->drupalPostForm(NULL, $edit, t('Subscribe'));
     }
 
-    // The user to which the mail was assigned should be listed too.
-    $this->assertText($user->label());
-
     // Verify that all addresses are displayed in the table.
     $rows = $this->xpath('//tbody/tr');
     $mail_addresses = array();
     for ($i = 0; $i < count($subscribers_flat); $i++) {
-      $mail_addresses[] = trim((string) $rows[$i]->td[0]);
+      $email = trim((string) $rows[$i]->td[0]);
+      $mail_addresses[] = $email;
+      if ($email == $user_mail) {
+         // The user to which the mail was assigned should show the user name.
+        $this->assertEqual(trim((string) $rows[$i]->td[1]->children()[0]), $user->getAccountName());
+      }
+      else {
+        // Blank value for user name.
+        $this->assertEqual($rows[$i]->td[1]->count(), 0);
+      }
     }
     $this->assertEqual(15, count($mail_addresses));
     foreach ($mail_addresses as $mail_address) {
