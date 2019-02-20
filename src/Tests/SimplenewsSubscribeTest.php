@@ -755,6 +755,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $single_block = $this->setupSubscriptionBlock($block_settings);
     $subscriber_user = $this->drupalCreateUser(array('subscribe to newsletters'));
     $this->drupalLogin($subscriber_user);
+    $this->assertEqual($this->countSubscribers(), 0);
 
     // 1. Subscribe authenticated via block
     // Subscribe + submit
@@ -762,6 +763,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $this->drupalPostForm(NULL, [], t('Subscribe'));
     $this->assertText(t('You have been subscribed.'), t('Authenticated user subscribed using the subscription block.'));
+    $this->assertEqual($this->countSubscribers(), 1);
 
     // 2. Unsubscribe authenticated via subscription page
     // Unsubscribe + submit
@@ -777,11 +779,13 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     // Subscribe + submit
     // Assert confirmation message
 
+    $this->resetSubscribers();
     $edit = array(
       "subscriptions[$newsletter_id]" => '1',
     );
     $this->drupalPostForm('newsletter/subscriptions', $edit, t('Update'));
     $this->assertRaw(t('The newsletter subscriptions for %mail have been updated.', array('%mail' => $subscriber_user->getEmail())), t('Authenticated user subscribed on the subscriptions page.'));
+    $this->assertEqual($this->countSubscribers(), 1);
 
     // 4. Unsubscribe authenticated via account page
     // Unsubscribe + submit
@@ -802,12 +806,15 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     // Subscribe + submit
     // Assert confirmation message
 
+    $this->resetSubscribers();
     $edit = array(
       "subscriptions[$newsletter_id]" => '1',
     );
     $url = 'user/' . $subscriber_user->id() . '/simplenews';
     $this->drupalPostForm($url, $edit, t('Save'));
     $this->assertRaw(t('Your newsletter subscriptions have been updated.', array('%mail' => $subscriber_user->getEmail())), t('Authenticated user unsubscribed on the account page.'));
+    $count = 1;
+    $this->assertEqual($this->countSubscribers(), $count);
 
     // Disable the newsletter block.
     $single_block->delete();
@@ -835,8 +842,10 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->drupalPostForm(NULL, array(), t('Update'));
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', array('@mail' => $subscriber_user2->getEmail())));
 
-    // Nothing should have happened.
+    // Nothing should have happened to subscriptions but this does create a subscriber.
     $this->assertNoFieldChecked('edit-subscriptions-' . $newsletter_id);
+    $count++;
+    $this->assertEqual($this->countSubscribers(), $count);
 
     // Now fill out the form and try again.
     $edit = array(
@@ -844,6 +853,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     );
     $this->drupalPostForm(NULL, $edit, t('Update'));
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', array('@mail' => $subscriber_user2->getEmail())));
+    $this->assertEqual($this->countSubscribers(), $count);
 
     $this->assertFieldChecked('edit-subscriptions-' . $newsletter_id);
 
@@ -864,8 +874,10 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->drupalPostForm('newsletter/subscriptions', array(), t('Update'));
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', array('@mail' => $subscriber_user3->getEmail())));
 
-    // Nothing should have happened.
+    // Nothing should have happened to subscriptions but this does create a subscriber.
     $this->assertNoFieldChecked('edit-subscriptions-' . $newsletter_id);
+    $count++;
+    $this->assertEqual($this->countSubscribers(), $count);
 
     // Now fill out the form and try again.
     $edit = array(
@@ -873,6 +885,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     );
     $this->drupalPostForm('newsletter/subscriptions', $edit, t('Update'));
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', array('@mail' => $subscriber_user3->getEmail())));
+    $this->assertEqual($this->countSubscribers(), $count);
 
     $this->assertFieldChecked('edit-subscriptions-' . $newsletter_id);
 
@@ -906,6 +919,21 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->drupalGet('');
     // Provided Unique ID is used as form_id.
     $this->assertFieldByXPath("//*[@id=\"simplenews-subscriptions-block-test-simplenews-123\"]", NULL, 'Form ID found and contains expected value.');
+  }
+
+  /**
+   * Gets the number of subscribers entities.
+   */
+  protected function countSubscribers() {
+    return \Drupal::entityQuery('simplenews_subscriber')->count()->execute();
+  }
+
+  /**
+   * Delete all subscriber entities ready for the next test.
+   */
+  protected function resetSubscribers() {
+    $storage = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber');
+    $storage->delete($storage->loadMultiple());
   }
 
 }
