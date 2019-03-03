@@ -174,13 +174,13 @@ class SubscriptionSettingsForm extends ConfigFormBase {
     $form['confirm_pages']['simplenews_confirm_subscribe_page'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Subscribe confirmation'),
-      '#description' => $this->t('Drupal path or URL of the destination page where after the subscription is confirmed (e.g. node/123). Leave empty to go to the front page.'),
+      '#description' => $this->t('Drupal path or URL of the destination page where after the subscription is confirmed (e.g. /node/123). Leave empty to go to the front page.'),
       '#default_value' => $config->get('subscription.confirm_subscribe_page'),
     );
     $form['confirm_pages']['simplenews_confirm_unsubscribe_page'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Unsubscribe confirmation'),
-      '#description' => $this->t('Drupal path or URL of the destination page when the subscription removal is confirmed (e.g. node/123). Leave empty to go to the front page.'),
+      '#description' => $this->t('Drupal path or URL of the destination page when the subscription removal is confirmed (e.g. /node/123). Leave empty to go to the front page.'),
       '#default_value' => $config->get('subscription.confirm_unsubscribe_page'),
     );
     return parent::buildForm($form, $form_state);

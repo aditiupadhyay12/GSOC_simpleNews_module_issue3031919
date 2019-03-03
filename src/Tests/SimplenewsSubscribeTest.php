@@ -9,6 +9,8 @@
 
 namespace Drupal\simplenews\Tests;
 
+use Drupal\Core\Url;
+
 /**
  * (un)subscription of anonymous and authenticated users.
  *
@@ -397,6 +399,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $this->drupalPostForm(NULL, array(), t('Subscribe'));
     $this->assertRaw(t('%user was added to the %newsletter mailing list.', array('%user' => $mail, '%newsletter' => $newsletter->name)), t('Anonymous subscriber added to newsletter'));
+    $this->assertUrl(new Url('<front>'));
 
     // Test that it is possible to register with a mail address that is already
     // a subscriber.
