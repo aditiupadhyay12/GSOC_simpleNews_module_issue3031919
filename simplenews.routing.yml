@@ -1,5 +1,5 @@
 simplenews.settings_newsletter:
-  path: 'admin/config/services/simplenews/settings/newsletter'
+  path: '/admin/config/services/simplenews/settings/newsletter'
   defaults:
     _form: '\Drupal\simplenews\Form\NewsletterSettingsForm'
     _title: 'Newsletter'
@@ -7,7 +7,7 @@ simplenews.settings_newsletter:
     _permission: 'administer simplenews settings'
 
 simplenews.settings_subscriber:
-  path: 'admin/config/people/simplenews/settings/subscriber'
+  path: '/admin/config/people/simplenews/settings/subscriber'
   defaults:
     _form: '\Drupal\simplenews\Form\SubscriberSettingsForm'
     _title: 'Subscriber'
@@ -15,7 +15,7 @@ simplenews.settings_subscriber:
     _permission: 'administer simplenews settings'
 
 simplenews.settings_subscription:
-  path: 'admin/config/services/simplenews/settings/subscription'
+  path: '/admin/config/services/simplenews/settings/subscription'
   defaults:
     _form: '\Drupal\simplenews\Form\SubscriptionSettingsForm'
     _title: 'Subscription'
@@ -23,7 +23,7 @@ simplenews.settings_subscription:
     _permission: 'administer simplenews settings'
 
 simplenews.settings_mail:
-  path: 'admin/config/services/simplenews/settings/mail'
+  path: '/admin/config/services/simplenews/settings/mail'
   defaults:
     _form: '\Drupal\simplenews\Form\MailSettingsForm'
     _title: 'Send mail'
@@ -31,7 +31,7 @@ simplenews.settings_mail:
     _permission: 'administer simplenews settings'
 
 simplenews.settings_prepare_uninstall:
-  path: 'admin/config/services/simplenews/settings/uninstall'
+  path: '/admin/config/services/simplenews/settings/uninstall'
   defaults:
     _form: '\Drupal\simplenews\Form\PrepareUninstallForm'
     _title: 'Prepare uninstall'
@@ -71,7 +71,7 @@ entity.simplenews_newsletter.delete_form:
     _entity_access: 'simplenews_newsletter.delete'
 
 entity.simplenews_subscriber.edit_form:
-  path: 'admin/people/simplenews/edit/{simplenews_subscriber}'
+  path: '/admin/people/simplenews/edit/{simplenews_subscriber}'
   defaults:
     _entity_form: 'simplenews_subscriber.default'
     _title: 'Edit subscriber'
@@ -111,7 +111,7 @@ simplenews.subscriber_export:
     _permission: 'administer simplenews subscriptions'
 
 simplenews.newsletter_subscriptions:
-  path: 'newsletter/subscriptions'
+  path: '/newsletter/subscriptions'
   defaults:
     _entity_form: 'simplenews_subscriber.page'
     _title: 'Your newsletter subscriptions'
@@ -119,7 +119,7 @@ simplenews.newsletter_subscriptions:
     _permission: 'subscribe to newsletters'
 
 simplenews.newsletter_subscriptions_arguments:
-  path: 'newsletter/subscriptions/{snid}/{timestamp}/{hash}'
+  path: '/newsletter/subscriptions/{snid}/{timestamp}/{hash}'
   defaults:
     _entity_form: 'simplenews_subscriber.page'
     _title: 'Your newsletter subscriptions'
@@ -139,7 +139,7 @@ simplenews.newsletter_subscriptions_user:
         type: entity:user
 
 simplenews.newsletter_confirm_combined:
-  path: 'newsletter/confirm/combined/{snid}/{timestamp}/{hash}'
+  path: '/newsletter/confirm/combined/{snid}/{timestamp}/{hash}'
   defaults:
     _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmCombined'
     _title: 'Confirm newsletter subscriptions'
@@ -149,7 +149,7 @@ simplenews.newsletter_confirm_combined:
     no_cache: TRUE
 
 simplenews.newsletter_confirm_subscription:
-  path: 'newsletter/confirm/{action}/{snid}/{newsletter_id}/{timestamp}/{hash}'
+  path: '/newsletter/confirm/{action}/{snid}/{newsletter_id}/{timestamp}/{hash}'
   defaults:
     _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmSubscription'
     _title: 'Confirm newsletter subscriptions'
@@ -159,7 +159,7 @@ simplenews.newsletter_confirm_subscription:
     no_cache: TRUE
 
 simplenews.newsletter_confirm_combined_immediate:
-  path: 'newsletter/confirm/combined/{snid}/{timestamp}/{hash}/ok'
+  path: '/newsletter/confirm/combined/{snid}/{timestamp}/{hash}/ok'
   defaults:
     _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmCombined'
     _title: 'Confirm newsletter subscriptions'
@@ -170,7 +170,7 @@ simplenews.newsletter_confirm_combined_immediate:
     no_cache: TRUE
 
 simplenews.newsletter_confirm_subscription_immediate:
-  path: 'newsletter/confirm/{action}/{snid}/{newsletter_id}/{timestamp}/{hash}/ok'
+  path: '/newsletter/confirm/{action}/{snid}/{newsletter_id}/{timestamp}/{hash}/ok'
   defaults:
     _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmSubscription'
     _title: 'Confirm newsletter subscriptions'
