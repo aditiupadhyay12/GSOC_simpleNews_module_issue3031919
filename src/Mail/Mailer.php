@@ -5,7 +5,7 @@ namespace Drupal\simplenews\Mail;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Lock\LockBackendInterface;
-use Drupal\Core\Logger\LoggerChannelInterface;
+use Psr\Log\LoggerInterface;
 use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Core\Session\AccountSwitcherInterface;
 use Drupal\Core\Session\AnonymousUserSession;
@@ -55,7 +55,7 @@ class Mailer implements MailerInterface {
   protected $state;
 
   /**
-   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   * @var \Psr\Log\LoggerInterface
    */
   protected $logger;
 
@@ -90,8 +90,8 @@ class Mailer implements MailerInterface {
    *   The mail manager.
    * @param \Drupal\Core\State\StateInterface $state
    *   State service.
-   * @param \Drupal\Core\Logger\LoggerChannelInterface $logger
-   *   Logger channel.
+   * @param \Psr\Log\LoggerInterface $logger
+   *   A logger instance.
    * @param \Drupal\Core\Session\AccountSwitcherInterface $account_switcher
    *   Account switcher.
    * @param \Drupal\Core\Lock\LockBackendInterface $lock
@@ -99,7 +99,7 @@ class Mailer implements MailerInterface {
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    */
-  public function __construct(SpoolStorageInterface $spool_storage, MailManagerInterface $mail_manager, StateInterface $state, LoggerChannelInterface $logger, AccountSwitcherInterface $account_switcher, LockBackendInterface $lock, ConfigFactoryInterface $config_factory) {
+  public function __construct(SpoolStorageInterface $spool_storage, MailManagerInterface $mail_manager, StateInterface $state, LoggerInterface $logger, AccountSwitcherInterface $account_switcher, LockBackendInterface $lock, ConfigFactoryInterface $config_factory) {
     $this->spoolStorage = $spool_storage;
     $this->mailManager = $mail_manager;
     $this->state = $state;
