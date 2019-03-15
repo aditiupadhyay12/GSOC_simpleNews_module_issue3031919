@@ -2,7 +2,6 @@
 
 namespace Drupal\simplenews\Spool;
 
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Database\Query\Condition;
@@ -110,7 +109,7 @@ class SpoolStorage implements SpoolStorageInterface {
         $query->range(0, $limit);
       }
       foreach ($query->execute() as $message) {
-        if (Unicode::strlen($message->data)) {
+        if (mb_strlen($message->data)) {
           $message->data = unserialize($message->data);
         }
         else {

@@ -4,6 +4,7 @@ namespace Drupal\simplenews\Subscription;
 
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\simplenews\SubscriberInterface;
+use Drupal\Core\Database\Database;
 
 /**
  * Default subscription storage.
@@ -14,8 +15,9 @@ class SubscriptionStorage extends SqlContentEntityStorage implements Subscriptio
    * {@inheritdoc}
    */
   public function deleteSubscriptions($conditions = array()) {
+
     $table_name = 'simplenews_subscriber__subscriptions';
-    if (!db_table_exists($table_name)) {
+    if (!Database::getConnection()->schema()->tableExists($table_name)) {
       // This can happen if this is called during uninstall.
       return;
     }

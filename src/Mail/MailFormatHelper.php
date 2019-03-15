@@ -2,8 +2,6 @@
 
 namespace Drupal\simplenews\Mail;
 
-use Drupal\Component\Utility\Unicode;
-
 /**
  * Extended mail formatter helpers.
  *
@@ -57,9 +55,9 @@ class MailFormatHelper {
 
       // If the link is formed by Drupal's URL filter, we only return the URL.
       // The URL filter generates a label out of the original URL.
-      if (strpos($label, '...') === Unicode::strlen($label) - 3) {
+      if (strpos($label, '...') === mb_strlen($label) - 3) {
         // Remove ellipsis from end of label.
-        $label = Unicode::substr($label, 0, Unicode::strlen($label) - 3);
+        $label = mb_substr($label, 0, mb_strlen($label) - 3);
       }
       if (strpos($url, $label) !== FALSE) {
         return $url;

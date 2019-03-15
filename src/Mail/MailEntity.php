@@ -190,7 +190,7 @@ class MailEntity implements MailInterface {
    */
   function getFromFormatted() {
     // Windows based PHP systems don't accept formatted email addresses.
-    if (Unicode::substr(PHP_OS, 0, 3) == 'WIN') {
+    if (mb_substr(PHP_OS, 0, 3) == 'WIN') {
       return $this->getFromAddress();
     }
     return '"' . addslashes(Unicode::mimeHeaderEncode($this->getNewsletter()->from_name)) . '" <' . $this->getFromAddress() . '>';

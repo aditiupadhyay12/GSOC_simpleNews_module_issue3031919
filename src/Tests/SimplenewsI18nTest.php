@@ -2,7 +2,6 @@
 
 namespace Drupal\simplenews\Tests;
 
-use Drupal\Component\Utility\Unicode;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\language\Entity\ContentLanguageSettings;
@@ -168,7 +167,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       // Verify that the link is in the correct language.
       $this->assertTrue(strpos($mail['body'], $node_url) !== FALSE);
       // The <h1> tag is converted to uppercase characters.
-      $this->assertTrue(strpos($mail['body'], Unicode::strtoupper($title)) !== FALSE);
+      $this->assertTrue(strpos($mail['body'], mb_strtoupper($title)) !== FALSE);
     }
 
     // Verify sent subscriber count for each node.

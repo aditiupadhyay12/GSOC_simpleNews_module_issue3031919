@@ -4,7 +4,6 @@ namespace Drupal\simplenews\Tests;
 
 use Drupal\block\Entity\Block;
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\Unicode;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\SubscriberInterface;
@@ -271,7 +270,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalLogin($admin_user);
 
     // Create a newsletter.
-    $newsletter_name = Unicode::strtolower($this->randomMachineName());
+    $newsletter_name = mb_strtolower($this->randomMachineName());
     $edit = array(
       'name' => $newsletter_name,
       'id'  => $newsletter_name,
@@ -380,7 +379,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Filter a single mail address, the one assigned to a user.
     $edit = array(
-      'mail' => Unicode::substr(current($subscribers['all']), 0, 4)
+      'mail' => mb_substr(current($subscribers['all']), 0, 4)
     );
     $this->drupalGet('admin/people/simplenews', array('query' => array('mail' => $edit['mail'])));
 
@@ -673,7 +672,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertText('Subscriber edit@example.com has been updated.');
 
     // Create a second newsletter.
-    $second_newsletter_name = Unicode::strtolower($this->randomMachineName());
+    $second_newsletter_name = mb_strtolower($this->randomMachineName());
     $edit2 = array(
       'name' => $second_newsletter_name,
       'id'  => $second_newsletter_name,
@@ -908,19 +907,19 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Create a newsletter.
     $edit = array(
       'name' => $name = $this->randomMachineName(),
-      'id'  => Unicode::strtolower($name),
+      'id'  => mb_strtolower($name),
     );
     $this->drupalPostForm('admin/config/services/simplenews/add', $edit, t('Save'));
     // Create a newsletter issue and publish.
     $edit = array(
       'title[0][value]' => 'Test_issue_1',
-      'simplenews_issue'  => Unicode::strtolower($name),
+      'simplenews_issue'  => mb_strtolower($name),
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, t('Save'));
     // Create another newsletter issue and keep unpublished.
     $edit = array(
       'title[0][value]' => 'Test_issue_2',
-      'simplenews_issue'  => Unicode::strtolower($name),
+      'simplenews_issue'  => mb_strtolower($name),
       'status[value]' => FALSE,
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, t('Save'));
@@ -930,7 +929,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     }
     $edit = array(
       'emails' => implode(', ', $subscribers),
-      'newsletters[' . Unicode::strtolower($name) . ']' => TRUE,
+      'newsletters[' . mb_strtolower($name) . ']' => TRUE,
     );
     $this->drupalPostForm('admin/people/simplenews/import', $edit, t('Subscribe'));
     $this->drupalGet('admin/content/simplenews');

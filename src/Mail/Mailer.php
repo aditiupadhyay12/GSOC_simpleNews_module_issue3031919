@@ -442,7 +442,7 @@ class Mailer implements MailerInterface {
     $name = $this->config->get('newsletter.from_name');
 
     // Windows based PHP systems don't accept formatted email addresses.
-    $formatted_address = (Unicode::substr(PHP_OS, 0, 3) == 'WIN') ? $address : '"'. addslashes(Unicode::mimeHeaderEncode($name)) .'" <'. $address .'>';
+    $formatted_address = (mb_substr(PHP_OS, 0, 3) == 'WIN') ? $address : '"'. addslashes(Unicode::mimeHeaderEncode($name)) .'" <'. $address .'>';
 
     return array(
       'address' => $address,
