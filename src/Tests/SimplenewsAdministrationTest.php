@@ -189,7 +189,16 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       }
     }*/
 
+    // Check saving the subscriber as admin does not wipe the hidden newsletter settings.
     $this->drupalLogin($admin_user);
+    $subscriber = simplenews_subscriber_load_by_mail($user->getEmail());
+    $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
+    $this->assertNoField($this->getNewsletterFieldId('on_hidden'));
+    $this->assertNoField('mail');
+    $this->drupalPostForm('admin/people/simplenews/edit/' . $subscriber->id(), [], t('Save'));
+    $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
+    $this->assertTrue($subscriber->isSubscribed('on_hidden'));
+    $this->assertTrue($subscriber->isUnsubscribed($off_double_newsletter_id));
 
     /*$this->setupSubscriptionBlock($edit_newsletter->newsletter_id, $settings = array(
       'issue count' => 2,

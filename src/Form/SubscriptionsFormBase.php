@@ -41,6 +41,13 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
   protected $newsletters;
 
   /**
+   * Allow delete button.
+   *
+   * @var bool
+   */
+  protected $allowDelete = FALSE;
+
+  /**
    * Set the newsletters available to select from.
    *
    * Unless called otherwise, all newsletters will be available.
@@ -132,7 +139,9 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
 
     // Modify UI texts.
     if ($mail = $this->entity->getMail()) {
-      $form['mail']['#access'] = FALSE;
+      if ($this->entity->getUserId()) {
+        $form['mail']['#access'] = FALSE;
+      }
       $form['subscriptions']['widget']['#title'] = t('Subscriptions for %mail', array('%mail' => $mail));
       $form['subscriptions']['widget']['#description'] = t('Check the newsletters you want to subscribe to. Uncheck the ones you want to unsubscribe from.');
     }
@@ -148,35 +157,52 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
    * {@inheritdoc}
    */
   protected function actions(array $form, FormStateInterface $form_state) {
-    // Set up some flags from which submit button visibility can be determined.
-    $options = !$this->getSubscriptionWidget($form_state)->isHidden();
-    $mail = (bool) $this->entity->getMail();
-    $subscribed = !$options && $mail && $this->entity->isSubscribed($this->getOnlyNewsletterId());
+    // There are two main cases of subscriptions forms:
+    // - An authenticated subscriber updating existing subscriptions. The main
+    //   case is a logged in user, but it could also be an anonymous
+    //   subscription authenticated by means of a hash. In both cases, the
+    //   email address is set.
+    // - An unauthenticated user who enters an email address in the form and
+    //   requests to subscribe or unsubscribe. In this case the email address
+    //   is not set.
+    $has_widget = !$this->getSubscriptionWidget($form_state)->isHidden();
+    $has_mail = (bool) $this->entity->getMail();
 
-    // Add all buttons, but conditionally set #access.
-    $actions = array(
-      static::SUBMIT_SUBSCRIBE => array(
-        // Show 'Subscribe' if not subscribed, or user is unknown.
-        '#access' => (!$options && !$subscribed) || !$mail,
-        '#type' => 'submit',
-        '#value' => t('Subscribe'),
-        '#submit' => array('::submitForm', '::save', '::submitSubscribe'),
-      ),
-      static::SUBMIT_UNSUBSCRIBE => array(
-        // Show 'Unsubscribe' if subscribed, or unknown and can select.
-        '#access' => (!$options && $subscribed) || (!$mail && $options),
-        '#type' => 'submit',
-        '#value' => t('Unsubscribe'),
-        '#submit' => array('::submitForm', '::save', '::submitUnsubscribe'),
-      ),
-      static::SUBMIT_UPDATE => array(
-        // Show 'Update' if user is known and can select newsletters.
-        '#access' => $options && $mail,
-        '#type' => 'submit',
-        '#value' => t('Update'),
-        '#submit' => array('::submitForm', '::save', '::submitUpdate'),
-      ),
-    );
+    $actions = parent::actions($form, $form_state);
+    if ($has_mail && $has_widget) {
+      // When authenticated with a widget, show a single update button. The
+      // user can check or uncheck newsletters then submit.
+      $actions[static::SUBMIT_UPDATE] = $actions['submit'];
+      $actions[static::SUBMIT_UPDATE]['#submit'][] = '::submitUpdate';
+    }
+    else {
+      // When not authenticated, show subscribe and unsubscribe buttons. The
+      // user can check which newsletters to alter.
+      //
+      // The final case is when authenticated with no widget which is for a
+      // form that applies to a single newsletter. In this case there will be a
+      // single button either subscribe or unsubscribe depending on the current
+      // subscription state.
+      if ($has_widget || !$this->entity->isSubscribed($this->getOnlyNewsletterId())) {
+        // Subscribe button.
+        $actions[static::SUBMIT_SUBSCRIBE] = $actions['submit'];
+        $actions[static::SUBMIT_SUBSCRIBE]['#value'] = t('Subscribe');
+        $actions[static::SUBMIT_SUBSCRIBE]['#submit'][] = '::submitSubscribe';
+      }
+
+      if ($has_widget || $this->entity->isSubscribed($this->getOnlyNewsletterId())) {
+        // Unsubscribe button.
+        $actions[static::SUBMIT_UNSUBSCRIBE] = $actions['submit'];
+        $actions[static::SUBMIT_UNSUBSCRIBE]['#value'] = t('Unsubscribe');
+        $actions[static::SUBMIT_UNSUBSCRIBE]['#submit'][] = '::submitUnsubscribe';
+      }
+    }
+
+    unset($actions['submit']);
+    if (!$this->allowDelete) {
+      unset($actions['delete']);
+    }
+
     return $actions;
   }
 

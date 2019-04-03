@@ -40,6 +40,15 @@ class SubscriptionsPageForm extends SubscriptionsFormBase {
   /**
    * {@inheritdoc}
    */
+  protected function actions(array $form, FormStateInterface $form_state) {
+    $actions = parent::actions($form, $form_state);
+    $actions[static::SUBMIT_UPDATE]['#value'] = $this->t('Update');
+    return $actions;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function getSubmitMessage(FormStateInterface $form_state, $op, $confirm) {
     if ($confirm) {
       switch ($op) {

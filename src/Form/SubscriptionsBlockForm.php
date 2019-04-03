@@ -58,14 +58,9 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
    * {@inheritdoc}
    */
   protected function actions(array $form, FormStateInterface $form_state) {
-    // If only one newsletter, show Subscribe/Unsubscribe instead of Update.
     $actions = parent::actions($form, $form_state);
-    if ($this->getOnlyNewsletterId() != NULL) {
-      $actions[static::SUBMIT_UPDATE]['#access'] = FALSE;
-      $actions[static::SUBMIT_SUBSCRIBE]['#access'] = !$this->entity->isSubscribed($this->getOnlyNewsletterId());
-      $actions[static::SUBMIT_UNSUBSCRIBE]['#access'] = $this->entity->isSubscribed($this->getOnlyNewsletterId());
-    }
-    return parent::actions($form, $form_state);
+    $actions[static::SUBMIT_UPDATE]['#value'] = $this->t('Update');
+    return $actions;
   }
 
   /**
