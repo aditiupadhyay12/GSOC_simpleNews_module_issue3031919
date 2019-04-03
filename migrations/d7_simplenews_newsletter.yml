@@ -1,11 +1,11 @@
 id: d7_simplenews_newsletter
 dependencies:
   module:
-    - migrate_drupal
     - simplenews
 label: Simplenews newsletters
 migration_tags:
   - Drupal 7
+  - Content
 source:
   plugin: simplenews_newsletter
 process:
@@ -26,3 +26,4 @@ process:
   weight: weight
 destination:
   plugin: entity:simplenews_newsletter
+  destination_module: simplenews

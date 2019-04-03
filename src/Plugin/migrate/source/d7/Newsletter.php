@@ -8,7 +8,8 @@ use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
  * Migration source for Newsletter entities in D7.
  *
  * @MigrateSource(
- *   id = "simplenews_newsletter"
+ *   id = "simplenews_newsletter",
+ *   source_module = "simplenews"
  * )
  */
 class Newsletter extends DrupalSqlBase {
@@ -39,7 +40,13 @@ class Newsletter extends DrupalSqlBase {
    * {@inheritdoc}
    */
   public function getIds() {
-    return ['newsletter_id' => ['type' => 'integer']];
+    $version = $this->getModuleSchemaVersion('simplenews');
+    if ($version >= 7000 & $version < 7200) {
+      return ['tid' => ['type' => 'integer', 'alias' => 'c']];
+    }
+    else {
+      return ['newsletter_id' => ['type' => 'integer']];
+    }
   }
 
   /**
@@ -76,16 +83,6 @@ class Newsletter extends DrupalSqlBase {
     return $this->select('simplenews_newsletter', 'n')
       ->fields('n')
       ->orderBy('newsletter_id');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function calculateDependencies() {
-    $this->dependencies = parent::calculateDependencies();
-    // Declare dependency to the provider of the base class.
-    $this->addDependency('module', 'migrate_drupal');
-    return $this->dependencies;
   }
 
 }

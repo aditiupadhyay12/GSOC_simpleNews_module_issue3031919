@@ -9,7 +9,8 @@ use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
  * Migration source for Subscriber entries in D7.
  *
  * @MigrateSource(
- *   id = "simplenews_subscriber"
+ *   id = "simplenews_subscriber",
+ *   source_module = "simplenews"
  * )
  */
 class Subscriber extends DrupalSqlBase {
@@ -66,16 +67,6 @@ class Subscriber extends DrupalSqlBase {
     $row->setSourceProperty('subscriptions', $subscriptions);
 
     return $result;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function calculateDependencies() {
-    $this->dependencies = parent::calculateDependencies();
-    // Declare dependency to the provider of the base class.
-    $this->addDependency('module', 'migrate_drupal');
-    return $this->dependencies;
   }
 
 }
