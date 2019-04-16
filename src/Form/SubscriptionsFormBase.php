@@ -139,9 +139,6 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
 
     // Modify UI texts.
     if ($mail = $this->entity->getMail()) {
-      if ($this->entity->getUserId()) {
-        $form['mail']['#access'] = FALSE;
-      }
       $form['subscriptions']['widget']['#title'] = t('Subscriptions for %mail', array('%mail' => $mail));
       $form['subscriptions']['widget']['#description'] = t('Check the newsletters you want to subscribe to. Uncheck the ones you want to unsubscribe from.');
     }

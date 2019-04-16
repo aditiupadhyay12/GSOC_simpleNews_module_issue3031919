@@ -30,13 +30,14 @@ class SubscriberForm extends SubscriptionsFormBase {
     $form['activated'] = array(
       '#title' => t('Status'),
       '#type' => 'fieldset',
-      '#description' => t('Active or inactive account.'),
+      '#description' => t('Whether the subscription is active or blocked.'),
       '#weight' => 15,
     );
     $form['activated']['status'] = array(
       '#type' => 'checkbox',
       '#title' => t('Active'),
       '#default_value' => $subscriber->getStatus(),
+      '#disabled' => !$subscriber->get('status')->access('edit'),
     );
 
     $language_manager = \Drupal::languageManager();

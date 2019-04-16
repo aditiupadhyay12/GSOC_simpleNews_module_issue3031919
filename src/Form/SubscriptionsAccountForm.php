@@ -62,6 +62,11 @@ class SubscriptionsAccountForm extends SubscriptionsFormBase {
   public function checkAccess(UserInterface $user) {
     $account = $this->currentUser();
 
+    // Deny access for anonymous user at /user/0/simplenews.
+    if ($user->isAnonymous()) {
+      return AccessResult::forbidden();
+    }
+
     return AccessResult::allowedIfHasPermission($account, 'administer simplenews subscriptions')
       ->orIf(AccessResult::allowedIfHasPermission($account, 'subscribe to newsletters')
         ->andIf(AccessResult::allowedIf($user->id() == $account->id())));

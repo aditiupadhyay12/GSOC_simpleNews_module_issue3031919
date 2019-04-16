@@ -6,6 +6,7 @@ use Drupal\block\Entity\Block;
 use Drupal\Component\Utility\Html;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\views\Entity\View;
 use Drupal\simplenews\SubscriberInterface;
 
 /**
@@ -1020,6 +1021,60 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
         $this->assertEqual(file_url_transform_relative(file_create_url(drupal_get_path('module', 'simplenews') . '/images/sn-sent.png')), trim((string) $row->td[5]->img['src']));
       }
     }
+  }
+
+  /**
+   * Test access for subscriber admin page.
+   */
+  function testAccess() {
+    $admin_user = $this->drupalCreateUser(array(
+        'administer newsletters',
+        'administer simplenews subscriptions',
+      ));
+    $this->drupalLogin($admin_user);
+
+    // Create a newsletter.
+    $newsletter_name = mb_strtolower($this->randomMachineName());
+    $edit = array(
+      'name' => $newsletter_name,
+      'id'  => $newsletter_name,
+    );
+    $this->drupalPostForm('admin/config/services/simplenews/add', $edit, t('Save'));
+
+    // Create a user and subscribe them.
+    $user = $this->drupalCreateUser();
+    $subscriber = Subscriber::create(array('mail' => $user->getEmail()));
+    $subscriber->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
+    $subscriber->setStatus(SubscriberInterface::ACTIVE);
+    $subscriber->save();
+
+    // Check anonymous user can't access admin page.
+    $this->drupalLogout();
+    $this->drupalGet('admin/people/simplenews');
+    $this->assertResponse(403);
+
+    // Turn off the access permission on the view.
+    $view = View::load('simplenews_subscribers');
+    $display = &$view->getDisplay('default');
+    $display['display_options']['access'] = ['type' => 'none', 'options' => []];
+    $view->save();
+    \Drupal::service('router.builder')->rebuild();
+
+    // Check username is public but email is not shown.
+    $this->drupalGet('admin/people/simplenews');
+    $this->assertText($user->getUsername());
+    $this->assertNoText($user->getEmail());
+
+    // Grant view permission.
+    $view_user = $this->drupalCreateUser(array(
+        'view simplenews subscriptions',
+      ));
+    $this->drupalLogin($view_user);
+
+    // Check can see username and email.
+    $this->drupalGet('admin/people/simplenews');
+    $this->assertText($user->getUsername());
+    $this->assertText($user->getEmail());
   }
 
 }
