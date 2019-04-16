@@ -70,7 +70,6 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     drupal_static_reset();
     \Drupal::entityManager()->clearCachedDefinitions();
     \Drupal::service('router.builder')->rebuild();
-    \Drupal::service('entity.definition_update_manager')->applyUpdates();
 
     // Make Simplenews issue body translatable.
     $field = FieldConfig::loadByName('node', 'simplenews_issue', 'body');
