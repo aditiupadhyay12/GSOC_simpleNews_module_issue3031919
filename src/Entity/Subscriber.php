@@ -360,7 +360,8 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
         'type' => 'email_default',
         'settings' => array(),
         'weight' => 5,
-      ));
+      ))
+      ->setDisplayConfigurable('form', TRUE);
 
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('User'))
