@@ -775,7 +775,7 @@ function simplenews_newsletter_list() {
  * Does not include newsletters with the opt-out/opt-in setting set to hidden.
  * It is possible to apply additional conditions.
  *
- * @param $conditions Aditional contitions.
+ * @param $conditions Additional conditions.
  * @return array Filtered newsletter entities.
  *
  * @ingroup newsletter
@@ -807,7 +807,7 @@ function simplenews_newsletter_get_all() {
 }
 
 /**
- * Load one or many newsletter entites from database.
+ * Load one or many newsletter entities from database.
  *
  * @param array $ids List of ids to be loaded or empty array for all.
  * @param boolean $reset
