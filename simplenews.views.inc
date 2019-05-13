@@ -56,59 +56,59 @@ function simplenews_views_data() {
     'title' => t('Ms ID'),
     'help' => t('The primary identifier for a mail spool record.'),
     'field' => array(
-      'handler' => 'views_handler_field_numeric',
+      'id' => 'numeric',
       'click sortable' => TRUE,
     ),
     'filter' => array(
-      'handler' => 'views_handler_filter_numeric',
+      'id' => 'numeric',
       'allow empty' => TRUE,
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_numeric',
+      'id' => 'numeric',
     ),
     'sort' => array(
-      'handler' => 'views_handler_sort',
+      'id' => 'standard',
     ),
   );
 
   $data['simplenews_mail_spool']['mail'] = array(
     'title' => t('Subscriber'),
-    'help' => t('The formatted email address of mail message receipient.'),
+    'help' => t('The formatted email address of mail message recipient.'),
     'field' => array(
-      'handler' => 'views_handler_field',
+      'id' => 'standard',
       'click sortable' => TRUE,
     ),
     'filter' => array(
-      'handler' => 'views_handler_filter_string',
+      'id' => 'string',
       'allow empty' => TRUE,
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_string',
+      'id' => 'string',
     ),
     'sort' => array(
-      'handler' => 'views_handler_sort',
+      'id' => 'standard',
     ),
   );
 
-  $data['simplenews_mail_spool']['nid'] = array(
+  $data['simplenews_mail_spool']['entity_id'] = array(
     'title' => t('Node ID'),
     'help' => t('The {node}.nid of this newsletter.'),
     'field' => array(
-      'handler' => 'views_handler_field_numeric',
+      'id' => 'numeric',
       'click sortable' => TRUE,
     ),
     'filter' => array(
-      'handler' => 'views_handler_filter_numeric',
+      'id' => 'numeric',
       'allow empty' => TRUE,
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_numeric',
+      'id' => 'numeric',
     ),
     'sort' => array(
-      'handler' => 'views_handler_sort',
+      'id' => 'standard',
     ),
     'relationship' => array(
-      'handler' => 'views_handler_relationship',
+      'id' => 'standard',
       'base' => 'node',
       'base field' => 'nid',
       'label' => t('Node'),
@@ -119,21 +119,21 @@ function simplenews_views_data() {
     'title' => t('Newsletter ID'),
     'help' => t('The newsletter_id this newsletter issue belongs to.'),
     'field' => array(
-      'handler' => 'views_handler_field_numeric',
+      'id' => 'numeric',
       'click sortable' => TRUE,
     ),
     'filter' => array(
-      'handler' => 'views_handler_filter_numeric',
+      'id' => 'numeric',
       'allow empty' => TRUE,
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_numeric',
+      'id' => 'numeric',
     ),
     'sort' => array(
-      'handler' => 'views_handler_sort',
+      'id' => 'standard',
     ),
     'relationship' => array(
-      'handler' => 'views_handler_relationship',
+      'id' => 'standard',
       'base' => 'simplenews_newsletter',
       'base field' => 'newsletter_id',
       'label' => t('Newsletter'),
@@ -144,21 +144,21 @@ function simplenews_views_data() {
     'title' => t('Subscriber ID'),
     'help' => t('The {simplenews_subscriber}.snid foreign key for this spool'),
     'field' => array(
-      'handler' => 'views_handler_field_numeric',
+      'id' => 'numeric',
       'click sortable' => TRUE,
     ),
     'filter' => array(
-      'handler' => 'views_handler_filter_numeric',
+      'id' => 'numeric',
       'allow empty' => TRUE,
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_numeric',
+      'id' => 'numeric',
     ),
     'sort' => array(
-      'handler' => 'views_handler_sort',
+      'id' => 'standard',
     ),
     'relationship' => array(
-      'handler' => 'views_handler_relationship',
+      'id' => 'standard',
       'base' => 'simplenews_subscriber',
       'base field' => 'snid',
       'label' => t('Subscriber'),
@@ -169,37 +169,37 @@ function simplenews_views_data() {
     'title' => t('Sent status'),
     'help' => t('The sent status of the email (0 = hold, 1 = pending, 2 = done).'),
     'field' => array(
-      'handler' => 'simplenews_handler_field_newsletter_status',
+      'id' => 'numeric',
       'click sortable' => TRUE,
     ),
     'filter' => array(
-      'handler' => 'simplenews_handler_filter_newsletter_status',
+      'id' => 'numeric',
       'allow empty' => TRUE,
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_numeric',
+      'id' => 'numeric',
     ),
     'sort' => array(
-      'handler' => 'views_handler_sort',
+      'id' => 'standard',
     ),
   );
 
   $data['simplenews_mail_spool']['error'] = array(
     'title' => t('Error'),
-    'help' => t('A boolean indicating whether an error occured while sending the email.'),
+    'help' => t('A boolean indicating whether an error occurred while sending the email.'),
     'field' => array(
-      'handler' => 'views_handler_field_boolean',
+      'id' => 'boolean',
       'click sortable' => TRUE,
     ),
     'filter' => array(
-      'handler' => 'views_handler_filter_boolean_operator',
+      'id' => 'boolean',
       'allow empty' => TRUE,
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_numeric',
+      'id' => 'numeric',
     ),
     'sort' => array(
-      'handler' => 'views_handler_sort',
+      'id' => 'standard',
     ),
   );
 
@@ -207,18 +207,18 @@ function simplenews_views_data() {
     'title' => t('Timestamp'),
     'help' => t('The time status was set or changed.'),
     'field' => array(
-      'handler' => 'views_handler_field_date',
+      'id' => 'date',
       'click sortable' => TRUE,
     ),
     'filter' => array(
-      'handler' => 'views_handler_filter_date',
+      'id' => 'date',
       'allow empty' => TRUE,
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_date',
+      'id' => 'date',
     ),
     'sort' => array(
-      'handler' => 'views_handler_sort_date',
+      'id' => 'date',
     ),
   );
 
@@ -226,18 +226,18 @@ function simplenews_views_data() {
     'title' => t('Data'),
     'help' => t('A serialized array of name value pairs that are related to the email address.'),
     'field' => array(
-      'handler' => 'views_handler_field',
+      'id' => 'standard',
       'click sortable' => TRUE,
     ),
     'filter' => array(
-      'handler' => 'views_handler_filter_string',
+      'id' => 'string',
       'allow empty' => TRUE,
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_string',
+      'id' => 'string',
     ),
     'sort' => array(
-      'handler' => 'views_handler_sort',
+      'id' => 'standard',
     ),
   );
 
