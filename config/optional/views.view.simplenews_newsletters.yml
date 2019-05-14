@@ -8,9 +8,9 @@ dependencies:
     - simplenews
     - user
 id: simplenews_newsletters
-label: Newsletters
+label: 'Newsletter issues'
 module: views
-description: ''
+description: 'Find and manage newsletter issues.'
 tag: ''
 base_table: node_field_data
 base_field: nid
@@ -558,7 +558,7 @@ display:
           expose:
             label: ''
           granularity: second
-      title: Newsletters
+      title: 'Newsletter issues'
       header: {  }
       footer: {  }
       empty:

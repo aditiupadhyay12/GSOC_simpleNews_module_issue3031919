@@ -102,10 +102,10 @@ interface SubscriptionManagerInterface {
   public function getChangesList(SubscriberInterface $subscriber, $changes = NULL, $langcode = NULL);
 
   /**
-   * Send confirmations for previous subscriptions and usubscription requests.
+   * Send confirmations for previous subscription and unsubscription requests.
    *
    * @return int
-   *   The amount of confirmation that were sent.
+   *   The number of confirmations that were sent.
    */
   public function sendConfirmations();
 

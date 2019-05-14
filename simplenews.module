@@ -9,6 +9,7 @@ use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
@@ -144,6 +145,23 @@ function simplenews_node_delete($node) {
       '@count' => $count,
       ));
   }
+}
+
+/**
+ * Implements hook_entity_operation().
+ */
+function simplenews_entity_operation(EntityInterface $entity) {
+  $operations = [];
+
+  if ($entity->getEntityTypeId() == 'node' && simplenews_check_node_types($entity->bundle())) {
+    $operations['simplenews'] = [
+      'title' => t('Newsletter'),
+      'url' => \Drupal\Core\Url::fromRoute('simplenews.node_tab', ['node' => $entity->id()]),
+      'weight' => 90,
+    ];
+  }
+
+  return $operations;
 }
 
 /**
