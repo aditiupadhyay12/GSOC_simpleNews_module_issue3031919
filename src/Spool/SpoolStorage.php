@@ -282,6 +282,45 @@ class SpoolStorage implements SpoolStorageInterface {
   }
 
   /**
+   * Returns a summary of key issue parameters.
+   *
+   * @param $node
+   *   The node object.
+   *
+   * @return array
+   *   An array containing the following elements:
+   *   - count: total number of emails that will be sent or have been sent.
+   *   - sent_count: number of emails sent.
+   *   - description: readable description of status and email counts.
+   */
+  public function issueSummary(NodeInterface $node) {
+    $status = $node->simplenews_issue->status;
+    $summary['sent_count'] = (int) $node->simplenews_issue->sent_count;
+    $summary['count'] = (int) $node->simplenews_issue->subscribers;
+
+    if ($status == SIMPLENEWS_STATUS_SEND_READY) {
+      $summary['description'] = t('Newsletter issue sent to @count subscribers.', ['@count' => $summary['count']]);
+    }
+    elseif ($status == SIMPLENEWS_STATUS_SEND_PENDING) {
+      $summary['description'] = t('Newsletter issue is pending, @sent mails sent out of @count.', [
+        '@sent' => $summary['sent_count'],
+        '@count' => $summary['count'],
+      ]);
+    }
+    else {
+      $summary['count'] = simplenews_count_subscriptions($node->simplenews_issue->target_id);
+      if ($status == SIMPLENEWS_STATUS_SEND_NOT) {
+        $summary['description'] = t('Newsletter issue will be sent to @count subscribers.', ['@count' => $summary['count']]);
+      }
+      else {
+        $summary['description'] = t('Newsletter issue will be sent to @count subscribers on publish.', ['@count' => $summary['count']]);
+      }
+    }
+
+    return $summary;
+  }
+
+  /**
    * Returns the expiration time for IN_PROGRESS status.
    *
    * @return int

@@ -39,7 +39,7 @@ class SendIssue extends ActionBase {
     // If there were any newsletters sent, display a message.
     if (!empty($nodes)) {
       $conditions = array('entity_id' => array_keys($nodes), 'entity_type' => 'node');
-      // Attempt to send immediatly, if configured to do so.
+      // Attempt to send immediately, if configured to do so.
       if (\Drupal::service('simplenews.mailer')->attemptImmediateSend($conditions)) {
         $this->messenger()->addMessage(t('Sent the following newsletter(s): %titles.', array('%titles' => implode(', ', $labels))));
         $status = SIMPLENEWS_STATUS_SEND_READY;

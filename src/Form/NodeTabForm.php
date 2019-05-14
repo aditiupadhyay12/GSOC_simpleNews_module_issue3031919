@@ -24,10 +24,8 @@ class NodeTabForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, NodeInterface $node = NULL) {
     $config = \Drupal::config('simplenews.settings');
-
-    $subscriber_count = simplenews_count_subscriptions($node->simplenews_issue->target_id);
     $status = $node->simplenews_issue->status;
-
+    $summary = \Drupal::service('simplenews.spool_storage')->issueSummary($node);
     $form['#title'] = t('<em>Newsletter issue</em> @title', array('@title' => $node->getTitle()));
 
     // We will need the node.
@@ -105,7 +103,7 @@ class NodeTabForm extends FormBase {
       // Add some text to describe the send situation.
       $form['send']['count'] = array(
         '#type' => 'item',
-        '#markup' => t('Send newsletter issue to @count subscribers.', array('@count' => $subscriber_count)),
+        '#markup' => t('Send newsletter issue to @count subscribers.', array('@count' => $summary['count'])),
       );
       if (!$config->get('mail.use_cron')) {
         $send_text = t('Mails will be sent immediately.');
@@ -138,17 +136,9 @@ class NodeTabForm extends FormBase {
     else {
       $form['status'] = array(
         '#type' => 'item',
+        '#title' => $summary['description'],
       );
-      if ($status == SIMPLENEWS_STATUS_SEND_READY) {
-        $form['status']['#title'] = t('This newsletter issue has been sent to @count subscribers', array('@count' => $node->simplenews_issue->sent_count));
-      }
-      else {
-        if ($status == SIMPLENEWS_STATUS_SEND_PUBLISH) {
-          $form['status']['#title'] = t('The newsletter issue will be sent when the content is published.');
-        }
-        else {
-          $form['status']['#title'] = t('This newsletter issue is pending, @count of @total mails already sent.', array('@count' => (int) $node->simplenews_issue->sent_count, '@total' => \Drupal::service('simplenews.spool_storage')->countMails(['entity_type' => 'node', 'entity_id' => $node->id()])));
-        }
+      if ($status != SIMPLENEWS_STATUS_SEND_READY) {
         $form['actions'] = array(
           '#type' => 'actions',
         );

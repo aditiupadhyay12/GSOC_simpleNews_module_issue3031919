@@ -920,12 +920,14 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'id'  => mb_strtolower($name),
     );
     $this->drupalPostForm('admin/config/services/simplenews/add', $edit, t('Save'));
+
     // Create a newsletter issue and publish.
     $edit = array(
       'title[0][value]' => 'Test_issue_1',
       'simplenews_issue'  => mb_strtolower($name),
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, t('Save'));
+
     // Create another newsletter issue and keep unpublished.
     $edit = array(
       'title[0][value]' => 'Test_issue_2',
@@ -933,6 +935,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'status[value]' => FALSE,
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, t('Save'));
+
     // Test mass subscribe with previously unsubscribed users.
     for ($i = 0; $i < 3; $i++) {
       $subscribers[] = $this->randomEmail();
@@ -942,6 +945,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'newsletters[' . mb_strtolower($name) . ']' => TRUE,
     );
     $this->drupalPostForm('admin/people/simplenews/import', $edit, t('Subscribe'));
+
     $this->drupalGet('admin/content/simplenews');
     // Check the correct values are present in the view.
     $rows = $this->xpath('//tbody/tr');
@@ -951,9 +955,9 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     foreach ($rows as $row) {
       if ($row->td[1]->a == 'Test_issue_2') {
         $this->assertEqual($name, trim((string) $row->td[2]->a));
-        $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim((string) $row->td[5]->span['title']));
+        $this->assertEqual('Newsletter issue will be sent to 3 subscribers.', trim((string) $row->td[5]->span['title']));
         $this->assertEqual('✖', trim((string) $row->td[3]));
-        $this->assertEqual('3', trim((string) $row->td[5]->span));
+        $this->assertEqual('0/3', trim((string) $row->td[5]->span));
       }
       else {
         $this->assertEqual('✔', trim((string) $row->td[3]));

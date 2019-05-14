@@ -33,7 +33,7 @@ class SendStatus extends FieldPluginBase {
       }
       $output['text'] = array(
         '#type' => 'inline_template',
-        '#template' => '<span title="{{ description }}">{{ count }}</span>',
+        '#template' => '<span title="{{ description }}">{{ sent_count }}/{{ count }}</span>',
         '#context' => $message,
       );
       return $output;
@@ -51,33 +51,19 @@ class SendStatus extends FieldPluginBase {
    */
   protected function getMessage($node) {
     $status = $node->simplenews_issue->status;
-    $sent_count = (int) $node->simplenews_issue->sent_count;
-    $published = $node->isPublished();
-    $subscriber_count = $node->simplenews_issue->status == SIMPLENEWS_STATUS_SEND_READY ? $node->simplenews_issue->subscribers : simplenews_count_subscriptions($node->simplenews_issue->target_id);
-    $message = array();
-    $message['count'] = $subscriber_count;
-    $message['uri'] = NULL;
+    $message = \Drupal::service('simplenews.spool_storage')->issueSummary($node);
+
     $images = array(
       SIMPLENEWS_STATUS_SEND_PENDING => 'images/sn-cron.png',
       SIMPLENEWS_STATUS_SEND_READY => 'images/sn-sent.png',
     );
-    if ($status == SIMPLENEWS_STATUS_SEND_READY) {
-      $message['description'] = t('Newsletter issue sent to @sent_count subscribers.', ['@sent_count' => $sent_count]);
+    if (isset($images[$status])) {
       $message['uri'] = drupal_get_path('module', 'simplenews') . '/' . $images[$status];
     }
-    elseif ($status == SIMPLENEWS_STATUS_SEND_PENDING) {
-      $message['description'] = t('Newsletter issue is pending, @sent_count mails sent out of @count.', array(
-        '@sent_count' => $sent_count,
-        '@count' => $subscriber_count
-      ));
-      $message['uri'] = drupal_get_path('module', 'simplenews') . '/' . $images[$status];
+    else {
+      $message['uri'] = NULL;
     }
-    elseif (($status == SIMPLENEWS_STATUS_SEND_NOT)) {
-      $message['description'] = t('Newsletter issue will be sent to @count subscribers.', array('@count' => $subscriber_count));
-    }
-    if (!$published) {
-      $message['description'] = t('Newsletter issue will be sent to @count subscribers on publish.', array('@count' => $subscriber_count));
-    }
+
     return $message;
   }
 }
