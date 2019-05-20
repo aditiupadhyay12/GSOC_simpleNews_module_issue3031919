@@ -5,9 +5,9 @@ namespace Drupal\simplenews\Spool;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Database\Query\Condition;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
-use Drupal\node\NodeInterface;
 
 /**
  * Default database spool storage.
@@ -231,10 +231,10 @@ class SpoolStorage implements SpoolStorageInterface {
   /**
    * {@inheritdoc}
    */
-  public function addFromEntity(NodeInterface $node) {
-    $newsletter = $node->simplenews_issue->entity;
-    $handler = $node->simplenews_issue->handler;
-    $handler_settings = $node->simplenews_issue->handler_settings;
+  public function addFromEntity(ContentEntityInterface $issue) {
+    $newsletter = $issue->simplenews_issue->entity;
+    $handler = $issue->simplenews_issue->handler;
+    $handler_settings = $issue->simplenews_issue->handler_settings;
 
     $recipient_handler = simplenews_get_recipient_handler($newsletter, $handler, $handler_settings);
 
@@ -243,21 +243,21 @@ class SpoolStorage implements SpoolStorageInterface {
     // Only subscribed recipients are stored in the spool (status = 1).
     $select = $recipient_handler->buildRecipientQuery();
     $select->addExpression('\'node\'', 'entity_type');
-    $select->addExpression($node->id(), 'entity_id');
+    $select->addExpression($issue->id(), 'entity_id');
     $select->addExpression(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, 'status');
     $select->addExpression(REQUEST_TIME, 'timestamp');
 
-    $node->simplenews_issue->subscribers = simplenews_count_subscriptions($node->simplenews_issue->target_id);
+    $issue->simplenews_issue->subscribers = simplenews_count_subscriptions($issue->simplenews_issue->target_id);
 
     $this->connection->insert('simplenews_mail_spool')
       ->from($select)
       ->execute();
 
     // Update simplenews newsletter status to send pending.
-    $node->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_PENDING;
+    $issue->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_PENDING;
 
     // Notify other modules that a newsletter was just spooled.
-    $this->moduleHandler->invokeAll('simplenews_spooled', array($node));
+    $this->moduleHandler->invokeAll('simplenews_spooled', array($issue));
   }
 
   /**
@@ -282,21 +282,12 @@ class SpoolStorage implements SpoolStorageInterface {
   }
 
   /**
-   * Returns a summary of key issue parameters.
-   *
-   * @param $node
-   *   The node object.
-   *
-   * @return array
-   *   An array containing the following elements:
-   *   - count: total number of emails that will be sent or have been sent.
-   *   - sent_count: number of emails sent.
-   *   - description: readable description of status and email counts.
+   * {@inheritdoc}
    */
-  public function issueSummary(NodeInterface $node) {
-    $status = $node->simplenews_issue->status;
-    $summary['sent_count'] = (int) $node->simplenews_issue->sent_count;
-    $summary['count'] = (int) $node->simplenews_issue->subscribers;
+  public function issueSummary(ContentEntityInterface $issue) {
+    $status = $issue->simplenews_issue->status;
+    $summary['sent_count'] = (int) $issue->simplenews_issue->sent_count;
+    $summary['count'] = (int) $issue->simplenews_issue->subscribers;
 
     if ($status == SIMPLENEWS_STATUS_SEND_READY) {
       $summary['description'] = t('Newsletter issue sent to @count subscribers.', ['@count' => $summary['count']]);
@@ -308,7 +299,7 @@ class SpoolStorage implements SpoolStorageInterface {
       ]);
     }
     else {
-      $summary['count'] = simplenews_count_subscriptions($node->simplenews_issue->target_id);
+      $summary['count'] = simplenews_count_subscriptions($issue->simplenews_issue->target_id);
       if ($status == SIMPLENEWS_STATUS_SEND_NOT) {
         $summary['description'] = t('Newsletter issue will be sent to @count subscribers.', ['@count' => $summary['count']]);
       }

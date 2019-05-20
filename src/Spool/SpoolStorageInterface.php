@@ -2,7 +2,7 @@
 
 namespace Drupal\simplenews\Spool;
 
-use Drupal\node\NodeInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 
 /**
  * The spool storage manages a queue of mails that need to be sent.
@@ -105,14 +105,14 @@ interface SpoolStorageInterface {
   function deleteMails(array $conditions);
 
   /**
-   * Add the newsletter node to the mail spool.
+   * Adds a newsletter issue to the mail spool.
    *
-   * The caller is responsible for saving the changed node entity.
+   * The caller is responsible for saving the changed issue entity.
    *
-   * @param \Drupal\node\NodeInterface $node
-   *   The newsletter node to be sent.
+   * @param \Drupal\node\ContentEntityInterface $issue
+   *   The newsletter issue to be sent.
    */
-  function addFromEntity(NodeInterface $node);
+  function addFromEntity(ContentEntityInterface $issue);
 
   /**
    * Save mail message in mail cache table.
@@ -127,5 +127,19 @@ interface SpoolStorageInterface {
    *   - time: (optional) Defaults to REQUEST_TIME.
    */
   function addMail(array $spool);
+
+  /**
+   * Returns a summary of key newsletter issue parameters.
+   *
+   * @param $issue
+   *   The newsletter issue entity.
+   *
+   * @return array
+   *   An array containing the following elements:
+   *   - count: total number of emails that will be sent or have been sent.
+   *   - sent_count: number of emails sent.
+   *   - description: readable description of status and email counts.
+   */
+  function issueSummary(ContentEntityInterface $issue);
 
 }
