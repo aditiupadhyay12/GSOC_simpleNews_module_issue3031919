@@ -27,7 +27,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     parent::setUp();
 
     // Create the filtered_html text format.
-    $filtered_html_format = entity_create('filter_format', array(
+    $filtered_html_format = \Drupal::entityTypeManager()->getStorage('filter_format')->create(array(
       'format' => 'filtered_html',
       'name' => 'Filtered HTML',
       'weight' => 0,
@@ -378,14 +378,14 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::database()->delete('node_revision')
       ->condition('nid', $node->id())
       ->execute();
-    \Drupal::entityManager()->getStorage('node')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('node')->resetCache();
 
     \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that no mails have been sent.
     $this->assertEqual(0, count($this->drupalGetMails()));
 
-    $spool_row = db_query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
+    $spool_row = \Drupal::database()->query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
     $this->assertEqual(SpoolStorageInterface::STATUS_DONE, $spool_row->status);
   }
 
@@ -416,7 +416,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     // Make sure that no mails have been sent.
     $this->assertEqual(0, count($this->drupalGetMails()));
 
-    $spool_row = db_query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
+    $spool_row = \Drupal::database()->query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
     $this->assertEqual(SpoolStorageInterface::STATUS_DONE, $spool_row->status);
   }
 

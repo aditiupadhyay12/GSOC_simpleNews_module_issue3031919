@@ -533,7 +533,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     );
 
     $this->drupalPostForm('admin/people/simplenews/import', $edit, t('Subscribe'));
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscription_manager->reset();
     $this->assertFalse($subscription_manager->isSubscribed($tested_subscribers[0], $first), t('Subscriber not resubscribed through mass subscription.'));
     $this->assertFalse($subscription_manager->isSubscribed($tested_subscribers[1], $first), t('Subscriber not resubscribed through mass subscription.'));
@@ -563,7 +563,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalPostForm('admin/people/simplenews/import', $edit, t('Subscribe'));
 
     $subscription_manager->reset();
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $this->assertTrue($subscription_manager->isSubscribed($tested_subscribers[0], $first, t('Subscriber resubscribed trough mass subscription.')));
     $this->assertTrue($subscription_manager->isSubscribed($tested_subscribers[1], $first, t('Subscriber resubscribed trough mass subscription.')));
     $this->assertTrue($subscription_manager->isSubscribed($tested_subscribers[2], $first, t('Subscriber subscribed trough mass subscription.')));
@@ -585,7 +585,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertTrue(in_array($first, $enabled_newsletters));
 
     // Delete newsletter.
-    \Drupal::entityManager()->getStorage('simplenews_newsletter')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_newsletter')->resetCache();
     $this->drupalGet('admin/config/services/simplenews/manage/' . $first);
     $this->clickLink(t('Delete'));
     $this->drupalPostForm(NULL, array(), t('Delete'));
@@ -620,7 +620,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'status' => FALSE,
     );
     $this->drupalPostForm(NULL, $edit, t('Save'));
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscription_manager->reset();
     $this->assertFalse($subscription_manager->isSubscribed($subscriber->getMail(), $this->getRandomNewsletter()), t('Subscriber is not active'));
 
@@ -632,21 +632,21 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'status' => TRUE,
     );
     $this->drupalPostForm(NULL, $edit, t('Save'));
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscription_manager->reset();
     $this->assertTrue($subscription_manager->isSubscribed($subscriber->getMail(), $this->getRandomNewsletter()), t('Subscriber is active again.'));
 
     // Remove the newsletter.
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
     $this->assertTitle(t('Edit subscriber @mail', array('@mail' => $subscriber->getMail())) . ' | Drupal');
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscriber = Subscriber::load($subscriber->id());
     $nlids = $subscriber->getSubscribedNewsletterIds();
     // If the subscriber still has subscribed to newsletter, try to unsubscribe.
     $newsletter_id = reset($nlids);
     $edit['subscriptions[' . $newsletter_id . ']'] = FALSE;
     $this->drupalPostForm(NULL, $edit, t('Save'));
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscription_manager->reset();
     $nlids = $subscriber->getSubscribedNewsletterIds();
     $this->assertFalse($subscription_manager->isSubscribed($subscriber->getMail(), reset($nlids)), t('Subscriber not subscribed anymore.'));
@@ -670,7 +670,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $new_user = $this->drupalCreateUser(array('subscribe to newsletters'));
     // Test for saving the subscription for no newsletter.
     $this->drupalPostForm('user/' . $new_user->id() . '/simplenews', null, t('Save'));
-    $this->assertText('The newsletter subscriptions for user ' . $new_user->getUsername() . ' have been updated.');
+    $this->assertText('The newsletter subscriptions for user ' . $new_user->getAccountName() . ' have been updated.');
 
     // Editing a subscriber with subscription.
     $edit = array(
@@ -1066,7 +1066,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Check username is public but email is not shown.
     $this->drupalGet('admin/people/simplenews');
-    $this->assertText($user->getUsername());
+    $this->assertText($user->getAccountName());
     $this->assertNoText($user->getEmail());
 
     // Grant view permission.
@@ -1077,7 +1077,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Check can see username and email.
     $this->drupalGet('admin/people/simplenews');
-    $this->assertText($user->getUsername());
+    $this->assertText($user->getAccountName());
     $this->assertText($user->getEmail());
   }
 

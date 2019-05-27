@@ -5,13 +5,76 @@ namespace Drupal\simplenews\Form;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeInterface;
+use Drupal\simplenews\Spool\SpoolStorageInterface;
+use Drupal\simplenews\RecipientHandler\RecipientHandlerManager;
+use Drupal\simplenews\Mail\MailerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Configure simplenews subscriptions of a user.
  */
 class NodeTabForm extends FormBase {
 
+  /**
+   * The spool storage.
+   *
+   * @var \Drupal\simplenews\Spool\SpoolStorageInterface
+   */
+  protected $spoolStorage;
+
+  /**
+   * The recipient handler plugin manager.
+   *
+   * @var \Drupal\simplenews\RecipientHandler\RecipientHandlerManager
+   */
+  protected $recipientHandlerManager;
+
+  /**
+   * The currently authenticated user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $currentUser;
+
+  /**
+   * The simplenews mailer.
+   *
+   * @var \Drupal\simplenews\Mail\MailerInterface
+   */
+  protected $mailer;
+
+  /**
+   * Constructs a new NodeTabForm.
+   *
+   * @param \Drupal\simplenews\Spool\SpoolStorageInterface $spool_storage
+   *   The spool storage.
+   * @param \Drupal\simplenews\RecipientHandler\RecipientHandlerManager $recipient_handler_manager
+   *   The recipient handler plugin manager.
+   * @param \Drupal\Core\Session\AccountInterface $current_user
+   *   The currently authenticated user.
+   * @param \Drupal\simplenews\Mail\MailerInterface $simplenews_mailer
+   *   The simplenews mailer service.
+   */
+  public function __construct(SpoolStorageInterface $spool_storage, RecipientHandlerManager $recipient_handler_manager, AccountInterface $current_user, MailerInterface $simplenews_mailer) {
+    $this->spoolStorage = $spool_storage;
+    $this->recipientHandlerManager = $recipient_handler_manager;
+    $this->currentUser = $current_user;
+    $this->mailer = $simplenews_mailer;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('simplenews.spool_storage'),
+      $container->get('plugin.manager.simplenews_recipient_handler'),
+      $container->get('current_user'),
+      $container->get('simplenews.mailer')
+    );
+  }
   /**
    * {@inheritdoc}
    */
@@ -23,10 +86,10 @@ class NodeTabForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, NodeInterface $node = NULL) {
-    $config = \Drupal::config('simplenews.settings');
+    $config = $this->config('simplenews.settings');
     $status = $node->simplenews_issue->status;
-    $summary = \Drupal::service('simplenews.spool_storage')->issueSummary($node);
-    $form['#title'] = t('<em>Newsletter issue</em> @title', array('@title' => $node->getTitle()));
+    $summary = $this->spoolStorage->issueSummary($node);
+    $form['#title'] = $this->t('<em>Newsletter issue</em> @title', array('@title' => $node->getTitle()));
 
     // We will need the node.
     $form_state->set('node', $node);
@@ -44,7 +107,7 @@ class NodeTabForm extends FormBase {
         '#type' => 'textfield',
         '#title' => t('Test email addresses'),
         '#description' => t('A comma-separated list of email addresses to be used as test addresses.'),
-        '#default_value' => \Drupal::currentUser()->getEmail(),
+        '#default_value' => $this->currentUser->getEmail(),
         '#size' => 60,
         '#maxlength' => 128,
       );
@@ -63,7 +126,7 @@ class NodeTabForm extends FormBase {
       );
       $default_handler = isset($form_state->getValue('simplenews')['recipient_handler']) ? $form_state->getValue('simplenews')['recipient_handler'] : $node->simplenews_issue->handler;
 
-      $recipient_handler_manager = \Drupal::service('plugin.manager.simplenews_recipient_handler');
+      $recipient_handler_manager = $this->recipientHandlerManager;
       $options = $recipient_handler_manager->getOptions();
       $form['send']['recipient_handler'] = array(
         '#type' => 'select',
@@ -156,14 +219,12 @@ class NodeTabForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $config = \Drupal::config('simplenews.settings');
-
     $values = $form_state->getValues();
 
     // Validate recipient handler settings.
     if (!empty($form['recipient_handler_settings'])) {
       $handler = $values['recipient_handler'];
-      $handler_definitions = \Drupal::service('plugin.manager.simplenews_recipient_handler')->getDefinitions();
+      $handler_definitions = $this->recipientHandlerManager->getDefinitions();
 
       // Get the handler class.
       $handler = $handler_definitions[$handler];
@@ -210,7 +271,7 @@ class NodeTabForm extends FormBase {
 
     if (!empty($form['recipient_handler_settings'])) {
       $handler = $values['recipient_handler'];
-      $handler_definitions = \Drupal::service('plugin.manager.simplenews_recipient_handler')->getDefinitions();
+      $handler_definitions = $this->recipientHandlerManager->getDefinitions();
       $handler = $handler_definitions[$handler];
       $class = $handler['class'];
 
@@ -229,7 +290,7 @@ class NodeTabForm extends FormBase {
    *   An associative array containing the structure of the form.
    */
   public function submitTestMail(array &$form, FormStateInterface $form_state) {
-    \Drupal::service('simplenews.mailer')->sendTest($form_state->get('node'), $form_state->get('test_addresses'));
+    $this->mailer->sendTest($form_state->get('node'), $form_state->get('test_addresses'));
   }
 
   /**
@@ -240,9 +301,9 @@ class NodeTabForm extends FormBase {
    */
   public function submitSendNow(array &$form, FormStateInterface $form_state) {
     $node = $form_state->get('node');
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
+    $this->spoolStorage->addFromEntity($node);
     // Attempt to send immediatly, if configured to do so.
-    if (\Drupal::service('simplenews.mailer')->attemptImmediateSend(array('entity_id' => $node->id(), 'entity_type' => 'node'))) {
+    if ($this->mailer->attemptImmediateSend(array('entity_id' => $node->id(), 'entity_type' => 'node'))) {
       $this->messenger()->addMessage(t('Newsletter %title sent.', array('%title' => $node->getTitle())));
     }
     else {
@@ -272,7 +333,7 @@ class NodeTabForm extends FormBase {
     $node = $form_state->get('node');
 
     // Delete the mail spool entries of this newsletter issue.
-    $count = \Drupal::service('simplenews.spool_storage')->deleteMails(array('nid' => $node->id()));
+    $count = $this->spoolStorage->deleteMails(array('nid' => $node->id()));
 
     // Set newsletter issue to not sent yet.
     $node->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_NOT;

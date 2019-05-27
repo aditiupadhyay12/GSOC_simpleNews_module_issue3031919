@@ -26,7 +26,7 @@ class UserName extends FieldPluginBase {
         '#theme' => 'username',
         '#account' => $account,
       );
-      return drupal_render($username);
+      return $this->getRenderer()->render($username);
     }
     return [];
   }
