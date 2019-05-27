@@ -660,38 +660,6 @@ function simplenews_subscriber_delete_multiple(array $snids) {
 }
 
 /**
- * Create a list of recent newsletters issues.
- *
- * @param integer $newsletter_id
- *   The newsletter id.
- * @param integer $count
- *   The number of newsletters.
- *
- * @ingroup issue
- *
- * @todo Replace this list by a View.
- */
-function simplenews_recent_newsletters($newsletter_id, $count = 5) {
-  $config = \Drupal::config('simplenews.settings');
-  $query = new EntityFieldQuery;
-  $result = $query
-    ->entityCondition('entity_type', 'node')
-    ->propertyCondition('status', NODE_PUBLISHED)
-    ->fieldCondition($config->get('fields.newsletter'), 'target_id', $newsletter_id)
-    ->fieldCondition($config->get('fields.issue_status'), 'value', SIMPLENEWS_STATUS_SEND_NOT, '<>')
-    ->propertyOrderBy('created', 'DESC')
-    ->range(0, $count)
-    ->execute();
-  $titles = array();
-  if (!empty($result['node'])) {
-    foreach (Node::loadMultiple(array_keys($result['node'])) as $item) {
-      $titles[$item->nid]['data'] = l($item->title, 'node/' . $item->nid);
-    }
-  }
-  return $titles;
-}
-
-/**
  * Implements hook_mail().
  *
  * Send simplenews mails using drupal mail API.
