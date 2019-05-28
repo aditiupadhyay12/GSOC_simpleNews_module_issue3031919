@@ -5,11 +5,39 @@ namespace Drupal\simplenews\Form;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Do a mass subscription for a list of email addresses.
  */
 class SubscriberMassSubscribeForm extends FormBase {
+
+  /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
+   * Constructs a new SubscriberMassSubscribeForm.
+   *
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   The language manager.
+   */
+  public function __construct(LanguageManagerInterface $language_manager) {
+    $this->languageManager = $language_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('language_manager')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -50,9 +78,9 @@ class SubscriberMassSubscribeForm extends FormBase {
     // Include language selection when the site is multilingual.
     // Default value is the empty string which will result in receiving emails
     // in the site's default language.
-    if (\Drupal::languageManager()->isMultilingual()) {
+    if ($this->languageManager->isMultilingual()) {
       $options[''] = t('Site default language');
-      $languages = \Drupal::languageManager()->getLanguages();
+      $languages = $this->languageManager->getLanguages();
       foreach ($languages as $langcode => $language) {
         $options[$langcode] = $language->getName();
       }

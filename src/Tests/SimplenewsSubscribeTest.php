@@ -94,7 +94,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
     $subscription_manager = \Drupal::service('simplenews.subscription_manager');
     $subscription_manager->reset();
-    $subscriber_storage = \Drupal::entityManager()->getStorage('simplenews_subscriber');
+    $subscriber_storage = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber');
     $subscriber_storage->resetCache();
 
     // Verify subscription changes.
@@ -421,7 +421,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     // Verify that the subscriber has been updated and references to the correct
     // user.
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscriber = simplenews_subscriber_load_by_mail($mail);
     $account = user_load_by_mail($mail);
     $this->assertEqual($subscriber->getUserId(), $account->id());
@@ -572,7 +572,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', array('@mail' => $mail)));
 
     // Make sure the subscription is confirmed.
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscriber = simplenews_subscriber_load_by_mail($mail);
 
     $this->assertTrue($subscriber->isSubscribed($newsletter_id));
@@ -620,7 +620,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertRaw(t('%user was added to the %newsletter mailing list.', array('%user' => $mail, '%newsletter' => $newsletter->name)), t('Anonymous subscriber added to newsletter'));
 
     // Make sure the subscription is confirmed now.
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscriber = simplenews_subscriber_load_by_mail($mail);
 
     $this->assertTrue($subscriber->isSubscribed($newsletter_id));
@@ -697,7 +697,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     );
     $this->drupalPostForm('newsletter/subscriptions', $edit, t('Unsubscribe'));
 
-    \Drupal::entityManager()->getStorage('simplenews_subscriber')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscriber = simplenews_subscriber_load_by_mail($mail);
     $subscription = $subscriber->getSubscription($newsletter_id);
     $this->assertEqual(SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED, $subscription->status);

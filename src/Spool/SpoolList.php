@@ -54,7 +54,9 @@ class SpoolList implements SpoolListInterface {
     // Store this spool row as processed.
     $this->processed[$spool_data->msid] = $spool_data;
 
-    $entity = entity_load($spool_data->entity_type, $spool_data->entity_id);
+    $entity = \Drupal::entityTypeManager()
+      ->getStorage($spool_data->entity_type)
+      ->load($spool_data->entity_id);
     if (!$entity) {
       // If the entity load failed, set the processed status done and proceed with
       // the next mail.
