@@ -308,7 +308,7 @@ class MailEntity implements MailInterface {
 
     // Build message body
     // Supported view modes: 'email_plain', 'email_html', 'email_textalt'
-    $build = \Drupal::entityTypeManager()->getViewBuilder($this->getEntity()->getEntityTypeId())->view($this->getEntity(), 'email_' . $format, $this->getLanguage());
+    $build = \Drupal::entityManager()->getViewBuilder($this->getEntity()->getEntityTypeId())->view($this->getEntity(), 'email_' . $format, $this->getLanguage());
     $build['#entity_type'] = $this->getEntity()->getEntityTypeId();
     // @todo: Consider using render caching.
     unset($build['#cache']);

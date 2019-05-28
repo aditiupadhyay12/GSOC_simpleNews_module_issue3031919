@@ -56,7 +56,7 @@ class PrepareUninstallForm extends FormBase {
     ];
     batch_set($batch);
 
-    $this->messenger()->addMessage($this->t('Simplenews data has been deleted.'));
+    \Drupal::messenger()->addMessage($this->t('Simplenews data has been deleted.'));
   }
 
   /**
@@ -93,9 +93,7 @@ class PrepareUninstallForm extends FormBase {
         'deleted' => TRUE,
         'include_deleted' => TRUE,
       );
-      $fields = \Drupal::entityTypeManager()
-        ->getStorage('field_config')
-        ->loadByProperties($properties);
+      $fields = entity_load_multiple_by_properties('field_config', $properties);
     } while ($fields);
   }
 

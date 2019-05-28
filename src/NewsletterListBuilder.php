@@ -23,7 +23,7 @@ class NewsletterListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    $row['name'] = $entity->label();
+    $row['name'] = $this->getLabel($entity);
     return $row + parent::buildRow($entity);
   }
 }

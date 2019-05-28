@@ -68,7 +68,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     // Make Simplenews issue translatable.
     \Drupal::service('content_translation.manager')->setEnabled('node', 'simplenews_issue', TRUE);
     drupal_static_reset();
-    \Drupal::entityTypeManager()->clearCachedDefinitions();
+    \Drupal::entityManager()->clearCachedDefinitions();
     \Drupal::service('router.builder')->rebuild();
 
     // Make Simplenews issue body translatable.
@@ -131,7 +131,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     );
     $this->drupalPostForm(NULL, $spanish, t('Save (this translation)'));
 
-    \Drupal::entityTypeManager()->getStorage('node')->resetCache(array($node->id()));
+    \Drupal::entityManager()->getStorage('node')->resetCache(array($node->id()));
     $node = Node::load($node->id());
     $translation = $node->getTranslation($this->secondaryLanguage);
 
@@ -149,14 +149,14 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       if ($mail['to'] == $english_mail) {
         $this->assertEqual('en', $mail['langcode']);
         $this->assertEqual('[' . $newsletter->label() . '] ' . $node->getTitle(), $mail['subject']);
-        $node_url = $node->toUrl('canonical', ['absolute' => TRUE])->toString();
+        $node_url = $node->url('canonical', ['absolute' => TRUE]);
         $title = $node->getTitle();
       }
       elseif ($mail['to'] == $spanish_mail || $mail['to'] == $spanish_mail2) {
         $this->assertEqual('es', $mail['langcode']);
         // @todo: Verify newsletter translation once supported again.
         $this->assertEqual('[' . $newsletter->name . '] ' . $translation->label(), $mail['subject']);
-        $node_url = $translation->toUrl('canonical', ['absolute' => TRUE, 'language' => $translation->language()])->toString();
+        $node_url = $translation->url('canonical', ['absolute' => TRUE, 'language' => $translation->language()]);
         $title = $translation->getTitle();
       }
       else {
@@ -170,7 +170,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     }
 
     // Verify sent subscriber count for each node.
-    \Drupal::entityTypeManager()->getStorage('node')->resetCache(array($node->id()));
+    \Drupal::entityManager()->getStorage('node')->resetCache(array($node->id()));
     $node = Node::load($node->id());
     $translation = $node->getTranslation($this->secondaryLanguage);
     $this->assertEqual(1, $node->simplenews_issue->sent_count, 'subscriber count is correct for english');

@@ -4,7 +4,6 @@ namespace Drupal\simplenews\Mail;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
 use Psr\Log\LoggerInterface;
 use Drupal\Core\Mail\MailManagerInterface;
@@ -22,9 +21,6 @@ use Drupal\simplenews\SkipMailException;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\SubscriberInterface;
 use Drupal\Core\Messenger\MessengerTrait;
-use Drupal\Core\Link;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\Core\Language\LanguageManagerInterface;
 
 /**
  * Default Mailer.
@@ -32,7 +28,6 @@ use Drupal\Core\Language\LanguageManagerInterface;
 class Mailer implements MailerInterface {
 
   use MessengerTrait;
-  use StringTranslationTrait;
 
   /**
    * Amount of mails after which the execution time should be checked again.
@@ -87,27 +82,6 @@ class Mailer implements MailerInterface {
   protected $startTime;
 
   /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
-   * The language manager.
-   *
-   * @var \Drupal\Core\Language\LanguageManagerInterface
-   */
-  protected $languageManager;
-
-  /**
-   * The simplenews mail cache.
-   *
-   * @var \Drupal\simplenews\Mail\MailCacheInterface
-   */
-  protected $mailCache;
-
-  /**
    * Constructs a Mailer.
    *
    * @param \Drupal\simplenews\Spool\SpoolStorageInterface $spool_storage
@@ -124,14 +98,8 @@ class Mailer implements MailerInterface {
    *   Lock service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager service.
-   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
-   *   The language manager.
-   * @param \Drupal\simplenews\Mail\MailCacheInterface $mail_cache
-   *   The simplenews mail cache.
    */
-  public function __construct(SpoolStorageInterface $spool_storage, MailManagerInterface $mail_manager, StateInterface $state, LoggerInterface $logger, AccountSwitcherInterface $account_switcher, LockBackendInterface $lock, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, LanguageManagerInterface $language_manager, MailCacheInterface $mail_cache) {
+  public function __construct(SpoolStorageInterface $spool_storage, MailManagerInterface $mail_manager, StateInterface $state, LoggerInterface $logger, AccountSwitcherInterface $account_switcher, LockBackendInterface $lock, ConfigFactoryInterface $config_factory) {
     $this->spoolStorage = $spool_storage;
     $this->mailManager = $mail_manager;
     $this->state = $state;
@@ -139,9 +107,6 @@ class Mailer implements MailerInterface {
     $this->accountSwitcher = $account_switcher;
     $this->lock = $lock;
     $this->config = $config_factory->get('simplenews.settings');
-    $this->entityTypeManager = $entity_type_manager;
-    $this->languageManager = $language_manager;
-    $this->mailCache = $mail_cache;
   }
 
   /**
@@ -237,7 +202,7 @@ class Mailer implements MailerInterface {
           $elapsed = $this->getCurrentExecutionTime();
           if ($elapsed > static::SEND_TIME_LIMIT * ini_get('max_execution_time')) {
             $this->logger->warning('Sending interrupted: PHP maximum execution time almost exceeded. Remaining newsletters will be sent during the next cron run. If this warning occurs regularly you should reduce the !cron_throttle_setting.', array(
-              '!cron_throttle_setting' => Link::fromTextAndUrl($this->t('Cron throttle setting'), Url::fromRoute('simplenews.settings_mail')),
+              '!cron_throttle_setting' => \Drupal::l(t('Cron throttle setting'), new Url('simplenews.settings_mail')),
             ));
             break;
           }
@@ -272,10 +237,8 @@ class Mailer implements MailerInterface {
       if ($this->lock->acquire('simplenews_update_sent_count')) {
         foreach ($sent as $entity_type => $ids) {
           foreach ($ids as $entity_id => $languages) {
-            $storage = $this->entityTypeManager
-              ->getStorage($entity_type);
-            $storage->resetCache(array($entity_id));
-            $entity = $storage->load($entity_id);
+            \Drupal::entityManager()->getStorage($entity_type)->resetCache(array($entity_id));
+            $entity = entity_load($entity_type, $entity_id);
             foreach ($languages as $langcode => $count) {
               $translation = $entity->getTranslation($langcode);
               $translation->simplenews_issue->sent_count = $translation->simplenews_issue->sent_count + $count;
@@ -376,7 +339,7 @@ class Mailer implements MailerInterface {
             $subscriber = Subscriber::create(['mail' => $mail]);
           }
           // Keep the current language.
-          $subscriber->setLangcode($this->languageManager->getCurrentLanguage());
+          $subscriber->setLangcode(\Drupal::languageManager()->getCurrentLanguage());
         }
 
         if ($subscriber->getUserId()) {
@@ -386,7 +349,7 @@ class Mailer implements MailerInterface {
         else {
           $recipients['anonymous'][] = $mail;
         }
-        $mail = new MailEntity($node, $subscriber, $this->mailCache);
+        $mail = new MailEntity($node, $subscriber, \Drupal::service('simplenews.mail_cache'));
         $mail->setKey('test');
         $this->sendMail($mail);
       }
@@ -441,7 +404,7 @@ class Mailer implements MailerInterface {
     $nodes = Node::loadMultiple($nids);
     if ($nodes) {
       foreach ($nodes as $nid => $node) {
-        $counts[$node->simplenews_issue->target_id][$nid] = $this->spoolStorage->countMails(array('entity_id' => $nid, 'entity_type' => 'node'));
+        $counts[$node->simplenews_issue->target_id][$nid] = \Drupal::service('simplenews.spool_storage')->countMails(array('entity_id' => $nid, 'entity_type' => 'node'));
       }
     }
     // Determine which nodes are send per translation group and per individual node.
