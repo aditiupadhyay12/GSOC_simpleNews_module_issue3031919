@@ -42,12 +42,10 @@ class SimplenewsMonitoringTest extends KernelTestBase {
 
     // Crate a spool item in state pending.
     \Drupal::service('simplenews.spool_storage')->addMail(array(
-      'mail' => 'mail@example.com',
       'entity_type' => 'node',
       'entity_id' => 1,
       'newsletter_id' => 'default',
       'snid' => 1,
-      'data' => array('data' => 'data'),
     ));
 
     $result = $this->runSensor('simplenews_pending');

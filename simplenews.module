@@ -705,24 +705,6 @@ function simplenews_mail($key, &$message, $params) {
 }
 
 /**
- * Build a recipient handler class from a given plugin id and settings array.
- *
- * @param $handler
- *   The id of the simplenews_recipient_handler plugin to use.
- * @param $configuration
- *   An array of settings to pass to the handler class.
- *
- * @return \Drupal\simplenews\RecipientHandler\RecipientHandlerInterface
- *   A constructed recipient handler plugin.
- *
- * @throws Exception if the handler class does not exist.
- */
-function simplenews_get_recipient_handler($newsletter, $handler, $configuration = array()) {
-  $configuration['newsletter'] = $newsletter;
-  return  \Drupal::service('plugin.manager.simplenews_recipient_handler')->createInstance($handler, $configuration);
-}
-
-/**
  * Get a simplenews newsletter entity object.
  *
  * @param $newsletter_id

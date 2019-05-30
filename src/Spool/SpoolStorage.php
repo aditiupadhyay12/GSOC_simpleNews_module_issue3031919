@@ -8,6 +8,7 @@ use Drupal\Core\Database\Query\Condition;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
+use Drupal\simplenews\recipientHandler\recipientHandlerManager;
 
 /**
  * Default database spool storage.
@@ -35,6 +36,11 @@ class SpoolStorage implements SpoolStorageInterface {
   protected $moduleHandler;
 
   /**
+   * @var \Drupal\simplenews\recipientHandler\recipientHandlerManager
+   */
+  protected $recipientHandlerManager;
+
+  /**
    * Creates a SpoolStorage object.
    *
    * @param \Drupal\Core\Database\Connection $connection
@@ -45,12 +51,15 @@ class SpoolStorage implements SpoolStorageInterface {
    *   The config factory.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface
    *   The module handler.
+   * @param \Drupal\simplenews\recipientHandler\recipientHandlerManager
+   *   The recipient handler manager.
    */
-  public function __construct(Connection $connection, LockBackendInterface $lock, ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler) {
+  public function __construct(Connection $connection, LockBackendInterface $lock, ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, recipientHandlerManager $recipient_handler_manager) {
     $this->connection = $connection;
     $this->lock = $lock;
     $this->config = $config_factory->get('simplenews.settings');
     $this->moduleHandler = $module_handler;
+    $this->recipientHandlerManager = $recipient_handler_manager;
   }
 
   /**
@@ -109,12 +118,6 @@ class SpoolStorage implements SpoolStorageInterface {
         $query->range(0, $limit);
       }
       foreach ($query->execute() as $message) {
-        if (mb_strlen($message->data)) {
-          $message->data = unserialize($message->data);
-        }
-        else {
-          $message->data = simplenews_subscriber_load_by_mail($message->mail);
-        }
         $messages[$message->msid] = $message;
       }
       if (count($messages) > 0) {
@@ -232,26 +235,8 @@ class SpoolStorage implements SpoolStorageInterface {
    * {@inheritdoc}
    */
   public function addFromEntity(ContentEntityInterface $issue) {
-    $newsletter = $issue->simplenews_issue->entity;
-    $handler = $issue->simplenews_issue->handler;
-    $handler_settings = $issue->simplenews_issue->handler_settings;
-
-    $recipient_handler = simplenews_get_recipient_handler($newsletter, $handler, $handler_settings);
-
-    // To send the newsletter, the node id and target email addresses
-    // are stored in the spool.
-    // Only subscribed recipients are stored in the spool (status = 1).
-    $select = $recipient_handler->buildRecipientQuery();
-    $select->addExpression('\'node\'', 'entity_type');
-    $select->addExpression($issue->id(), 'entity_id');
-    $select->addExpression(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, 'status');
-    $select->addExpression(REQUEST_TIME, 'timestamp');
-
-    $issue->simplenews_issue->subscribers = simplenews_count_subscriptions($issue->simplenews_issue->target_id);
-
-    $this->connection->insert('simplenews_mail_spool')
-      ->from($select)
-      ->execute();
+    $recipient_handler = $this->getRecipientHandler($issue);
+    $issue->simplenews_issue->subscribers = $recipient_handler->addToSpool();
 
     // Update simplenews newsletter status to send pending.
     $issue->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_PENDING;
@@ -264,21 +249,32 @@ class SpoolStorage implements SpoolStorageInterface {
    * {@inheritdoc}
    */
   public function addMail(array $spool) {
-    $status = isset($spool['status']) ? $spool['status'] : SpoolStorageInterface::STATUS_PENDING;
-    $time = isset($spool['time']) ? $spool['time'] : REQUEST_TIME;
+    if (!isset($spool['status'])) {
+      $spool['status'] = SpoolStorageInterface::STATUS_PENDING;
+    }
+    if (!isset($spool['timestamp'])) {
+      $spool['timestamp'] = REQUEST_TIME;
+    }
+    if (isset($spool['data'])) {
+      $spool['data'] = serialize($spool['data']);
+    }
 
     $this->connection->insert('simplenews_mail_spool')
-      ->fields(array(
-        'mail' => $spool['mail'],
-        'entity_type' => $spool['entity_type'],
-        'entity_id' => $spool['entity_id'],
-        'newsletter_id' => $spool['newsletter_id'],
-        'snid' => $spool['snid'],
-        'status' => $status,
-        'timestamp' => $time,
-        'data' => serialize($spool['data']),
-      ))
+      ->fields($spool)
       ->execute();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRecipientHandler(ContentEntityInterface $issue) {
+    $handler = $issue->simplenews_issue->handler;
+    $handler_settings = $issue->simplenews_issue->handler_settings;
+    $handler_settings['_issue'] = $issue;
+    $handler_settings['_connection'] = $this->connection;
+    $handler_settings['_newsletter_ids'] = array_map(function ($i) { return $i['target_id']; }, $issue->get('simplenews_issue')->getValue());
+
+    return $this->recipientHandlerManager->createInstance($handler, $handler_settings);
   }
 
   /**

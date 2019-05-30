@@ -71,25 +71,6 @@ function simplenews_views_data() {
     ),
   );
 
-  $data['simplenews_mail_spool']['mail'] = array(
-    'title' => t('Subscriber'),
-    'help' => t('The formatted email address of mail message recipient.'),
-    'field' => array(
-      'id' => 'standard',
-      'click sortable' => TRUE,
-    ),
-    'filter' => array(
-      'id' => 'string',
-      'allow empty' => TRUE,
-    ),
-    'argument' => array(
-      'id' => 'string',
-    ),
-    'sort' => array(
-      'id' => 'standard',
-    ),
-  );
-
   $data['simplenews_mail_spool']['entity_id'] = array(
     'title' => t('Node ID'),
     'help' => t('The {node}.nid of this newsletter.'),
@@ -224,7 +205,7 @@ function simplenews_views_data() {
 
   $data['simplenews_mail_spool']['data'] = array(
     'title' => t('Data'),
-    'help' => t('A serialized array of name value pairs that are related to the email address.'),
+    'help' => t('A serialized array of name value pairs that define a temporary subscriber.'),
     'field' => array(
       'id' => 'standard',
       'click sortable' => TRUE,

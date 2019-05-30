@@ -129,6 +129,19 @@ interface SpoolStorageInterface {
   function addMail(array $spool);
 
   /**
+   * Builds a recipient handler class for a given newsletter issue.
+   *
+   * @param \Drupal\node\ContentEntityInterface $issue
+   *   The newsletter issue to be sent.
+   *
+   * @return \Drupal\simplenews\RecipientHandler\RecipientHandlerInterface
+   *   A constructed recipient handler plugin.
+   *
+   * @throws Exception if the handler class does not exist.
+   */
+  function getRecipientHandler(ContentEntityInterface $issue);
+
+  /**
    * Returns a summary of key newsletter issue parameters.
    *
    * @param $issue

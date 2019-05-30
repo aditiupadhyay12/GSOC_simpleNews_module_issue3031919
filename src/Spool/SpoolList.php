@@ -2,6 +2,7 @@
 
 namespace Drupal\simplenews\Spool;
 
+use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\Mail\MailEntity;
 
 /**
@@ -67,11 +68,11 @@ class SpoolList implements SpoolListInterface {
       return $this->nextMail();
     }
 
-    if ($spool_data->data) {
-      $subscriber = $spool_data->data;
+    if (!empty($spool_data->data)) {
+      $subscriber = Subscriber::create(unserialize($spool_data->data));
     }
     else {
-      $subscriber = simplenews_subscriber_load_by_mail($spool_data->mail);
+      $subscriber = simplenews_subscriber_load($spool_data->snid);
     }
 
     if (!$subscriber) {

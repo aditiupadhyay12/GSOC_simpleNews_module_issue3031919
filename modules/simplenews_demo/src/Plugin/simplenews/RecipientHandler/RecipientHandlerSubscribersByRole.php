@@ -1,0 +1,47 @@
+<?php
+
+namespace Drupal\simplenews_demo\Plugin\simplenews\RecipientHandler;
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\simplenews\SubscriberInterface;
+use Drupal\simplenews\Plugin\simplenews\RecipientHandler\RecipientHandlerEntityBase;
+
+/**
+ * This handler sends to all active users that have never logged in.
+ *
+ * @RecipientHandler(
+ *   id = "simplenews_subscribers_by_role",
+ *   title = @Translation("Subscribers by role")
+ * )
+ */
+class RecipientHandlerSubscribersByRole extends RecipientHandlerEntityBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function buildEntityQuery() {
+    return \Drupal::entityQuery('simplenews_subscriber')
+      ->condition('status', SubscriberInterface::ACTIVE)
+      ->condition('subscriptions', $this->getNewsletterId())
+      ->condition('subscriptions.status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED)
+      ->condition('uid.entity.roles', $this->configuration['role']);
+  }
+
+  static function settingsForm(array $element, $settings) {
+    $roles = array_map(['\Drupal\Component\Utility\Html', 'escape'], user_role_names(TRUE));
+
+    $element['role'] = [
+      '#type' => 'select',
+      '#title' => t('Role'),
+      '#default_value' => $settings['role'],
+      '#options' => $roles,
+    ];
+
+    return $element;
+  }
+
+  static function settingsFormSubmit($element, FormStateInterface $form_state) {
+    return ['role' => $form_state->getValue('role')];
+  }
+
+}

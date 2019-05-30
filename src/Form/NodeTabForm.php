@@ -222,7 +222,7 @@ class NodeTabForm extends FormBase {
     $values = $form_state->getValues();
 
     // Validate recipient handler settings.
-    if (!empty($form['recipient_handler_settings'])) {
+    if (!empty($form['send']['recipient_handler_settings'])) {
       $handler = $values['recipient_handler'];
       $handler_definitions = $this->recipientHandlerManager->getDefinitions();
 
@@ -231,7 +231,7 @@ class NodeTabForm extends FormBase {
       $class = $handler['class'];
 
       if (method_exists($class, 'settingsFormValidate')) {
-        $class::settingsFormValidate($form['recipient_handler_settings'], $form_state);
+        $class::settingsFormValidate($form['send']['recipient_handler_settings'], $form_state);
       }
     }
 
@@ -269,14 +269,14 @@ class NodeTabForm extends FormBase {
     // Save the recipient handler and it's settings.
     $node->simplenews_issue->handler = $values['recipient_handler'];
 
-    if (!empty($form['recipient_handler_settings'])) {
+    if (!empty($form['send']['recipient_handler_settings'])) {
       $handler = $values['recipient_handler'];
       $handler_definitions = $this->recipientHandlerManager->getDefinitions();
       $handler = $handler_definitions[$handler];
       $class = $handler['class'];
 
       if (method_exists($class, 'settingsFormSubmit')) {
-        $settings = $class::settingsFormSubmit($form['recipient_handler_settings'], $form_state);
+        $settings = $class::settingsFormSubmit($form['send']['recipient_handler_settings'], $form_state);
         $node->simplenews_issue->handler_settings = (array) $settings;
       }
     }

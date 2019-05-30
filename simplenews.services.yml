@@ -4,7 +4,7 @@ services:
     parent: default_plugin_manager
   simplenews.spool_storage:
     class: Drupal\simplenews\Spool\SpoolStorage
-    arguments: ['@database', '@lock', '@config.factory', '@module_handler']
+    arguments: ['@database', '@lock', '@config.factory', '@module_handler', '@plugin.manager.simplenews_recipient_handler']
   logger.channel.simplenews:
     parent: logger.channel_base
     arguments: ['simplenews']
