@@ -988,32 +988,6 @@ function simplenews_theme_suggestions_simplenews_newsletter_body(array $variable
 }
 
 /**
- * Count number of subscribers per newsletter list.
- *
- * @param $newsletter_id
- *   The newsletter id.
- *
- * @return
- *   Number of subscribers.
- */
-function simplenews_count_subscriptions($newsletter_id) {
-  $subscription_count = &drupal_static(__FUNCTION__);
-
-  if (isset($subscription_count[$newsletter_id])) {
-    return $subscription_count[$newsletter_id];
-  }
-
-  // @todo: entity query + aggregate
-  $query = \Drupal::database()->select('simplenews_subscriber__subscriptions', 'ss');
-  $query->leftJoin('simplenews_subscriber', 'sn', 'sn.id = ss.entity_id');
-  $query->condition('subscriptions_target_id', $newsletter_id)
-    ->condition('sn.status', SubscriberInterface::ACTIVE)
-    ->condition('ss.subscriptions_status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
-  $subscription_count[$newsletter_id] = $query->countQuery()->execute()->fetchField();
-  return $subscription_count[$newsletter_id];
-}
-
-/**
  * Update the sent status of a node.
  *
  * If the node part of a translation set, all corresponding translations are

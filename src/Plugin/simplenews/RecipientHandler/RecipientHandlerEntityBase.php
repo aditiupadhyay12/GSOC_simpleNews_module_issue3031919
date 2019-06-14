@@ -10,17 +10,17 @@ abstract class RecipientHandlerEntityBase extends RecipientHandlerBase {
   /**
    * {@inheritdoc}
    */
-  public function count() {
-    return $this->buildEntityQuery()->count()->execute();
+  public function addToSpool() {
+    $ids = $this->buildEntityQuery()->execute();
+    $this->addArrayToSpool('snid', $ids);
+    return count($ids);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function addToSpool() {
-    $ids = $this->buildEntityQuery()->execute();
-    $this->addArrayToSpool('snid', $ids);
-    return count($ids);
+  protected function doCount() {
+    return $this->buildEntityQuery()->count()->execute();
   }
 
   /**

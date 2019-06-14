@@ -155,4 +155,15 @@ interface SpoolStorageInterface {
    */
   function issueSummary(ContentEntityInterface $issue);
 
+  /**
+   * Returns a count of the recipients for a newsletter issue.
+   *
+   * @param $node
+   *   The newsletter issue node object.
+   *
+   * @return int
+   *   Count of recipients.
+   */
+  function issueCountRecipients(ContentEntityInterface $issue);
+
 }

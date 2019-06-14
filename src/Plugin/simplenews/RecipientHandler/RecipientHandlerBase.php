@@ -55,6 +55,47 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function count() {
+    $cache = &drupal_static(__METHOD__, []);
+    $cid = $this->pluginId . ':' . implode(':', $this->newsletterIds);
+    if (isset($cache[$cid])) {
+      return $cache[$cid];
+    }
+
+    $count = $this->doCount();
+    if ($this->cacheCount()) {
+      $cache[$cid] = $count;
+    }
+
+    return $count;
+  }
+
+  /**
+   * Counts the number of recipients.
+   *
+   * Internal count function allowing the caller to perform caching.
+   *
+   * @return int
+   *   Number of recipients.
+   */
+  abstract protected function doCount();
+
+  /**
+   * Checks if the recipient count can be cached.
+   *
+   * Caching is allowed if the count depends only on the newsletter IDs, and
+   * does not vary with a specific issue or handler settings.
+   *
+   * @return bool
+   *   TRUE if the count can be cached.
+   */
+  protected function cacheCount() {
+    return FALSE;
+  }
+
+  /**
    * Returns the newsletter ID.
    *
    * @return int

@@ -33,4 +33,11 @@ class RecipientHandlerAll extends RecipientHandlerSelectBase {
     return $select;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function cacheCount() {
+    return TRUE;
+  }
+
 }

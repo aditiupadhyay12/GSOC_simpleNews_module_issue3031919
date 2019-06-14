@@ -296,7 +296,7 @@ class SpoolStorage implements SpoolStorageInterface {
       ]);
     }
     else {
-      $summary['count'] = simplenews_count_subscriptions($issue->simplenews_issue->target_id);
+      $summary['count'] = $this->issueCountRecipients($issue);
       if ($status == SIMPLENEWS_STATUS_SEND_NOT) {
         $summary['description'] = t('Newsletter issue will be sent to @count subscribers.', ['@count' => $summary['count']]);
       }
@@ -306,6 +306,13 @@ class SpoolStorage implements SpoolStorageInterface {
     }
 
     return $summary;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function issueCountRecipients(ContentEntityInterface $issue) {
+    return $this->getRecipientHandler($issue)->count();
   }
 
   /**

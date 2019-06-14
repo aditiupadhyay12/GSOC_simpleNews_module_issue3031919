@@ -4,6 +4,7 @@ namespace Drupal\simplenews\Tests;
 
 use Drupal\block\Entity\Block;
 use Drupal\Component\Utility\Html;
+use Drupal\node\Entity\Node;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\views\Entity\View;
@@ -504,8 +505,15 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertTrue(in_array($unconfirmed[1], $exported_mails));
 
     // Make sure the user is subscribed to the first newsletter_id.
+    $spool_storage = \Drupal::service('simplenews.spool_storage');
+    $issue = Node::create([
+      'type' => 'simplenews_issue',
+      'title' => $this->randomString(10),
+      'simplenews_issue' => ['target_id' => $first],
+    ]);
+
     $subscription_manager->subscribe($user_mail, $first, FALSE);
-    $before_count = simplenews_count_subscriptions($first);
+    $before_count = $spool_storage->issueCountRecipients($issue);
 
     // Block the user.
     $user->block();
@@ -514,8 +522,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalGet('admin/people/simplenews');
 
     // Verify updated subscriptions count.
-    drupal_static_reset('simplenews_count_subscriptions');
-    $after_count = simplenews_count_subscriptions($first);
+    drupal_static_reset('Drupal\simplenews\Plugin\simplenews\RecipientHandler\RecipientHandlerBase::count');
+    $after_count = $spool_storage->issueCountRecipients($issue);
     $this->assertEqual($before_count - 1, $after_count, t('Blocked users are not counted in subscription count.'));
 
     // Test mass subscribe with previously unsubscribed users.

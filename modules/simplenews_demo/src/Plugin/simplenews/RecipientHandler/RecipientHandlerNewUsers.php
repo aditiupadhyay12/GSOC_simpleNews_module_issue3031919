@@ -23,4 +23,11 @@ class RecipientHandlerNewUsers extends RecipientHandlerEntityBase {
       ->condition('uid.entity.status', TRUE);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function cacheCount() {
+    return TRUE;
+  }
+
 }

@@ -27,7 +27,7 @@ abstract class RecipientHandlerSelectBase extends RecipientHandlerBase {
   /**
    * {@inheritdoc}
    */
-  public function count() {
+  protected function doCount() {
     return $this->buildRecipientQuery()->countQuery()->execute()->fetchField();
   }
 

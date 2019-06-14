@@ -26,7 +26,7 @@ class RecipientHandlerSiteMail extends RecipientHandlerBase {
   /**
    * {@inheritdoc}
    */
-  public function count() {
+  protected function doCount() {
     return 1;
   }
 
