@@ -19,6 +19,13 @@ use Drupal\user\Entity\User;
  */
 class SimplenewsSendTest extends SimplenewsTestBase {
 
+  /**
+   * Modules to enable.
+   *
+   * @var array
+   */
+  public static $modules = array('system_mail_failure_test');
+
   function setUp() {
     parent::setUp();
 
@@ -105,7 +112,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   }
 
   /**
-   * Send a newsletter using cron.
+   * Send a newsletter without cron.
    */
   function testSendNowNoCron() {
     // Disable cron.
@@ -155,7 +162,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   }
 
   /**
-   * Send a newsletter using cron.
+   * Send multiple newsletters without cron.
    */
   function testSendMultipleNoCron() {
     // Disable cron.
@@ -451,6 +458,29 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   }
 
   /**
+   * Tests failing to send mails from cron.
+   */
+  function testSendFail() {
+    // Create and send an issue.
+    $issue = Node::create([
+      'type' => 'simplenews_issue',
+      'title' => $this->randomString(10),
+      'simplenews_issue' => ['target_id' => $this->getRandomNewsletter()],
+    ]);
+    $issue->save();
+
+    \Drupal::service('simplenews.spool_storage')->addFromEntity($issue);
+    $issue->save();
+
+    // Force all sent mails to fail.
+    \Drupal::configFactory()->getEditable('system.mail')->set('interface.default', 'test_php_mail_failure')->save();
+    simplenews_cron();
+
+    // Check there is no error message.
+    $this->assertEqual(count(\Drupal::messenger()->all()), 0, t('No error messages printed'));
+  }
+
+  /**
    * Create a newsletter, send mails and then delete.
    */
   function testDelete() {
@@ -647,7 +677,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   }
 
   /**
-   * Test the correct handlling of HTML special characters in plain text mails.
+   * Test the correct handling of HTML special characters in plain text mails.
    */
   function testHtmlEscaping() {
 
