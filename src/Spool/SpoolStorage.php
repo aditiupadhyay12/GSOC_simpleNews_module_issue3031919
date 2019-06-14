@@ -237,6 +237,7 @@ class SpoolStorage implements SpoolStorageInterface {
   public function addFromEntity(ContentEntityInterface $issue) {
     $recipient_handler = $this->getRecipientHandler($issue);
     $issue->simplenews_issue->subscribers = $recipient_handler->addToSpool();
+    $issue->simplenews_issue->sent_count = 0;
 
     // Update simplenews newsletter status to send pending.
     $issue->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_PENDING;
