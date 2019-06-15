@@ -132,7 +132,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $edit = array(
       'title[0][value]' => $this->randomString(10),
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
-      'simplenews_issue' => 'default',
+      'simplenews_issue[target_id]' => 'default',
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
@@ -202,7 +202,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       // Always use a character that is escaped.
       'title[0][value]' => $this->randomString() . '\'<',
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
-      'simplenews_issue' => 'default',
+      'simplenews_issue[target_id]' => 'default',
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
@@ -281,7 +281,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $edit = array(
       'title[0][value]' => $this->randomString(10),
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
-      'simplenews_issue' => 'default',
+      'simplenews_issue[target_id]' => 'default',
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
@@ -323,7 +323,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $edit = array(
       'title[0][value]' => $this->randomString(10),
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
-      'simplenews_issue' => 'default',
+      'simplenews_issue[target_id]' => 'default',
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
@@ -362,7 +362,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $edit = array(
       'title[0][value]' => $this->randomString(10),
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
-      'simplenews_issue' => 'default',
+      'simplenews_issue[target_id]' => 'default',
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
@@ -398,7 +398,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $edit = array(
       'title[0][value]' => $this->randomString(10),
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
-      'simplenews_issue' => 'default',
+      'simplenews_issue[target_id]' => 'default',
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
@@ -430,7 +430,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = $this->drupalCreateNode([
       'body' => 'Nothing interesting',
       'type' => 'simplenews_issue',
-      'simplenews_issue' => ['target_id' => 'default'],
+      'simplenews_issue[target_id]' => ['target_id' => 'default'],
     ]);
     \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
     \Drupal::service('simplenews.mailer')->sendSpool();

@@ -8,7 +8,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeInterface;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
-use Drupal\simplenews\RecipientHandler\RecipientHandlerManager;
 use Drupal\simplenews\Mail\MailerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -23,13 +22,6 @@ class NodeTabForm extends FormBase {
    * @var \Drupal\simplenews\Spool\SpoolStorageInterface
    */
   protected $spoolStorage;
-
-  /**
-   * The recipient handler plugin manager.
-   *
-   * @var \Drupal\simplenews\RecipientHandler\RecipientHandlerManager
-   */
-  protected $recipientHandlerManager;
 
   /**
    * The currently authenticated user.
@@ -50,16 +42,13 @@ class NodeTabForm extends FormBase {
    *
    * @param \Drupal\simplenews\Spool\SpoolStorageInterface $spool_storage
    *   The spool storage.
-   * @param \Drupal\simplenews\RecipientHandler\RecipientHandlerManager $recipient_handler_manager
-   *   The recipient handler plugin manager.
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The currently authenticated user.
    * @param \Drupal\simplenews\Mail\MailerInterface $simplenews_mailer
    *   The simplenews mailer service.
    */
-  public function __construct(SpoolStorageInterface $spool_storage, RecipientHandlerManager $recipient_handler_manager, AccountInterface $current_user, MailerInterface $simplenews_mailer) {
+  public function __construct(SpoolStorageInterface $spool_storage, AccountInterface $current_user, MailerInterface $simplenews_mailer) {
     $this->spoolStorage = $spool_storage;
-    $this->recipientHandlerManager = $recipient_handler_manager;
     $this->currentUser = $current_user;
     $this->mailer = $simplenews_mailer;
   }
@@ -70,7 +59,6 @@ class NodeTabForm extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('simplenews.spool_storage'),
-      $container->get('plugin.manager.simplenews_recipient_handler'),
       $container->get('current_user'),
       $container->get('simplenews.mailer')
     );
@@ -124,44 +112,6 @@ class NodeTabForm extends FormBase {
         '#open' => TRUE,
         '#title' => t('Send'),
       );
-      $default_handler = isset($form_state->getValue('simplenews')['recipient_handler']) ? $form_state->getValue('simplenews')['recipient_handler'] : $node->simplenews_issue->handler;
-
-      $recipient_handler_manager = $this->recipientHandlerManager;
-      $options = $recipient_handler_manager->getOptions();
-      $form['send']['recipient_handler'] = array(
-        '#type' => 'select',
-        '#title' => t('Recipients'),
-        '#description' => t('Please select to configure who to send the email to.'),
-        '#options' => $options,
-        '#default_value' => $default_handler,
-        '#access' => count($options) > 1,
-        '#ajax' => array(
-          'callback' => '::ajaxUpdateRecipientHandlerSettings',
-          'wrapper' => 'recipient-handler-settings',
-          'method' => 'replace',
-          'effect' => 'fade',
-        ),
-      );
-
-      // Get the handler class.
-      $handler_definitions = $recipient_handler_manager->getDefinitions();
-      $handler = $handler_definitions[$default_handler];
-      $class = $handler['class'];
-
-      $settings = $node->simplenews_issue->handler_settings;
-
-      if (method_exists($class, 'settingsForm')) {
-        $element = array(
-          '#parents' => array('simplenews', 'recipient_handler_settings'),
-          '#prefix' => '<div id="recipient-handler-settings">',
-          '#suffix' => '</div>',
-        );
-
-        $form['send']['recipient_handler_settings'] = $class::settingsForm($element, $settings);
-      }
-      else {
-        $form['send']['recipient_handler']['#suffix'] = '<div id="recipient-handler-settings"></div>';
-      }
 
       // Add some text to describe the send situation.
       $form['send']['count'] = array(
@@ -184,7 +134,6 @@ class NodeTabForm extends FormBase {
           '#type' => 'submit',
           '#button_type' => 'primary',
           '#value' => t('Send now'),
-          '#submit' => array('::submitForm', '::submitSendNow'),
         );
       }
       else {
@@ -192,7 +141,7 @@ class NodeTabForm extends FormBase {
           '#type' => 'submit',
           '#button_type' => 'primary',
           '#value' => t('Send on publish'),
-          '#submit' => array('::submitForm', '::submitSendLater'),
+          '#submit' => array('::submitSendLater'),
         );
       }
     }
@@ -213,29 +162,6 @@ class NodeTabForm extends FormBase {
       }
     }
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    $values = $form_state->getValues();
-
-    // Validate recipient handler settings.
-    if (!empty($form['send']['recipient_handler_settings'])) {
-      $handler = $values['recipient_handler'];
-      $handler_definitions = $this->recipientHandlerManager->getDefinitions();
-
-      // Get the handler class.
-      $handler = $handler_definitions[$handler];
-      $class = $handler['class'];
-
-      if (method_exists($class, 'settingsFormValidate')) {
-        $class::settingsFormValidate($form['send']['recipient_handler_settings'], $form_state);
-      }
-    }
-
-    parent::validateForm($form, $form_state);
   }
 
   /**
@@ -260,30 +186,6 @@ class NodeTabForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $values = $form_state->getValues();
-    $node = $form_state->get('node');
-
-    // Save the recipient handler and it's settings.
-    $node->simplenews_issue->handler = $values['recipient_handler'];
-
-    if (!empty($form['send']['recipient_handler_settings'])) {
-      $handler = $values['recipient_handler'];
-      $handler_definitions = $this->recipientHandlerManager->getDefinitions();
-      $handler = $handler_definitions[$handler];
-      $class = $handler['class'];
-
-      if (method_exists($class, 'settingsFormSubmit')) {
-        $settings = $class::settingsFormSubmit($form['send']['recipient_handler_settings'], $form_state);
-        $node->simplenews_issue->handler_settings = (array) $settings;
-      }
-    }
-    $node->save();
-  }
-
-  /**
    * Submit handler for sending test mails.
    *
    * @param array $form
@@ -299,7 +201,7 @@ class NodeTabForm extends FormBase {
    * @param array $form
    *   An associative array containing the structure of the form.
    */
-  public function submitSendNow(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $node = $form_state->get('node');
     $this->spoolStorage->addFromEntity($node);
     // Attempt to send immediatly, if configured to do so.
@@ -365,13 +267,5 @@ class NodeTabForm extends FormBase {
     }
     return AccessResult::neutral();
   }
-
-  /**
-   * Return the updated recipient handler settings form.
-   */
-  public function ajaxUpdateRecipientHandlerSettings($form, FormStateInterface $form_state) {
-    return empty($form['simplenews']['recipient_handler_settings']) ? array('#markup' => '<div id="recipient-handler-settings"></div>') : $form['simplenews']['recipient_handler_settings'];
-  }
-
 
 }

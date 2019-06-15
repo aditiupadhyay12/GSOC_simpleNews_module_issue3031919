@@ -8,7 +8,7 @@ use Drupal\Core\Database\Query\Condition;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
-use Drupal\simplenews\recipientHandler\recipientHandlerManager;
+use Drupal\simplenews\recipientHandler\RecipientHandlerManager;
 
 /**
  * Default database spool storage.
@@ -54,7 +54,7 @@ class SpoolStorage implements SpoolStorageInterface {
    * @param \Drupal\simplenews\recipientHandler\recipientHandlerManager
    *   The recipient handler manager.
    */
-  public function __construct(Connection $connection, LockBackendInterface $lock, ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, recipientHandlerManager $recipient_handler_manager) {
+  public function __construct(Connection $connection, LockBackendInterface $lock, ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, RecipientHandlerManager $recipient_handler_manager) {
     $this->connection = $connection;
     $this->lock = $lock;
     $this->config = $config_factory->get('simplenews.settings');
@@ -268,12 +268,13 @@ class SpoolStorage implements SpoolStorageInterface {
   /**
    * {@inheritdoc}
    */
-  public function getRecipientHandler(ContentEntityInterface $issue) {
-    $handler = $issue->simplenews_issue->handler;
-    $handler_settings = $issue->simplenews_issue->handler_settings;
+  public function getRecipientHandler(ContentEntityInterface $issue, array $edited_values = NULL) {
+    $field = $issue->get('simplenews_issue');
+    $handler = ($edited_values['handler'] ?? $field->handler) ?: 'simplenews_all';
+    $handler_settings = $edited_values['handler_settings'] ?? $field->handler_settings;
     $handler_settings['_issue'] = $issue;
     $handler_settings['_connection'] = $this->connection;
-    $handler_settings['_newsletter_ids'] = array_map(function ($i) { return $i['target_id']; }, $issue->get('simplenews_issue')->getValue());
+    $handler_settings['_newsletter_ids'] = $field->isEmpty() ? [] : array_map(function ($i) { return $i['target_id']; }, $field->getValue());
 
     return $this->recipientHandlerManager->createInstance($handler, $handler_settings);
   }

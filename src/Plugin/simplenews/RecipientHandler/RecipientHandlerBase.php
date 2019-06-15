@@ -73,6 +73,12 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function settingsForm() {
+    return [];
+
+  /**
    * Counts the number of recipients.
    *
    * Internal count function allowing the caller to perform caching.

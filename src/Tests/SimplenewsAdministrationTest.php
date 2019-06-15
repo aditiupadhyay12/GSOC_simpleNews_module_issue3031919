@@ -758,7 +758,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $edit = array(
       'title[0][value]' => $this->randomMachineName(),
       'body[0][value]' => 'User ID: [current-user:uid]',
-      'simplenews_issue' => $this->getRandomNewsletter(),
+      'simplenews_issue[target_id]' => $this->getRandomNewsletter(),
     );
     $this->drupalPostForm(NULL, $edit, ('Save'));
 
@@ -767,7 +767,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $edit = array(
       'title[0][value]' => $this->randomMachineName(),
       'body[0][value]' => 'Sample body text - Newsletter issue',
-      'simplenews_issue' => $this->getRandomNewsletter(),
+      'simplenews_issue[target_id]' => $this->getRandomNewsletter(),
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
 
@@ -932,14 +932,14 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Create a newsletter issue and publish.
     $edit = array(
       'title[0][value]' => 'Test_issue_1',
-      'simplenews_issue'  => mb_strtolower($name),
+      'simplenews_issue[target_id]' => mb_strtolower($name),
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, t('Save'));
 
     // Create another newsletter issue and keep unpublished.
     $edit = array(
       'title[0][value]' => 'Test_issue_2',
-      'simplenews_issue'  => mb_strtolower($name),
+      'simplenews_issue[target_id]' => mb_strtolower($name),
       'status[value]' => FALSE,
     );
     $this->drupalPostForm('node/add/simplenews_issue', $edit, t('Save'));

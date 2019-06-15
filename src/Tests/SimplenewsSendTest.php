@@ -126,7 +126,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     $edit = array(
       'title[0][value]' => $this->randomString(10),
-      'simplenews_issue' => 'default',
+      'simplenews_issue[target_id]' => 'default',
     );
     $this->drupalPostForm(NULL, $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
@@ -178,7 +178,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
       $edit = array(
         'title[0][value]' => $this->randomString(10),
-        'simplenews_issue' => 'default',
+        'simplenews_issue[target_id]' => 'default',
         // The last newsletter shouldn't be published.
         'status[value]' => $i != 2
       );
@@ -206,7 +206,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     $edit = array(
       'title[0][value]' => $this->randomString(10),
-      'simplenews_issue' => 'default',
+      'simplenews_issue[target_id]' => 'default',
     );
     $this->drupalPostForm(NULL, $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
@@ -272,7 +272,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   }
 
   /**
-   * Send a newsletter without using cron.
+   * Send a newsletter using cron.
    */
   function testSendNowCron() {
 
@@ -282,7 +282,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     $edit = array(
       'title[0][value]' => $this->randomString(10),
-      'simplenews_issue' => 'default',
+      'simplenews_issue[target_id]' => 'default',
     );
     // Try preview first.
     $this->drupalPostForm(NULL, $edit, t('Preview'));
@@ -362,7 +362,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     $edit = array(
       'title[0][value]' => $this->randomString(10),
-      'simplenews_issue' => 'default',
+      'simplenews_issue[target_id]' => 'default',
       'status[value]' => FALSE,
     );
     $this->drupalPostForm(NULL, $edit, ('Save'));
@@ -428,7 +428,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     $edit = array(
       'title[0][value]' => $this->randomString(10),
-      'simplenews_issue' => $first_newsletter_id,
+      'simplenews_issue[target_id]' => $first_newsletter_id,
     );
     $this->drupalPostForm(NULL, $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created.');
@@ -446,7 +446,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     $this->clickLink(t('Edit'));
     $update = array(
-      'simplenews_issue' => $second_newsletter_id,
+      'simplenews_issue[target_id]' => $second_newsletter_id,
     );
     $this->drupalPostForm(NULL, $update, t('Save'));
 
@@ -495,7 +495,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     $edit = array(
       'title[0][value]' => $this->randomString(10),
-      'simplenews_issue' => 'default',
+      'simplenews_issue[target_id]' => 'default',
     );
     $this->drupalPostForm(NULL, $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');

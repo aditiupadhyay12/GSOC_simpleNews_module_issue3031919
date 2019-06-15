@@ -19,4 +19,12 @@ interface RecipientHandlerInterface extends \Countable, PluginInspectionInterfac
    */
   function addToSpool();
 
+  /**
+   * Returns the elements to add to the settings form for handler settings.
+   *
+   * @return array
+   *   The form elements.
+   */
+  function settingsForm();
+
 }

@@ -1044,18 +1044,6 @@ function simplenews_node_access(NodeInterface $node, $op, $account) {
 }
 
 /**
- * Implements hook_field_widget_info_alter().
- */
-function simplenews_field_widget_info_alter(&$info) {
-  if (isset($info['options_select'])) {
-    $info['options_select']['field_types'][] = 'simplenews_issue';
-  }
-  /*if (isset($info['options_buttons'])) {
-    $info['options_buttons']['field_types'][] = 'simplenews_subscription';
-  }*/
-}
-
-/**
  * Mask a mail address.
  *
  * For example, name@example.org will be masked as n*****@e*****.org.

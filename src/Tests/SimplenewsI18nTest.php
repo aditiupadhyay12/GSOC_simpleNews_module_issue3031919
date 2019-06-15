@@ -116,7 +116,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     $newsletter_id = $this->getRandomNewsletter();
     $english = array(
       'title[0][value]' => $this->randomMachineName(),
-      'simplenews_issue' => $newsletter_id,
+      'simplenews_issue[target_id]' => $newsletter_id,
       'body[0][value]' => 'Link to node: [node:url]',
     );
     $this->drupalPostForm('node/add/simplenews_issue', $english, ('Save'));

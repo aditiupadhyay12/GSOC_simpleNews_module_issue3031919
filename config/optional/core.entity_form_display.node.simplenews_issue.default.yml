@@ -33,7 +33,7 @@ content:
     weight: 15
     third_party_settings: {  }
   simplenews_issue:
-    type: options_select
+    type: simplenews_issue
     weight: 3
     settings: {  }
     third_party_settings: {  }
