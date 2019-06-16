@@ -77,6 +77,7 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
    */
   public function settingsForm() {
     return [];
+  }
 
   /**
    * Counts the number of recipients.
