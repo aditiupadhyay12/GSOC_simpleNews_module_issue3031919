@@ -116,43 +116,43 @@ function simplenews_demo_install() {
   $subscription_manager->subscribe($demo_user_active->getEmail(), $newsletters['special_offers']->id(), FALSE);
 
   // Create an issue for scheduled sending.
-  $scheduled_issue = Node::create(array(
-    'type' => 'simplenews_issue',
-    'id' => 'simplenews_issue_scheduled',
-    'title' => 'Scheduled weekly content newsletter issue',
-    'body' => 'Scheduled weekly content newsletter issue will be sent to subscribers every week',
-    'created' => time(),
-    'uid' => 0,
-    'status' => 1,
-    'simplenews_issue' => array(
-      'target_id' => 'weekly_content_update',
-      'handler' => 'simplenews_all',
-      'handler_settings' => array()
-    ),
-  ));
-  $scheduled_issue->save();
-  // Write a record for the demo newsletter scheduler configuration.
-  $nid = $scheduled_issue->id();
-  $record = array(
-    'nid' => $nid,
-    'next_run' => strtotime('yesterday, 8:00 UTC'),
-    'activated' => 1,
-    'send_interval' => 'week',
-    'interval_frequency' => 1,
-    'start_date' => strtotime('yesterday, 8:00 UTC'),
-    'stop_type' => 0,
-    'stop_date' => 0,
-    'stop_edition' => 0,
-    'title' => '[node:title] - [node:created:custom:\W\e\e\k W,Y ]',
-  );
+  // $scheduled_issue = Node::create(array(
+  //   'type' => 'simplenews_issue',
+  //   'id' => 'simplenews_issue_scheduled',
+  //   'title' => 'Scheduled weekly content newsletter issue',
+  //   'body' => 'Scheduled weekly content newsletter issue will be sent to subscribers every week',
+  //   'created' => time(),
+  //   'uid' => 0,
+  //   'status' => 1,
+  //   'simplenews_issue' => array(
+  //     'target_id' => 'weekly_content_update',
+  //     'handler' => 'simplenews_all',
+  //     'handler_settings' => array()
+  //   ),
+  // ));
+  // $scheduled_issue->save();
+  // // Write a record for the demo newsletter scheduler configuration.
+  // $nid = $scheduled_issue->id();
+  // $record = array(
+  //   'nid' => $nid,
+  //   'next_run' => strtotime('yesterday, 8:00 UTC'),
+  //   'activated' => 1,
+  //   'send_interval' => 'week',
+  //   'interval_frequency' => 1,
+  //   'start_date' => strtotime('yesterday, 8:00 UTC'),
+  //   'stop_type' => 0,
+  //   'stop_date' => 0,
+  //   'stop_edition' => 0,
+  //   'title' => '[node:title] - [node:created:custom:\W\e\e\k W,Y ]',
+  // );
 
-  // Update scheduler record.
-  \Drupal::database()->merge('simplenews_scheduler')
-    ->key(array(
-      'nid' => $nid,
-    ))
-    ->fields($record)
-    ->execute();
+  // // Update scheduler record.
+  // \Drupal::database()->merge('simplenews_scheduler')
+  //   ->key(array(
+  //     'nid' => $nid,
+  //   ))
+  //   ->fields($record)
+  //   ->execute();
 
   // A newsletter to send.
   $node = Node::create(array(

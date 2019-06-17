@@ -6,6 +6,6 @@ dependencies:
   - drupal:block
   - drupal:views
   - simplenews:simplenews
-  - simplenews_scheduler:simplenews_scheduler
+#  - simplenews_scheduler:simplenews_scheduler
 hidden: false
 package: Mail
