@@ -14,6 +14,7 @@ use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
+use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\NewsletterInterface;
 use Drupal\simplenews\Mail\MailEntity;
@@ -369,7 +370,7 @@ class Mailer implements MailerInterface {
     foreach ($test_addresses as $mail) {
       $mail = trim($mail);
       if (!empty($mail)) {
-        $subscriber = simplenews_subscriber_load_by_mail($mail);
+        $subscriber = Subscriber::loadByMail($mail);
         if (!$subscriber) {
           // Create a stub subscriber. Use values from the user having the given
           // address, or if there is no such user, the anonymous user.
@@ -423,7 +424,7 @@ class Mailer implements MailerInterface {
     }
     else {
       foreach ($changes as $newsletter_id => $key) {
-        $params['context']['newsletter'] = simplenews_newsletter_load($newsletter_id);
+        $params['context']['newsletter'] = Newsletter::load($newsletter_id);
         $this->mailManager->mail('simplenews', $key, $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
       }
     }

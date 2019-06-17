@@ -5,6 +5,8 @@ namespace Drupal\simplenews\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\Entity\Newsletter;
 
 /**
  * Returns responses for confirmation routes.
@@ -42,7 +44,7 @@ class ConfirmationController extends ControllerBase {
       'simplenews-noindex',
     );
 
-    $subscriber = simplenews_subscriber_load($snid);
+    $subscriber = Subscriber::load($snid);
 
     // Redirect and display message if no changes are available.
     if ($subscriber && !$subscriber->getChanges()) {
@@ -147,9 +149,9 @@ class ConfirmationController extends ControllerBase {
       'simplenews-noindex',
     );
 
-    $subscriber = simplenews_subscriber_load($snid);
+    $subscriber = Subscriber::load($snid);
     if ($subscriber && $hash == simplenews_generate_hash($subscriber->getMail(), $action, $timestamp)) {
-      $newsletter = simplenews_newsletter_load($newsletter_id);
+      $newsletter = Newsletter::load($newsletter_id);
 
       // If the hash is valid but timestamp is too old, display form to request
       // a new hash.

@@ -17,7 +17,7 @@ class SubscriptionsPageForm extends SubscriptionsFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, $snid = NULL, $timestamp = NULL, $hash = NULL) {
     $user = \Drupal::currentUser();
 
-    if ($subscriber = simplenews_subscriber_load_by_uid($user->id())) {
+    if ($subscriber = Subscriber::loadByUid($user->id())) {
       $this->setEntity($subscriber);
     }
     elseif ($mail = $user->getEmail()) {
@@ -25,7 +25,7 @@ class SubscriptionsPageForm extends SubscriptionsFormBase {
     }
     // If a hash is provided, try to load the corresponding subscriber.
     elseif ($snid && $timestamp && $hash) {
-      $subscriber = simplenews_subscriber_load($snid);
+      $subscriber = Subscriber::load($snid);
       if ($subscriber && $hash == simplenews_generate_hash($subscriber->getMail(), 'manage', $timestamp)) {
         $this->setEntity($subscriber);
       }

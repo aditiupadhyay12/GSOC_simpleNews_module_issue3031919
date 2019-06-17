@@ -32,7 +32,7 @@ class NewsletterForm extends EntityForm {
       '#default_value' => $newsletter->id(),
       '#maxlength' => EntityTypeInterface::BUNDLE_MAX_LENGTH,
       '#machine_name' => array(
-        'exists' => 'simplenews_newsletter_load',
+        'exists' => ['Drupal\simplenews\Entity\Newsletter', 'load'],
         'source' => array('name'),
       ),
       '#disabled' => !$newsletter->isNew(),

@@ -6,6 +6,7 @@ use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\simplenews\Entity\Newsletter;
+use Drupal\simplenews\Entity\Subscriber;
 
 /**
  * Entity form for Subscriber with common routines.
@@ -234,7 +235,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
     // buildForm. For anonymous user the email is unknown in buildForm, but here
     // we can try again to load an existing subscriber.
     $mail = $form_state->getValue(array('mail', 0, 'value'));
-    if ($this->entity->isNew() && isset($mail) && $subscriber = simplenews_subscriber_load_by_mail($mail)) {
+    if ($this->entity->isNew() && isset($mail) && $subscriber = Subscriber::loadByMail($mail)) {
       $this->setEntity($subscriber);
     }
 

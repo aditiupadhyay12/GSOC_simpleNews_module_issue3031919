@@ -68,7 +68,7 @@ function simplenews_demo_install() {
   // Create some subscribers.
   // Subscriber subscribed to only one newsletter.
   $subscription_manager->subscribe('a@example.com', $newsletters['special_offers']->id(), FALSE);
-  $subscriber = simplenews_subscriber_load_by_mail('a@example.com');
+  $subscriber = Subscriber::loadByMail('a@example.com');
   // Add field data for subscriber.
   $subscriber->set('field_first_name', 'Subscriber A first name');
   $subscriber->set('field_last_name', 'Subscriber A last name');
@@ -79,7 +79,7 @@ function simplenews_demo_install() {
   $subscription_manager->subscribe('b@example.com', $newsletters['press_releases']->id(), FALSE);
   $subscription_manager->subscribe('b@example.com', $newsletters['weekly_content_update']->id(), FALSE);
   // Add field data to subscriber.
-  $subscriber = simplenews_subscriber_load_by_mail('a@example.com');
+  $subscriber = Subscriber::loadByMail('a@example.com');
   $subscriber->set('field_first_name', 'Subscriber B first name');
   $subscriber->save();
   // Unsubscribed subscriber.

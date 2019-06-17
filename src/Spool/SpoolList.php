@@ -72,7 +72,7 @@ class SpoolList implements SpoolListInterface {
       $subscriber = Subscriber::create(unserialize($spool_data->data));
     }
     else {
-      $subscriber = simplenews_subscriber_load($spool_data->snid);
+      $subscriber = Subscriber::load($spool_data->snid);
     }
 
     if (!$subscriber) {

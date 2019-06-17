@@ -8,6 +8,9 @@
  * @{
  */
 
+use Drupal\simplenews\Entity\Newsletter;
+use Drupal\simplenews\Entity\Subscriber;
+
 /**
  * Implements hook_rules_action_info().
  */
@@ -186,7 +189,8 @@ function simplenews_rules_rules_event_info() {
  * Action implementation, send a newsletter node.
  */
 function simplenews_rules_action_send($node) {
-  $newsletter = simplenews_newsletter_load($node->nid);
+  /** @var \Drupal\simplenews\NewsletterInterface $newsletter */
+  $newsletter = Newsletter::load($node->nid);
   if ($newsletter && ($newsletter->status != SIMPLENEWS_STATUS_SEND_PENDING || $newsletter->status != SIMPLENEWS_STATUS_SEND_PENDING)) {
     \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
   }
@@ -233,7 +237,7 @@ function simplenews_rules_action_subscription_delete($args, $settings) {
  * Action Implementation: Delete an email address from all Simplenews newsletters
  */
 function simplenews_rules_action_subscriber_delete($args, $settings) {
-  $subscriber = simplenews_subscriber_load_by_mail($args['mail']);
+  $subscriber = Subscriber::loadByMail($args['mail']);
   if ($subscriber) {
     $subscriber->delete();
   }

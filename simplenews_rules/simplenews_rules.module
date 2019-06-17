@@ -5,6 +5,8 @@
  * Module file for Simpelnews rules integration.
  */
 
+use Drupal\simplenews\Entity\Newsletter;
+
 define('SIMPLENEWS_RULES_CONFIRMATION_DEFAULT', 0);
 define('SIMPLENEWS_RULES_CONFIRMATION_YES', 1);
 define('SIMPLENEWS_RULES_CONFIRMATION_NO', 2);
@@ -27,7 +29,7 @@ function simplenews_rules_confirmation_list() {
 function simplenews_rules_simplenews_unsubscribe($subscriber, $subscription) {
   $args = array(
     'mail' => $subscriber->mail,
-    'newsletter' => simplenews_newsletter_load($subscription->newsletter_id),
+    'newsletter' => Newsletter::load($subscription->newsletter_id),
   );
   rules_invoke_event_by_args('simplenews_rules_event_unsubscribe', $args);
 }
@@ -38,7 +40,7 @@ function simplenews_rules_simplenews_unsubscribe($subscriber, $subscription) {
 function simplenews_rules_simplenews_subscribe($subscriber, $subscription) {
   $args = array(
     'mail' => $subscriber->mail,
-    'newsletter' => simplenews_newsletter_load($subscription->newsletter_id),
+    'newsletter' => Newsletter::load($subscription->newsletter_id),
   );
   rules_invoke_event_by_args('simplenews_rules_event_subscribe', $args);
 }

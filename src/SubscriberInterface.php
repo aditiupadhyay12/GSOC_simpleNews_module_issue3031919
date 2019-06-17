@@ -214,4 +214,26 @@ interface SubscriberInterface extends ContentEntityInterface {
    */
   public function getUserSharedFields(UserInterface $user);
 
+  /**
+   * Load a simplenews newsletter subscriber object by mail.
+   *
+   * @param string $mail
+   *   Subscriber e-mail address.
+   *
+   * @return \Drupal\simplenews\SubscriberInterface
+   *   Newsletter subscriber entity, FALSE if subscriber does not exist.
+   */
+  public static function loadByMail($mail);
+
+  /**
+   * Load a simplenews newsletter subscriber object by uid.
+   *
+   * @param int $uid
+   *   Subscriber user id.
+   *
+   * @return \Drupal\simplenews\SubscriberInterface
+   *   Newsletter subscriber entity, FALSE if subscriber does not exist.
+   */
+  public static function loadByUid($uid);
+
 }

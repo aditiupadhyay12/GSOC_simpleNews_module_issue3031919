@@ -4,6 +4,7 @@ namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\SubscriberInterface;
 
 /**
@@ -48,7 +49,7 @@ class SubscriberExportForm extends FormBase {
 
     $mails = array();
     foreach ($subscriber_ids as $id) {
-      $subscriber = simplenews_subscriber_load($id);
+      $subscriber = Subscriber::load($id);
       $mails[] = $subscriber->getMail();
     }
 

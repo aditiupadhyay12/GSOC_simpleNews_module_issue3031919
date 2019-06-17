@@ -4,6 +4,7 @@ namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\simplenews\Entity\Subscriber;
 use Drupal\user\UserInterface;
 
 /**
@@ -19,7 +20,7 @@ class SubscriptionsAccountForm extends SubscriptionsFormBase {
     // on the new subscriber.
     if (isset($user)) {
       $form_state->set('user', $user);
-      if ($subscriber = simplenews_subscriber_load_by_uid($user->id())) {
+      if ($subscriber = Subscriber::loadByUid($user->id())) {
         $this->setEntity($subscriber);
       }
       else {

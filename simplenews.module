@@ -23,6 +23,8 @@ use Drupal\migrate\Row;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\node\NodeTypeInterface;
+use Drupal\simplenews\Entity\Newsletter;
+use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\SubscriberInterface;
 use Drupal\user\UserInterface;
 
@@ -90,7 +92,7 @@ function simplenews_node_view(array &$build, NodeInterface $node, $display, $vie
 
   // If the current user is a subscriber, extend context.
   $user = \Drupal::currentUser();
-  if ($user->id() > 0 && $subscriber = simplenews_subscriber_load_by_mail($user->getEmail())) {
+  if ($user->id() > 0 && $subscriber = Subscriber::loadByMail($user->getEmail())) {
     $context['simplenews_subscriber'] = $subscriber;
   }
 
@@ -395,8 +397,7 @@ function simplenews_user_profile_form_submit($form, FormStateInterface $form_sta
   if (is_array($form_state->getValue('subscriptions'))) {
     $ids = array_filter($form_state->getValue('subscriptions'));
     if ($ids) {
-      $newsletters = simplenews_newsletter_load_multiple($ids);
-      foreach ($newsletters as $newsletter) {
+      foreach (Newsletter::loadMultiple($ids) as $newsletter) {
         $subscription_manager->subscribe($account->getEmail(), $newsletter->id(), FALSE, 'website', $account->getPreferredLangcode());
         \Drupal::messenger()->addMessage(t('You have been subscribed to %newsletter.', array('%newsletter' => $newsletter->name)));
       }
@@ -418,7 +419,7 @@ function simplenews_user_create(UserInterface $account) {
   // Copy values for shared fields from existing subscriber.
   $mail = $account->getEmail();
   $sync = \Drupal::config('simplenews.settings')->get('subscriber.sync_fields');
-  if ($sync && $mail && $subscriber = simplenews_subscriber_load_by_mail($mail)) {
+  if ($sync && $mail && $subscriber = Subscriber::loadByMail($mail)) {
     foreach ($subscriber->getUserSharedFields($account) as $field_name) {
       $account->set($field_name, $subscriber->get($field_name)->getValue());
     }
@@ -438,7 +439,7 @@ function simplenews_user_insert(UserInterface $account) {
   }
 
   // Use the email address to check if new account is already subscribed.
-  $subscriber = simplenews_subscriber_load_by_mail($account->getEmail());
+  $subscriber = Subscriber::loadByMail($account->getEmail());
   // If the user is subscribed, we update the subscriber with uid and language.
   if ($subscriber) {
     $subscriber->setUserId($account->id());
@@ -463,7 +464,7 @@ function simplenews_user_login(UserInterface $account) {
   // Subscriptions of users that did sign up by themselves have to be
   // activated first at their first login (-> account::access = 0)
   if ($account->getLastAccessedTime() == 0) {
-    $subscriber = simplenews_subscriber_load_by_uid($account->id());
+    $subscriber = Subscriber::loadByUid($account->id());
     if ($subscriber) {
       $subscriber->setStatus(SubscriberInterface::ACTIVE);
       $subscriber->save();
@@ -490,8 +491,8 @@ function simplenews_user_presave(UserInterface $account) {
 
   /** @var \Drupal\simplenews\Entity\Subscriber $subscriber */
   $subscriber = $account->isNew() ?
-    simplenews_subscriber_load_by_mail($account->getEmail()) :
-    simplenews_subscriber_load_by_uid($account->id());
+    Subscriber::loadByMail($account->getEmail()) :
+    Subscriber::loadByUid($account->id());
   if ($subscriber && !$subscriber->isSyncing()) {
     $subscriber->setSyncing();
     // We only process existing accounts.
@@ -519,7 +520,7 @@ function simplenews_user_presave(UserInterface $account) {
  */
 function simplenews_user_delete(UserInterface $account) {
   // Delete subscription when account is removed.
-  $subscriber = simplenews_subscriber_load_by_uid($account->id());
+  $subscriber = Subscriber::loadByUid($account->id());
   if ($subscriber) {
     $subscriber->delete();
   }
@@ -540,12 +541,11 @@ function simplenews_user_view(array &$build, UserInterface $account, EntityViewD
       );
       // Collect newsletter to which the current user is subscribed.
       // 'hidden' newsletters are not listed.
-      $newsletters = simplenews_newsletter_get_visible();
-      $subscriber = simplenews_subscriber_load_by_mail($account->getEmail());
+      $subscriber = Subscriber::loadByMail($account->getEmail());
 
       $links = [];
       if ($subscriber) {
-        foreach ($newsletters as $newsletter) {
+        foreach (simplenews_newsletter_get_visible() as $newsletter) {
           if ($subscriber->isSubscribed($newsletter->id())) {
             // @todo Make links
             $links[] = $newsletter->label();
@@ -579,84 +579,6 @@ function simplenews_user_view(array &$build, UserInterface $account, EntityViewD
       }
     }
   }
-}
-
-/**
- * Load a simplenews newsletter subscriber object.
- *
- * @param $snid
- *   Simplenews subscriber ID.
- *
- * @return Subscriber
- *   Newsletter subscriber entity, FALSE if subscriber does not exist.
- *
- * @ingroup subscriber
- */
-function simplenews_subscriber_load($snid) {
-  $subscribers = simplenews_subscriber_load_multiple(array($snid));
-  return $subscribers ? reset($subscribers) : FALSE;
-}
-
-/**
- * Load a simplenews newsletter subscriber object.
- *
- * @param $mail
- *   Subscriber e-mail address.
- *
- * @return \Drupal\simplenews\SubscriberInterface
- *   Newsletter subscriber object, FALSE if subscriber does not exist.
- *
- * @ingroup subscriber
- */
-function simplenews_subscriber_load_by_mail($mail) {
-  $subscribers = entity_load_multiple_by_properties('simplenews_subscriber', array('mail' => $mail));
-  return $subscribers ? reset($subscribers) : FALSE;
-}
-
-/**
- * Load a simplenews newsletter subscriber object.
- *
- * @param $uid
- *   Subscriber user id.
- *
- * @return Subscriber
- *   Newsletter subscriber entity, NULL if subscriber does not exist.
- *
- * @ingroup subscriber
- */
-function simplenews_subscriber_load_by_uid($uid) {
-  if (!$uid) {
-    return NULL;
-  }
-  $subscribers = entity_load_multiple_by_properties('simplenews_subscriber', array('uid' => $uid));
-  return $subscribers ? reset($subscribers) : NULL;
-}
-
-/**
- * Loads simplenews subscriber objects.
- *
- * @param $snids
- *   (Optional) Array of subscriber ID's.
- *
- * @return
- *   Array of subscriber objects that match the given ID's/conditions.
- *
- * @ingroup subscriber
- */
-function simplenews_subscriber_load_multiple($snids = array()) {
-  return entity_load_multiple('simplenews_subscriber', $snids);
-}
-
-/**
- * Delete subscribers and corresponding subscriptions from the database.
- *
- * @param $snids
- *   Simplenews subscriber ids
- *
- * @ingroup subscriber
- */
-function simplenews_subscriber_delete_multiple(array $snids) {
-  entity_delete_multiple('simplenews_subscriber', $snids);
 }
 
 /**
@@ -705,22 +627,6 @@ function simplenews_mail($key, &$message, $params) {
 }
 
 /**
- * Get a simplenews newsletter entity object.
- *
- * @param $newsletter_id
- *   Simplenews newsletter ID.
- *
- * @return \Drupal\simplenews\NewsletterInterface
- *   Newsletter entity object, NULL if newsletter does not exist.
- *
- * @ingroup newsletter
- */
-function simplenews_newsletter_load($newsletter_id, $reset = FALSE) {
-  $newsletter = simplenews_newsletter_load_multiple(array($newsletter_id), $reset);
-  return $newsletter ? reset($newsletter) : NULL;
-}
-
-/**
  * Get list of simplenews categories with translated names.
  *
  * @todo Maybe refactor this method to simplenews_newsletter_name_list.
@@ -758,7 +664,7 @@ function simplenews_newsletter_get_visible($conditions = array()) {
     $query->condition($key, $value);
   }
   $result = $query->execute();
-  return !empty($result) ? simplenews_newsletter_load_multiple($result) : [];
+  return !empty($result) ? $newsletters = Newsletter::loadMultiple($result) : [];
 }
 
 /**
@@ -769,23 +675,10 @@ function simplenews_newsletter_get_visible($conditions = array()) {
  * @ingroup newsletter
  */
 function simplenews_newsletter_get_all() {
-  $newsletters = simplenews_newsletter_load_multiple();
+  $newsletters = Newsletter::loadMultiple();
   $entity_type = \Drupal::entityTypeManager()->getDefinition('simplenews_newsletter');
   uasort($newsletters, array($entity_type->getClass(), 'sort'));
   return $newsletters;
-}
-
-/**
- * Load one or many newsletter entities from database.
- *
- * @param array $ids List of ids to be loaded or empty array for all.
- * @param boolean $reset
- * @return type
- *
- * @ingroup newsletter
- */
-function simplenews_newsletter_load_multiple($ids = NULL, $reset = FALSE) {
-  return entity_load_multiple('simplenews_newsletter', $ids, $reset);
 }
 
 /**

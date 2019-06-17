@@ -8,6 +8,7 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Psr\Log\LoggerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Utility\Token;
+use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\Mail\MailerInterface;
 use Drupal\simplenews\NewsletterInterface;
@@ -95,7 +96,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
    */
   public function subscribe($mail, $newsletter_id, $confirm = NULL, $source = 'unknown', $preferred_langcode = NULL) {
     // Get current subscriptions if any.
-    $subscriber = simplenews_subscriber_load_by_mail($mail);
+    $subscriber = Subscriber::loadByMail($mail);
 
     // If user is not subscribed to ANY newsletter, create a subscription account
     if (!$subscriber) {
@@ -135,7 +136,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
       $subscriber->save();
     }
 
-    $newsletter = simplenews_newsletter_load($newsletter_id);
+    $newsletter = Newsletter::load($newsletter_id);
 
     // If confirmation is not explicitly specified, use the newsletter
     // configuration.
@@ -164,12 +165,12 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
    * {@inheritdoc}
    */
   public function unsubscribe($mail, $newsletter_id, $confirm = NULL, $source = 'unknown') {
-    $subscriber = simplenews_subscriber_load_by_mail($mail);
+    $subscriber = Subscriber::loadByMail($mail);
     if (!$subscriber) {
       throw new \Exception('The subscriber does not exist.');
     }
     // The unlikely case that a user is unsubscribed from a non existing mailing list is logged
-    if (!$newsletter = simplenews_newsletter_load($newsletter_id)) {
+    if (!$newsletter = Newsletter::load($newsletter_id)) {
       $this->logger->error('Attempt to unsubscribe from non existing mailing list ID %id', array('%id' => $newsletter_id));
       return $this;
     }
@@ -203,7 +204,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
    */
   public function isSubscribed($mail, $newsletter_id) {
     if (!isset($this->subscribedCache[$mail][$newsletter_id])) {
-      $subscriber = simplenews_subscriber_load_by_mail($mail);
+      $subscriber = Subscriber::loadByMail($mail);
       // Check that a subscriber was found, he is active and subscribed to the
       // requested newsletter_id.
       $this->subscribedCache[$mail][$newsletter_id] = $subscriber && $subscriber->getStatus() && $subscriber->isSubscribed($newsletter_id);
@@ -242,7 +243,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
       }
       $newsletter_context = array(
         'simplenews_subscriber' => $subscriber,
-        'newsletter' => simplenews_newsletter_load($newsletter_id),
+        'newsletter' => Newsletter::load($newsletter_id),
       );
       $changes_list[$newsletter_id] = $this->token->replace($line, $newsletter_context, array('sanitize' => FALSE));
     }
@@ -254,7 +255,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
    */
   public function sendConfirmations() {
     foreach ($this->confirmations as $mail => $changes) {
-      $subscriber = simplenews_subscriber_load_by_mail($mail);
+      $subscriber = Subscriber::loadByMail($mail);
       if (!$subscriber) {
         $subscriber = Subscriber::create(array());
         $subscriber->setMail($mail);

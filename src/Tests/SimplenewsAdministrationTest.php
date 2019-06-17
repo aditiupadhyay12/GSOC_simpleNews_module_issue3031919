@@ -193,7 +193,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Check saving the subscriber as admin does not wipe the hidden newsletter settings.
     $this->drupalLogin($admin_user);
-    $subscriber = simplenews_subscriber_load_by_mail($user->getEmail());
+    $subscriber = Subscriber::loadByMail($user->getEmail());
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
     $this->assertNoField($this->getNewsletterFieldId('on_hidden'));
     $this->assertNoField('mail');
@@ -244,7 +244,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalPostForm(NULL, $edit, t('Save'));
 
     \Drupal::entityManager()->getStorage('simplenews_newsletter')->resetCache();
-    $updated_newsletter = simplenews_newsletter_load($edit_newsletter->newsletter_id);
+    $updated_newsletter = Newsletter::load($edit_newsletter->newsletter_id);
     $this->assertEqual(0, $updated_newsletter->block, t('Block for newsletter disabled'));
 
     $this->drupalGet('admin/structure/block');
@@ -257,7 +257,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Verify that the newsletter has been deleted.
     \Drupal::entityManager()->getStorage('simplenews_newsletter')->resetCache();
-    $this->assertFalse(simplenews_newsletter_load($edit_newsletter->newsletter_id));
+    $this->assertFalse(Newsletter::load($edit_newsletter->newsletter_id));
     $this->assertFalse(db_query('SELECT newsletter_id FROM {simplenews_newsletter} WHERE newsletter_id = :newsletter_id', array(':newsletter_id' => $edit_newsletter->newsletter_id))->fetchField());*/
     // Check if the help text is displayed.
     $this->drupalGet('admin/help/simplenews');
@@ -546,7 +546,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertFalse($subscription_manager->isSubscribed($tested_subscribers[0], $first), t('Subscriber not resubscribed through mass subscription.'));
     $this->assertFalse($subscription_manager->isSubscribed($tested_subscribers[1], $first), t('Subscriber not resubscribed through mass subscription.'));
     $this->assertTrue($subscription_manager->isSubscribed($tested_subscribers[2], $first), t('Subscriber subscribed through mass subscription.'));
-    $substitutes = array('@name' => simplenews_newsletter_load($first)->label(), '@mail' => $unsubscribed);
+    $substitutes = array('@name' => Newsletter::load($first)->label(), '@mail' => $unsubscribed);
     $this->assertText(t('The following addresses were skipped because they have previously unsubscribed from @name: @mail.', $substitutes));
     $this->assertText(t("If you would like to resubscribe them, use the 'Force resubscription' option."));
 
@@ -669,7 +669,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertNoRaw($xss_mail);
     $this->assertRaw(Html::escape($xss_mail));
 
-    $xss_subscriber = simplenews_subscriber_load_by_mail($xss_mail);
+    $xss_subscriber = Subscriber::loadByMail($xss_mail);
     $this->drupalGet('admin/people/simplenews/edit/' . $xss_subscriber->id());
     $this->assertNoRaw($xss_mail);
     $this->assertRaw(Html::escape($xss_mail));
@@ -717,7 +717,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertText(t('The addresses were subscribed to the following newsletters: @newsletter.', ['@newsletter' => $newsletter_name]));
 
     // Check exact subscription statuses.
-    $subscriber = simplenews_subscriber_load_by_mail('drupaltest@example.com');
+    $subscriber = Subscriber::loadByMail('drupaltest@example.com');
     $this->assertEqual($subscriber->getSubscription($newsletter_name)->get('status')->getValue(), SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
     // The second newsletter was not subscribed, so there should be no
     // subscription record at all.

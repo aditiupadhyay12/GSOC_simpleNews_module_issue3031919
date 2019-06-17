@@ -6,6 +6,8 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\simplenews\Entity\Newsletter;
+use Drupal\simplenews\Entity\Subscriber;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -131,12 +133,12 @@ class SubscriberMassSubscribeForm extends FormBase {
         continue;
       }
       if (valid_email_address($email)) {
-        $subscriber = simplenews_subscriber_load_by_mail($email);
+        $subscriber = Subscriber::loadByMail($email);
 
         /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
         $subscription_manager = \Drupal::service('simplenews.subscription_manager');
 
-        foreach (simplenews_newsletter_load_multiple($checked_newsletters) as $newsletter) {
+        foreach (Newsletter::loadMultiple($checked_newsletters) as $newsletter) {
           // If there is a valid subscriber, check if there is a subscription for
           // the current newsletter and if this subscription has the status
           // unsubscribed.
@@ -159,7 +161,7 @@ class SubscriberMassSubscribeForm extends FormBase {
       $this->messenger()->addMessage(t('The following addresses were added or updated: %added.', array('%added' => $added)));
 
       $list_names = array();
-      foreach (simplenews_newsletter_load_multiple($checked_newsletters) as $newsletter) {
+      foreach (Newsletter::loadMultiple($checked_newsletters) as $newsletter) {
         $list_names[] = $newsletter->label();
       }
       $this->messenger()->addMessage(t('The addresses were subscribed to the following newsletters: %newsletters.', array('%newsletters' => implode(', ', $list_names))));

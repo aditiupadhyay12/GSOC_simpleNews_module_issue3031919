@@ -96,8 +96,7 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
    * {@inheritdoc}
    */
   public function blockForm($form, FormStateInterface $form_state) {
-    $newsletters = simplenews_newsletter_get_visible();
-    foreach ($newsletters as $newsletter) {
+    foreach (simplenews_newsletter_get_visible() as $newsletter) {
       $options[$newsletter->id()] = $newsletter->name;
     }
 
@@ -167,7 +166,7 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
 
     // Set the entity on the form.
     if ($user = \Drupal::currentUser()) {
-      if ($subscriber = simplenews_subscriber_load_by_uid($user->id())) {
+      if ($subscriber = Subscriber::loadByUid($user->id())) {
         $form_object->setEntity($subscriber);
       }
       else {

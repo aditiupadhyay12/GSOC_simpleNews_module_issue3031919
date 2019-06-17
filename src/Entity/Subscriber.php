@@ -384,4 +384,23 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
     return $fields;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function loadByMail($mail) {
+    $subscribers = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->loadByProperties(['mail' => $mail]);
+    return reset($subscribers);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function loadByUid($uid) {
+    if (!$uid) {
+      return FALSE;
+    }
+    $subscribers = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->loadByProperties(['uid' => $uid]);
+    return reset($subscribers);
+  }
+
 }

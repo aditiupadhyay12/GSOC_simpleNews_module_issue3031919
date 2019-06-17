@@ -12,6 +12,7 @@ namespace Drupal\simplenews\Tests;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Html;
 use Drupal\node\Entity\Node;
+use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\Mail\MailTest;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -408,7 +409,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
 
     // Delete the subscriber.
-    $subscriber = simplenews_subscriber_load_by_mail(reset($this->subscribers));
+    $subscriber = Subscriber::loadByMail(reset($this->subscribers));
     $subscriber->delete();
 
     \Drupal::service('simplenews.mailer')->sendSpool();
