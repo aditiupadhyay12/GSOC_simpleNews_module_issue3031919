@@ -188,18 +188,6 @@ interface SubscriberInterface extends ContentEntityInterface {
   public function unsubscribe($newsletter_id, $source = 'unknown', $timestamp = REQUEST_TIME);
 
   /**
-   * Identifies configurable fields shared with a user.
-   *
-   * @param \Drupal\user\UserInterface $user
-   *   The user to match fields against.
-   *
-   * @return string[]
-   *   An indexed array of the names of each field for which there is also a
-   *   field on the given user with the same name and type.
-   */
-  public function getUserSharedFields(UserInterface $user);
-
-  /**
    * Load a simplenews newsletter subscriber object by mail.
    *
    * @param string $mail

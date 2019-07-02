@@ -304,9 +304,16 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Identifies configurable fields shared with a user.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user to match fields against.
+   *
+   * @return string[]
+   *   An indexed array of the names of each field for which there is also a
+   *   field on the given user with the same name and type.
    */
-  public function getUserSharedFields(UserInterface $user) {
+  protected function getUserSharedFields(UserInterface $user) {
     $field_names = array();
 
     if (\Drupal::config('simplenews.settings')->get('subscriber.sync_fields')) {
