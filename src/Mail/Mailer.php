@@ -370,22 +370,9 @@ class Mailer implements MailerInterface {
     foreach ($test_addresses as $mail) {
       $mail = trim($mail);
       if (!empty($mail)) {
-        $subscriber = Subscriber::loadByMail($mail);
-        if (!$subscriber) {
-          // Create a stub subscriber. Use values from the user having the given
-          // address, or if there is no such user, the anonymous user.
-          if ($user = user_load_by_mail($mail)) {
-            $subscriber = Subscriber::create()->fillFromAccount($user);
-          }
-          else {
-            $subscriber = Subscriber::create(['mail' => $mail]);
-          }
-          // Keep the current language.
-          $subscriber->setLangcode($this->languageManager->getCurrentLanguage());
-        }
+        $subscriber = Subscriber::loadByMail($mail, 'create', $this->languageManager->getCurrentLanguage());
 
-        if ($subscriber->getUserId()) {
-          $account = $subscriber->uid->entity;
+        if ($account = $subscriber->getUser()) {
           $recipients['user'][] = $account->getUserName() . ' <' . $mail . '>';
         }
         else {

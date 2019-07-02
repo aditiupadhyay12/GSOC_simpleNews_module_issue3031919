@@ -237,8 +237,7 @@ function simplenews_rules_action_subscription_delete($args, $settings) {
  * Action Implementation: Delete an email address from all Simplenews newsletters
  */
 function simplenews_rules_action_subscriber_delete($args, $settings) {
-  $subscriber = Subscriber::loadByMail($args['mail']);
-  if ($subscriber) {
+  if ($subscriber = Subscriber::loadByMail($args['mail'])) {
     $subscriber->delete();
   }
 }

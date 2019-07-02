@@ -71,14 +71,6 @@ interface SubscriberInterface extends ContentEntityInterface {
   public function getUser();
 
   /**
-   * Sets the corresponding user ID.
-   *
-   * @param string $uid
-   *   The corresponding user ID.
-   */
-  public function setUserId($uid);
-
-  /**
    * Returns the lang code.
    *
    * @return string
@@ -98,12 +90,21 @@ interface SubscriberInterface extends ContentEntityInterface {
    * Fill values from a user account.
    *
    * @param \Drupal\Core\Session\AccountInterface $account
+   *   The account to fill from.
    *
    * @return $this
    */
   public function fillFromAccount(AccountInterface $account);
 
-    /**
+  /**
+   * Copy values to a user account.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   The account to copy to.
+   */
+  public function copyToAccount(AccountInterface $account);
+
+  /**
    * Returns the changes.
    *
    * @return array
@@ -187,22 +188,6 @@ interface SubscriberInterface extends ContentEntityInterface {
   public function unsubscribe($newsletter_id, $source = 'unknown', $timestamp = REQUEST_TIME);
 
   /**
-   * Returns whether currently syncing field values to corresponding User.
-   *
-   * @return bool
-   *   TRUE if invoked during syncing, otherwise FALSE.
-   */
-  public function isSyncing();
-
-  /**
-   * Sets whether the subscriber is syncing from/to the corresponding user.
-   *
-   * @param bool $sync
-   *   (optional) Whether the subscriber is syncing. Defaults to TRUE.
-   */
-  public function setSyncing($sync = TRUE);
-
-  /**
    * Identifies configurable fields shared with a user.
    *
    * @param \Drupal\user\UserInterface $user
@@ -219,21 +204,29 @@ interface SubscriberInterface extends ContentEntityInterface {
    *
    * @param string $mail
    *   Subscriber e-mail address.
+   * @param bool $create
+   *   (optional) Whether to create a new subscriber if none exists. Defaults
+   *   to TRUE.
+   * @param string $default_langcode
+   *   (optional) Langcode to set if a new subscriber is created.
    *
    * @return \Drupal\simplenews\SubscriberInterface
    *   Newsletter subscriber entity, FALSE if subscriber does not exist.
    */
-  public static function loadByMail($mail);
+  public static function loadByMail($mail, $create = FALSE, $default_langcode = NULL);
 
   /**
    * Load a simplenews newsletter subscriber object by uid.
    *
    * @param int $uid
    *   Subscriber user id.
+   * @param bool $create
+   *   (optional) Whether to create a new subscriber if none exists. Defaults
+   *   to TRUE.
    *
    * @return \Drupal\simplenews\SubscriberInterface
    *   Newsletter subscriber entity, FALSE if subscriber does not exist.
    */
-  public static function loadByUid($uid);
+  public static function loadByUid($uid, $create = FALSE);
 
 }

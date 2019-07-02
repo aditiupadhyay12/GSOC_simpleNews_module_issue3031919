@@ -17,11 +17,8 @@ class SubscriptionsPageForm extends SubscriptionsFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, $snid = NULL, $timestamp = NULL, $hash = NULL) {
     $user = \Drupal::currentUser();
 
-    if ($subscriber = Subscriber::loadByUid($user->id())) {
-      $this->setEntity($subscriber);
-    }
-    elseif ($mail = $user->getEmail()) {
-      $this->setEntity(Subscriber::create(array('mail' => $mail)));
+    if (!$user->isAnonymous()) {
+      $this->setEntity(Subscriber::loadByUid($user->id(), 'create'));
     }
     // If a hash is provided, try to load the corresponding subscriber.
     elseif ($snid && $timestamp && $hash) {

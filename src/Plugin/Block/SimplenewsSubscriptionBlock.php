@@ -165,17 +165,8 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
     $form_object->message = $this->configuration['message'];
 
     // Set the entity on the form.
-    if ($user = \Drupal::currentUser()) {
-      if ($subscriber = Subscriber::loadByUid($user->id())) {
-        $form_object->setEntity($subscriber);
-      }
-      else {
-        $form_object->setEntity(Subscriber::create()->fillFromAccount($user));
-      }
-    }
-    else {
-      $form_object->setEntity(Subscriber::create());
-    }
+    $user = \Drupal::currentUser();
+    $form_object->setEntity(Subscriber::loadByUid($user->id(), 'create'));
 
     return $this->formBuilder->getForm($form_object);
   }

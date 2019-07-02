@@ -95,47 +95,9 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
    * {@inheritdoc}
    */
   public function subscribe($mail, $newsletter_id, $confirm = NULL, $source = 'unknown', $preferred_langcode = NULL) {
-    // Get current subscriptions if any.
-    $subscriber = Subscriber::loadByMail($mail);
-
-    // If user is not subscribed to ANY newsletter, create a subscription account
-    if (!$subscriber) {
-      // To subscribe a user:
-      //   - Fetch the users uid.
-      //   - Determine the user preferred language.
-      //   - Add the user to the database.
-      //   - Get the full subscription object based on the mail address.
-      // Note that step 3 gets subscription data based on mail address because the uid can be 0 (for anonymous users)
-      $account = user_load_by_mail($mail);
-
-      // If the site is multilingual:
-      //  - Anonymous users are subscribed with their preferred language
-      //    equal to the language of the current page.
-      //  - Registered users will be subscribed with their default language as
-      //    set in their account settings.
-      // By default the preferred language is not set.
-      if ($this->languageManager->isMultilingual()) {
-        if ($account) {
-          $preferred_langcode = $account->getPreferredLangcode();
-        }
-        else {
-          $preferred_langcode = isset($preferred_langcode) ? $preferred_langcode : $this->languageManager->getCurrentLanguage();
-        }
-      }
-      else {
-        $preferred_langcode = '';
-      }
-
-      $subscriber = Subscriber::create(array());
-      $subscriber->setMail($mail);
-      if ($account) {
-        $subscriber->setUserId($account->id());
-      }
-      $subscriber->setLangcode($preferred_langcode);
-      $subscriber->setStatus(SubscriberInterface::ACTIVE);
-      $subscriber->save();
-    }
-
+    // Get/create subscriber entity.
+    $preferred_langcode = $preferred_langcode ?? $this->languageManager->getCurrentLanguage();
+    $subscriber = Subscriber::loadByMail($mail, 'create', $preferred_langcode);
     $newsletter = Newsletter::load($newsletter_id);
 
     // If confirmation is not explicitly specified, use the newsletter
@@ -182,19 +144,12 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
     }
 
     if ($confirm) {
-      // Make sure the mail address is set.
-      if (empty($subscriber)) {
-        $subscriber = Subscriber::create(array());
-        $subscriber->setMail($mail);
-        $subscriber->save();
-      }
       $this->addConfirmation('unsubscribe', $subscriber, $newsletter);
     }
-    elseif ($subscriber && $subscriber->isSubscribed($newsletter_id)) {
+    elseif ($subscriber->isSubscribed($newsletter_id)) {
       // Unsubscribe the user from the mailing list.
       $subscriber->unsubscribe($newsletter_id, $source);
       $subscriber->save();
-
     }
     return $this;
   }
@@ -255,19 +210,13 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
    */
   public function sendConfirmations() {
     foreach ($this->confirmations as $mail => $changes) {
-      $subscriber = Subscriber::loadByMail($mail);
-      if (!$subscriber) {
-        $subscriber = Subscriber::create(array());
-        $subscriber->setMail($mail);
-        $subscriber->setLangcode($this->languageManager->getCurrentLanguage());
-        $subscriber->save();
-      }
+      $subscriber = Subscriber::loadByMail($mail, 'create', $this->languageManager->getCurrentLanguage());
       $subscriber->setChanges($changes);
 
       $this->mailer->sendCombinedConfirmation($subscriber);
 
       // Save the changes in the subscriber if there is a real subscriber object.
-      if ($subscriber && $subscriber->id()) {
+      if ($subscriber->id()) {
         $subscriber->save();
       }
     }

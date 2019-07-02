@@ -100,35 +100,23 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
    * {@inheritdoc}
    */
   public function getUserId() {
-    $value = $this->get('uid')->getValue();
-    if (isset($value[0]['target_id'])) {
-      return $value[0]['target_id'];
-    }
-    return '0';
+    return $this->get('uid')->target_id;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getUser() {
-    $mail = $this->getMail();
-
-    if (empty($mail)) {
-      return NULL;
-    }
-    if ($user = User::load($this->getUserId())) {
+    $uid = $this->getUserId();
+    if ($uid && ($user = User::load($uid))) {
       return $user;
     }
-    else {
-      return user_load_by_mail($this->getMail()) ?: NULL;
+    elseif ($mail = $this->getMail()) {
+      return user_load_by_mail($mail) ?: NULL;
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setUserId($uid) {
-    $this->set('uid', $uid);
+    else {
+      return NULL;
+    }
   }
 
   /**
@@ -149,10 +137,40 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
    * {@inheritdoc}
    */
   public function fillFromAccount(AccountInterface $account) {
-    $this->setUserId($account->id());
+    if (static::$syncing) {
+      return $this;
+    }
+
+    static::$syncing = TRUE;
+    $this->set('uid', $account->id());
     $this->setMail($account->getEmail());
     $this->setLangcode($account->getPreferredLangcode());
+    $this->setStatus($account->isActive());
+
+    // Copy values for shared fields to existing subscriber.
+    foreach ($this->getUserSharedFields($account) as $field_name) {
+      $this->set($field_name, $account->get($field_name)->getValue());
+    }
+
+    static::$syncing = FALSE;
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function copyToAccount(AccountInterface $account) {
+    // Copy values for shared fields to existing user.
+    if (!static::$syncing && ($fields = $this->getUserSharedFields($account))) {
+      static::$syncing = TRUE;
+      foreach ($fields as $field_name) {
+        $account->set($field_name, $this->get($field_name)->getValue());
+      }
+      if (!$account->isNew()) {
+        $account->save();
+      }
+      static::$syncing = FALSE;
+    }
   }
 
   /**
@@ -167,20 +185,6 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
    */
   public function setChanges($changes) {
     $this->set('changes', serialize($changes));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isSyncing() {
-    return static::$syncing;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setSyncing($sync = TRUE) {
-    static::$syncing = $sync;
   }
 
   /**
@@ -282,13 +286,8 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
     parent::postSave($storage, $update);
 
     // Copy values for shared fields to existing user.
-    if (!static::$syncing === TRUE && \Drupal::config('simplenews.settings')->get('subscriber.sync_fields') && $user = $this->getUser()) {
-      static::$syncing = TRUE;
-      foreach ($this->getUserSharedFields($user) as $field_name) {
-        $user->set($field_name, $this->get($field_name)->getValue());
-      }
-      $user->save();
-      static::$syncing = FALSE;
+    if ($user = $this->getUser()) {
+      $this->copyToAccount($user);
     }
   }
 
@@ -298,19 +297,9 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   public function postCreate(EntityStorageInterface $storage) {
     parent::postCreate($storage);
 
-    // Set the uid field if there is a user with the same email.
-    $user_ids = \Drupal::entityQuery('user')
-      ->condition('mail', $this->getMail())
-      ->execute();
-    if (!empty($user_ids)) {
-      $this->setUserId(array_pop($user_ids));
-    }
-
-    // Copy values for shared fields from existing user.
-    if (\Drupal::config('simplenews.settings')->get('subscriber.sync_fields') && $user = $this->getUser()) {
-      foreach ($this->getUserSharedFields($user) as $field_name) {
-        $this->set($field_name, $user->get($field_name)->getValue());
-      }
+    // Fill from a User account with matching uid or email.
+    if ($user = $this->getUser()) {
+      $this->fillFromAccount($user);
     }
   }
 
@@ -319,15 +308,19 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
    */
   public function getUserSharedFields(UserInterface $user) {
     $field_names = array();
-    // Find any fields sharing name and type.
-    foreach ($this->getFieldDefinitions() as $field_definition) {
-      /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
-      $field_name = $field_definition->getName();
-      $user_field = $user->getFieldDefinition($field_name);
-      if ($field_definition->getTargetBundle() && isset($user_field) && $user_field->getType() == $field_definition->getType()) {
-        $field_names[] = $field_name;
+
+    if (\Drupal::config('simplenews.settings')->get('subscriber.sync_fields')) {
+      // Find any fields sharing name and type.
+      foreach ($this->getFieldDefinitions() as $field_definition) {
+        /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
+        $field_name = $field_definition->getName();
+        $user_field = $user->getFieldDefinition($field_name);
+        if ($field_definition->getTargetBundle() && isset($user_field) && $user_field->getType() == $field_definition->getType()) {
+          $field_names[] = $field_name;
+        }
       }
     }
+
     return $field_names;
   }
 
@@ -387,20 +380,36 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public static function loadByMail($mail) {
-    $subscribers = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->loadByProperties(['mail' => $mail]);
-    return reset($subscribers);
+  public static function loadByMail($mail, $create = FALSE, $default_langcode = NULL) {
+    $subscriber = FALSE;
+    if ($mail) {
+      $subscribers = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->loadByProperties(['mail' => $mail]);
+      $subscriber = reset($subscribers);
+    }
+
+    if ($create && !$subscriber) {
+      $subscriber = static::create(['mail' => $mail]);
+      if ($default_langcode) {
+        $subscriber->setLangcode($default_langcode);
+      }
+    }
+    return $subscriber;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function loadByUid($uid) {
-    if (!$uid) {
-      return FALSE;
+  public static function loadByUid($uid, $create = FALSE) {
+    $subscriber = FALSE;
+    if ($uid) {
+      $subscribers = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->loadByProperties(['uid' => $uid]);
+      $subscriber = reset($subscribers);
     }
-    $subscribers = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->loadByProperties(['uid' => $uid]);
-    return reset($subscribers);
+
+    if ($create && !$subscriber) {
+      $subscriber = static::create(['uid' => $uid]);
+    }
+    return $subscriber;
   }
 
 }

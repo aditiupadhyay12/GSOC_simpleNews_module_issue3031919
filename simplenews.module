@@ -92,7 +92,7 @@ function simplenews_node_view(array &$build, NodeInterface $node, $display, $vie
 
   // If the current user is a subscriber, extend context.
   $user = \Drupal::currentUser();
-  if ($user->id() > 0 && $subscriber = Subscriber::loadByMail($user->getEmail())) {
+  if ($subscriber = Subscriber::loadByUid($user->id())) {
     $context['simplenews_subscriber'] = $subscriber;
   }
 
@@ -417,33 +417,20 @@ function simplenews_user_profile_form_submit($form, FormStateInterface $form_sta
  */
 function simplenews_user_create(UserInterface $account) {
   // Copy values for shared fields from existing subscriber.
-  $mail = $account->getEmail();
-  $sync = \Drupal::config('simplenews.settings')->get('subscriber.sync_fields');
-  if ($sync && $mail && $subscriber = Subscriber::loadByMail($mail)) {
-    foreach ($subscriber->getUserSharedFields($account) as $field_name) {
-      $account->set($field_name, $subscriber->get($field_name)->getValue());
-    }
+  if ($subscriber = Subscriber::loadByMail($account->getEmail())) {
+    $subscriber->copyToAccount($account);
   }
 }
 
 /**
  * Implements hook_user_insert().
  *
- * Update uid and preferred language when the new account was already subscribed.
+ * If there is a matching subscription, link it to this account.
  */
 function simplenews_user_insert(UserInterface $account) {
+  if ($subscriber = Subscriber::loadByMail($account->getEmail())) {
+    $subscriber->fillFromAccount($account);
 
-  // Don't do anything if the user has no email.
-  if (!$account->getEmail()) {
-    return;
-  }
-
-  // Use the email address to check if new account is already subscribed.
-  $subscriber = Subscriber::loadByMail($account->getEmail());
-  // If the user is subscribed, we update the subscriber with uid and language.
-  if ($subscriber) {
-    $subscriber->setUserId($account->id());
-    $subscriber->setLangcode($account->getPreferredLangcode());
     // set inactive if not created by an administrator.
     if (!\Drupal::currentUser()->hasPermission('administer users')) {
       // this user will be activated on first login (see simplenews_user_login)
@@ -475,43 +462,17 @@ function simplenews_user_login(UserInterface $account) {
 /**
  * Implements hook_user_presave().
  *
- * User data (mail, status, language) and all configurable fields are
- * synchronized with subscriber.
+ * If the user is subscribed, update the subscriber from the account.
  *
- * This function handles existing user account, simplenews_user_insert takes
- * care of new accounts.
+ * New accounts have no ID when this hook is called and instead are handled in
+ * simplenews_user_insert.
  *
  * @see simplenews_user_insert()
  */
 function simplenews_user_presave(UserInterface $account) {
-  // Don't do anything if the user has no email.
-  if (!$account->getEmail()) {
-    return;
-  }
-
   /** @var \Drupal\simplenews\Entity\Subscriber $subscriber */
-  $subscriber = $account->isNew() ?
-    Subscriber::loadByMail($account->getEmail()) :
-    Subscriber::loadByUid($account->id());
-  if ($subscriber && !$subscriber->isSyncing()) {
-    $subscriber->setSyncing();
-    // We only process existing accounts.
-    if (!$account->isNew()) {
-      // Update mail, status and language if they are changed.
-      $subscriber->setMail($account->getEmail());
-      $subscriber->status = $account->isActive();
-      $subscriber->setLangcode($account->getPreferredLangcode());
-    }
-
-    // Copy values for shared fields to existing subscriber.
-    if (\Drupal::config('simplenews.settings')->get('subscriber.sync_fields')) {
-      foreach ($subscriber->getUserSharedFields($account) as $field_name) {
-        $subscriber->set($field_name, $account->get($field_name)->getValue());
-      }
-    }
-
-    $subscriber->save();
-    $subscriber->setSyncing(FALSE);
+  if ($subscriber = Subscriber::loadByUid($account->id())) {
+    $subscriber->fillFromAccount($account)->save();
   }
 }
 
@@ -520,8 +481,7 @@ function simplenews_user_presave(UserInterface $account) {
  */
 function simplenews_user_delete(UserInterface $account) {
   // Delete subscription when account is removed.
-  $subscriber = Subscriber::loadByUid($account->id());
-  if ($subscriber) {
+  if ($subscriber = Subscriber::loadByUid($account->id())) {
     $subscriber->delete();
   }
 }
@@ -541,10 +501,8 @@ function simplenews_user_view(array &$build, UserInterface $account, EntityViewD
       );
       // Collect newsletter to which the current user is subscribed.
       // 'hidden' newsletters are not listed.
-      $subscriber = Subscriber::loadByMail($account->getEmail());
-
       $links = [];
-      if ($subscriber) {
+      if ($subscriber = Subscriber::loadByUid($account->id())) {
         foreach (simplenews_newsletter_get_visible() as $newsletter) {
           if ($subscriber->isSubscribed($newsletter->id())) {
             // @todo Make links

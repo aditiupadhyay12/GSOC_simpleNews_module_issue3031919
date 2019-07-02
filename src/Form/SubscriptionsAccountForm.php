@@ -16,17 +16,10 @@ class SubscriptionsAccountForm extends SubscriptionsFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, UserInterface $user = NULL) {
-    // Try to load a subscriber from the uid, otherwise just set the mail field
-    // on the new subscriber.
     if (isset($user)) {
       $form_state->set('user', $user);
-      if ($subscriber = Subscriber::loadByUid($user->id())) {
-        $this->setEntity($subscriber);
-      }
-      else {
-        $this->entity->setUserId($user->id());
-        $this->entity->setMail($user->getEmail());
-      }
+      // Load/create a subscriber from the user.
+      $this->setEntity(Subscriber::loadByUid($user->id(), 'create'));
     }
 
     return parent::buildForm($form, $form_state);
