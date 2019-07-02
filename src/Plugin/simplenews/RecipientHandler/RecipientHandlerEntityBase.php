@@ -11,8 +11,10 @@ abstract class RecipientHandlerEntityBase extends RecipientHandlerBase {
    * {@inheritdoc}
    */
   public function addToSpool() {
-    $ids = $this->buildEntityQuery()->execute();
-    $this->addArrayToSpool('snid', $ids);
+    $query = $this->buildEntityQuery();
+    $ids = $query->execute();
+    $field = ($query->getEntityTypeId() == 'user') ? 'uid' : 'snid';
+    $this->addArrayToSpool($field, $ids);
     return count($ids);
   }
 
@@ -27,7 +29,7 @@ abstract class RecipientHandlerEntityBase extends RecipientHandlerBase {
    * Build the query that gets the list of subscribers.
    *
    * @return \Drupal\Core\Entity\Query\QueryInterface
-   *   Entity query on 'simplenews_subscriber'.
+   *   Entity query on 'simplenews_subscriber' or 'user'.
    */
   abstract protected function buildEntityQuery();
 

@@ -18,9 +18,10 @@ class RecipientHandlerNewUsers extends RecipientHandlerEntityBase {
    * {@inheritdoc}
    */
   protected function buildEntityQuery() {
-    return \Drupal::entityQuery('simplenews_subscriber')
-      ->condition('uid.entity.access', 0)
-      ->condition('uid.entity.status', TRUE);
+    return \Drupal::entityQuery('user')
+      ->exists('mail')
+      ->condition('access', 0)
+      ->condition('status', TRUE);
   }
 
   /**

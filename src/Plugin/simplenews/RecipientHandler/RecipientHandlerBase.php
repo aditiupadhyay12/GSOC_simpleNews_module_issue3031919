@@ -126,13 +126,14 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
    * newsletter.
    *
    * @param string $field
-   *   Field to set: snid or data
+   *   Field to set: 'snid', 'data' (automatically serialised) or 'uid'
+   *  (automatically stored in 'data' array with key 'uid').
    * @param array $values
    *   Values to set for field.
    */
   protected function addArrayToSpool($field, $values) {
     if (empty($values)) {
-      return 0;
+      return;
     }
 
     $template = [
@@ -143,12 +144,17 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
       'newsletter_id' => $this->getNewsletterId(),
     ];
 
+    if ($field == 'uid') {
+      $field = 'data';
+      $values = array_map(function($v) { return ['uid' => $v]; }, $values);
+    }
+
     $insert = $this->connection->insert('simplenews_mail_spool')
       ->fields(array_merge(array_keys($template), [$field]));
 
     foreach ($values as $value) {
       $row = $template;
-      $row[$field] = $value;
+      $row[$field] = ($field == 'data') ? serialize($value) : $value;
       $insert->values($row);
     }
 

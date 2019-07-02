@@ -19,7 +19,7 @@ class RecipientHandlerSiteMail extends RecipientHandlerBase {
    */
   public function addToSpool() {
     $subscriber_data = ['mail' => \Drupal::config('system.site')->get('mail')];
-    $this->addArrayToSpool('data', [serialize($subscriber_data)]);
+    $this->addArrayToSpool('data', [$subscriber_data]);
     return 1;
   }
 

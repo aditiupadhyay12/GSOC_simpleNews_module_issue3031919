@@ -75,9 +75,9 @@ class SpoolList implements SpoolListInterface {
       $subscriber = Subscriber::load($spool_data->snid);
     }
 
-    if (!$subscriber) {
-      // If loading the subscriber failed, set the processed status done and
-      // proceed with the next mail.
+    if (!$subscriber || !$subscriber->getMail()) {
+      // If loading the subscriber failed or no email is available, set the
+      // processed status done and proceed with the next mail.
       $this->processed[$spool_data->msid]->result = array(
         'status' => SpoolStorageInterface::STATUS_DONE,
         'error' => TRUE
