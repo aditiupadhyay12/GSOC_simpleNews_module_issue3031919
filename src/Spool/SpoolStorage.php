@@ -303,15 +303,26 @@ class SpoolStorage implements SpoolStorageInterface {
   /**
    * {@inheritdoc}
    */
-  public function getRecipientHandler(ContentEntityInterface $issue, array $edited_values = NULL) {
+  public function getRecipientHandler(ContentEntityInterface $issue, array $edited_values = NULL, $return_options = FALSE) {
     $field = $issue->get('simplenews_issue');
+    $newsletter_ids = $field->isEmpty() ? [] : array_map(function ($i) { return $i['target_id']; }, $field->getValue());
+    $newsletter_id = $edited_values['target_id'] ?? $newsletter_ids[0] ?? NULL;
     $handler = ($edited_values['handler'] ?? $field->handler) ?: 'simplenews_all';
+
+    // Ensure the requested handler is a valid option.
+    $options = $this->recipientHandlerManager->getOptions($newsletter_id);
+    if (!isset($options[$handler])) {
+      reset($options);
+      $handler = key($options);
+    }
+
     $handler_settings = $edited_values['handler_settings'] ?? $field->handler_settings;
     $handler_settings['_issue'] = $issue;
     $handler_settings['_connection'] = $this->connection;
-    $handler_settings['_newsletter_ids'] = $field->isEmpty() ? [] : array_map(function ($i) { return $i['target_id']; }, $field->getValue());
+    $handler_settings['_newsletter_ids'] = $newsletter_ids;
+    $recipient_handler = $this->recipientHandlerManager->createInstance($handler, $handler_settings);
 
-    return $this->recipientHandlerManager->createInstance($handler, $handler_settings);
+    return $return_options ? [$recipient_handler, $options] : $recipient_handler;
   }
 
   /**

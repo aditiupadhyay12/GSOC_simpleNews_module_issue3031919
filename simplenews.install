@@ -147,3 +147,15 @@ function simplenews_update_8201() {
   ]);
   $db_schema->dropField('simplenews_mail_spool', 'mail');
 }
+
+/**
+ * Initialise newsletter allowed handlers field.
+ */
+function simplenews_update_8202() {
+  foreach (Newsletter::loadMultiple() as $newsletter) {
+    if (!isset($newsletter->allowed_handlers)) {
+      $newsletter->allowed_handlers = [];
+      $newsletter->save();
+    }
+  }
+}

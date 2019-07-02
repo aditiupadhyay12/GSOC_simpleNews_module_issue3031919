@@ -38,6 +38,7 @@ use Drupal\simplenews\NewsletterInterface;
  *     "subject",
  *     "from_address",
  *     "hyperlinks",
+ *     "allowed_handlers",
  *     "new_account",
  *     "opt_inout",
  *     "weight",
@@ -119,6 +120,14 @@ class Newsletter extends ConfigEntityBase implements NewsletterInterface {
    * @var boolean
    */
   public $hyperlinks = TRUE;
+
+  /**
+   * Allowed recipient handlers.  If none are selected, then all of them will
+   * be available.
+   *
+   * @var array
+   */
+  public $allowed_handlers = [];
 
   /**
    * Indicates how to integrate with the register form.

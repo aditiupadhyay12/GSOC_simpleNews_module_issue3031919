@@ -54,14 +54,26 @@ class NewsletterForm extends EntityForm {
       '#title' => t('Subscription settings'),
       '#collapsible' => FALSE,
     );
-  // Subscribe at account registration time.
-  $options = simplenews_new_account_options();
-  $form['subscription']['new_account'] = array(
-    '#type' => 'select',
-    '#title' => t('Subscribe new account'),
-    '#options' => $options,
-    '#default_value' => $newsletter->new_account,
-    '#description' => t('None: This newsletter is not listed on the user registration page.<br />Default on: This newsletter is listed on the user registion page and is selected by default.<br />Default off: This newsletter is listed on the user registion page and is not selected by default.<br />Silent: A new user is automatically subscribed to this newsletter. The newsletter is not listed on the user registration page.'),
+
+    // Allowed recipient handlers.
+    $options = \Drupal::service('plugin.manager.simplenews_recipient_handler')->getOptions();
+    $form['subscription']['allowed_handlers'] = [
+      '#type' => 'checkboxes',
+      '#title' => t('Allowed recipient handlers'),
+      '#options' => $options,
+      '#default_value' => $newsletter->allowed_handlers,
+      '#description' => t('Restrict which recipient handlers are allowed when using this newsletter.  If none are selected, then all of them will be available.'),
+      '#access' => count($options) > 1,
+    ];
+
+    // Subscribe at account registration time.
+    $options = simplenews_new_account_options();
+    $form['subscription']['new_account'] = array(
+      '#type' => 'select',
+      '#title' => t('Subscribe new account'),
+      '#options' => $options,
+      '#default_value' => $newsletter->new_account,
+      '#description' => t('None: This newsletter is not listed on the user registration page.<br />Default on: This newsletter is listed on the user registion page and is selected by default.<br />Default off: This newsletter is listed on the user registion page and is not selected by default.<br />Silent: A new user is automatically subscribed to this newsletter. The newsletter is not listed on the user registration page.'),
     );
 
     // Type of (un)subsribe confirmation

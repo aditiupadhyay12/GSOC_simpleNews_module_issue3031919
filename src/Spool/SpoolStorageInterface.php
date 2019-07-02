@@ -142,13 +142,18 @@ interface SpoolStorageInterface {
    *   The newsletter issue to be sent.
    * @param array $edited_values
    *   (optional) Modified values, if called from an edit form.
+   * @param bool $return_options
+   *   (optional, defaults to FALSE) If set, also return the set of valid
+   *   options for choice of recipient handler.
    *
-   * @return \Drupal\simplenews\RecipientHandler\RecipientHandlerInterface
-   *   A constructed recipient handler plugin.
+   * @return \Drupal\simplenews\RecipientHandler\RecipientHandlerInterface | array
+   *   A constructed recipient handler plugin.  If $return_options is set then
+   *   the return is an array of two items: the recipient handler plugin and
+   *   the result of RecipientHandlerManager::getOptions().
    *
    * @throws Exception if the handler class does not exist.
    */
-  function getRecipientHandler(ContentEntityInterface $issue, array $edited_values = NULL);
+  function getRecipientHandler(ContentEntityInterface $issue, array $edited_values = NULL, $return_options = FALSE);
 
   /**
    * Returns a summary of key newsletter issue parameters.

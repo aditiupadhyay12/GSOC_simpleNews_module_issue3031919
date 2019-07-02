@@ -138,6 +138,12 @@ simplenews.newsletter.*:
     hyperlinks:
       type: boolean
       label: 'Indicates if hyperlinks should be kept inline or extracted.'
+    allowed_handlers:
+      type: sequence
+      label: 'Restricts which recipient handlers are allowed.'
+      sequence:
+        type: string
+        label: Allowed recipient handler
     new_account:
       type: string
       label: 'Indicates how to integrate with the register form.'

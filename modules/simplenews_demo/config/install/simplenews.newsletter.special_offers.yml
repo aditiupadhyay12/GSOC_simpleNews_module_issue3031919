@@ -8,6 +8,7 @@ from_name: ''
 subject: '[[simplenews-newsletter:name]] [node:title]'
 from_address: 'replace@example.org'
 hyperlinks: true
+allowed_handlers: {  }
 new_account: none
 opt_inout: double
 weight: 0

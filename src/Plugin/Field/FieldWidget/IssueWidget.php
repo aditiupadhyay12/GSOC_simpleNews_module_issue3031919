@@ -73,28 +73,46 @@ class IssueWidget extends OptionsSelectWidget implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+    // Set a div to allow updating the entire widget when the newsletter is
+    // changed.
+    $element['#prefix'] = '<div id="simplenews-issue-widget">';
+    $element['#suffix'] = '</div>';
     $element['target_id'] = parent::formElement($items, $delta, $element, $form, $form_state);
     $element['target_id']['#required'] = $this->required;
-
-    $button = $form_state->getTriggeringElement();
-    $values = $button ? $form_state->getValue($button['#array_parents'][0]) : NULL;
-    $handler = $this->spoolStorage->getRecipientHandler($items->getEntity(), $values);
-    $options = $this->recipientHandlerManager->getOptions();
-    $element['handler'] = [
-      '#type' => 'select',
-      '#title' => t('Recipients'),
-      '#description' => t('How recipients should be selected.'),
-      '#options' => $options,
-      '#default_value' => $handler->getPluginId(),
-      '#access' => count($options) > 1,
-      '#ajax' => [
-        'callback' => [get_class($this), 'ajaxUpdateRecipientHandlerSettings'],
-        'wrapper' => 'recipient-handler-settings',
-        'method' => 'replace',
-        'effect' => 'fade',
-      ],
+    $element['target_id']['#ajax'] = [
+      'callback' => [get_class($this), 'ajaxUpdateAll'],
+      'wrapper' => 'simplenews-issue-widget',
+      'method' => 'replace',
+      'effect' => 'fade',
     ];
 
+    // This form is Ajax enabled, so fetch the existing values if present,
+    // otherwise fall back to the defaults.
+    $button = $form_state->getTriggeringElement();
+    $values = $button ? $form_state->getValue($button['#array_parents'][0]) : NULL;
+    list($handler, $options) = $this->spoolStorage->getRecipientHandler($items->getEntity(), $values, TRUE);
+    $element['handler'] = [
+      '#prefix' => '<div id="recipient-handler">',
+      '#suffix' => '</div>',
+    ];
+
+    if (count($options) > 1) {
+      $element['handler'] += [
+        '#type' => 'select',
+        '#title' => t('Recipients'),
+        '#description' => t('How recipients should be selected.'),
+        '#options' => $options,
+        '#default_value' => $handler->getPluginId(),
+        '#ajax' => [
+          'callback' => [get_class($this), 'ajaxUpdateRecipientHandlerSettings'],
+          'wrapper' => 'recipient-handler-settings',
+          'method' => 'replace',
+          'effect' => 'fade',
+        ],
+      ];
+    }
+
+    // Set a div to allow updating this field when the handler is changed.
     $element['handler_settings'] = $handler->settingsForm();
     $element['handler_settings']['#prefix'] = '<div id="recipient-handler-settings">';
     $element['handler_settings']['#suffix'] = '</div>';
@@ -130,7 +148,17 @@ class IssueWidget extends OptionsSelectWidget implements ContainerFactoryPluginI
   }
 
   /**
-   * Return the updated recipient handler settings form.
+   * Return the entire widget updated.
+   */
+  public function ajaxUpdateAll($form, FormStateInterface $form_state) {
+    // Determine the field name from the triggering element.
+    $button = $form_state->getTriggeringElement();
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -1));
+    return $element;
+  }
+
+  /**
+   * Return the updated recipient handler settings field.
    */
   public function ajaxUpdateRecipientHandlerSettings($form, FormStateInterface $form_state) {
     // Determine the field name from the triggering element.
