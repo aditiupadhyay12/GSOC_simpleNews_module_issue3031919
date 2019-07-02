@@ -8,12 +8,14 @@ use Drupal\Core\Database\Query\Condition;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
+use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\simplenews\recipientHandler\RecipientHandlerManager;
 
 /**
  * Default database spool storage.
  */
 class SpoolStorage implements SpoolStorageInterface {
+  use MessengerTrait;
 
   /**
    * @var \Drupal\Core\Database\Connection
@@ -216,13 +218,6 @@ class SpoolStorage implements SpoolStorageInterface {
    * {@inheritdoc}
    */
   public function deleteMails(array $conditions) {
-    // Continue to support 'nid'.
-    if (!empty($conditions['nid'])) {
-      $conditions['entity_type'] = 'node';
-      $conditions['entity_id'] = $conditions['nid'];
-      unset($conditions['nid']);
-    }
-
     $query = $this->connection->delete('simplenews_mail_spool');
 
     foreach ($conditions as $condition => $value) {
@@ -234,16 +229,56 @@ class SpoolStorage implements SpoolStorageInterface {
   /**
    * {@inheritdoc}
    */
-  public function addFromEntity(ContentEntityInterface $issue) {
+  public function addIssue($issue) {
+    if (!in_array($issue->simplenews_issue->status, [SIMPLENEWS_STATUS_SEND_NOT, SIMPLENEWS_STATUS_SEND_PUBLISH])) {
+      return;
+    }
+
+    if (!$issue->isPublished()) {
+      $issue->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_PUBLISH;
+      $issue->save();
+      $this->messenger()->addMessage(t('Newsletter issue %title will be sent when published.', array('%title' => $issue->getTitle())));
+      return;
+    }
+
     $recipient_handler = $this->getRecipientHandler($issue);
     $issue->simplenews_issue->subscribers = $recipient_handler->addToSpool();
     $issue->simplenews_issue->sent_count = 0;
-
-    // Update simplenews newsletter status to send pending.
     $issue->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_PENDING;
 
+    // Save except if already saving.
+    if (!isset($issue->original)) {
+      $issue->save();
+    }
+
     // Notify other modules that a newsletter was just spooled.
-    $this->moduleHandler->invokeAll('simplenews_spooled', array($issue));
+    $this->moduleHandler->invokeAll('simplenews_spooled', [$issue]);
+
+    // Attempt to send immediately, if configured to do so.
+    if (\Drupal::service('simplenews.mailer')->attemptImmediateSend(['entity_type' => $issue->getEntityTypeId(), 'entity_id' => $issue->id()])) {
+      $this->messenger()->addMessage(t('Newsletter issue %title sent.', ['%title' => $issue->getTitle()]));
+    }
+    else {
+      $this->messenger()->addMessage(t('Newsletter issue %title pending.', ['%title' => $issue->getTitle()]));
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteIssue(ContentEntityInterface $issue) {
+    if ($issue->simplenews_issue->status != SIMPLENEWS_STATUS_SEND_PENDING) {
+      return;
+    }
+
+    $count = $this->deleteMails(['entity_type' => $issue->getEntityTypeId(), 'entity_id' => $issue->id()]);
+    $issue->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_NOT;
+    $issue->save();
+
+    $this->messenger()->addMessage(t('Sending of %title was stopped. @count pending email(s) were deleted.', [
+      '%title' => $issue->getTitle(),
+      '@count' => $count,
+    ]));
   }
 
   /**

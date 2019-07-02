@@ -189,11 +189,7 @@ function simplenews_rules_rules_event_info() {
  * Action implementation, send a newsletter node.
  */
 function simplenews_rules_action_send($node) {
-  /** @var \Drupal\simplenews\NewsletterInterface $newsletter */
-  $newsletter = Newsletter::load($node->nid);
-  if ($newsletter && ($newsletter->status != SIMPLENEWS_STATUS_SEND_PENDING || $newsletter->status != SIMPLENEWS_STATUS_SEND_PENDING)) {
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
-  }
+  \Drupal::service('simplenews.spool_storage')->addIssue($node);
 }
 
 /**

@@ -123,9 +123,9 @@ function simplenews_node_presave(NodeInterface $node) {
     return;
   }
 
-  // Check if the newsletter is set to send on publish and needs to be send.
+  // Check if the newsletter is set to send on publish and needs to be sent.
   if ($node->simplenews_issue->status == SIMPLENEWS_STATUS_SEND_PUBLISH && $node->isPublished()) {
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
   }
 }
 
@@ -836,24 +836,6 @@ function simplenews_theme_suggestions_simplenews_newsletter_body(array $variable
     'simplenews_newsletter_body__' . $variables['elements']['#view_mode'],
     'simplenews_newsletter_body__' . $variables['elements']['#newsletter']->id() . '__' . $variables['elements']['#view_mode'],
   );
-}
-
-/**
- * Update the sent status of a node.
- *
- * If the node part of a translation set, all corresponding translations are
- * updated as well.
- *
- * @param $node
- *   The node object to be updated.
- * @param $status
- *   The new status, defaults to SIMPLENEWS_STATUS_SEND_PENDING.
- *
- * @ingroup issue
- */
-function simplenews_issue_update_sent_status(NodeInterface $node, $status = SIMPLENEWS_STATUS_SEND_PENDING) {
-  $node->simplenews_issue->status = $status;
-  $node->save();
 }
 
 /**

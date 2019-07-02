@@ -11,6 +11,7 @@ namespace Drupal\simplenews\Tests;
 
 use Drupal\node\Entity\Node;
 use Drupal\user\Entity\User;
+use Drupal\Core\Messenger\MessengerInterface;
 
 /**
  * Test cases for creating and sending newsletters.
@@ -61,8 +62,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $node->save();
 
     // Send the node.
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
-    $node->save();
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
 
     // Send mails.
     \Drupal::service('simplenews.mailer')->sendSpool();
@@ -92,8 +92,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $node->save();
 
     // Send the node.
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
-    $node->save();
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
 
     // Make sure that they have been added.
     $this->assertEqual(\Drupal::service('simplenews.spool_storage')->countMails(), 5);
@@ -469,15 +468,15 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     ]);
     $issue->save();
 
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($issue);
-    $issue->save();
+    \Drupal::service('simplenews.spool_storage')->addIssue($issue);
 
     // Force all sent mails to fail.
+    \Drupal::messenger()->deleteAll();
     \Drupal::configFactory()->getEditable('system.mail')->set('interface.default', 'test_php_mail_failure')->save();
     simplenews_cron();
 
     // Check there is no error message.
-    $this->assertEqual(count(\Drupal::messenger()->all()), 0, t('No error messages printed'));
+    $this->assertEqual(count(\Drupal::messenger()->messagesByType(MessengerInterface::TYPE_ERROR)), 0, t('No error messages printed'));
   }
 
   /**
@@ -608,8 +607,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $node->save();
 
     // Send the node.
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
-    $node->save();
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
 
     // Send mails.
     \Drupal::service('simplenews.mailer')->sendSpool();
@@ -660,8 +658,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $node->save();
 
     // Send the node.
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
-    $node->save();
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
 
     // Send mails.
     \Drupal::service('simplenews.mailer')->sendSpool();
@@ -693,8 +690,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $node->save();
 
     // Send the node.
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
-    $node->save();
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
 
     // Send mails.
     \Drupal::service('simplenews.mailer')->sendSpool();

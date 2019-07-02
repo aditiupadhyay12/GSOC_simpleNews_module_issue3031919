@@ -118,7 +118,12 @@ class NodeTabForm extends FormBase {
         '#type' => 'item',
         '#markup' => t('Send newsletter issue to @count subscribers.', array('@count' => $summary['count'])),
       );
-      if (!$config->get('mail.use_cron')) {
+
+      if (!$node->isPublished()) {
+        $send_text = t('Mails will be sent when the issue is published.');
+        $button_text = t('Send on publish');
+      }
+      elseif (!$config->get('mail.use_cron')) {
         $send_text = t('Mails will be sent immediately.');
       }
       else {
@@ -129,21 +134,12 @@ class NodeTabForm extends FormBase {
         '#type' => 'item',
         '#markup' => $send_text,
       );
-      if ($node->isPublished()) {
-        $form['send']['send_now'] = array(
-          '#type' => 'submit',
-          '#button_type' => 'primary',
-          '#value' => t('Send now'),
-        );
-      }
-      else {
-        $form['send']['send_on_publish'] = array(
-          '#type' => 'submit',
-          '#button_type' => 'primary',
-          '#value' => t('Send on publish'),
-          '#submit' => array('::submitSendLater'),
-        );
-      }
+
+      $form['send']['send'] = array(
+        '#type' => 'submit',
+        '#button_type' => 'primary',
+        '#value' => $button_text ?? t('Send now'),
+      );
     }
     else {
       $form['status'] = array(
@@ -202,51 +198,14 @@ class NodeTabForm extends FormBase {
    *   An associative array containing the structure of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $node = $form_state->get('node');
-    $this->spoolStorage->addFromEntity($node);
-    // Attempt to send immediatly, if configured to do so.
-    if ($this->mailer->attemptImmediateSend(array('entity_id' => $node->id(), 'entity_type' => 'node'))) {
-      $this->messenger()->addMessage(t('Newsletter %title sent.', array('%title' => $node->getTitle())));
-    }
-    else {
-      $this->messenger()->addMessage(t('Newsletter issue %title pending.', array('%title' => $node->getTitle())));
-    }
-    $node->save();
-  }
-
-  /**
-   * Submit handler for sending unpublished newsletter issue.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   */
-  public function submitSendLater(array &$form, FormStateInterface $form_state) {
-    $node = $form_state->get('node');
-    // Set the node to pending status.
-    $node->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_PUBLISH;
-    $this->messenger()->addMessage(t('Newsletter issue %title will be sent when published.', array('%title' => $node->getTitle())));
-    $node->save();
+    $this->spoolStorage->addIssue($form_state->get('node'));
   }
 
   /**
    * {@inheritdoc}
    */
   public function submitStop(array &$form, FormStateInterface $form_state) {
-    $node = $form_state->get('node');
-
-    // Delete the mail spool entries of this newsletter issue.
-    $count = $this->spoolStorage->deleteMails(array('nid' => $node->id()));
-
-    // Set newsletter issue to not sent yet.
-    $node->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_NOT;
-
-    $node->save();
-
-    $this->messenger()->addMessage(t('Sending of %title was stopped. @count pending email(s) were deleted.', array(
-      '%title' => $node->getTitle(),
-      '@count' => $count,
-    )));
-
+    $this->spoolStorage->deleteIssue($form_state->get('node'));
   }
 
   /**

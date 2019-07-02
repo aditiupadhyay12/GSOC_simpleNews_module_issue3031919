@@ -140,7 +140,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = Node::load($matches[1]);
 
     // Add node to spool.
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
     // Unsubscribe one of the recipients to make sure that he doesn't receive
     // the mail.
     \Drupal::service('simplenews.subscription_manager')->unsubscribe(array_shift($this->subscribers), $this->getRandomNewsletter(), FALSE, 'test');
@@ -210,7 +210,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = Node::load($matches[1]);
 
     // Add node to spool.
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
     // Send mails.
     \Drupal::service('simplenews.mailer')->sendSpool();
 
@@ -289,7 +289,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = Node::load($matches[1]);
 
     // Add node to spool.
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
     // Send mails.
     \Drupal::service('simplenews.mailer')->sendSpool();
 
@@ -331,7 +331,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = Node::load($matches[1]);
 
     // Add node to spool.
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
 
     $before = microtime(TRUE);
     \Drupal::service('simplenews.mailer')->sendSpool();
@@ -370,7 +370,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = Node::load($matches[1]);
 
     // Add node to spool.
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
 
     // Delete the node manually in the database.
     \Drupal::database()->delete('node')
@@ -406,7 +406,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $node = Node::load($matches[1]);
 
     // Add node to spool.
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
 
     // Delete the subscriber.
     $subscriber = Subscriber::loadByMail(reset($this->subscribers));
@@ -433,7 +433,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'type' => 'simplenews_issue',
       'simplenews_issue[target_id]' => ['target_id' => 'default'],
     ]);
-    \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
     \Drupal::service('simplenews.mailer')->sendSpool();
     $this->assertEqual(0, count($this->drupalGetMails()));
     $spool_row = \Drupal::database()->select('simplenews_mail_spool', 'ms')

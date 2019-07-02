@@ -107,12 +107,18 @@ interface SpoolStorageInterface {
   /**
    * Adds a newsletter issue to the mail spool.
    *
-   * The caller is responsible for saving the changed issue entity.
-   *
-   * @param \Drupal\node\ContentEntityInterface $issue
+   * @param Drupal\Core\Entity\ContentEntityInterface $issue
    *   The newsletter issue to be sent.
    */
-  function addFromEntity(ContentEntityInterface $issue);
+  function addIssue(ContentEntityInterface $issue);
+
+  /**
+   * Deletes a newsletter issue from the mail spool.
+   *
+   * @param Drupal\Core\Entity\ContentEntityInterface $issue
+   *   The newsletter issue to be deleted.
+   */
+  function deleteIssue(ContentEntityInterface $issue);
 
   /**
    * Save mail message in mail cache table.
@@ -120,9 +126,10 @@ interface SpoolStorageInterface {
    * @param array $spool
    *   The message to be stored in the spool table, as an array containing the
    *   following keys:
-   *   - mail
-   *   - nid
-   *   - tid
+   *   - entity_type
+   *   - entity_id
+   *   - newsletter_id
+   *   - snid or data
    *   - status: (optional) Defaults to SpoolStorageInterface::STATUS_PENDING
    *   - time: (optional) Defaults to REQUEST_TIME.
    */
@@ -131,7 +138,7 @@ interface SpoolStorageInterface {
   /**
    * Builds a recipient handler class for a given newsletter issue.
    *
-   * @param \Drupal\node\ContentEntityInterface $issue
+   * @param Drupal\Core\Entity\ContentEntityInterface $issue
    *   The newsletter issue to be sent.
    * @param array $edited_values
    *   (optional) Modified values, if called from an edit form.

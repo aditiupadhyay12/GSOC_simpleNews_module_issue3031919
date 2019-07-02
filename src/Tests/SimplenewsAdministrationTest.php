@@ -979,8 +979,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     );
     $this->drupalPostForm(NULL, $edit, t('Apply to selected items'));
     // Check the relevant messages.
-    $this->assertText('Newsletter issue Test_issue_2 is unpublished and will be sent on publish.');
-    $this->assertText('The following newsletter(s) are now pending: Test_issue_1.');
+    $this->assertText('Newsletter issue Test_issue_2 will be sent when published.');
+    $this->assertText('Newsletter issue Test_issue_1 pending.');
     $rows = $this->xpath('//tbody/tr');
     // Assert the status message of each newsletter.
     foreach ($rows as $row) {

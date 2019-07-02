@@ -155,6 +155,7 @@ function simplenews_demo_install() {
   //   ->execute();
 
   // A newsletter to send.
+  $spool_storage = \Drupal::service('simplenews.spool_storage');
   $node = Node::create(array(
     'type' => 'simplenews_issue',
     'id' => 'simplenews_issue_sent',
@@ -170,8 +171,7 @@ function simplenews_demo_install() {
   ));
   $node->save();
   // Send the node.
-  \Drupal::service('simplenews.spool_storage')->addFromEntity($node);
-  $node->save();
+  $spool_storage->addIssue($node);
   // Send mails.
   \Drupal::service('simplenews.mailer')->sendSpool();
   // Run cron.
@@ -195,7 +195,7 @@ function simplenews_demo_install() {
     ),
   ));
   $node->save();
-  simplenews_issue_update_sent_status($node, SIMPLENEWS_STATUS_SEND_PENDING);
+  $spool_storage->addIssue($node);
 
   // Unpublished newsletter.
   $node = Node::create(array(
@@ -212,7 +212,7 @@ function simplenews_demo_install() {
     ),
   ));
   $node->save();
-  simplenews_issue_update_sent_status($node, SIMPLENEWS_STATUS_SEND_PUBLISH);
+  $spool_storage->addIssue($node);
 
   // Newsletter that is stopped sending.
   $node = Node::create(array(
@@ -229,5 +229,4 @@ function simplenews_demo_install() {
     ),
   ));
   $node->save();
-  simplenews_issue_update_sent_status($node, SIMPLENEWS_STATUS_SEND_NOT);
 }
