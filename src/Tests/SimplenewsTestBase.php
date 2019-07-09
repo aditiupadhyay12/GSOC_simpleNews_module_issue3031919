@@ -50,8 +50,8 @@ abstract class SimplenewsTestBase extends WebTestBase {
     $newsletter = Newsletter::load('default');
     $newsletter->from_address = $site_config->get('site_mail');
     $newsletter->save();
-
   }
+
   /**
    * Generates a random email address.
    *

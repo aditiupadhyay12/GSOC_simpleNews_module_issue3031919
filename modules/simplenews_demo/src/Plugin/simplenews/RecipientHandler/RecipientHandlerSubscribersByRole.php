@@ -7,7 +7,7 @@ use Drupal\simplenews\SubscriberInterface;
 use Drupal\simplenews\Plugin\simplenews\RecipientHandler\RecipientHandlerEntityBase;
 
 /**
- * This handler sends to all active users that have never logged in.
+ * This handler sends to all subscribers with the specified role.
  *
  * @RecipientHandler(
  *   id = "simplenews_subscribers_by_role",
