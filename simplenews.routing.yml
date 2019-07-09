@@ -70,6 +70,14 @@ entity.simplenews_newsletter.delete_form:
   requirements:
     _entity_access: 'simplenews_newsletter.delete'
 
+entity.simplenews_subscriber.add_form:
+  path: '/admin/people/simplenews/create'
+  defaults:
+    _entity_form: 'simplenews_subscriber.add'
+    _title: 'Add subscriber'
+  requirements:
+    _entity_create_access: 'simplenews_subscriber'
+
 entity.simplenews_subscriber.edit_form:
   path: '/admin/people/simplenews/edit/{simplenews_subscriber}'
   defaults:

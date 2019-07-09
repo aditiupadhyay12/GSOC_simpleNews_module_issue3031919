@@ -927,6 +927,29 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
   }
 
   /**
+   * Tests admin creating a single subscriber.
+   */
+  public function testAdminCreate() {
+    $admin_user = $this->drupalCreateUser(['administer simplenews subscriptions']);
+    $this->drupalLogin($admin_user);
+
+    $newsletter_id = $this->getRandomNewsletter();
+    $mail = $this->randomEmail();
+    $this->drupalGet('admin/people/simplenews/create');
+    $this->assertText('Add subscriber');
+    $edit = [
+      "subscriptions[$newsletter_id]" => TRUE,
+      'mail[0][value]' => $mail,
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->assertText(t('Subscriber @mail has been added.', ['@mail' => $mail]));
+
+    $subscriber = Subscriber::loadByMail($mail);
+    $subscription = $subscriber->getSubscription($newsletter_id);
+    $this->assertEqual(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
+  }
+
+  /**
    * Gets the number of subscribers entities.
    */
   protected function countSubscribers() {

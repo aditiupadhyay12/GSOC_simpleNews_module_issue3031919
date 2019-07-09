@@ -25,7 +25,9 @@ class SubscriberForm extends SubscriptionsFormBase {
     /* @var \Drupal\simplenews\SubscriberInterface $subscriber */
     $subscriber = $this->entity;
 
-    $form['#title'] = $this->t('Edit subscriber @mail', array('@mail' => $subscriber->getMail()));
+    if ($mail = $subscriber->getMail()) {
+      $form['#title'] = $this->t('Edit subscriber @mail', array('@mail' => $mail));
+    }
 
     $form['activated'] = array(
       '#title' => t('Status'),
@@ -77,6 +79,9 @@ class SubscriberForm extends SubscriptionsFormBase {
    * {@inheritdoc}
    */
   protected function getSubmitMessage(FormStateInterface $form_state, $op, $confirm) {
+    if ($this->getFormId() == 'simplenews_subscriber_add_form') {
+      return $this->t('Subscriber %label has been added.', array('%label' => $this->entity->label()));
+    }
     return $this->t('Subscriber %label has been updated.', array('%label' => $this->entity->label()));
   }
 

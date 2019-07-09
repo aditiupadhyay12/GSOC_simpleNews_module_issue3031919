@@ -155,29 +155,33 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
    * {@inheritdoc}
    */
   protected function actions(array $form, FormStateInterface $form_state) {
-    // There are two main cases of subscriptions forms:
-    // - An authenticated subscriber updating existing subscriptions. The main
-    //   case is a logged in user, but it could also be an anonymous
-    //   subscription authenticated by means of a hash. In both cases, the
-    //   email address is set.
-    // - An unauthenticated user who enters an email address in the form and
-    //   requests to subscribe or unsubscribe. In this case the email address
-    //   is not set.
+    // There are three user groups for subscriptions forms:
+    // 1) An authenticated subscriber updating existing subscriptions. The main
+    //    case is a logged in user, but it could also be an anonymous
+    //    subscription authenticated by means of a hash. In both cases, the
+    //    email address is set.
+    // 2) An unauthenticated user who enters an email address in the form and
+    //    requests to subscribe or unsubscribe. In this case the email address
+    //    is not set.
+    // 3) An administrator adding a new subscription. In this case the email
+    //    address is not set, but there is a logged in user.
     $has_widget = !$this->getSubscriptionWidget($form_state)->isHidden();
     $has_mail = (bool) $this->entity->getMail();
 
     $actions = parent::actions($form, $form_state);
-    if ($has_mail && $has_widget) {
-      // When authenticated with a widget, show a single update button. The
-      // user can check or uncheck newsletters then submit.
+
+    if ($has_widget && ($has_mail || \Drupal::currentUser()->isAuthenticated())) {
+      // 1a) When authenticated with a widget
+      // 3) An administrator adding a new subscription.
+      // In both cases, show a single update button.
       $actions[static::SUBMIT_UPDATE] = $actions['submit'];
       $actions[static::SUBMIT_UPDATE]['#submit'][] = '::submitUpdate';
     }
     else {
-      // When not authenticated, show subscribe and unsubscribe buttons. The
+      // 2) When not authenticated, show subscribe and unsubscribe buttons. The
       // user can check which newsletters to alter.
       //
-      // The final case is when authenticated with no widget which is for a
+      // 1b) The final case is when authenticated with no widget which is for a
       // form that applies to a single newsletter. In this case there will be a
       // single button either subscribe or unsubscribe depending on the current
       // subscription state.

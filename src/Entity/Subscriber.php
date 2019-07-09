@@ -23,6 +23,7 @@ use Drupal\user\UserInterface;
  *     "storage" = "Drupal\simplenews\Subscription\SubscriptionStorage",
  *     "access" = "Drupal\simplenews\SubscriberAccessControlHandler",
  *     "form" = {
+ *       "add" = "Drupal\simplenews\Form\SubscriberForm",
  *       "default" = "Drupal\simplenews\Form\SubscriberForm",
  *       "account" = "Drupal\simplenews\Form\SubscriptionsAccountForm",
  *       "block" = "Drupal\simplenews\Form\SubscriptionsBlockForm",
@@ -360,7 +361,6 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
       ->setDisplayOptions('form', array(
         'type' => 'email_default',
         'settings' => array(),
-        'weight' => 5,
       ))
       ->setDisplayConfigurable('form', TRUE);
 
