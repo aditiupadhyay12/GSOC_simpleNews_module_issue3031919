@@ -26,8 +26,8 @@ abstract class MailCacheStatic implements MailCacheInterface {
    * @return string
    */
   protected function getCid(MailInterface $mail) {
-    $entity_id = $mail->getEntity()->id();
-    return $mail->getEntity()->getEntityTypeId() . ':' . $entity_id . ':' . $mail->getLanguage();
+    $entity_id = $mail->getIssue()->id();
+    return $mail->getIssue()->getEntityTypeId() . ':' . $entity_id . ':' . $mail->getLanguage();
   }
 
   /**

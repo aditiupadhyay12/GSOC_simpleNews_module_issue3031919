@@ -55,10 +55,10 @@ class SpoolList implements SpoolListInterface {
     // Store this spool row as processed.
     $this->processed[$spool_data->msid] = $spool_data;
 
-    $entity = \Drupal::entityTypeManager()
+    $issue = \Drupal::entityTypeManager()
       ->getStorage($spool_data->entity_type)
       ->load($spool_data->entity_id);
-    if (!$entity) {
+    if (!$issue) {
       // If the entity load failed, set the processed status done and proceed with
       // the next mail.
       $this->processed[$spool_data->msid]->result = array(
@@ -85,10 +85,10 @@ class SpoolList implements SpoolListInterface {
       return $this->nextMail();
     }
 
-    $mail = new MailEntity($entity, $subscriber, \Drupal::service('simplenews.mail_cache'));
+    $mail = new MailEntity($issue, $subscriber, \Drupal::service('simplenews.mail_cache'));
 
-    // Set the langcode langcode.
-    $this->processed[$spool_data->msid]->langcode = $mail->getEntity()->language()->getId();
+    // Set the langcode.
+    $this->processed[$spool_data->msid]->langcode = $mail->getLanguage();
     return $mail;
   }
 

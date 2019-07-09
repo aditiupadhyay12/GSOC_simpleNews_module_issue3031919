@@ -10,11 +10,11 @@ namespace Drupal\simplenews\Mail;
 interface MailInterface {
 
   /**
-   * Returns the used entity for this mail.
+   * Returns the newsletter issue entity.
    *
    * @return \Drupal\Core\Entity\ContentEntityInterface
    */
-  function getEntity();
+  function getIssue();
 
   /**
    * Returns the subscriber object.

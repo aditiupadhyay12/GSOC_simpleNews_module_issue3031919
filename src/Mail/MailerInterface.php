@@ -3,7 +3,7 @@
 namespace Drupal\simplenews\Mail;
 
 use Drupal\simplenews\Mail\MailInterface;
-use Drupal\node\NodeInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\SubscriberInterface;
 
@@ -60,12 +60,12 @@ interface MailerInterface {
   /**
    * Send test version of newsletter.
    *
-   * @param \Drupal\node\NodeInterface $node
-   *   The newsletter node to be sent.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $issue
+   *   The newsletter issue to be sent.
    * @param array $test_addresses
    *   List of addresses to send the newsletter to.
    */
-  public function sendTest(NodeInterface $node, array $test_addresses);
+  public function sendTest(ContentEntityInterface $issue, array $test_addresses);
 
   /**
    * Send collected confirmations.

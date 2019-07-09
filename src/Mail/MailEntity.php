@@ -17,11 +17,11 @@ class MailEntity implements MailInterface {
   use DependencySerializationTrait;
 
   /**
-   * The entity object.
+   * The newsletter issue.
    *
    * @var \Drupal\Core\Entity\ContentEntityInterface
    */
-  protected $entity;
+  protected $issue;
 
   /**
    * The cached build render array.
@@ -61,24 +61,14 @@ class MailEntity implements MailInterface {
   /**
    * Constructs a MailEntity object.
    */
-  public function __construct(ContentEntityInterface $entity, SubscriberInterface $subscriber, MailCacheInterface $mail_cache) {
-    $this->setSubscriber($subscriber);
-    $this->setEntity($entity);
-    $this->cache = $mail_cache;
-    $this->newsletter = $entity->simplenews_issue->entity;
-  }
-
-  /**
-   * Set the entity of this mail.
-   *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   *   The entity of this mail.
-   */
-  public function setEntity(ContentEntityInterface $entity) {
-    $this->entity = $entity;
-    if ($this->entity->hasTranslation($this->getLanguage())) {
-      $this->entity = $this->entity->getTranslation($this->getLanguage());
+  public function __construct(ContentEntityInterface $issue, SubscriberInterface $subscriber, MailCacheInterface $mail_cache) {
+    $this->subscriber = $subscriber;
+    $this->issue = $issue;
+    if ($this->issue->hasTranslation($this->getLanguage())) {
+      $this->issue = $this->issue->getTranslation($this->getLanguage());
     }
+    $this->cache = $mail_cache;
+    $this->newsletter = $issue->simplenews_issue->entity;
   }
 
   /**
@@ -92,20 +82,7 @@ class MailEntity implements MailInterface {
   }
 
   /**
-   * Set the active subscriber.
-   *
-   * @param \Drupal\simplenews\SubscriberInterface $subscriber
-   *   The active subscriber.
-   */
-  public function setSubscriber(SubscriberInterface $subscriber) {
-    $this->subscriber = $subscriber;
-  }
-
-  /**
-   * Return the subscriber object.
-   *
-   * @return \Drupal\simplenews\SubscriberInterface
-   *   The subscriber object.
+   * {@inheritdoc}
    */
   public function getSubscriber() {
     return $this->subscriber;
@@ -167,7 +144,7 @@ class MailEntity implements MailInterface {
     return array(
       'newsletter' => $this->getNewsletter(),
       'simplenews_subscriber' => $this->getSubscriber(),
-      $this->getEntity()->getEntityTypeId() => $this->getEntity(),
+      $this->getIssue()->getEntityTypeId() => $this->getIssue(),
     );
   }
 
@@ -227,8 +204,8 @@ class MailEntity implements MailInterface {
   /**
    * {@inheritdoc}
    */
-  function getEntity() {
-    return $this->entity;
+  function getIssue() {
+    return $this->issue;
   }
 
   /**
@@ -308,15 +285,15 @@ class MailEntity implements MailInterface {
 
     // Build message body
     // Supported view modes: 'email_plain', 'email_html', 'email_textalt'
-    $build = \Drupal::entityTypeManager()->getViewBuilder($this->getEntity()->getEntityTypeId())->view($this->getEntity(), 'email_' . $format, $this->getLanguage());
-    $build['#entity_type'] = $this->getEntity()->getEntityTypeId();
+    $build = \Drupal::entityTypeManager()->getViewBuilder($this->getIssue()->getEntityTypeId())->view($this->getIssue(), 'email_' . $format, $this->getLanguage());
+    $build['#entity_type'] = $this->getIssue()->getEntityTypeId();
     // @todo: Consider using render caching.
     unset($build['#cache']);
 
     // We need to prevent the standard theming hooks, but we do want to allow
     // modules such as panelizer that override it, so only clear the standard
     // entity hook and entity type hooks.
-    if ($build['#theme'] == 'entity' || $build['#theme'] == $this->getEntity()->getEntityTypeId()) {
+    if ($build['#theme'] == 'entity' || $build['#theme'] == $this->getIssue()->getEntityTypeId()) {
       unset($build['#theme']);
     }
 
@@ -411,13 +388,13 @@ class MailEntity implements MailInterface {
     $attachments = array();
     $build = $this->build();
     $fids = array();
-    foreach ($this->getEntity()->getFieldDefinitions() as $field_name => $field_definition) {
+    foreach ($this->getIssue()->getFieldDefinitions() as $field_name => $field_definition) {
       // @todo: Find a better way to support more field types.
       // Only add fields of type file which are enabled for the current view
       // mode as attachments.
       if ($field_definition->getType() == 'file' && isset($build[$field_name])) {
 
-        if ($items = $this->getEntity()->get($field_name)) {
+        if ($items = $this->getIssue()->get($field_name)) {
           foreach ($items as $item) {
             $fids[] = $item->target_id;
           }

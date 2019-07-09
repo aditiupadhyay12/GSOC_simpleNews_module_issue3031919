@@ -7,7 +7,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\user\UserInterface;
 
 /**
- * Provides an interface defining a contant message entity
+ * Simplenews subscriber entity interface.
  */
 interface SubscriberInterface extends ContentEntityInterface {
 

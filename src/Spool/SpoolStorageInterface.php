@@ -172,8 +172,8 @@ interface SpoolStorageInterface {
   /**
    * Returns a count of the recipients for a newsletter issue.
    *
-   * @param $node
-   *   The newsletter issue node object.
+   * @param $issue
+   *   The newsletter issue entity.
    *
    * @return int
    *   Count of recipients.

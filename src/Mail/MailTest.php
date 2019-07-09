@@ -76,7 +76,7 @@ class MailTest implements MailInterface {
   /**
    * @inheritDoc
    */
-  function getEntity() {
+  function getIssue() {
     return NULL;
   }
 

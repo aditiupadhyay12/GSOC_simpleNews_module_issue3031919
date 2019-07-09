@@ -4,6 +4,7 @@ namespace Drupal\simplenews\Mail;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
 use Psr\Log\LoggerInterface;
@@ -13,7 +14,6 @@ use Drupal\Core\Session\AnonymousUserSession;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
-use Drupal\node\NodeInterface;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\NewsletterInterface;
@@ -357,7 +357,7 @@ class Mailer implements MailerInterface {
   /**
    * {@inheritdoc}
    */
-  public function sendTest(NodeInterface $node, array $test_addresses) {
+  public function sendTest(ContentEntityInterface $issue, array $test_addresses) {
     // Force the current user to anonymous to ensure consistent permissions.
     $this->accountSwitcher->switchTo(new AnonymousUserSession());
 
@@ -378,7 +378,7 @@ class Mailer implements MailerInterface {
         else {
           $recipients['anonymous'][] = $mail;
         }
-        $mail = new MailEntity($node, $subscriber, $this->mailCache);
+        $mail = new MailEntity($issue, $subscriber, $this->mailCache);
         $mail->setKey('test');
         $this->sendMail($mail);
       }
