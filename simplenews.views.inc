@@ -13,13 +13,9 @@ use Drupal\field\FieldStorageConfigInterface;
 function simplenews_field_views_data(FieldStorageConfigInterface $field_storage) {
   $data = views_field_default_views_data($field_storage);
   foreach ($data as $table_name => $table_data) {
-    // Add the filters for newsletters and subscriber status.
+    // Add the filter for newsletters.
     $data[$table_name][$field_storage->getName() . '_target_id']['filter']['id'] = 'in_operator';
     $data[$table_name][$field_storage->getName() . '_target_id']['filter']['options callback'] = 'simplenews_newsletter_list';
-    if ($field_storage->getType() == 'simplenews_subscription') {
-      $data[$table_name][$field_storage->getName() . '_status']['filter']['id'] = 'in_operator';
-      $data[$table_name][$field_storage->getName() . '_status']['filter']['options callback'] = 'simplenews_subscriber_status_list';
-    }
   }
   return $data;
 }

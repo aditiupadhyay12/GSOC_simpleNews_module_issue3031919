@@ -18,7 +18,5 @@ hidden:
   uid: true
 status: true
 dependencies:
-  config:
-    - field.field.simplenews_subscriber.simplenews_subscriber.subscriptions
   module:
     - simplenews

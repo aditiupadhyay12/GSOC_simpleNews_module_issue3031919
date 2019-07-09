@@ -7,6 +7,8 @@
 
 use Drupal\Core\Database\Database;
 use Drupal\simplenews\Entity\Newsletter;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 
 /**
  * Implements hook_schema().
@@ -157,5 +159,44 @@ function simplenews_update_8202() {
       $newsletter->allowed_handlers = [];
       $newsletter->save();
     }
+  }
+}
+
+/**
+ * Convert simplenews_subscriber.subscriptions to base field.
+ */
+function simplenews_update_8203() {
+  // Add new field definition.
+  $field_definition = BaseFieldDefinition::create('simplenews_subscription')
+    ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+    ->setLabel(t('Subscriptions'))
+    ->setSetting('target_type', 'simplenews_newsletter')
+    ->setDisplayOptions('form', array(
+      'type' => 'simplenews_subscription_select',
+      'weight' => '0',
+      'settings' => array(),
+      'third_party_settings' => array(),
+    ));
+
+  \Drupal::entityDefinitionUpdateManager()->installFieldStorageDefinition('subscriptions', 'simplenews_subscriber', 'simplenews', $field_definition);
+
+  // Remove old configuration.
+  // Cannot use FieldStorageConfig because it throws an exception due to the
+  // clashing base field.
+  $configurations_to_delete = ['field.field.simplenews_subscriber.simplenews_subscriber.subscriptions', 'field.storage.simplenews_subscriber.subscriptions'];
+
+  $config_factory = \Drupal::configFactory();
+  $dependents = \Drupal::service('config.manager')->findConfigEntityDependents('config', $configurations_to_delete);
+
+  foreach ($dependents as $config_name => $config_entity) {
+    $config_entity = $config_factory->getEditable($config_name);
+    $dependencies = $config_entity->get('dependencies.config');
+    $dependencies = array_diff($dependencies, $configurations_to_delete);
+    $config_entity->set('dependencies.config', $dependencies);
+    $config_entity->save();
+  }
+
+  foreach ($configurations_to_delete as $config) {
+    $config_factory->getEditable($config)->delete();
   }
 }

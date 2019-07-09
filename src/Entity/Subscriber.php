@@ -6,6 +6,7 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\simplenews\Plugin\Field\FieldType\SubscriptionItem;
 use Drupal\simplenews\SubscriberInterface;
@@ -380,6 +381,17 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
       ->setDescription(t('The time that the subscriber was created.'));
+
+    $fields['subscriptions'] = BaseFieldDefinition::create('simplenews_subscription')
+      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+      ->setLabel(t('Subscriptions'))
+      ->setSetting('target_type', 'simplenews_newsletter')
+      ->setDisplayOptions('form', array(
+        'type' => 'simplenews_subscription_select',
+        'weight' => '0',
+        'settings' => array(),
+        'third_party_settings' => array(),
+      ));
 
     return $fields;
   }

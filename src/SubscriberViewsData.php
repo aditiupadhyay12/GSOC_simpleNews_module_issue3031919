@@ -30,6 +30,7 @@ class SubscriberViewsData extends EntityViewsData {
         'id' => 'subscriber_link_delete',
       ),
     );
+
     // @todo Username obtained through custom plugin due to core issue.
     $data['simplenews_subscriber']['user_name'] = array(
       'real field' => 'uid',
@@ -39,6 +40,17 @@ class SubscriberViewsData extends EntityViewsData {
         'id' => 'simplenews_user_name',
       ),
     );
+
+    $data['simplenews_subscriber__subscriptions']['subscriptions_status']['filter'] = [
+      'id' => 'in_operator',
+      'options callback' => 'simplenews_subscriber_status_list',
+    ];
+
+    $data['simplenews_subscriber__subscriptions']['subscriptions_target_id']['filter'] = [
+      'id' => 'in_operator',
+      'options callback' => 'simplenews_newsletter_list',
+    ];
+
     return $data;
   }
 }

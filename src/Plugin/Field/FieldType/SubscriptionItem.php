@@ -57,7 +57,7 @@ class SubscriptionItem extends EntityReferenceItem {
     $schema = parent::schema($field_definition);
 
     $schema['columns']['status'] = array(
-      'description' => 'A flag indicating whether the user is subscribed (1) or unsubscribed (0).',
+      'description' => 'A flag indicating whether the user is unsubscribed (0), subscribed (1) or unconfirmed (2).',
       'type' => 'int',
       'size' => 'tiny',
       'not null' => FALSE,
