@@ -90,7 +90,7 @@ class SubscriberForm extends SubscriptionsFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
-    $form_state->setRedirect('view.simplenews_subscribers.page_1');
+    $form_state->setRedirect('entity.simplenews_subscriber.collection');
   }
 
 }

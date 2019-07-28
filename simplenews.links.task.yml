@@ -60,3 +60,28 @@ simplenews.node_tab:
   base_route: entity.node.canonical
   weight: 5
 
+entity.simplenews_subscriber.collection:
+  title: 'Subscribers'
+  route_name: entity.simplenews_subscriber.collection
+  base_route: entity.user.collection
+  weight: 15
+
+simplenews.subscribers_sub:
+  title: 'List'
+  route_name: entity.simplenews_subscriber.collection
+  parent_id: entity.simplenews_subscriber.collection
+
+simplenews.subscriber_import:
+  title: 'Mass subscribe'
+  route_name: simplenews.subscriber_import
+  parent_id: entity.simplenews_subscriber.collection
+
+simplenews.subscriber_unsubscribe:
+  title: 'Mass unsubscribe'
+  route_name: simplenews.subscriber_unsubscribe
+  parent_id: entity.simplenews_subscriber.collection
+
+simplenews.subscriber_export:
+  title: 'Export'
+  route_name: simplenews.subscriber_export
+  parent_id: entity.simplenews_subscriber.collection

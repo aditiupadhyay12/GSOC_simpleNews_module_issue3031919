@@ -589,14 +589,6 @@ display:
     display_options:
       display_extenders: {  }
       path: admin/people/simplenews
-      menu:
-        type: tab
-        title: Subscribers
-        description: ''
-        parent: user.admin_index
-        weight: 11
-        context: '0'
-        menu_name: admin
     cache_metadata:
       contexts:
         - 'languages:language_content'

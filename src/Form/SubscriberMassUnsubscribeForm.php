@@ -98,6 +98,6 @@ class SubscriberMassUnsubscribeForm extends FormBase {
     }
 
     // Return to the parent page.
-    $form_state->setRedirect('view.simplenews_subscribers.page_1');
+    $form_state->setRedirect('entity.simplenews_subscriber.collection');
   }
 }

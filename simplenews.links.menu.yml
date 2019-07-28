@@ -14,7 +14,7 @@ simplenews.subscribers:
   title: Subscribers
   description: 'Administer your subscribers.'
   parent: entity.user.collection
-  route_name: view.simplenews_subscribers.page_1
+  route_name: entity.simplenews_subscriber.collection
 
 simplenews.newsletters:
   title: Newsletter issues

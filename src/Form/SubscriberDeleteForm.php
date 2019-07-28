@@ -22,7 +22,7 @@ class SubscriberDeleteForm extends ContentEntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('view.simplenews_subscribers.page_1');
+    return new Url('entity.simplenews_subscriber.collection');
   }
 
   /**
@@ -39,7 +39,7 @@ class SubscriberDeleteForm extends ContentEntityConfirmFormBase {
     $this->entity->delete();
     $this->messenger()->addMessage(t('Subscriber %label has been deleted.', array('%label' => $this->entity->label())));
     \Drupal::logger('simplenews')->notice('Subscriber %label has been deleted.', array('%label' => $this->entity->label()));
-    $form_state->setRedirect('view.simplenews_subscribers.page_1');
+    $form_state->setRedirect('entity.simplenews_subscriber.collection');
   }
 
 }

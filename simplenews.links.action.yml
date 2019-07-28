@@ -8,25 +8,7 @@ simplenews.subscriber_add:
   route_name: entity.simplenews_subscriber.add_form
   title: 'Add subscriber'
   appears_on:
-    - view.simplenews_subscribers.page_1
-
-simplenews.subscriber_import:
-  route_name: simplenews.subscriber_import
-  title: 'Mass subscribe'
-  appears_on:
-    - view.simplenews_subscribers.page_1
-
-simplenews.subscriber_unsubscribe:
-  route_name: simplenews.subscriber_unsubscribe
-  title: 'Mass unsubscribe'
-  appears_on:
-    - view.simplenews_subscribers.page_1
-
-simplenews.subscriber_export:
-  route_name: simplenews.subscriber_export
-  title: 'Export'
-  appears_on:
-    - view.simplenews_subscribers.page_1
+    - entity.simplenews_subscriber.collection
 
 simplenews.newsletter_issue_add:
   route_name: node.add
