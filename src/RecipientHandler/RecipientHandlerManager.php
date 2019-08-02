@@ -55,8 +55,7 @@ class RecipientHandlerManager extends DefaultPluginManager {
       $options[$handler] = Xss::filter($settings['title']);
     }
 
-    if ($newsletter_id) {
-      $newsletter = Newsletter::load($newsletter_id);
+    if ($newsletter_id && ($newsletter = Newsletter::load($newsletter_id))) {
       $allowed_handlers = array_filter($newsletter->allowed_handlers);
       if ($allowed_handlers) {
         $options = array_intersect_key($options, $allowed_handlers);

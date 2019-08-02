@@ -80,7 +80,7 @@ class IssueWidget extends OptionsSelectWidget implements ContainerFactoryPluginI
     $element['target_id'] = parent::formElement($items, $delta, $element, $form, $form_state);
     $element['target_id']['#required'] = $this->required;
     $element['target_id']['#ajax'] = [
-      'callback' => [get_class($this), 'ajaxUpdateAll'],
+      'callback' => [$this, 'ajaxUpdateAll'],
       'wrapper' => 'simplenews-issue-widget',
       'method' => 'replace',
       'effect' => 'fade',
@@ -96,7 +96,9 @@ class IssueWidget extends OptionsSelectWidget implements ContainerFactoryPluginI
       '#suffix' => '</div>',
     ];
 
-    if (count($options) > 1) {
+    // Show the recipient handler field if there is more than one option and a
+    // newsletter has been selected.
+    if ((count($options) > 1) && !$items->isEmpty()) {
       $element['handler'] += [
         '#type' => 'select',
         '#title' => t('Recipients'),
@@ -104,7 +106,7 @@ class IssueWidget extends OptionsSelectWidget implements ContainerFactoryPluginI
         '#options' => $options,
         '#default_value' => $handler->getPluginId(),
         '#ajax' => [
-          'callback' => [get_class($this), 'ajaxUpdateRecipientHandlerSettings'],
+          'callback' => [$this, 'ajaxUpdateRecipientHandlerSettings'],
           'wrapper' => 'recipient-handler-settings',
           'method' => 'replace',
           'effect' => 'fade',
