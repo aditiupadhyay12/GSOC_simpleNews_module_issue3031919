@@ -5,7 +5,7 @@
  * Contains \Drupal\simplenews\Tests\SimplenewsUninstallTest.
  */
 
-namespace Drupal\simplenews\Tests;
+namespace Drupal\Tests\simplenews\Functional;
 
 /**
  * Tests that Simplenews module can be uninstalled.

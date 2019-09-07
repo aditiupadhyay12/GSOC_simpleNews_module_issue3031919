@@ -7,7 +7,7 @@
  * @ingroup simplenews
  */
 
-namespace Drupal\simplenews\Tests;
+namespace Drupal\Tests\simplenews\Functional;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Html;
@@ -80,7 +80,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     // Create a basic plaintext test source and send it.
     $plain_mail = new MailTest('plain');
     \Drupal::service('simplenews.mailer')->sendMail($plain_mail);
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $mail = $mails[0];
 
     // Assert resulting mail.
@@ -101,7 +101,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
 
     $html_mail = new MailTest('html');
     \Drupal::service('simplenews.mailer')->sendMail($html_mail);
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $mail = $mails[1];
 
     // Assert resulting mail.
@@ -150,10 +150,10 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $after = microtime(TRUE);
 
     // Make sure that 99 mails have been sent.
-    $this->assertEqual(99, count($this->drupalGetMails()));
+    $this->assertEqual(99, count($this->getMails()));
 
     // Test that tokens are correctly replaced.
-    foreach (array_slice($this->drupalGetMails(), 0, 3) as $mail) {
+    foreach (array_slice($this->getMails(), 0, 3) as $mail) {
       // Make sure that the same mail was used in the body token as it has been
       // sent to. Also verify that the mail is plaintext.
       $this->assertTrue(strpos($mail['body'], '*' . $mail['to'] . '*') !== FALSE);
@@ -215,10 +215,10 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that 5 mails have been sent.
-    $this->assertEqual(5, count($this->drupalGetMails()));
+    $this->assertEqual(5, count($this->getMails()));
 
     // Test that tokens are correctly replaced.
-    foreach (array_slice($this->drupalGetMails(), 0, 3) as $mail) {
+    foreach (array_slice($this->getMails(), 0, 3) as $mail) {
       // Verify title.
       preg_match('|<h2>(.*)</h2>|', $mail['body'], $matches);
       $this->assertEqual(Html::decodeEntities($matches[1]), $node->getTitle());
@@ -294,10 +294,10 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that 5 mails have been sent.
-    $this->assertEqual(5, count($this->drupalGetMails()));
+    $this->assertEqual(5, count($this->getMails()));
 
     // Test that tokens are correctly replaced.
-    foreach (array_slice($this->drupalGetMails(), 0, 3) as $mail) {
+    foreach (array_slice($this->getMails(), 0, 3) as $mail) {
       // Verify the unsubscribe link is not displayed for hidden newsletters.
       $this->assertFalse(strpos($mail['body'], (string) t('Unsubscribe from this newsletter')));
     }
@@ -338,10 +338,10 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $after = microtime(TRUE);
 
     // Make sure that 100 mails have been sent.
-    $this->assertEqual(100, count($this->drupalGetMails()));
+    $this->assertEqual(100, count($this->getMails()));
 
     // Test that tokens are correctly replaced.
-    foreach (array_slice($this->drupalGetMails(), 0, 3) as $mail) {
+    foreach (array_slice($this->getMails(), 0, 3) as $mail) {
       // Make sure that the same mail was used in the body token as it has been
       // sent to. Also verify that the mail is plaintext.
       $this->assertTrue(strpos($mail['body'], '*' . $mail['to'] . '*') !== FALSE);
@@ -384,7 +384,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that no mails have been sent.
-    $this->assertEqual(0, count($this->drupalGetMails()));
+    $this->assertEqual(0, count($this->getMails()));
 
     $spool_row = \Drupal::database()->query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
     $this->assertEqual(SpoolStorageInterface::STATUS_DONE, $spool_row->status);
@@ -415,7 +415,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that no mails have been sent.
-    $this->assertEqual(0, count($this->drupalGetMails()));
+    $this->assertEqual(0, count($this->getMails()));
 
     $spool_row = \Drupal::database()->query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
     $this->assertEqual(SpoolStorageInterface::STATUS_DONE, $spool_row->status);
@@ -435,7 +435,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     ]);
     \Drupal::service('simplenews.spool_storage')->addIssue($node);
     \Drupal::service('simplenews.mailer')->sendSpool();
-    $this->assertEqual(0, count($this->drupalGetMails()));
+    $this->assertEqual(0, count($this->getMails()));
     $spool_row = \Drupal::database()->select('simplenews_mail_spool', 'ms')
       ->fields('ms', ['status'])
       ->execute()

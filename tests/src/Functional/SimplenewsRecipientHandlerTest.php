@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\simplenews\Tests;
+namespace Drupal\Tests\simplenews\Functional;
 
 /**
  * Test cases for creating and sending newsletters.
@@ -22,7 +22,7 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
 
     // We install the demo module to get the recipient handlers. It creates
     // users and sends some mails so clear those first.
-    user_delete_multiple(\Drupal::entityQuery('user')->execute());
+    user_delete_multiple(\Drupal::entityQuery('user')->condition('uid', 0, '>')->execute());
     simplenews_cron();
     $this->container->get('state')->set('system.test_mail_collector', []);
 
@@ -136,7 +136,7 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
    */
   private function checkRecipients(array $expected) {
     simplenews_cron();
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $this->assertEqual(count($expected), count($mails), t('All mails were sent.'));
     foreach ($mails as $mail) {
       $this->assertTrue(isset($expected[$mail['to']]), t('Found valid recipient @recip', ['@recip' => $mail['to']]));

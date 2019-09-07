@@ -7,19 +7,24 @@
  * @ingroup simplenews
  */
 
-namespace Drupal\simplenews\Tests;
+namespace Drupal\Tests\simplenews\Functional;
 
+use Drupal\Core\Test\AssertMailTrait;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
-use Drupal\simpletest\WebTestBase;
+use Drupal\Tests\BrowserTestBase;
+use Drupal\Tests\Traits\Core\CronRunTrait;
 use Drupal\user\UserInterface;
 
 /**
  * Base class for simplenews web tests.
  */
-abstract class SimplenewsTestBase extends WebTestBase {
+abstract class SimplenewsTestBase extends BrowserTestBase {
+
+  use AssertMailTrait;
+  use CronRunTrait;
 
   /**
    * Modules to enable.
@@ -257,15 +262,13 @@ abstract class SimplenewsTestBase extends WebTestBase {
    * @param int $offset
    *   Zero-based ordinal number of a sent mail.
    *
-   * @return string|bool
-   *   The body of the mail, or FALSE if the offset is invalid.
+   * @return string
+   *   The body of the mail.
    */
   protected function getMail($offset) {
-    $mails = $this->drupalGetMails();
-    if ($this->assertTrue(isset($mails[$offset]), t('Valid mails offset %offset (%count mails sent).', array('%offset' => $offset, '%count' => count($mails))))) {
-      return $mails[$offset]['body'];
-    }
-    return FALSE;
+    $mails = $this->getMails();
+    $this->assertTrue(isset($mails[$offset]), t('Valid mails offset %offset (%count mails sent).', array('%offset' => $offset, '%count' => count($mails))));
+    return $mails[$offset]['body'];
   }
 
   /**
@@ -277,14 +280,11 @@ abstract class SimplenewsTestBase extends WebTestBase {
    *   Specify to check the n:th last mail.
    * @param bool $exist
    *   (optional) Whether the string is expected to be found or not.
-   *
-   * @return bool
-   *   Whether the string was found, or the inverted if $exist is FALSE.
    */
   protected function assertMailText($needle, $offset, $exist = TRUE) {
     $body = preg_replace('/\s+/', ' ', $this->getMail($offset));
     $this->verbose($body);
     $pos = strpos($body, (string) $needle);
-    return $this->assertEqual($exist, $pos !== FALSE, "$needle found in mail");
+    $this->assertEquals($pos !== FALSE, $exist, "$needle found in mail");
   }
 }

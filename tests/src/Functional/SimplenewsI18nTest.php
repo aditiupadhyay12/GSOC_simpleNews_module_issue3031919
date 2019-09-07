@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\simplenews\Tests;
+namespace Drupal\Tests\simplenews\Functional;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\language\Entity\ConfigurableLanguage;
@@ -141,10 +141,10 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     $this->cronRun();
     //simplenews_cron();
 
-    $this->assertEqual(3, count($this->drupalGetMails()));
+    $this->assertEqual(3, count($this->getMails()));
 
     $newsletter = Newsletter::load($newsletter_id);
-    foreach ($this->drupalGetMails() as $mail) {
+    foreach ($this->getMails() as $mail) {
 
       if ($mail['to'] == $english_mail) {
         $this->assertEqual('en', $mail['langcode']);

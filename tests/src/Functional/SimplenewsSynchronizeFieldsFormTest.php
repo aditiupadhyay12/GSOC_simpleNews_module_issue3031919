@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\simplenews\Tests;
+namespace Drupal\Tests\simplenews\Functional;
 
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\user\Entity\User;

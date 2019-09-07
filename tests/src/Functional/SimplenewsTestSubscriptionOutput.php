@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\simplenews\Tests;
+namespace Drupal\Tests\simplenews\Functional;
 
 /**
  * Test subscription output on user profile page.

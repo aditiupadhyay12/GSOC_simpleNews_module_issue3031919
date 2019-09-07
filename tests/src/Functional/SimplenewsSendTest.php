@@ -7,7 +7,7 @@
  * @ingroup simplenews
  */
 
-namespace Drupal\simplenews\Tests;
+namespace Drupal\Tests\simplenews\Functional;
 
 use Drupal\node\Entity\Node;
 use Drupal\user\Entity\User;
@@ -71,7 +71,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.mailer')->updateSendStatus();
 
     // Verify mails.
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $this->assertEqual(5, count($mails), t('All mails were sent.'));
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $node->getTitle(), t('Mail has correct subject'));
@@ -134,7 +134,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->clickLink(t('Newsletter'));
     $this->assertText(t('Send'));
     $this->assertText(t('Test'));
-    $this->assertNoText(t('Send newsletter when published'), t('Send on publish is not shown for published nodes.'));
+    $this->assertNoText(t('Send newsletter when published'));
 
     // Verify state.
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
@@ -148,7 +148,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_READY, $node->simplenews_issue->status, t('Newsletter sending finished'));
 
     // Verify mails.
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $this->assertEqual(5, count($mails), t('All mails were sent.'));
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
@@ -229,7 +229,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_PENDING, $node->simplenews_issue->status, t('Newsletter sending pending.'));
 
     // Verify that no mails have been sent yet.
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $this->assertEqual(0, count($mails), t('No mails were sent yet.'));
 
     $spooled = \Drupal::database()->query('SELECT COUNT(*) FROM {simplenews_mail_spool} WHERE entity_id = :nid AND entity_type = :type', array(':nid' => $node->id(), ':type' => 'node'))->fetchField();
@@ -259,7 +259,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(0, $spooled, t('No mails remaining in spool.'));
 
     // Verify mails.
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $this->assertEqual(5, count($mails), t('All mails were sent.'));
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
@@ -312,7 +312,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_PENDING, $node->simplenews_issue->status, t('Newsletter sending pending.'));
 
     // Verify that no mails have been sent yet.
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $this->assertEqual(0, count($mails), t('No mails were sent yet.'));
 
     $spooled = \Drupal::database()->query('SELECT COUNT(*) FROM {simplenews_mail_spool} WHERE entity_id = :nid AND entity_type = :type', array(':nid' => $node->id(), ':type' => 'node'))->fetchField();
@@ -334,7 +334,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(0, $spooled, t('No mails remaining in spool.'));
 
     // Verify mails.
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $this->assertEqual(5, count($mails), t('All mails were sent.'));
     foreach ($mails as $mail) {
       // @todo Temporarily strip tags from mail subjects until
@@ -398,7 +398,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_READY, $node->simplenews_issue->status, t('Newsletter sending finished'));
     // @todo test sent subscriber count.
     // Verify mails.
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $this->assertEqual(5, count($mails), t('All mails were sent.'));
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
@@ -536,7 +536,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(5, $spooled, t('Mails are kept in simplenews_mail_spool after being sent.'));
 
     // Verify mails.
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $this->assertEqual(5, count($mails), t('All mails were sent.'));
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
@@ -555,7 +555,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Verify that kept mail spool rows are not re-sent.
     simplenews_cron();
     \Drupal::service('simplenews.spool_storage')->getMails();
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $this->assertEqual(5, count($mails), t('No additional mails have been sent.'));
 
     // Now delete.
@@ -616,7 +616,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.mailer')->updateSendStatus();
 
     // Verify mails.
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     // Check the mails sent to subscribers (who are also users) and verify each
     // users uid in the mail body.
     $mails_with_users = 0;
@@ -666,7 +666,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Update sent status for newsletter admin panel.
     \Drupal::service('simplenews.mailer')->updateSendStatus();
 
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
 
     // Check if the correct theme was used in mails.
     $this->assertTrue(strpos($mails[0]['body'], 'Simplenews test theme') != FALSE);
@@ -698,7 +698,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Update sent status for newsletter admin panel.
     \Drupal::service('simplenews.mailer')->updateSendStatus();
 
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
 
     // Check that the node title is displayed unaltered in the subject and
     // unaltered except being uppercased due to the HTML conversion in the body.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\simplenews\Tests;
+namespace Drupal\Tests\simplenews\Functional;
 
 use Drupal\block\Entity\Block;
 use Drupal\Component\Utility\Html;
@@ -150,7 +150,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $user = user_load_by_name($edit['name']);
     // Set the password so that the login works.
-    $user->pass_raw = $edit['pass[pass1]'];
+    $user->passRaw = $edit['pass[pass1]'];
 
     // Verify newsletter subscription pages.
     $this->drupalLogin($user);
@@ -341,15 +341,15 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $rows = $this->xpath('//tbody/tr');
     $mail_addresses = array();
     for ($i = 0; $i < count($subscribers_flat); $i++) {
-      $email = trim((string) $rows[$i]->td[0]);
+      $email = trim($rows[$i]->find('xpath', '/td[1]')->getText());
       $mail_addresses[] = $email;
       if ($email == $user_mail) {
          // The user to which the mail was assigned should show the user name.
-        $this->assertEqual(trim((string) $rows[$i]->td[1]->children()[0]), $user->getAccountName());
+        $this->assertEqual(trim($rows[$i]->find('xpath', '/td[2]/a')->getText()), $user->getAccountName());
       }
       else {
         // Blank value for user name.
-        $this->assertEqual($rows[$i]->td[1]->count(), 0);
+        $this->assertEqual($rows[$i]->find('xpath', '/td[2]/a'), NULL);
       }
     }
     $this->assertEqual(15, count($mail_addresses));
@@ -377,7 +377,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $rows = $this->xpath('//tbody/tr');
     $mail_addresses = array();
     for ($i = 0; $i < count($subscribers_flat); $i++) {
-      $mail_addresses[] = trim((string) $rows[$i]->td[0]);
+      $mail_addresses[] = trim($rows[$i]->find('xpath', '/td[1]')->getText());
     }
     $this->assertEqual(10, count($mail_addresses));
     foreach ($mail_addresses as $mail_address) {
@@ -396,9 +396,9 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $rows = $this->xpath('//tbody/tr');
     $this->assertEqual(1, count($rows));
-    $this->assertEqual(current($subscribers['all']), trim((string) $rows[0]->td[0]));
+    $this->assertEqual(current($subscribers['all']), trim($rows[0]->find('xpath', '/td[1]')->getText()));
     // Mysteriously, the username is sometimes a span and sometimes a link.  Accept both.
-    $this->assertEqual($user->label(), trim((string) $rows[0]->td[1]->xpath('span|a')[0]));
+    $this->assertEqual($user->label(), trim($rows[0]->find('xpath', '/td[2]/span|/td[2]/a')->getText()));
 
     // Reset the filter.
     $this->drupalGet('admin/people/simplenews');
@@ -432,7 +432,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->clickLink(t('Export'));
     $this->drupalPostForm(NULL, array('newsletters[' . $first . ']' => TRUE), t('Export'));
     $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
-    $exported_mails = (string) $export_field[0];
+    $exported_mails = $export_field[0]->getText();
     foreach ($subscribers[$first] as $mail) {
       $this->assertTrue(strpos($exported_mails, $mail) !== FALSE, t('Mail address exported correctly.'));
     }
@@ -454,7 +454,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalPostForm(NULL, $edit, t('Export'));
 
     $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
-    $exported_mails = (string) $export_field[0];
+    $exported_mails = $export_field[0]->getText();
     $exported_mails = explode(', ', $exported_mails);
     $this->assertEqual(2, count($exported_mails));
     $this->assertTrue(in_array($all_mail, $exported_mails));
@@ -483,7 +483,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalPostForm(NULL, $edit, t('Export'));
 
     $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
-    $exported_mails = (string) $export_field[0];
+    $exported_mails = $export_field[0]->getText();
     $exported_mails = explode(', ', $exported_mails);
     $this->assertTrue(in_array($unconfirmed[0], $exported_mails));
     $this->assertTrue(in_array($unconfirmed[1], $exported_mails));
@@ -498,7 +498,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalPostForm(NULL, $edit, t('Export'));
 
     $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
-    $exported_mails = (string) $export_field[0];
+    $exported_mails = $export_field[0]->getText();
     $exported_mails = explode(', ', $exported_mails);
     $this->assertEqual(2, count($exported_mails));
     $this->assertTrue(in_array($unconfirmed[0], $exported_mails));
@@ -708,7 +708,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $rows = $this->xpath('//tbody/tr');
     $counter = 0;
     foreach ($rows as $value) {
-      if (trim((string) $value->td[0]) == 'drupaltest@example.com') {
+      if (trim($value->find('xpath', '/td[1]')->getText()) == 'drupaltest@example.com') {
         $counter++;
       }
     }
@@ -813,7 +813,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalPostForm(NULL, array('test_address' => $admin_user->getEmail()), t('Send test newsletter issue'));
     $this->assertText(t('Test newsletter sent to user @name &lt;@email&gt;', array('@name' => $admin_user->getAccountName(), '@email' => $admin_user->getEmail())));
 
-    $mails = $this->drupalGetMails();
+    $mails = $this->getMails();
     $this->assertEqual('simplenews_test', $mails[0]['id']);
     $this->assertEqual($admin_user->getEmail(), $mails[0]['to']);
     $this->assertEqual(t('[Default newsletter] @title', array('@title' => $node->getTitle())), $mails[0]['subject']);
@@ -892,16 +892,16 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalGet('admin/people/simplenews', array('query' => array('subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED)));
     $row = $this->xpath('//tbody/tr');
     $this->assertEqual(1, count($row));
-    $this->assertEqual($subscribers[0]->getMail(), trim((string) $row[0]->td[0]));
+    $this->assertEqual($subscribers[0]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
     $this->drupalGet('admin/people/simplenews', array('query' => array('subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED)));
     $row = $this->xpath('//tbody/tr');
     $this->assertEqual(1, count($row));
-    $this->assertEqual($subscribers[1]->getMail(), trim((string) $row[0]->td[0]));
+    $this->assertEqual($subscribers[1]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
     $this->assertText($newsletters['default']->name . ' (' . t('Unconfirmed') . ')');
     $this->drupalGet('admin/people/simplenews', array('query' => array('subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED)));
     $row = $this->xpath('//tbody/tr');
     $this->assertEqual(1, count($row));
-    $this->assertEqual($subscribers[2]->getMail(), trim((string) $row[0]->td[0]));
+    $this->assertEqual($subscribers[2]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
     $this->assertText($newsletters['default']->name . ' (' . t('Unsubscribed') . ')');
   }
 
@@ -961,14 +961,14 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertEqual(2, count($rows));
 
     foreach ($rows as $row) {
-      if ($row->td[1]->a == 'Test_issue_2') {
-        $this->assertEqual($name, trim((string) $row->td[2]->a));
-        $this->assertEqual('Newsletter issue will be sent to 3 subscribers.', trim((string) $row->td[5]->span['title']));
-        $this->assertEqual('✖', trim((string) $row->td[3]));
-        $this->assertEqual('0/3', trim((string) $row->td[5]->span));
+      if ($row->find('xpath', '/td[2]/a')->getText() == 'Test_issue_2') {
+        $this->assertEqual($name, trim($row->find('xpath', '/td[3]/a')->getText()));
+        $this->assertEqual('Newsletter issue will be sent to 3 subscribers.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
+        $this->assertEqual('✖', trim($row->find('xpath', '/td[4]')->getText()));
+        $this->assertEqual('0/3', trim($row->find('xpath', '/td[6]/span')->getText()));
       }
       else {
-        $this->assertEqual('✔', trim((string) $row->td[3]));
+        $this->assertEqual('✔', trim($row->find('xpath', '/td[4]')->getText()));
       }
     }
     // Send newsletter issues using bulk operations.
@@ -984,12 +984,12 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $rows = $this->xpath('//tbody/tr');
     // Assert the status message of each newsletter.
     foreach ($rows as $row) {
-      if ($row->td[1]->a == 'Test_issue_2') {
-        $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim((string) $row->td[5]->span['title']));
+      if ($row->find('xpath', '/td[2]/a')->getText() == 'Test_issue_2') {
+        $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
       }
       else {
-        $this->assertEqual('Newsletter issue is pending, 0 mails sent out of 3.', trim((string) $row->td[5]->img['title']));
-        $this->assertEqual(file_url_transform_relative(file_create_url(drupal_get_path('module', 'simplenews') . '/images/sn-cron.png')), trim((string) $row->td[5]->img['src']));
+        $this->assertEqual('Newsletter issue is pending, 0 mails sent out of 3.', trim($row->find('xpath', '/td[6]/img')->getAttribute('title')));
+        $this->assertEqual(file_url_transform_relative(file_create_url(drupal_get_path('module', 'simplenews') . '/images/sn-cron.png')), trim($row->find('xpath', '/td[6]/img')->getAttribute('src')));
       }
     }
     // Stop sending the pending newsletters.
@@ -1004,11 +1004,11 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $rows = $this->xpath('//tbody/tr');
     // Check the send status of each issue.
     foreach ($rows as $row) {
-      if ($row->td[1]->a == 'Test_issue_2') {
-        $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim((string) $row->td[5]->span['title']));
+      if ($row->find('xpath', '/td[2]/a')->getText() == 'Test_issue_2') {
+        $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
       }
       else {
-        $this->assertEqual('Newsletter issue will be sent to 3 subscribers.', trim((string) $row->td[5]->span['title']));
+        $this->assertEqual('Newsletter issue will be sent to 3 subscribers.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
       }
     }
 
@@ -1025,12 +1025,12 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $rows = $this->xpath('//tbody/tr');
     // Check the send status of each issue.
     foreach ($rows as $row) {
-      if ($row->td[1]->a == 'Test_issue_2') {
-        $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim((string) $row->td[5]->span['title']));
+      if ($row->find('xpath', '/td[2]/a')->getText() == 'Test_issue_2') {
+        $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
       }
       else {
-        $this->assertEqual('Newsletter issue sent to 3 subscribers.', trim((string) $row->td[5]->img['title']));
-        $this->assertEqual(file_url_transform_relative(file_create_url(drupal_get_path('module', 'simplenews') . '/images/sn-sent.png')), trim((string) $row->td[5]->img['src']));
+        $this->assertEqual('Newsletter issue sent to 3 subscribers.', trim($row->find('xpath', '/td[6]/img')->getAttribute('title')));
+        $this->assertEqual(file_url_transform_relative(file_create_url(drupal_get_path('module', 'simplenews') . '/images/sn-sent.png')), trim($row->find('xpath', '/td[6]/img')->getAttribute('src')));
       }
     }
   }
