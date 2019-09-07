@@ -25,11 +25,12 @@ function simplenews_drush_command() {
   $items['simplenews-spool-send'] = array(
     'description' => 'Send the defined amount of mail spool entries.',
     'examples' => array(
-      'drush sn-ss' => dt('Send the default amount of mails, as defined by the simplenews_throttle variable.'),
+      'drush sn-ss' => dt('Send the default amount of mails, as defined by the mail.throttle settings.'),
       'drush sn-ss 0' => dt('Send all mails.'),
-      'drush sn-ss 100' => dt('Send 100 mails'),
+      'drush sn-ss 100' => dt('Send 100 mails.'),
     ),
     'options' => array(
+      'limit' => dt('Number of mails to send. 0 sends all emails. If not specified, will be set to the value of the mail.throttle in the module settings config.'),
       'pipe' => dt('Just print the sent and remaining count on separate lines to allow parsing'),
     ),
     'aliases' => array('sn-ss'),
