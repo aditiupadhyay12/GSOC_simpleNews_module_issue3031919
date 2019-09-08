@@ -229,7 +229,7 @@ class SpoolStorage implements SpoolStorageInterface {
   /**
    * {@inheritdoc}
    */
-  public function addIssue($issue) {
+  public function addIssue(ContentEntityInterface $issue) {
     if (!in_array($issue->simplenews_issue->status, [SIMPLENEWS_STATUS_SEND_NOT, SIMPLENEWS_STATUS_SEND_PUBLISH])) {
       return;
     }
