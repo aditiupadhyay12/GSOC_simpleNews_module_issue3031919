@@ -21,7 +21,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
     $this->addField('string', 'field_shared', 'user');
     $this->addField('string', 'field_shared', 'simplenews_subscriber');

@@ -28,7 +28,7 @@ class SimplenewsMonitoringTest extends KernelTestBase {
   /**
    * Tests individual sensors.
    */
-  function testSensors() {
+  public function testSensors() {
 
     $this->installConfig(array('system'));
     $this->installConfig(array('node'));

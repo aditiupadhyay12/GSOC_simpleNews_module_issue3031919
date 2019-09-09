@@ -27,7 +27,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
     $this->drupalPlaceBlock('help_block');
   }
@@ -35,14 +35,14 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
   /**
    * Implement getNewsletterFieldId($newsletter_id)
    */
-  function getNewsletterFieldId($newsletter_id) {
+  protected function getNewsletterFieldId($newsletter_id) {
     return 'edit-subscriptions-' . str_replace('_', '-', $newsletter_id);
   }
 
   /**
    * Test various combinations of newsletter settings.
    */
-  function testNewsletterSettings() {
+  public function testNewsletterSettings() {
 
     // Allow registration of new accounts without approval.
     $site_config = $this->config('user.settings');
@@ -271,7 +271,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
    *
    * Steps performed:
    */
-  function testSubscriptionManagement() {
+  public function testSubscriptionManagement() {
     $admin_user = $this->drupalCreateUser(array(
         'administer newsletters',
         'administer simplenews settings',
@@ -727,7 +727,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
   /**
    * Test content type configuration.
    */
-  function testContentTypes() {
+  public function testContentTypes() {
     $admin_user = $this->drupalCreateUser(array(
         'administer blocks',
         'administer content types',
@@ -855,7 +855,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
   /**
    * Test content subscription status filter in subscriber view.
    */
-  function testSubscriberStatusFilter() {
+  public function testSubscriberStatusFilter() {
     // Make sure subscription overview can't be accessed without permission.
     $this->drupalGet('admin/people/simplenews');
     $this->assertResponse(403);
@@ -908,7 +908,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
   /**
    * Test newsletter issue overview.
    */
-  function testNewsletterIssuesOverview() {
+  public function testNewsletterIssuesOverview() {
     // Verify newsletter overview isn't available without permission.
     $this->drupalGet('admin/content/simplenews');
     $this->assertResponse(403);
@@ -1038,7 +1038,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
   /**
    * Test access for subscriber admin page.
    */
-  function testAccess() {
+  public function testAccess() {
     $admin_user = $this->drupalCreateUser(array(
         'administer newsletters',
         'administer simplenews subscriptions',

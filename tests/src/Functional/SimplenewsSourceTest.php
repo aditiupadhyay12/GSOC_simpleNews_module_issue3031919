@@ -24,7 +24,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class SimplenewsSourceTest extends SimplenewsTestBase {
 
-  function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     // Create the filtered_html text format.
@@ -75,7 +75,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   /**
    * Tests that sending a minimal implementation of the source interface works.
    */
-  function testSendMinimalSourceImplementation() {
+  public function testSendMinimalSourceImplementation() {
 
     // Create a basic plaintext test source and send it.
     $plain_mail = new MailTest('plain');
@@ -126,7 +126,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   /**
    * Test sending a newsletter to 100 recipients with caching enabled.
    */
-  function testSendCaching() {
+  public function testSendCaching() {
 
     $this->setUpSubscribers(100);
 
@@ -175,7 +175,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   /**
    * Send a newsletter with the HTML format.
    */
-  function testSendHTML() {
+  public function testSendHTML() {
     $this->setUpSubscribers(5);
 
     // Use custom testing mail system to support HTML mails.
@@ -266,7 +266,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   /**
    * Send a issue with the newsletter set to hidden.
    */
-  function testSendHidden() {
+  public function testSendHidden() {
     $this->setUpSubscribers(5);
 
     // Set the format to HTML.
@@ -306,7 +306,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   /**
    * Test with disabled caching.
    */
-  function testSendNoCaching() {
+  public function testSendNoCaching() {
     $this->setUpSubscribers(100);
 
     // Disable caching.
@@ -357,7 +357,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   /**
    * Test sending when the issue node is missing.
    */
-  function testSendMissingNode() {
+  public function testSendMissingNode() {
     $this->setUpSubscribers(1);
 
     $edit = array(
@@ -393,7 +393,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   /**
    * Test sending when there are no subscribers.
    */
-  function testSendMissingSubscriber() {
+  public function testSendMissingSubscriber() {
     $this->setUpSubscribers(1);
 
     $edit = array(

@@ -27,7 +27,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
    */
   public static $modules = array('system_mail_failure_test');
 
-  function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     $admin_user = $this->drupalCreateUser(array(
@@ -49,7 +49,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   /**
    * Creates and sends a node using the API.
    */
-  function testProgrammaticNewsletter() {
+  public function testProgrammaticNewsletter() {
     // Create a very basic node.
     $node = Node::create(array(
       'type' => 'simplenews_issue',
@@ -113,7 +113,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   /**
    * Send a newsletter without cron.
    */
-  function testSendNowNoCron() {
+  public function testSendNowNoCron() {
     // Disable cron.
     $config = $this->config('simplenews.settings');
     $config->set('mail.use_cron', FALSE);
@@ -163,7 +163,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   /**
    * Send multiple newsletters without cron.
    */
-  function testSendMultipleNoCron() {
+  public function testSendMultipleNoCron() {
     // Disable cron.
     $config = $this->config('simplenews.settings');
     $config->set('mail.use_cron', FALSE);
@@ -194,7 +194,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   /**
    * Send a newsletter using cron and a low throttle.
    */
-  function testSendNowCronThrottle() {
+  public function testSendNowCronThrottle() {
     $config = $this->config('simplenews.settings');
     $config->set('mail.throttle', 3);
     $config->save();
@@ -273,7 +273,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   /**
    * Send a newsletter using cron.
    */
-  function testSendNowCron() {
+  public function testSendNowCron() {
 
     // Verify that the newsletter settings are shown.
     $this->drupalGet('node/add/simplenews_issue');
@@ -349,7 +349,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   /**
    * Send a newsletter on publish without using cron.
    */
-  function testSendPublishNoCron() {
+  public function testSendPublishNoCron() {
     // Disable cron.
     $config = $this->config('simplenews.settings');
     $config->set('mail.use_cron', FALSE);
@@ -408,7 +408,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(0, count($this->subscribers), t('all subscribers have been received a mail'));
   }
 
-  function testUpdateNewsletter() {
+  public function testUpdateNewsletter() {
     // Create a second newsletter.
     $this->drupalGet('admin/config/services/simplenews');
     $this->clickLink(t('Add newsletter'));
@@ -459,7 +459,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   /**
    * Tests failing to send mails from cron.
    */
-  function testSendFail() {
+  public function testSendFail() {
     // Create and send an issue.
     $issue = Node::create([
       'type' => 'simplenews_issue',
@@ -482,7 +482,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   /**
    * Create a newsletter, send mails and then delete.
    */
-  function testDelete() {
+  public function testDelete() {
     // Verify that the newsletter settings are shown.
     $this->drupalGet('node/add/simplenews_issue');
     $this->assertText(t('Create Newsletter Issue'));
@@ -574,7 +574,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   /**
    * Test that the correct user is used when sending newsletters.
    */
-  function testImpersonation() {
+  public function testImpersonation() {
 
     // Create user to manage subscribers.
     $admin_user = $this->drupalCreateUser(array('administer users'));
@@ -642,7 +642,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   /**
    * Test the theme suggestions when sending mails.
    */
-  function testNewsletterTheme() {
+  public function testNewsletterTheme() {
     // Install and enable the test theme.
     \Drupal::service('theme_handler')->install(array('simplenews_newsletter_test_theme'));
     \Drupal::theme()->setActiveTheme(\Drupal::service('theme.initialization')->initTheme('simplenews_newsletter_test_theme'));
@@ -676,7 +676,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
   /**
    * Test the correct handling of HTML special characters in plain text mails.
    */
-  function testHtmlEscaping() {
+  public function testHtmlEscaping() {
 
     $title = '><\'"-&&amp;--*';
     $node = Node::create(array(

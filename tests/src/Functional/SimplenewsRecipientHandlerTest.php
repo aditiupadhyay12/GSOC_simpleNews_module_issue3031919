@@ -17,7 +17,7 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     // We install the demo module to get the recipient handlers. It creates
@@ -118,7 +118,7 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
   /**
    * Create some test users.
    */
-  private function createUsers($subscribe = FALSE) {
+  protected function createUsers($subscribe = FALSE) {
     $subscription_manager = \Drupal::service('simplenews.subscription_manager');
     do {
       $new_user = $this->drupalCreateUser([]);
@@ -134,7 +134,7 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
   /**
    * Checks the expected users received mails.
    */
-  private function checkRecipients(array $expected) {
+  protected function checkRecipients(array $expected) {
     simplenews_cron();
     $mails = $this->getMails();
     $this->assertEqual(count($expected), count($mails), t('All mails were sent.'));

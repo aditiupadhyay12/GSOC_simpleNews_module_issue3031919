@@ -25,7 +25,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
   /**
    * Subscribe to multiple newsletters at the same time.
    */
-  function testSubscribeMultiple() {
+  public function testSubscribeMultiple() {
     $admin_user = $this->drupalCreateUser(array(
       'administer blocks',
       'administer content types',
@@ -299,7 +299,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
   /**
    * Extract a confirmation link from a mail body.
    */
-  function extractConfirmationLink($body) {
+  protected function extractConfirmationLink($body) {
     $pattern = '@newsletter/confirm/.+@';
     preg_match($pattern, $body, $match);
     $found = preg_match($pattern, $body, $match);
@@ -321,7 +321,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
    *   2. Subscribe anonymous via subscription page
    *   3. Subscribe anonymous via multi block
    */
-  function testSubscribeAnonymous() {
+  public function testSubscribeAnonymous() {
     // 0. Preparation
     // Login admin
     // Set permission for anonymous to subscribe
@@ -636,7 +636,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
    *   0. Preparation
    *   1. Subscribe anonymous via block
    */
-  function testSubscribeAnonymousSingle() {
+  public function testSubscribeAnonymousSingle() {
     // 0. Preparation
     // Login admin
     // Create single opt in newsletter.
@@ -716,7 +716,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
    *   5. Subscribe authenticated via account page
    *   6. Subscribe authenticated via multi block
    */
-  function testSubscribeAuthenticated() {
+  public function testSubscribeAuthenticated() {
     // 0. Preparation
     // Login admin
     // Set permission for anonymous to subscribe

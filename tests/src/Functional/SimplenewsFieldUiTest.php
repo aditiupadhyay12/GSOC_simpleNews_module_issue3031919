@@ -19,7 +19,7 @@ class SimplenewsFieldUiTest extends SimplenewsTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
     $this->drupalPlaceBlock('help_block');
   }
@@ -27,7 +27,7 @@ class SimplenewsFieldUiTest extends SimplenewsTestBase {
   /**
    * Test that a new content type has a simplenews_issue field when is used as a simplenews newsletter.
    */
-  function testContentTypeCreation() {
+  public function testContentTypeCreation() {
     $admin_user = $this->drupalCreateUser(array(
       'administer blocks',
       'administer content types',

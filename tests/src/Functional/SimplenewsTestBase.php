@@ -40,7 +40,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    */
   protected $config;
 
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
     $this->drupalPlaceBlock('local_tasks_block');
     $this->drupalPlaceBlock('local_actions_block');
@@ -67,7 +67,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * Email addresses are case sensitive, simplenews system should handle with
    * this correctly.
    */
-  function randomEmail($number = 4, $prefix = 'simpletest_', $domain = 'example.com') {
+  protected function randomEmail($number = 4, $prefix = 'simpletest_', $domain = 'example.com') {
     $mail = mb_strtolower($this->randomMachineName($number, $prefix) . '@' . $domain);
     return $mail;
   }
@@ -78,7 +78,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * @return string
    *   The ID of a newsletter.
    */
-  function getRandomNewsletter() {
+  protected function getRandomNewsletter() {
     if ($newsletters = array_keys(simplenews_newsletter_get_all())) {
       return $newsletters[array_rand($newsletters)];
     }
@@ -94,7 +94,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    *  ['link_previous'] = {1, 0} Display link to previous issues
    *  ['rss_feed'] = {1, 0} Display RSS-feed icon
    */
-  function setupSubscriptionBlock($settings = array()) {
+  protected function setupSubscriptionBlock($settings = array()) {
 
     $settings += [
       'newsletters' => array(),
@@ -114,7 +114,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     return $block;
   }
 
-  function setUpSubscribers($count = 100, $newsletter_id = 'default') {
+  protected function setUpSubscribers($count = 100, $newsletter_id = 'default') {
     // Subscribe users.
     $this->subscribers = array();
     for ($i = 0; $i < $count; $i++) {

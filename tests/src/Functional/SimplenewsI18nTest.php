@@ -43,7 +43,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
    */
   protected $secondaryLanguage;
 
-  function setUp() {
+  protected function setUp() {
     parent::setUp();
     $this->adminUser = $this->drupalCreateUser(array('bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'access administration pages', 'administer filters', 'translate interface', 'subscribe to newsletters', 'administer site configuration', 'translate any entity', 'administer content translation', 'administer simplenews subscriptions', 'send newsletter', 'create content translations'));
     $this->drupalLogin($this->adminUser);
@@ -53,7 +53,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
   /**
    * Set up configuration for multiple languages.
    */
-  function setUpLanguages() {
+  protected function setUpLanguages() {
 
     // Add languages.
     $this->defaultLanguage = 'en';
@@ -87,12 +87,12 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
    * @param $language_code
    *   The language code the check.
    */
-  function addLanguage($language_code) {
+  protected function addLanguage($language_code) {
     $language = ConfigurableLanguage::createFromLangcode($language_code);
     $language->save();
   }
 
-  function testNewsletterIssueTranslation() {
+  public function testNewsletterIssueTranslation() {
     // Sign up three users, one in english and two in spanish.
     $english_mail = $this->randomEmail();
     $spanish_mail = $this->randomEmail();

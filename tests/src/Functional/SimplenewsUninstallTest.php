@@ -17,7 +17,7 @@ class SimplenewsUninstallTest extends SimplenewsTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     \Drupal::service('module_installer')->uninstall(['simplenews_test']);
