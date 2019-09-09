@@ -28,7 +28,7 @@ class SimplenewsDemoTest extends WebTestBase {
   public function setUp() {
     parent::setUp();
     // Install bartik theme.
-    \Drupal::service('theme_handler')->install(array('bartik'));
+    \Drupal::service('theme_handler')->install(['bartik']);
     $theme_settings = $this->config('system.theme');
     $theme_settings->set('default', 'bartik')->save();
     // Install simplenews_demo module.

@@ -16,7 +16,7 @@ class SimplenewsKernelTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = array('simplenews');
+  public static $modules = ['simplenews'];
 
   public function testMasking() {
     $this->assertEqual('t*****@e*****.org', simplenews_mask_mail('test@example.org'));

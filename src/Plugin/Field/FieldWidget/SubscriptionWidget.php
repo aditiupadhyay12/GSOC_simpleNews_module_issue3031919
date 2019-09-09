@@ -73,7 +73,7 @@ class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWid
   protected function getSelectedOptions(FieldItemListInterface $items, $delta = 0) {
     // Copy parent behavior but also check the status property.
     $flat_options = OptGroup::flattenOptions($this->getOptions($items->getEntity()));
-    $selected_options = array();
+    $selected_options = [];
     foreach ($items as $item) {
       $value = $item->{$this->column};
       // Keep the value if it actually is in the list of options (needs to be
@@ -93,12 +93,12 @@ class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWid
       // "Hide" the element with #type => 'value' and a structure like a normal
       // element.
       foreach ($this->newsletterIds as $newsletter_id) {
-        $element[] = array(
-          'target_id' => array(
+        $element[] = [
+          'target_id' => [
             '#type' => 'value',
             '#value' => $newsletter_id,
-          ),
-        );
+          ],
+        ];
       }
     }
     else {

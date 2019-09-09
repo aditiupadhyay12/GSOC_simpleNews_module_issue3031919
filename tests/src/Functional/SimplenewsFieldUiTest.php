@@ -14,7 +14,7 @@ class SimplenewsFieldUiTest extends SimplenewsTestBase {
    *
    * @var array
    */
-  public static $modules = array('field_ui', 'help');
+  public static $modules = ['field_ui', 'help'];
 
   /**
    * {@inheritdoc}
@@ -28,7 +28,7 @@ class SimplenewsFieldUiTest extends SimplenewsTestBase {
    * Test that a new content type has a simplenews_issue field when is used as a simplenews newsletter.
    */
   public function testContentTypeCreation() {
-    $admin_user = $this->drupalCreateUser(array(
+    $admin_user = $this->drupalCreateUser([
       'administer blocks',
       'administer content types',
       'administer nodes',
@@ -41,16 +41,16 @@ class SimplenewsFieldUiTest extends SimplenewsTestBase {
       'administer simplenews settings',
       'bypass node access',
       'send newsletter',
-    ));
+    ]);
     $this->drupalLogin($admin_user);
 
     $this->drupalGet('admin/structure/types');
     $this->clickLink(t('Add content type'));
-    $edit = array(
+    $edit = [
       'name' => $name = 'simplenews_issue',
       'type' => $type = strtolower($name),
       'simplenews_content_type' => TRUE,
-    );
+    ];
     $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
     $this->drupalGet('admin/structure/types/manage/' . $type . '/fields');
     $this->assertText('simplenews_issue');

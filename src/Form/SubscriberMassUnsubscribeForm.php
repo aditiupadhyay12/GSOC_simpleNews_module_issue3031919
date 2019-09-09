@@ -22,29 +22,29 @@ class SubscriberMassUnsubscribeForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['emails'] = array(
+    $form['emails'] = [
       '#type' => 'textarea',
       '#title' => t('Email addresses'),
       '#cols' => 60,
       '#rows' => 5,
       '#description' => t('Email addresses must be separated by comma, space or newline.'),
-    );
+    ];
 
-    $form['newsletters'] = array(
+    $form['newsletters'] = [
       '#type' => 'checkboxes',
       '#title' => t('Unsubscribe from'),
       '#options' => simplenews_newsletter_list(),
       '#required' => TRUE,
-    );
+    ];
 
     foreach (simplenews_newsletter_get_all() as $id => $newsletter) {
       $form['newsletters'][$id]['#description'] = Html::escape($newsletter->description);
     }
 
-    $form['submit'] = array(
+    $form['submit'] = [
       '#type' => 'submit',
       '#value' => t('Unsubscribe'),
-    );
+    ];
     return $form;
   }
 
@@ -59,8 +59,8 @@ class SubscriberMassUnsubscribeForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $removed = array();
-    $invalid = array();
+    $removed = [];
+    $invalid = [];
     $checked_lists = array_keys(array_filter($form_state->getValue('newsletters')));
 
     /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
@@ -80,21 +80,21 @@ class SubscriberMassUnsubscribeForm extends FormBase {
     }
     if ($removed) {
       $removed = implode(", ", $removed);
-      $this->messenger()->addMessage(t('The following addresses were unsubscribed: %removed.', array('%removed' => $removed)));
+      $this->messenger()->addMessage(t('The following addresses were unsubscribed: %removed.', ['%removed' => $removed]));
 
       $newsletters = simplenews_newsletter_get_all();
-      $list_names = array();
+      $list_names = [];
       foreach ($checked_lists as $newsletter_id) {
         $list_names[] = $newsletters[$newsletter_id]->label();
       }
-      $this->messenger()->addMessage(t('The addresses were unsubscribed from the following newsletters: %newsletters.', array('%newsletters' => implode(', ', $list_names))));
+      $this->messenger()->addMessage(t('The addresses were unsubscribed from the following newsletters: %newsletters.', ['%newsletters' => implode(', ', $list_names)]));
     }
     else {
       $this->messenger()->addMessage(t('No addresses were removed.'));
     }
     if ($invalid) {
       $invalid = implode(", ", $invalid);
-      $this->messenger()->addError(t('The following addresses were invalid: %invalid.', array('%invalid' => $invalid)));
+      $this->messenger()->addError(t('The following addresses were invalid: %invalid.', ['%invalid' => $invalid]));
     }
 
     // Return to the parent page.

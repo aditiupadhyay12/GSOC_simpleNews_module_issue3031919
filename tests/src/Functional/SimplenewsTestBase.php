@@ -31,7 +31,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = array('simplenews', 'simplenews_test', 'block');
+  public static $modules = ['simplenews', 'simplenews_test', 'block'];
 
   /**
    * The Simplenews settings config object.
@@ -94,10 +94,10 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    *  ['link_previous'] = {1, 0} Display link to previous issues
    *  ['rss_feed'] = {1, 0} Display RSS-feed icon
    */
-  protected function setupSubscriptionBlock($settings = array()) {
+  protected function setupSubscriptionBlock($settings = []) {
 
     $settings += [
-      'newsletters' => array(),
+      'newsletters' => [],
       'message' => t('Select the newsletter(s) to which you want to subscribe or unsubscribe.'),
       'unique_id' => \Drupal::service('uuid')->generate(),
     ];
@@ -116,7 +116,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
 
   protected function setUpSubscribers($count = 100, $newsletter_id = 'default') {
     // Subscribe users.
-    $this->subscribers = array();
+    $this->subscribers = [];
     for ($i = 0; $i < $count; $i++) {
       $mail = $this->randomEmail();
       $this->subscribers[$mail] = $mail;
@@ -124,11 +124,11 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
 
     $this->drupalGet('admin/people/simplenews');
     $this->clickLink(t('Mass subscribe'));
-    $edit = array(
+    $edit = [
       'emails' => implode(',', $this->subscribers),
       // @todo: Don't hardcode the default newsletter_id.
       'newsletters[' . $newsletter_id . ']' => TRUE,
-    );
+    ];
     $this->drupalPostForm(NULL, $edit, t('Subscribe'));
   }
 
@@ -148,24 +148,24 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     if (!isset($bundle)) {
       $bundle = $entity_type;
     }
-    FieldStorageConfig::create(array(
+    FieldStorageConfig::create([
       'field_name' => $field_name,
       'entity_type' => $entity_type,
       'type' => $type,
-    ))->save();
-    FieldConfig::create(array(
+    ])->save();
+    FieldConfig::create([
       'field_name' => $field_name,
       'entity_type' => $entity_type,
       'bundle' => $bundle,
-    ))->save();
+    ])->save();
     entity_get_form_display($entity_type, $bundle, 'default')
-      ->setComponent($field_name, array(
+      ->setComponent($field_name, [
         'type' => 'string_textfield',
-      ))->save();
+      ])->save();
     entity_get_display($entity_type, $bundle, 'default')
-      ->setComponent($field_name, array(
+      ->setComponent($field_name, [
         'type' => 'string',
-      ))->save();
+      ])->save();
   }
 
   /**
@@ -186,11 +186,11 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * @param int $response
    *   (optional) Expected response, defaults to 200.
    */
-  protected function subscribe($newsletter_ids, $email = NULL, array $edit = array(), $submit = NULL, $path = 'newsletter/subscriptions', $response = 200) {
+  protected function subscribe($newsletter_ids, $email = NULL, array $edit = [], $submit = NULL, $path = 'newsletter/subscriptions', $response = 200) {
     if (isset($email)) {
-      $edit += array(
+      $edit += [
         'mail[0][value]' => $email,
-      );
+      ];
     }
     if (!is_array($newsletter_ids)) {
       $newsletter_ids = [$newsletter_ids];
@@ -213,11 +213,11 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * @return int
    *   Uid of the new user.
    */
-  protected function registerUser($email = NULL, array $edit = array()) {
-    $edit += array(
+  protected function registerUser($email = NULL, array $edit = []) {
+    $edit += [
       'mail' => $email ?: $this->randomEmail(),
       'name' => $this->randomMachineName(),
-    );
+    ];
     $this->drupalPostForm('user/register', $edit, t('Create new account'));
     // Return uid of new user.
     $uids = \Drupal::entityQuery('user')
@@ -239,7 +239,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     $uid = $user->id();
     $timestamp = REQUEST_TIME;
     $hash = user_pass_rehash($user, $timestamp);
-    $this->drupalPostForm("/user/reset/$uid/$timestamp/$hash", array(), t('Log in'));
+    $this->drupalPostForm("/user/reset/$uid/$timestamp/$hash", [], t('Log in'));
   }
 
   /**
@@ -267,7 +267,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    */
   protected function getMail($offset) {
     $mails = $this->getMails();
-    $this->assertTrue(isset($mails[$offset]), t('Valid mails offset %offset (%count mails sent).', array('%offset' => $offset, '%count' => count($mails))));
+    $this->assertTrue(isset($mails[$offset]), t('Valid mails offset %offset (%count mails sent).', ['%offset' => $offset, '%count' => count($mails)]));
     return $mails[$offset]['body'];
   }
 

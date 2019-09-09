@@ -21,16 +21,16 @@ class PrepareUninstallForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['simplenews'] = array(
+    $form['simplenews'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Prepare uninstall'),
       '#description' => $this->t('When clicked all Simplenews data (content, fields) will be removed.'),
-    );
+    ];
 
-    $form['simplenews']['prepare_uninstall'] = array(
+    $form['simplenews']['prepare_uninstall'] = [
       '#type' => 'submit',
       '#value' => $this->t('Delete Simplenews data'),
-    );
+    ];
 
     return $form;
   }
@@ -89,10 +89,10 @@ class PrepareUninstallForm extends FormBase {
   public static function purgeFieldData() {
     do {
       field_purge_batch(1000);
-      $properties = array(
+      $properties = [
         'deleted' => TRUE,
         'include_deleted' => TRUE,
-      );
+      ];
       $fields = \Drupal::entityTypeManager()
         ->getStorage('field_config')
         ->loadByProperties($properties);

@@ -14,69 +14,69 @@ use Drupal\user\Entity\User;
  * Implements hook_token_info().
  */
 function simplenews_token_info() {
-  $types['simplenews-subscriber'] = array(
+  $types['simplenews-subscriber'] = [
     'name' => t('Simplenews subscriber'),
     'description' => t('Tokens related to the newsletter recipient'),
     'needs-data' => 'simplenews_subscriber',
-  );
-  $types['simplenews-newsletter'] = array(
+  ];
+  $types['simplenews-newsletter'] = [
     'name' => t('Simplenews newsletter'),
     'description' => t('Tokens related to the newsletter'),
     'needs-data' => 'newsletter',
-  );
+  ];
 
   // Tokens for simplenews subscriber.
-  $subscriber['subscribe-url'] = array(
+  $subscriber['subscribe-url'] = [
     'name' => t('Subscription URL'),
     'description' => t('The URL of the page where the subscription is confirmed.'),
-  );
-  $subscriber['unsubscribe-url'] = array(
+  ];
+  $subscriber['unsubscribe-url'] = [
     'name' => t('Unsubscribe URL'),
     'description' => t('The URL of the page where the cancellation of the subscription is confirmed.'),
-  );
-  $subscriber['manage-url'] = array(
+  ];
+  $subscriber['manage-url'] = [
     'name' => t('Manage URL'),
     'description' => t('The URL of the page where the subscribers can manage their newsletter subscriptions.'),
-  );
-  $subscriber['combined-url'] = array(
+  ];
+  $subscriber['combined-url'] = [
     'name' => t('Combined confirmation URL'),
     'description' => t('The URL of the page where subscribers can confirm their subscription changes.'),
-  );
-  $subscriber['mail'] = array(
+  ];
+  $subscriber['mail'] = [
     'name' => t('Subscriber email'),
     'description' => t('The email address of the newsletter receiver.'),
-  );
+  ];
 
-  $subscriber['user'] = array(
+  $subscriber['user'] = [
     'name' => t('Corresponding user'),
     'description' => t('The user object that corresponds to this subscriber. This is not set for anonymous subscribers.'),
     'type' => 'user',
-  );
+  ];
 
   // Tokens for simplenews newsletter.
-  $newsletter['name'] = array(
+  $newsletter['name'] = [
     'name' => t('Newsletter'),
     'description' => t('The name of the newsletter.'),
-  );
-  $newsletter['url'] = array(
+  ];
+  $newsletter['url'] = [
     'name' => t('Newsletter URL'),
     'description' => t('The URL of the page listing the issues of this newsletter.'),
-  );
+  ];
 
-  return array(
+  return [
     'types' => $types,
-    'tokens' => array(
+    'tokens' => [
       'simplenews-subscriber' => $subscriber,
       'simplenews-newsletter' => $newsletter,
-    ),
-  );
+    ],
+  ];
 }
 
 /**
  * Implements hook_tokens().
  */
 function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $bubbleable_metadata) {
-  $replacements = array();
+  $replacements = [];
   $sanitize = !empty($options['sanitize']);
   if (isset($options['langcode'])) {
     $url_options['language'] = \Drupal::languageManager()->getLanguage($options['langcode']);
@@ -96,19 +96,19 @@ function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $
       $newsletter = isset($data['newsletter']) ? $data['newsletter'] : NULL;
       $language = $subscriber->getLangcode();
 
-      $url_arguments = array('absolute' => TRUE, 'langcode' => $language);
+      $url_arguments = ['absolute' => TRUE, 'langcode' => $language];
 
       foreach ($tokens as $name => $original) {
-        $route_parameters = array('snid' => $subscriber->id(), 'timestamp' => REQUEST_TIME);
+        $route_parameters = ['snid' => $subscriber->id(), 'timestamp' => REQUEST_TIME];
         switch ($name) {
           case 'subscribe-url':
             $hash = simplenews_generate_hash($subscriber->getMail(), 'add');
             $bubbleable_metadata->setCacheMaxAge(0);
-            $route_parameters += array(
+            $route_parameters += [
               'action' => 'add',
               'newsletter_id' => $newsletter->id(),
               'hash' => $hash,
-            );
+            ];
             $replacements[$original] = Url::fromRoute('simplenews.newsletter_confirm_subscription', $route_parameters, $url_arguments)->toString();
             break;
 
@@ -120,25 +120,25 @@ function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $
             }
             $hash = simplenews_generate_hash($subscriber->getMail(), 'remove');
             $bubbleable_metadata->setCacheMaxAge(0);
-            $route_parameters += array(
+            $route_parameters += [
               'action' => 'remove',
               'newsletter_id' => $newsletter->id(),
               'hash' => $hash,
-            );
+            ];
             $replacements[$original] = Url::fromRoute('simplenews.newsletter_confirm_subscription', $route_parameters, $url_arguments)->toString();
             break;
 
           case 'combined-url':
             $hash = simplenews_generate_hash($subscriber->getMail(), 'combined' . serialize($subscriber->getChanges()));
             $bubbleable_metadata->setCacheMaxAge(0);
-            $route_parameters += array('hash' => $hash);
+            $route_parameters += ['hash' => $hash];
             $replacements[$original] = Url::fromRoute('simplenews.newsletter_confirm_combined', $route_parameters, $url_arguments)->toString();
             break;
 
           case 'manage-url':
             $hash = simplenews_generate_hash($subscriber->getMail(), 'manage');
             $bubbleable_metadata->setCacheMaxAge(0);
-            $route_parameters += array('hash' => $hash);
+            $route_parameters += ['hash' => $hash];
             $replacements[$original] = Url::fromRoute('simplenews.newsletter_subscriptions_arguments', $route_parameters, $url_arguments)->toString();
             break;
 
@@ -149,7 +149,7 @@ function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $
       }
 
       if (($user_tokens = \Drupal::token()->findWithPrefix($tokens, 'user')) && !empty($subscriber->uid)) {
-        $replacements += \Drupal::token()->generate('user', $user_tokens, array('user' => User::load($subscriber->uid)), $options, $bubbleable_metadata);
+        $replacements += \Drupal::token()->generate('user', $user_tokens, ['user' => User::load($subscriber->uid)], $options, $bubbleable_metadata);
       }
 
       break;

@@ -86,9 +86,9 @@ function simplenews_node_view(array &$build, NodeInterface $node, $display, $vie
   }
 
   // Build up content, add as much as there is.
-  $context = array(
+  $context = [
     'node' => $node,
-  );
+  ];
 
   // If the current user is a subscriber, extend context.
   $user = \Drupal::currentUser();
@@ -109,7 +109,7 @@ function simplenews_node_view(array &$build, NodeInterface $node, $display, $vie
       // Only fields which result in simple markup elements are supported for
       // token replacements for now.
       if (isset($item['#markup'])) {
-        $item['#markup'] = \Drupal::token()->replace($item['#markup'], $context, array());
+        $item['#markup'] = \Drupal::token()->replace($item['#markup'], $context, []);
       }
     }
   }
@@ -137,16 +137,16 @@ function simplenews_node_delete($node) {
     return;
   }
   // Check if pending emails of this newsletter issue exist and delete these too.
-  $count = \Drupal::service('simplenews.spool_storage')->deleteMails(array('entity_id' => $node->id(), 'entity_type' => 'node'));
+  $count = \Drupal::service('simplenews.spool_storage')->deleteMails(['entity_id' => $node->id(), 'entity_type' => 'node']);
   if ($count) {
-    \Drupal::messenger()->addWarning(t('@count pending emails for %title were found and deleted.', array(
+    \Drupal::messenger()->addWarning(t('@count pending emails for %title were found and deleted.', [
         '%title' => $node->getTitle(),
         '@count' => $count,
-      )));
-    \Drupal::logger('simplenews')->alert('Newsletter %title deleted with @count pending emails..', array(
+      ]));
+    \Drupal::logger('simplenews')->alert('Newsletter %title deleted with @count pending emails..', [
       '%title' => $node->getTitle(),
       '@count' => $count,
-      ));
+      ]);
   }
 }
 
@@ -179,7 +179,7 @@ function simplenews_entity_operation(EntityInterface $entity) {
  */
 function simplenews_check_node_types($types) {
   if (!is_array($types)) {
-    $types = array($types);
+    $types = [$types];
   }
   if ($sn_types = simplenews_get_content_types()) {
     foreach ($types as $type) {
@@ -200,11 +200,11 @@ function simplenews_check_node_types($types) {
  * @ingroup issue
  */
 function simplenews_get_content_types() {
-  $simplenews_types = &drupal_static(__FUNCTION__, array());
+  $simplenews_types = &drupal_static(__FUNCTION__, []);
 
   if (!$simplenews_types) {
     $field_map = \Drupal::service('entity_field.manager')->getFieldMapByFieldType('simplenews_issue');
-    $simplenews_types = isset($field_map['node']['simplenews_issue']) ? $field_map['node']['simplenews_issue']['bundles'] : array();
+    $simplenews_types = isset($field_map['node']['simplenews_issue']) ? $field_map['node']['simplenews_issue']['bundles'] : [];
   }
   return $simplenews_types;
 }
@@ -226,12 +226,12 @@ function simplenews_form_node_type_form_alter(array &$form, FormStateInterface $
     $default = isset($fields['simplenews_issue']);
   }
 
-  $form['workflow']['simplenews_content_type'] = array(
+  $form['workflow']['simplenews_content_type'] = [
     '#type' => 'checkbox',
     '#title' => t('Use as simplenews newsletter'),
     '#default_value' => $default,
     '#description' => t('This will add the simplenews issue field to this content type, allowing content of this type to be sent out as a newsletter issue.'),
-  );
+  ];
 
   $form['actions']['submit']['#submit'][] = 'simplenews_form_node_type_submit';
   if (isset($form['actions']['save_continue'])) {
@@ -288,18 +288,18 @@ function simplenews_form_node_form_alter(&$form, FormStateInterface $form_state,
     }
 
     if (\Drupal::moduleHandler()->moduleExists('token')) {
-      $form['simplenews_token_help'] = array(
+      $form['simplenews_token_help'] = [
         '#title' => t('Replacement patterns'),
         '#type' => 'fieldset',
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
         '#description' => t('These tokens can be used in all text fields except subject and will be replaced on-screen and in the email.'),
-      );
+      ];
 
-      $form['simplenews_token_help']['browser'] = array(
+      $form['simplenews_token_help']['browser'] = [
         '#theme' => 'token_tree_link',
-        '#token_types' => array('simplenews-newsletter', 'simplenews-subscriber', 'node'),
-      );
+        '#token_types' => ['simplenews-newsletter', 'simplenews-subscriber', 'node'],
+      ];
     }
   }
 }
@@ -341,7 +341,7 @@ function simplenews_cron() {
  * @todo mode this function to another place in the module.
  */
 function simplenews_form_user_register_form_alter(&$form, FormStateInterface $form_state) {
-  $options = $default_value = $hidden = array();
+  $options = $default_value = $hidden = [];
 
   // Determine the lists to which a user can choose to subscribe.
   // Determine to which other list a user is automatically subscribed.
@@ -364,21 +364,21 @@ function simplenews_form_user_register_form_alter(&$form, FormStateInterface $fo
 
   if (count($options)) {
     // @todo Change this text: use less words;
-    $form['simplenews'] = array(
+    $form['simplenews'] = [
       '#type' => 'fieldset',
       '#description' => t('Select the newsletter(s) to which you wish to subscribe.'),
-    );
-    $form['simplenews']['subscriptions'] = array(
+    ];
+    $form['simplenews']['subscriptions'] = [
       '#type' => 'checkboxes',
       '#options' => $options,
       '#default_value' => $default_value,
-    );
+    ];
   }
   if (count($hidden)) {
-    $form['simplenews_hidden'] = array(
+    $form['simplenews_hidden'] = [
       '#type' => 'hidden',
       '#value' => implode(',', $hidden),
-    );
+    ];
   }
   $form['actions']['submit']['#submit'][] = 'simplenews_user_profile_form_submit';
 }
@@ -399,7 +399,7 @@ function simplenews_user_profile_form_submit($form, FormStateInterface $form_sta
     if ($ids) {
       foreach (Newsletter::loadMultiple($ids) as $newsletter) {
         $subscription_manager->subscribe($account->getEmail(), $newsletter->id(), FALSE, 'website', $account->getPreferredLangcode());
-        \Drupal::messenger()->addMessage(t('You have been subscribed to %newsletter.', array('%newsletter' => $newsletter->name)));
+        \Drupal::messenger()->addMessage(t('You have been subscribed to %newsletter.', ['%newsletter' => $newsletter->name]));
       }
     }
   }
@@ -494,11 +494,11 @@ function simplenews_user_view(array &$build, UserInterface $account, EntityViewD
   $build['#cache']['contexts'][] = 'user.permissions';
   if ($user->id() == $account->id() || $user->hasPermission('administer users')) {
     if ($display->getComponent('simplenews')) {
-      $build['simplenews'] = array(
+      $build['simplenews'] = [
         '#type' => 'details',
         '#title' => t('Subscribed to'),
         '#open' => TRUE,
-      );
+      ];
       // Collect newsletter to which the current user is subscribed.
       // 'hidden' newsletters are not listed.
       $links = [];
@@ -515,25 +515,25 @@ function simplenews_user_view(array &$build, UserInterface $account, EntityViewD
       // we do not display the 'no subscriptions' message.
       if ($account->hasPermission('subscribe to newsletters')) {
         if ($links) {
-          $build['simplenews']['subscriptions'] = array(
+          $build['simplenews']['subscriptions'] = [
             '#theme' => 'item_list',
             '#items' => $links,
-          );
+          ];
         }
         else {
-          $build['simplenews']['subscriptions'] = array(
+          $build['simplenews']['subscriptions'] = [
             '#type' => 'item',
             '#markup' => t('None'),
-          );
+          ];
         }
 
       }
       if ($account->hasPermission('subscribe to newsletters')) {
-        $build['simplenews']['my_newsletters'] = array(
+        $build['simplenews']['my_newsletters'] = [
           '#type' => 'link',
           '#title' => t('Manage subscriptions'),
-          '#url' => new Url('simplenews.newsletter_subscriptions_user', array('user' => $account->id())),
-        );
+          '#url' => new Url('simplenews.newsletter_subscriptions_user', ['user' => $account->id()]),
+        ];
       }
     }
   }
@@ -580,7 +580,7 @@ function simplenews_mail($key, &$message, $params) {
   // Debug message of node and test emails is set in simplenews_mail_mail().
   $config = \Drupal::config('simplenews.settings');
   if ($config->get('mail.debug') && $key != 'node' && $key != 'test') {
-    \Drupal::logger('simplenews')->debug('Outgoing email. Message type: %type<br />Subject: %subject<br />Recipient: %to', array('%type' => $key, '%to' => $message['to'], '%subject' => $message['subject']));
+    \Drupal::logger('simplenews')->debug('Outgoing email. Message type: %type<br />Subject: %subject<br />Recipient: %to', ['%type' => $key, '%to' => $message['to'], '%subject' => $message['subject']]);
   }
 }
 
@@ -595,7 +595,7 @@ function simplenews_mail($key, &$message, $params) {
  * @ingroup newsletter.
  */
 function simplenews_newsletter_list() {
-  $newsletters = array();
+  $newsletters = [];
   foreach (simplenews_newsletter_get_all() as $id => $newsletter) {
     $newsletters[$id] = Html::escape($newsletter->label());
   }
@@ -613,7 +613,7 @@ function simplenews_newsletter_list() {
  *
  * @ingroup newsletter
  */
-function simplenews_newsletter_get_visible($conditions = array()) {
+function simplenews_newsletter_get_visible($conditions = []) {
   $query = \Drupal::entityQuery('simplenews_newsletter');
   $query
     ->condition('opt_inout', SIMPLENEWS_OPT_INOUT_HIDDEN, '<>')
@@ -635,7 +635,7 @@ function simplenews_newsletter_get_visible($conditions = array()) {
 function simplenews_newsletter_get_all() {
   $newsletters = Newsletter::loadMultiple();
   $entity_type = \Drupal::entityTypeManager()->getDefinition('simplenews_newsletter');
-  uasort($newsletters, array($entity_type->getClass(), 'sort'));
+  uasort($newsletters, [$entity_type->getClass(), 'sort']);
   return $newsletters;
 }
 
@@ -653,7 +653,7 @@ function simplenews_help($route_name, RouteMatchInterface $route_match) {
       $help .= "<h2>" . t('Configuration') . "</h2>\n";
       $help .= '<ul>';
       if (\Drupal::currentUser()->hasPermission('administer permissions')) {
-        $link = Link::fromTextAndUrl(t('Configure permissions'), Url::fromRoute('user.admin_permissions'), array('fragment' => 'module-simplenews'));
+        $link = Link::fromTextAndUrl(t('Configure permissions'), Url::fromRoute('user.admin_permissions'), ['fragment' => 'module-simplenews']);
         $help .= '<li>' . $link->toString() . "</li>\n";
       }
       if (\Drupal::currentUser()->hasPermission('administer simplenews settings')) {
@@ -661,14 +661,14 @@ function simplenews_help($route_name, RouteMatchInterface $route_match) {
         $help .= '<li>' . $link->toString() . "</li>\n";
       }
       if (\Drupal::currentUser()->hasPermission('administer blocks')) {
-        $help .= '<li>' . t('Enable a newsletter <a href=":admin_blocks">subscription block</a>.', array(':admin_blocks' => Url::fromRoute('block.admin_display')->toString())) . "</li>\n";
+        $help .= '<li>' . t('Enable a newsletter <a href=":admin_blocks">subscription block</a>.', [':admin_blocks' => Url::fromRoute('block.admin_display')->toString()]) . "</li>\n";
       }
       if (\Drupal::currentUser()->hasPermission('administer simplenews settings')) {
-        $help .= '<li>' . t('Manage your <a href=":newsletters">newsletters</a>, <a href=":sent">sent newsletters</a> and <a href=":subscriptions">subscriptions</a>.', array(':newsletters' => Url::fromRoute('simplenews.newsletter_list')->toString(), ':sent' => Url::fromUri('base:admin/content/simplenews')->toString(), ':subscriptions' => Url::fromUri('base:admin/people/simplenews')->toString())) . "</li>\n";
+        $help .= '<li>' . t('Manage your <a href=":newsletters">newsletters</a>, <a href=":sent">sent newsletters</a> and <a href=":subscriptions">subscriptions</a>.', [':newsletters' => Url::fromRoute('simplenews.newsletter_list')->toString(), ':sent' => Url::fromUri('base:admin/content/simplenews')->toString(), ':subscriptions' => Url::fromUri('base:admin/people/simplenews')->toString()]) . "</li>\n";
       }
       $help .= '</ul>';
 
-      $help .= "<p>" . t('For more information, see the online handbook entry for <a href=":handbook">Simplenews</a>.', array(':handbook' => 'http://drupal.org/node/197057')) . "</p>\n";
+      $help .= "<p>" . t('For more information, see the online handbook entry for <a href=":handbook">Simplenews</a>.', [':handbook' => 'http://drupal.org/node/197057']) . "</p>\n";
       return $help;
     case 'node.add':
       $type = $route_match->getParameter('node_type');
@@ -676,21 +676,21 @@ function simplenews_help($route_name, RouteMatchInterface $route_match) {
       if ($type->id() == 'simplenews_issue') {
         $help = '<p>' . t('Add this newsletter issue to a newsletter by selecting a newsletter from the select list. To send this newsletter issue, first save the node, then use the "Newsletter" tab.') . "</p>\n";
         if (\Drupal::currentUser()->hasPermission('administer simplenews settings')) {
-          $help .= '<p>' . t('Set default send options at <a href=":configuration">Administration > Configuration > Web services > Newsletters</a>.', array(':configuration' => Url::fromRoute('simplenews.newsletter_list')->toString())) . "</p>\n";
+          $help .= '<p>' . t('Set default send options at <a href=":configuration">Administration > Configuration > Web services > Newsletters</a>.', [':configuration' => Url::fromRoute('simplenews.newsletter_list')->toString()]) . "</p>\n";
         }
         if (\Drupal::currentUser()->hasPermission('administer newsletters')) {
-          $help .= '<p>' . t('Set newsletter specific options at <a href=":configuration">Administration > Content > Newsletters</a>.', array(':configuration' => Url::fromUri('base:admin/content/simplenews')->toString())) . "</p>\n";
+          $help .= '<p>' . t('Set newsletter specific options at <a href=":configuration">Administration > Content > Newsletters</a>.', [':configuration' => Url::fromUri('base:admin/content/simplenews')->toString()]) . "</p>\n";
         }
       }
       return $help;
     case 'simplenews.settings_newsletter':
       $help = '<ul>';
-      $help .= '<li>' . t('These settings are default to all newsletters. Newsletter specific settings can be found at the <a href=":page">newsletter\'s settings page</a>.', array(':page' => Url::fromRoute('simplenews.newsletter_list')->toString())) . "</li>\n";
-      $help .= '<li>' . t('Install <a href=":swift_mail_url">Swift Mailer</a> to send HTML emails or emails with attachments (both plain text and HTML).', array(':swift_mail_url' => 'https://www.drupal.org/project/swiftmailer')) . "</li>\n";
+      $help .= '<li>' . t('These settings are default to all newsletters. Newsletter specific settings can be found at the <a href=":page">newsletter\'s settings page</a>.', [':page' => Url::fromRoute('simplenews.newsletter_list')->toString()]) . "</li>\n";
+      $help .= '<li>' . t('Install <a href=":swift_mail_url">Swift Mailer</a> to send HTML emails or emails with attachments (both plain text and HTML).', [':swift_mail_url' => 'https://www.drupal.org/project/swiftmailer']) . "</li>\n";
       $help .= '</ul>';
       return $help;
     case 'simplenews.newsletter_list':
-      $help = '<p>' . t('Newsletter allow you to send periodic e-mails to subscribers. See <a href=":manage_subscribers">Newsletter subscriptions</a> for a listing of the subscribers', array(':manage_subscribers' => Url::fromUri('base:admin/people/simplenews')->toString()));
+      $help = '<p>' . t('Newsletter allow you to send periodic e-mails to subscribers. See <a href=":manage_subscribers">Newsletter subscriptions</a> for a listing of the subscribers', [':manage_subscribers' => Url::fromUri('base:admin/people/simplenews')->toString()]);
       return $help;
     case 'simplenews.newsletter_add':
       $help = '<p>' . t('You can create different newsletters (or subjects) to categorize your news (e.g. Cats news, Dogs news, ...).') . "</p>\n";
@@ -714,58 +714,58 @@ function simplenews_generate_hash($mail, $action = '', $timestamp = REQUEST_TIME
  * Returns simplenews format options.
  */
 function simplenews_format_options() {
-  return array(
+  return [
     'plain' => t('Plain'),
     'html' => t('HTML'),
-  );
+  ];
 }
 
 /**
  * Function to provide the various simplenews mail priorities for newsletters.
  */
 function simplenews_get_priority() {
-  return array(
+  return [
     SIMPLENEWS_PRIORITY_NONE => t('- None -'),
     SIMPLENEWS_PRIORITY_HIGHEST => t('Highest'),
     SIMPLENEWS_PRIORITY_HIGH => t('High'),
     SIMPLENEWS_PRIORITY_NORMAL => t('Normal'),
     SIMPLENEWS_PRIORITY_LOW => t('Low'),
     SIMPLENEWS_PRIORITY_LOWEST => t('Lowest'),
-  );
+  ];
 }
 
 /**
  * Returns a list of options for the new account settings.
  */
 function simplenews_new_account_options() {
-  return array(
+  return [
     'none' => t('- None -'),
     'on' => t('Default on'),
     'off' => t('Default off'),
     'silent' => t('Silent'),
-  );
+  ];
 }
 
 /**
  * Returns the available options for the opt_inout newsletter property.
  */
 function simplenews_opt_inout_options() {
-  return array(
+  return [
     SIMPLENEWS_OPT_INOUT_HIDDEN => t('Hidden'),
     SIMPLENEWS_OPT_INOUT_SINGLE => t('Single'),
     SIMPLENEWS_OPT_INOUT_DOUBLE => t('Double'),
-  );
+  ];
 }
 
 /**
  * Returns the available options for the subscriber status.
  */
 function simplenews_subscriber_status_list() {
-  return array(
+  return [
     SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED => t('Subscribed'),
     SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED => t('Unsubscribed'),
     SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED => t('Unconfirmed'),
-  );
+  ];
 }
 
 /**
@@ -774,11 +774,11 @@ function simplenews_subscriber_status_list() {
  */
 function simplenews_theme() {
 
-  return array(
-    'simplenews_newsletter_body' => array(
+  return [
+    'simplenews_newsletter_body' => [
       'render element' => 'elements',
-    ),
-  );
+    ],
+  ];
 }
 
 /**
@@ -820,8 +820,8 @@ function template_preprocess_simplenews_newsletter_body(&$variables) {
     $variables['build'][$key] = $elements[$key];
   }
 
-  $variables['unsubscribe_text'] = t('Unsubscribe from this newsletter', array(), array('langcode' => $variables['language']));
-  $variables['test_message'] = t('This is a test version of the newsletter.', array(), array('langcode' => $variables['language']));
+  $variables['unsubscribe_text'] = t('Unsubscribe from this newsletter', [], ['langcode' => $variables['language']]);
+  $variables['test_message'] = t('This is a test version of the newsletter.', [], ['langcode' => $variables['language']]);
 
   // Do not display the unsubscribe link by default for hidden categories.
   $variables['opt_out_hidden'] = $variables['newsletter']->opt_inout == 'hidden';
@@ -831,34 +831,34 @@ function template_preprocess_simplenews_newsletter_body(&$variables) {
  * Implements hook_theme_suggestions_HOOK().
  */
 function simplenews_theme_suggestions_simplenews_newsletter_body(array $variables) {
-  return array(
+  return [
     'simplenews_newsletter_body__' . $variables['elements']['#newsletter']->id(),
     'simplenews_newsletter_body__' . $variables['elements']['#view_mode'],
     'simplenews_newsletter_body__' . $variables['elements']['#newsletter']->id() . '__' . $variables['elements']['#view_mode'],
-  );
+  ];
 }
 
 /**
  * Implements hook_entity_extra_field_info().
  */
 function simplenews_entity_extra_field_info() {
-  $return['user']['user'] = array(
-    'display' => array(
-      'simplenews' => array(
+  $return['user']['user'] = [
+    'display' => [
+      'simplenews' => [
         'label' => 'Newsletters',
         'description' => t('Newsletter subscriptions of the user'),
         'weight' => 30,
         'visible' => FALSE,
-      ),
-    ),
-    'form' => array(
-      'simplenews' => array(
+      ],
+    ],
+    'form' => [
+      'simplenews' => [
         'label' => 'Newsletters',
         'description' => t('Newsletter subscriptions of the user'),
         'weight' => 5,
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
   return $return;
 }
 
@@ -911,7 +911,7 @@ function simplenews_field_formatter_info_alter(&$info) {
 function _simplenews_batch_dispatcher() {
   $args = func_get_args();
   list($service, $method) = explode(':', array_shift($args));
-  call_user_func_array(array(\Drupal::service($service), $method), $args);
+  call_user_func_array([\Drupal::service($service), $method], $args);
 }
 
 /**

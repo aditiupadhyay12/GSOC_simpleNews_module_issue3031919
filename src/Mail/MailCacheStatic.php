@@ -15,7 +15,7 @@ abstract class MailCacheStatic implements MailCacheInterface {
   /**
    * The static cache.
    */
-  protected $cache = array();
+  protected $cache = [];
 
   /**
    * Returns the cache identifier for the mail.

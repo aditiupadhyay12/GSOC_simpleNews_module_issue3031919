@@ -52,30 +52,30 @@ class SubscriberMassSubscribeForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['emails'] = array(
+    $form['emails'] = [
       '#type' => 'textarea',
       '#title' => t('Email addresses'),
       '#cols' => 60,
       '#rows' => 5,
       '#description' => t('Email addresses must be separated by comma, space or newline.'),
-    );
+    ];
 
-    $form['newsletters'] = array(
+    $form['newsletters'] = [
       '#type' => 'checkboxes',
       '#title' => t('Subscribe to'),
       '#options' => simplenews_newsletter_list(),
       '#required' => TRUE,
-    );
+    ];
 
     foreach (simplenews_newsletter_get_all() as $id => $newsletter) {
       $form['newsletters'][$id]['#description'] = Html::escape($newsletter->description);
     }
 
-    $form['resubscribe'] = array(
+    $form['resubscribe'] = [
       '#type' => 'checkbox',
       '#title' => t('Force resubscription'),
       '#description' => t('If checked, previously unsubscribed e-mail addresses will be resubscribed. Consider that this might be against the will of your users.'),
-    );
+    ];
 
     // Include language selection when the site is multilingual.
     // Default value is the empty string which will result in receiving emails
@@ -86,25 +86,25 @@ class SubscriberMassSubscribeForm extends FormBase {
       foreach ($languages as $langcode => $language) {
         $options[$langcode] = $language->getName();
       }
-      $form['language'] = array(
+      $form['language'] = [
         '#type' => 'radios',
         '#title' => t('Anonymous user preferred language'),
         '#default_value' => '',
         '#options' => $options,
         '#description' => t('New subscriptions will be subscribed with the selected preferred language. The language of existing subscribers is unchanged.'),
-      );
+      ];
     }
     else {
-      $form['language'] = array(
+      $form['language'] = [
         '#type' => 'value',
         '#value' => '',
-      );
+      ];
     }
 
-    $form['submit'] = array(
+    $form['submit'] = [
       '#type' => 'submit',
       '#value' => t('Subscribe'),
-    );
+    ];
 
     return $form;
   }
@@ -120,9 +120,9 @@ class SubscriberMassSubscribeForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $added = array();
-    $invalid = array();
-    $unsubscribed = array();
+    $added = [];
+    $invalid = [];
+    $unsubscribed = [];
     $checked_newsletters = array_keys(array_filter($form_state->getValue('newsletters')));
     $langcode = $form_state->getValue('language');
 
@@ -158,25 +158,25 @@ class SubscriberMassSubscribeForm extends FormBase {
     }
     if ($added) {
       $added = implode(", ", $added);
-      $this->messenger()->addMessage(t('The following addresses were added or updated: %added.', array('%added' => $added)));
+      $this->messenger()->addMessage(t('The following addresses were added or updated: %added.', ['%added' => $added]));
 
-      $list_names = array();
+      $list_names = [];
       foreach (Newsletter::loadMultiple($checked_newsletters) as $newsletter) {
         $list_names[] = $newsletter->label();
       }
-      $this->messenger()->addMessage(t('The addresses were subscribed to the following newsletters: %newsletters.', array('%newsletters' => implode(', ', $list_names))));
+      $this->messenger()->addMessage(t('The addresses were subscribed to the following newsletters: %newsletters.', ['%newsletters' => implode(', ', $list_names)]));
     }
     else {
       $this->messenger()->addMessage(t('No addresses were added.'));
     }
     if ($invalid) {
       $invalid = implode(", ", $invalid);
-      $this->messenger()->addError(t('The following addresses were invalid: %invalid.', array('%invalid' => $invalid)));
+      $this->messenger()->addError(t('The following addresses were invalid: %invalid.', ['%invalid' => $invalid]));
     }
 
     foreach ($unsubscribed as $name => $subscribers) {
       $subscribers = implode(", ", $subscribers);
-      $this->messenger()->addWarning(t('The following addresses were skipped because they have previously unsubscribed from %name: %unsubscribed.', array('%name' => $name, '%unsubscribed' => $subscribers)));
+      $this->messenger()->addWarning(t('The following addresses were skipped because they have previously unsubscribed from %name: %unsubscribed.', ['%name' => $name, '%unsubscribed' => $subscribers]));
     }
 
     if (!empty($unsubscribed)) {

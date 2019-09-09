@@ -130,7 +130,7 @@ class MailEntity implements MailInterface {
 
     // Add user specific header data.
     $headers['From'] = $this->getFromFormatted();
-    $headers['List-Unsubscribe'] = '<' . \Drupal::token()->replace('[simplenews-subscriber:unsubscribe-url]', $this->getTokenContext(), array('sanitize' => FALSE)) . '>';
+    $headers['List-Unsubscribe'] = '<' . \Drupal::token()->replace('[simplenews-subscriber:unsubscribe-url]', $this->getTokenContext(), ['sanitize' => FALSE]) . '>';
 
     // Add general headers
     $headers['Precedence'] = 'bulk';
@@ -141,11 +141,11 @@ class MailEntity implements MailInterface {
    * {@inheritdoc}
    */
   function getTokenContext() {
-    return array(
+    return [
       'newsletter' => $this->getNewsletter(),
       'simplenews_subscriber' => $this->getSubscriber(),
       $this->getIssue()->getEntityTypeId() => $this->getIssue(),
-    );
+    ];
   }
 
   /**
@@ -215,11 +215,11 @@ class MailEntity implements MailInterface {
     // Build email subject and perform some sanitizing.
     // Use the requested language if enabled.
     $langcode = $this->getLanguage();
-    $subject = \Drupal::token()->replace($this->getNewsletter()->subject, $this->getTokenContext(), array('sanitize' => FALSE, 'langcode' => $langcode));
+    $subject = \Drupal::token()->replace($this->getNewsletter()->subject, $this->getTokenContext(), ['sanitize' => FALSE, 'langcode' => $langcode]);
 
     // Line breaks are removed from the email subject to prevent injection of
     // malicious data into the email header.
-    $subject = str_replace(array("\r", "\n"), '', $subject);
+    $subject = str_replace(["\r", "\n"], '', $subject);
     return $subject;
   }
 
@@ -317,14 +317,14 @@ class MailEntity implements MailInterface {
     if ($cache = $this->cache->get($this, 'build', 'body:' . $format)) {
       return $cache;
     }
-    $body = $this->build($format) + array(
+    $body = $this->build($format) + [
       '#theme' => 'simplenews_newsletter_body',
       '#newsletter' => $this->getNewsletter(),
       '#language' => $this->getLanguage(),
       '#simplenews_subscriber' => $this->getSubscriber(),
       '#key' => $this->getKey(),
       '#format' => $format,
-    );
+    ];
     $markup = \Drupal::service('renderer')->renderPlain($body);
     $this->cache->set($this, 'build', 'body:' . $format, $markup);
     return $markup;
@@ -364,7 +364,7 @@ class MailEntity implements MailInterface {
     $body = $this->buildBody($format);
 
     // Build message body, replace tokens.
-    $body = \Drupal::token()->replace($body, $this->getTokenContext(), array('langcode' => $this->getLanguage()));
+    $body = \Drupal::token()->replace($body, $this->getTokenContext(), ['langcode' => $this->getLanguage()]);
     if ($format == 'plain') {
       // Convert HTML to text if requested to do so.
       $body = MailFormatHelper::htmlToText($body, $this->getNewsletter()->hyperlinks);
@@ -385,9 +385,9 @@ class MailEntity implements MailInterface {
       return $cache;
     }
 
-    $attachments = array();
+    $attachments = [];
     $build = $this->build();
-    $fids = array();
+    $fids = [];
     foreach ($this->getIssue()->getFieldDefinitions() as $field_name => $field_definition) {
       // @todo: Find a better way to support more field types.
       // Only add fields of type file which are enabled for the current view

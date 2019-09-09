@@ -45,7 +45,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
 
   protected function setUp() {
     parent::setUp();
-    $this->adminUser = $this->drupalCreateUser(array('bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'access administration pages', 'administer filters', 'translate interface', 'subscribe to newsletters', 'administer site configuration', 'translate any entity', 'administer content translation', 'administer simplenews subscriptions', 'send newsletter', 'create content translations'));
+    $this->adminUser = $this->drupalCreateUser(['bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'access administration pages', 'administer filters', 'translate interface', 'subscribe to newsletters', 'administer site configuration', 'translate any entity', 'administer content translation', 'administer simplenews subscriptions', 'send newsletter', 'create content translations']);
     $this->drupalLogin($this->adminUser);
     $this->setUpLanguages();
   }
@@ -107,37 +107,37 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     $subscription_manager->subscribe($spanish_mail2, $newsletter_id, FALSE, 'spanish', 'es');
 
     // Enable translation for newsletters.
-    $edit = array(
+    $edit = [
       'language_configuration[content_translation]' => TRUE,
-    );
+    ];
     $this->drupalPostForm('admin/structure/types/manage/simplenews_issue', $edit, t('Save content type'));
 
     // Create a Newsletter including a translation.
     $newsletter_id = $this->getRandomNewsletter();
-    $english = array(
+    $english = [
       'title[0][value]' => $this->randomMachineName(),
       'simplenews_issue[target_id]' => $newsletter_id,
       'body[0][value]' => 'Link to node: [node:url]',
-    );
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $english, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     $this->clickLink(t('Translate'));
     $this->clickLink(t('Add'));
-    $spanish = array(
+    $spanish = [
       'title[0][value]' => $this->randomMachineName(),
       'body[0][value]' => 'Link to node: [node:url] ES',
-    );
+    ];
     $this->drupalPostForm(NULL, $spanish, t('Save (this translation)'));
 
-    \Drupal::entityTypeManager()->getStorage('node')->resetCache(array($node->id()));
+    \Drupal::entityTypeManager()->getStorage('node')->resetCache([$node->id()]);
     $node = Node::load($node->id());
     $translation = $node->getTranslation($this->secondaryLanguage);
 
     // Send newsletter.
     $this->clickLink(t('Newsletter'));
-    $this->drupalPostForm(NULL, array(), t('Send now'));
+    $this->drupalPostForm(NULL, [], t('Send now'));
     $this->cronRun();
     //simplenews_cron();
 
@@ -170,23 +170,23 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     }
 
     // Verify sent subscriber count for each node.
-    \Drupal::entityTypeManager()->getStorage('node')->resetCache(array($node->id()));
+    \Drupal::entityTypeManager()->getStorage('node')->resetCache([$node->id()]);
     $node = Node::load($node->id());
     $translation = $node->getTranslation($this->secondaryLanguage);
     $this->assertEqual(1, $node->simplenews_issue->sent_count, 'subscriber count is correct for english');
     $this->assertEqual(2, $translation->simplenews_issue->sent_count, 'subscriber count is correct for spanish');
 
     // Make sure the language of a node can be changed.
-    $english = array(
+    $english = [
       'title[0][value]' => $this->randomMachineName(),
       'langcode[0][value]' => 'en',
       'body[0][value]' => 'Link to node: [node:url]',
-    );
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $english, ('Save'));
     $this->clickLink(t('Edit'));
-    $edit = array(
+    $edit = [
       'langcode[0][value]' => 'es',
-    );
+    ];
     $this->drupalPostForm(NULL, $edit, t('Save'));
   }
 

@@ -33,7 +33,7 @@ class SubscriptionsAccountForm extends SubscriptionsFormBase {
     if (\Drupal::currentUser()->id() == $user->id()) {
       return $this->t('Your newsletter subscriptions have been updated.');
     }
-    return $this->t('The newsletter subscriptions for user %account have been updated.', array('%account' => $user->label()));
+    return $this->t('The newsletter subscriptions for user %account have been updated.', ['%account' => $user->label()]);
   }
 
   /**

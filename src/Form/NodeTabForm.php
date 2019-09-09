@@ -77,7 +77,7 @@ class NodeTabForm extends FormBase {
     $config = $this->config('simplenews.settings');
     $status = $node->simplenews_issue->status;
     $summary = $this->spoolStorage->issueSummary($node);
-    $form['#title'] = $this->t('<em>Newsletter issue</em> @title', array('@title' => $node->getTitle()));
+    $form['#title'] = $this->t('<em>Newsletter issue</em> @title', ['@title' => $node->getTitle()]);
 
     // We will need the node.
     $form_state->set('node', $node);
@@ -86,38 +86,38 @@ class NodeTabForm extends FormBase {
     // If send a notification is shown.
     if ($status == SIMPLENEWS_STATUS_SEND_NOT) {
 
-      $form['test'] = array(
+      $form['test'] = [
         '#type' => 'details',
         '#open' => TRUE,
         '#title' => t('Test'),
-      );
-      $form['test']['test_address'] = array(
+      ];
+      $form['test']['test_address'] = [
         '#type' => 'textfield',
         '#title' => t('Test email addresses'),
         '#description' => t('A comma-separated list of email addresses to be used as test addresses.'),
         '#default_value' => $this->currentUser->getEmail(),
         '#size' => 60,
         '#maxlength' => 128,
-      );
+      ];
 
-      $form['test']['submit'] = array(
+      $form['test']['submit'] = [
         '#type' => 'submit',
         '#value' => t('Send test newsletter issue'),
         '#name' => 'send_test',
-        '#submit' => array('::submitTestMail'),
-        '#validate' => array('::validateTestAddress'),
-      );
-      $form['send'] = array(
+        '#submit' => ['::submitTestMail'],
+        '#validate' => ['::validateTestAddress'],
+      ];
+      $form['send'] = [
         '#type' => 'details',
         '#open' => TRUE,
         '#title' => t('Send'),
-      );
+      ];
 
       // Add some text to describe the send situation.
-      $form['send']['count'] = array(
+      $form['send']['count'] = [
         '#type' => 'item',
-        '#markup' => t('Send newsletter issue to @count subscribers.', array('@count' => $summary['count'])),
-      );
+        '#markup' => t('Send newsletter issue to @count subscribers.', ['@count' => $summary['count']]),
+      ];
 
       if (!$node->isPublished()) {
         $send_text = t('Mails will be sent when the issue is published.');
@@ -130,31 +130,31 @@ class NodeTabForm extends FormBase {
         $send_text = t('Mails will be sent when cron runs.');
       }
 
-      $form['send']['method'] = array(
+      $form['send']['method'] = [
         '#type' => 'item',
         '#markup' => $send_text,
-      );
+      ];
 
-      $form['send']['send'] = array(
+      $form['send']['send'] = [
         '#type' => 'submit',
         '#button_type' => 'primary',
         '#value' => $button_text ?? t('Send now'),
-      );
+      ];
     }
     else {
-      $form['status'] = array(
+      $form['status'] = [
         '#type' => 'item',
         '#title' => $summary['description'],
-      );
+      ];
       if ($status != SIMPLENEWS_STATUS_SEND_READY) {
-        $form['actions'] = array(
+        $form['actions'] = [
           '#type' => 'actions',
-        );
-        $form['actions']['stop'] = array(
+        ];
+        $form['actions']['stop'] = [
           '#type' => 'submit',
-          '#submit' => array('::submitStop'),
+          '#submit' => ['::submitStop'],
           '#value' => t('Stop sending'),
-        );
+        ];
       }
     }
     return $form;
@@ -171,7 +171,7 @@ class NodeTabForm extends FormBase {
       foreach ($mails as $mail) {
         $mail = trim($mail);
         if (!valid_email_address($mail)) {
-          $form_state->setErrorByName('test_address', t('Invalid email address "%mail".', array('%mail' => $mail)));
+          $form_state->setErrorByName('test_address', t('Invalid email address "%mail".', ['%mail' => $mail]));
         }
       }
       $form_state->set('test_addresses', $mails);

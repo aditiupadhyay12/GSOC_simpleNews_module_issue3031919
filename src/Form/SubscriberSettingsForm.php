@@ -29,17 +29,17 @@ class SubscriberSettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('simplenews.settings');
-    $form['account'] = array(
+    $form['account'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('User account'),
       '#collapsible' => FALSE,
-    );
-    $form['account']['simplenews_sync_fields'] = array(
+    ];
+    $form['account']['simplenews_sync_fields'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Synchronize between account and subscriber fields'),
       '#default_value' => $config->get('subscriber.sync_fields'),
       '#description' => $this->t('<p>When checked fields that exist with identical name and type on subscriber and accounts will be synchronized.</p>'),
-    );
+    ];
 
     return parent::buildForm($form, $form_state);
   }

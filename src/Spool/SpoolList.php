@@ -20,7 +20,7 @@ class SpoolList implements SpoolListInterface {
   /**
    * Array of the processed mail spool rows.
    */
-  protected $processed = array();
+  protected $processed = [];
 
   /**
    * Creates a spool list.
@@ -61,10 +61,10 @@ class SpoolList implements SpoolListInterface {
     if (!$issue) {
       // If the entity load failed, set the processed status done and proceed with
       // the next mail.
-      $this->processed[$spool_data->msid]->result = array(
+      $this->processed[$spool_data->msid]->result = [
         'status' => SpoolStorageInterface::STATUS_DONE,
         'error' => TRUE
-      );
+      ];
       return $this->nextMail();
     }
 
@@ -78,10 +78,10 @@ class SpoolList implements SpoolListInterface {
     if (!$subscriber || !$subscriber->getMail()) {
       // If loading the subscriber failed or no email is available, set the
       // processed status done and proceed with the next mail.
-      $this->processed[$spool_data->msid]->result = array(
+      $this->processed[$spool_data->msid]->result = [
         'status' => SpoolStorageInterface::STATUS_DONE,
         'error' => TRUE
-      );
+      ];
       return $this->nextMail();
     }
 
@@ -97,7 +97,7 @@ class SpoolList implements SpoolListInterface {
    */
   function getProcessed() {
     $processed = $this->processed;
-    $this->processed = array();
+    $this->processed = [];
     return $processed;
   }
 

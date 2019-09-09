@@ -25,198 +25,198 @@ function simplenews_field_views_data(FieldStorageConfigInterface $field_storage)
  */
 function simplenews_views_data() {
 
-  $data['node']['send_status'] = array(
+  $data['node']['send_status'] = [
     'real field' => 'nid',
-    'field' => array(
+    'field' => [
       'title' => t('Send status'),
       'help' => t('Send status of the newsletter.'),
       'id' => 'simplenews_send_status',
-    ),
+    ],
     'group' => t('Content'),
-  );
+  ];
 
   /* ------------ Definitions for Simplenews mailspool ---------------------- */
 
-  $data['simplenews_mail_spool']['table'] = array(
-    'base' => array(
+  $data['simplenews_mail_spool']['table'] = [
+    'base' => [
       'field' => 'msid',
       'title' => t('Simplenews mailspool'),
       'help' => t('Spool for temporary storage of newsletter emails.'),
       'weight' => 10,
       'database' => 'default',
-    ),
+    ],
     'group' => t('Simplenews spool'),
-  );
+  ];
 
-  $data['simplenews_mail_spool']['msid'] = array(
+  $data['simplenews_mail_spool']['msid'] = [
     'title' => t('Ms ID'),
     'help' => t('The primary identifier for a mail spool record.'),
-    'field' => array(
+    'field' => [
       'id' => 'numeric',
       'click sortable' => TRUE,
-    ),
-    'filter' => array(
+    ],
+    'filter' => [
       'id' => 'numeric',
       'allow empty' => TRUE,
-    ),
-    'argument' => array(
+    ],
+    'argument' => [
       'id' => 'numeric',
-    ),
-    'sort' => array(
+    ],
+    'sort' => [
       'id' => 'standard',
-    ),
-  );
+    ],
+  ];
 
-  $data['simplenews_mail_spool']['entity_id'] = array(
+  $data['simplenews_mail_spool']['entity_id'] = [
     'title' => t('Node ID'),
     'help' => t('The {node}.nid of this newsletter.'),
-    'field' => array(
+    'field' => [
       'id' => 'numeric',
       'click sortable' => TRUE,
-    ),
-    'filter' => array(
+    ],
+    'filter' => [
       'id' => 'numeric',
       'allow empty' => TRUE,
-    ),
-    'argument' => array(
+    ],
+    'argument' => [
       'id' => 'numeric',
-    ),
-    'sort' => array(
+    ],
+    'sort' => [
       'id' => 'standard',
-    ),
-    'relationship' => array(
+    ],
+    'relationship' => [
       'id' => 'standard',
       'base' => 'node',
       'base field' => 'nid',
       'label' => t('Node'),
-    ),
-  );
+    ],
+  ];
 
-  $data['simplenews_mail_spool']['newsletter_id'] = array(
+  $data['simplenews_mail_spool']['newsletter_id'] = [
     'title' => t('Newsletter ID'),
     'help' => t('The newsletter_id this newsletter issue belongs to.'),
-    'field' => array(
+    'field' => [
       'id' => 'numeric',
       'click sortable' => TRUE,
-    ),
-    'filter' => array(
+    ],
+    'filter' => [
       'id' => 'numeric',
       'allow empty' => TRUE,
-    ),
-    'argument' => array(
+    ],
+    'argument' => [
       'id' => 'numeric',
-    ),
-    'sort' => array(
+    ],
+    'sort' => [
       'id' => 'standard',
-    ),
-    'relationship' => array(
+    ],
+    'relationship' => [
       'id' => 'standard',
       'base' => 'simplenews_newsletter',
       'base field' => 'newsletter_id',
       'label' => t('Newsletter'),
-    ),
-  );
+    ],
+  ];
 
-  $data['simplenews_mail_spool']['snid'] = array(
+  $data['simplenews_mail_spool']['snid'] = [
     'title' => t('Subscriber ID'),
     'help' => t('The {simplenews_subscriber}.snid foreign key for this spool'),
-    'field' => array(
+    'field' => [
       'id' => 'numeric',
       'click sortable' => TRUE,
-    ),
-    'filter' => array(
+    ],
+    'filter' => [
       'id' => 'numeric',
       'allow empty' => TRUE,
-    ),
-    'argument' => array(
+    ],
+    'argument' => [
       'id' => 'numeric',
-    ),
-    'sort' => array(
+    ],
+    'sort' => [
       'id' => 'standard',
-    ),
-    'relationship' => array(
+    ],
+    'relationship' => [
       'id' => 'standard',
       'base' => 'simplenews_subscriber',
       'base field' => 'snid',
       'label' => t('Subscriber'),
-    ),
-  );
+    ],
+  ];
 
-  $data['simplenews_mail_spool']['status'] = array(
+  $data['simplenews_mail_spool']['status'] = [
     'title' => t('Sent status'),
     'help' => t('The sent status of the email (0 = hold, 1 = pending, 2 = done).'),
-    'field' => array(
+    'field' => [
       'id' => 'numeric',
       'click sortable' => TRUE,
-    ),
-    'filter' => array(
+    ],
+    'filter' => [
       'id' => 'numeric',
       'allow empty' => TRUE,
-    ),
-    'argument' => array(
+    ],
+    'argument' => [
       'id' => 'numeric',
-    ),
-    'sort' => array(
+    ],
+    'sort' => [
       'id' => 'standard',
-    ),
-  );
+    ],
+  ];
 
-  $data['simplenews_mail_spool']['error'] = array(
+  $data['simplenews_mail_spool']['error'] = [
     'title' => t('Error'),
     'help' => t('A boolean indicating whether an error occurred while sending the email.'),
-    'field' => array(
+    'field' => [
       'id' => 'boolean',
       'click sortable' => TRUE,
-    ),
-    'filter' => array(
+    ],
+    'filter' => [
       'id' => 'boolean',
       'allow empty' => TRUE,
-    ),
-    'argument' => array(
+    ],
+    'argument' => [
       'id' => 'numeric',
-    ),
-    'sort' => array(
+    ],
+    'sort' => [
       'id' => 'standard',
-    ),
-  );
+    ],
+  ];
 
-  $data['simplenews_mail_spool']['timestamp'] = array(
+  $data['simplenews_mail_spool']['timestamp'] = [
     'title' => t('Timestamp'),
     'help' => t('The time status was set or changed.'),
-    'field' => array(
+    'field' => [
       'id' => 'date',
       'click sortable' => TRUE,
-    ),
-    'filter' => array(
+    ],
+    'filter' => [
       'id' => 'date',
       'allow empty' => TRUE,
-    ),
-    'argument' => array(
+    ],
+    'argument' => [
       'id' => 'date',
-    ),
-    'sort' => array(
+    ],
+    'sort' => [
       'id' => 'date',
-    ),
-  );
+    ],
+  ];
 
-  $data['simplenews_mail_spool']['data'] = array(
+  $data['simplenews_mail_spool']['data'] = [
     'title' => t('Data'),
     'help' => t('A serialized array of name value pairs that define a temporary subscriber.'),
-    'field' => array(
+    'field' => [
       'id' => 'standard',
       'click sortable' => TRUE,
-    ),
-    'filter' => array(
+    ],
+    'filter' => [
       'id' => 'string',
       'allow empty' => TRUE,
-    ),
-    'argument' => array(
+    ],
+    'argument' => [
       'id' => 'string',
-    ),
-    'sort' => array(
+    ],
+    'sort' => [
       'id' => 'standard',
-    ),
-  );
+    ],
+  ];
 
   return $data;
 }

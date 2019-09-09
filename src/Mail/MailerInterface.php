@@ -23,7 +23,7 @@ interface MailerInterface {
    * @return bool
    *   TRUE if the mails were sent or a batch was prepared, FALSE if not.
    */
-  public function attemptImmediateSend(array $conditions = array(), $use_batch = TRUE);
+  public function attemptImmediateSend(array $conditions = [], $use_batch = TRUE);
 
   /**
    * Send simplenews newsletters from the spool.
@@ -44,7 +44,7 @@ interface MailerInterface {
    * @return int
    *   Returns the amount of sent mails.
    */
-  public function sendSpool($limit = SpoolStorageInterface::UNLIMITED, array $conditions = array());
+  public function sendSpool($limit = SpoolStorageInterface::UNLIMITED, array $conditions = []);
 
   /**
    * Send a node to an email address.

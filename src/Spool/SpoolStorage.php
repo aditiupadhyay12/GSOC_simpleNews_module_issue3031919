@@ -67,8 +67,8 @@ class SpoolStorage implements SpoolStorageInterface {
   /**
    * {@inheritdoc}
    */
-  public function getMails($limit = self::UNLIMITED, $conditions = array()) {
-    $messages = array();
+  public function getMails($limit = self::UNLIMITED, $conditions = []) {
+    $messages = [];
 
     // Continue to support 'nid' as a condition.
     if (!empty($conditions['nid'])) {
@@ -79,14 +79,14 @@ class SpoolStorage implements SpoolStorageInterface {
 
     // Add default status condition if not set.
     if (!isset($conditions['status'])) {
-      $conditions['status'] = array(SpoolStorageInterface::STATUS_PENDING, SpoolStorageInterface::STATUS_IN_PROGRESS);
+      $conditions['status'] = [SpoolStorageInterface::STATUS_PENDING, SpoolStorageInterface::STATUS_IN_PROGRESS];
     }
 
     // Special case for the status condition, the in progress actually only
     // includes spool items whose locking time has expired. So this need to build
     // an OR condition for them.
     $status_or = new Condition('OR');
-    $statuses = is_array($conditions['status']) ? $conditions['status'] : array($conditions['status']);
+    $statuses = is_array($conditions['status']) ? $conditions['status'] : [$conditions['status']];
     foreach ($statuses as $status) {
       if ($status == SpoolStorageInterface::STATUS_IN_PROGRESS) {
         $status_or->condition((new Condition('AND'))
@@ -125,7 +125,7 @@ class SpoolStorage implements SpoolStorageInterface {
       if (count($messages) > 0) {
         // Set the state and the timestamp of the messages
         $this->updateMails(
-          array_keys($messages), array('status' => SpoolStorageInterface::STATUS_IN_PROGRESS)
+          array_keys($messages), ['status' => SpoolStorageInterface::STATUS_IN_PROGRESS]
         );
       }
 
@@ -143,18 +143,18 @@ class SpoolStorage implements SpoolStorageInterface {
   public function updateMails($msids, array $data) {
     $this->connection->update('simplenews_mail_spool')
       ->condition('msid', (array) $msids, 'IN')
-      ->fields(array(
+      ->fields([
         'status' => $data['status'],
         'error' => isset($data['error']) ? (int) $data['error'] : 0,
         'timestamp' => REQUEST_TIME,
-      ))
+      ])
       ->execute();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function countMails(array $conditions = array()) {
+  public function countMails(array $conditions = []) {
 
     // Continue to support 'nid' as a condition.
     if (!empty($conditions['nid'])) {
@@ -165,7 +165,7 @@ class SpoolStorage implements SpoolStorageInterface {
 
     // Add default status condition if not set.
     if (!isset($conditions['status'])) {
-      $conditions['status'] = array(SpoolStorageInterface::STATUS_PENDING, SpoolStorageInterface::STATUS_IN_PROGRESS);
+      $conditions['status'] = [SpoolStorageInterface::STATUS_PENDING, SpoolStorageInterface::STATUS_IN_PROGRESS];
     }
 
     $query = $this->connection->select('simplenews_mail_spool');
@@ -173,7 +173,7 @@ class SpoolStorage implements SpoolStorageInterface {
     foreach ($conditions as $field => $value) {
       if ($field == 'status') {
         if (!is_array($value)) {
-          $value = array($value);
+          $value = [$value];
         }
         $status_or = new Condition('OR');
         foreach ($value as $status) {
@@ -237,7 +237,7 @@ class SpoolStorage implements SpoolStorageInterface {
     if (!$issue->isPublished()) {
       $issue->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_PUBLISH;
       $issue->save();
-      $this->messenger()->addMessage(t('Newsletter issue %title will be sent when published.', array('%title' => $issue->getTitle())));
+      $this->messenger()->addMessage(t('Newsletter issue %title will be sent when published.', ['%title' => $issue->getTitle()]));
       return;
     }
 

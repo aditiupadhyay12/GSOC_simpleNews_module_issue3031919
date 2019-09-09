@@ -89,14 +89,14 @@ class MailBuilder implements MailBuilderInterface {
     $message['headers']['From'] = $params['from']['formatted'];
 
     $message['subject'] = $this->config->get('subscription.confirm_subscribe_subject');
-    $message['subject'] = $this->token->replace($message['subject'], $context, array('sanitize' => FALSE));
+    $message['subject'] = $this->token->replace($message['subject'], $context, ['sanitize' => FALSE]);
     if ($context['simplenews_subscriber']->isSubscribed($context['newsletter']->id())) {
       $body = $this->config->get('subscription.confirm_subscribe_subscribed');
     }
     else {
       $body = $this->config->get('subscription.confirm_subscribe_unsubscribed');
     }
-    $message['body'][] = $this->token->replace($body, $context, array('sanitize' => FALSE));
+    $message['body'][] = $this->token->replace($body, $context, ['sanitize' => FALSE]);
   }
 
   /**
@@ -111,7 +111,7 @@ class MailBuilder implements MailBuilderInterface {
     $message['headers']['From'] = $params['from']['formatted'];
 
     $message['subject'] = $this->config->get('subscription.confirm_combined_subject');
-    $message['subject'] = $this->token->replace($message['subject'], $context, array('sanitize' => FALSE));
+    $message['subject'] = $this->token->replace($message['subject'], $context, ['sanitize' => FALSE]);
 
     $changes_list = '';
     $actual_changes = 0;
@@ -133,7 +133,7 @@ class MailBuilder implements MailBuilderInterface {
     $body = $this->config->get('subscription.confirm_' .$body_key);
     // The changes list is not an actual token.
     $body = str_replace('[changes-list]', $changes_list, $body);
-    $message['body'][] = $this->token->replace($body, $context, array('sanitize' => FALSE));
+    $message['body'][] = $this->token->replace($body, $context, ['sanitize' => FALSE]);
   }
 
   /**
@@ -146,15 +146,15 @@ class MailBuilder implements MailBuilderInterface {
     $message['headers']['From'] = $params['from']['formatted'];
 
     $message['subject'] = $this->config->get('subscription.confirm_subscribe_subject');
-    $message['subject'] = $this->token->replace($message['subject'], $context, array('sanitize' => FALSE));
+    $message['subject'] = $this->token->replace($message['subject'], $context, ['sanitize' => FALSE]);
 
     if ($context['simplenews_subscriber']->isSubscribed($context['newsletter']->id())) {
       $body = $this->config->get('subscription.confirm_unsubscribe_subscribed');
-      $message['body'][] = $this->token->replace($body, $context, array('sanitize' => FALSE));
+      $message['body'][] = $this->token->replace($body, $context, ['sanitize' => FALSE]);
     }
     else {
       $body = $this->config->get('subscription.confirm_unsubscribe_unsubscribed');
-      $message['body'][] = $this->token->replace($body, $context, array('sanitize' => FALSE));
+      $message['body'][] = $this->token->replace($body, $context, ['sanitize' => FALSE]);
     }
   }
 

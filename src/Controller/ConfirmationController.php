@@ -33,16 +33,16 @@ class ConfirmationController extends ControllerBase {
     $config = \Drupal::config('simplenews.settings');
 
     // Prevent search engines from indexing this page.
-    $html_head = array(
-      array(
+    $html_head = [
+      [
         '#tag' => 'meta',
-        '#attributes' => array(
+        '#attributes' => [
           'name' => 'robots',
           'content' => 'noindex',
-        ),
-      ),
+        ],
+      ],
       'simplenews-noindex',
-    );
+    ];
 
     $subscriber = Subscriber::load($snid);
 
@@ -56,9 +56,9 @@ class ConfirmationController extends ControllerBase {
       // If the hash is valid but timestamp is too old, display form to request
       // a new hash.
       if ($timestamp < REQUEST_TIME - $config->get('hash_expiration')) {
-        $context = array(
+        $context = [
           'simplenews_subscriber' => $subscriber,
-        );
+        ];
         $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', 'subscribe_combined', $context);
         $build['#attached']['html_head'][] = $html_head;
         return $build;
@@ -86,10 +86,10 @@ class ConfirmationController extends ControllerBase {
         }
 
         // Clear changes.
-        $subscriber->setChanges(array());
+        $subscriber->setChanges([]);
         $subscriber->save();
 
-        $this->messenger()->addMessage(t('Subscription changes confirmed for %user.', array('%user' => $subscriber->getMail())));
+        $this->messenger()->addMessage(t('Subscription changes confirmed for %user.', ['%user' => $subscriber->getMail()]));
         return $this->redirect('<front>');
       }
     }
@@ -138,16 +138,16 @@ class ConfirmationController extends ControllerBase {
     $config = \Drupal::config('simplenews.settings');
 
     // Prevent search engines from indexing this page.
-    $html_head = array(
-      array(
+    $html_head = [
+      [
         '#tag' => 'meta',
-        '#attributes' => array(
+        '#attributes' => [
           'name' => 'robots',
           'content' => 'noindex',
-        ),
-      ),
+        ],
+      ],
       'simplenews-noindex',
-    );
+    ];
 
     $subscriber = Subscriber::load($snid);
     if ($subscriber && $hash == simplenews_generate_hash($subscriber->getMail(), $action, $timestamp)) {
@@ -156,10 +156,10 @@ class ConfirmationController extends ControllerBase {
       // If the hash is valid but timestamp is too old, display form to request
       // a new hash.
       if ($timestamp < REQUEST_TIME - $config->get('hash_expiration')) {
-        $context = array(
+        $context = [
           'simplenews_subscriber' => $subscriber,
           'newsletter' => $newsletter,
-        );
+        ];
         $token = $action == 'add' ? 'subscribe' : 'unsubscribe';
         $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', $token, $context);
         $build['#attached']['html_head'][] = $html_head;
@@ -190,7 +190,7 @@ class ConfirmationController extends ControllerBase {
           if ($path = $config->get('subscription.confirm_unsubscribe_page')) {
             return $this->redirect(Url::fromUri("internal:$path")->getRouteName());
           }
-          $this->messenger()->addMessage(t('%user was unsubscribed from the %newsletter mailing list.', array('%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name)));
+          $this->messenger()->addMessage(t('%user was unsubscribed from the %newsletter mailing list.', ['%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name]));
           return $this->redirect('<front>');
         }
         elseif ($action == 'add') {
@@ -198,7 +198,7 @@ class ConfirmationController extends ControllerBase {
           if ($path = $config->get('subscription.confirm_subscribe_page')) {
             return $this->redirect(Url::fromUri("internal:$path")->getRouteName());
           }
-          $this->messenger()->addMessage(t('%user was added to the %newsletter mailing list.', array('%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name)));
+          $this->messenger()->addMessage(t('%user was added to the %newsletter mailing list.', ['%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name]));
           return $this->redirect('<front>');
         }
       }

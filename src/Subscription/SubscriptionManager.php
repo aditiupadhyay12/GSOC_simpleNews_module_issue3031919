@@ -133,7 +133,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
     }
     // The unlikely case that a user is unsubscribed from a non existing mailing list is logged
     if (!$newsletter = Newsletter::load($newsletter_id)) {
-      $this->logger->error('Attempt to unsubscribe from non existing mailing list ID %id', array('%id' => $newsletter_id));
+      $this->logger->error('Attempt to unsubscribe from non existing mailing list ID %id', ['%id' => $newsletter_id]);
       return $this;
     }
 
@@ -180,7 +180,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
       $changes = $subscriber->getChanges();
     }
 
-    $changes_list = array();
+    $changes_list = [];
     foreach ($changes as $newsletter_id => $action) {
       $subscribed = $subscriber->isSubscribed($newsletter_id);
       // Get text for each possible combination.
@@ -196,11 +196,11 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
       elseif ($action == 'unsubscribe' && $subscribed) {
         $line = $this->config->get('subscription.confirm_combined_line_unsubscribe_subscribed');
       }
-      $newsletter_context = array(
+      $newsletter_context = [
         'simplenews_subscriber' => $subscriber,
         'newsletter' => Newsletter::load($newsletter_id),
-      );
-      $changes_list[$newsletter_id] = $this->token->replace($line, $newsletter_context, array('sanitize' => FALSE));
+      ];
+      $changes_list[$newsletter_id] = $this->token->replace($line, $newsletter_context, ['sanitize' => FALSE]);
     }
     return $changes_list;
   }
@@ -221,7 +221,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
       }
     }
     $sent = !empty($this->confirmations);
-    $this->confirmations = array();
+    $this->confirmations = [];
     return $sent;
   }
 

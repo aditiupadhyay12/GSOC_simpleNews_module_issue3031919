@@ -155,13 +155,13 @@ class Newsletter extends ConfigEntityBase implements NewsletterInterface {
    */
   public static function preCreate(EntityStorageInterface $storage, array &$values) {
     $config = \Drupal::config('simplenews.settings');
-    $values += array(
+    $values += [
       'format' => $config->get('newsletter.format'),
       'priority' => $config->get('newsletter.priority'),
       'receipt' => $config->get('newsletter.receipt'),
       'from_name' => $config->get('newsletter.from_name'),
       'from_address' => $config->get('newsletter.from_address'),
-    );
+    ];
     parent::preCreate($storage, $values);
   }
 
@@ -176,8 +176,8 @@ class Newsletter extends ConfigEntityBase implements NewsletterInterface {
       ->getStorage('simplenews_subscriber');
 
     foreach ($entities as $newsletter) {
-      $subscription_storage->deleteSubscriptions(array('subscriptions_target_id' => $newsletter->id()));
-      \Drupal::messenger()->addMessage(t('All subscriptions to newsletter %newsletter have been deleted.', array('%newsletter' => $newsletter->label())));
+      $subscription_storage->deleteSubscriptions(['subscriptions_target_id' => $newsletter->id()]);
+      \Drupal::messenger()->addMessage(t('All subscriptions to newsletter %newsletter have been deleted.', ['%newsletter' => $newsletter->label()]));
     }
 
     if (\Drupal::moduleHandler()->moduleExists('block')) {

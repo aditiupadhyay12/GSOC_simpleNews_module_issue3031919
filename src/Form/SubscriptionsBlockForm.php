@@ -46,10 +46,10 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
 
     $form = parent::form($form, $form_state);
 
-    $form['message'] = array(
+    $form['message'] = [
       '#type' => 'item',
       '#markup' => $this->message,
-    );
+    ];
 
     return $form;
   }
@@ -69,7 +69,7 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
   protected function getSubmitMessage(FormStateInterface $form_state, $op, $confirm) {
     switch ($op) {
       case static::SUBMIT_UPDATE:
-        return $this->t('The newsletter subscriptions for %mail have been updated.', array('%mail' => $form_state->getValue('mail')[0]['value']));
+        return $this->t('The newsletter subscriptions for %mail have been updated.', ['%mail' => $form_state->getValue('mail')[0]['value']]);
 
       case static::SUBMIT_SUBSCRIBE:
         if ($confirm) {

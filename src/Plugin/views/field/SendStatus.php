@@ -23,19 +23,19 @@ class SendStatus extends FieldPluginBase {
       // Get elements to render.
       $message = $this->getMessage($node);
       if (!empty($message['uri'])) {
-        $output['image'] = array(
+        $output['image'] = [
           '#theme' => 'image',
           '#uri' => $message['uri'],
           '#alt' => $message['description'],
           '#title' => $message['description'],
           '#getsize' => TRUE,
-        );
+        ];
       }
-      $output['text'] = array(
+      $output['text'] = [
         '#type' => 'inline_template',
         '#template' => '<span title="{{ description }}">{{ sent_count }}/{{ count }}</span>',
         '#context' => $message,
-      );
+      ];
       return $output;
     }
   }
@@ -53,10 +53,10 @@ class SendStatus extends FieldPluginBase {
     $status = $node->simplenews_issue->status;
     $message = \Drupal::service('simplenews.spool_storage')->issueSummary($node);
 
-    $images = array(
+    $images = [
       SIMPLENEWS_STATUS_SEND_PENDING => 'images/sn-cron.png',
       SIMPLENEWS_STATUS_SEND_READY => 'images/sn-sent.png',
-    );
+    ];
     if (isset($images[$status])) {
       $message['uri'] = drupal_get_path('module', 'simplenews') . '/' . $images[$status];
     }

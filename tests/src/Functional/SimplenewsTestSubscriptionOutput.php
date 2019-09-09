@@ -16,22 +16,22 @@ class SimplenewsTestSubscriptionOutput extends SimplenewsTestBase {
 
     // Enable the extra field.
     entity_get_display('user', 'user', 'default')
-      ->setComponent('simplenews', array(
+      ->setComponent('simplenews', [
           'label' => 'hidden',
           'type' => 'simplenews',
-        ))
+        ])
       ->save();
 
     // Create admin user.
-    $admin_user = $this->drupalCreateUser(array(
+    $admin_user = $this->drupalCreateUser([
       'administer users',
-    ));
+    ]);
     // Create user that can view user profiles.
-    $user = $this->drupalCreateUser(array(
+    $user = $this->drupalCreateUser([
       'access user profiles',
       'subscribe to newsletters',
       'access content',
-    ));
+    ]);
     $this->drupalLogin($admin_user);
     // Tests extra fields for admin user.
     $this->drupalGet('user/' . $admin_user->id());

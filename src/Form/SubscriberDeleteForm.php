@@ -15,7 +15,7 @@ class SubscriberDeleteForm extends ContentEntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return t('Are you sure you want to delete %name?', array('%name' => $this->entity->label()));
+    return t('Are you sure you want to delete %name?', ['%name' => $this->entity->label()]);
   }
 
   /**
@@ -37,8 +37,8 @@ class SubscriberDeleteForm extends ContentEntityConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->delete();
-    $this->messenger()->addMessage(t('Subscriber %label has been deleted.', array('%label' => $this->entity->label())));
-    \Drupal::logger('simplenews')->notice('Subscriber %label has been deleted.', array('%label' => $this->entity->label()));
+    $this->messenger()->addMessage(t('Subscriber %label has been deleted.', ['%label' => $this->entity->label()]));
+    \Drupal::logger('simplenews')->notice('Subscriber %label has been deleted.', ['%label' => $this->entity->label()]);
     $form_state->setRedirect('entity.simplenews_subscriber.collection');
   }
 

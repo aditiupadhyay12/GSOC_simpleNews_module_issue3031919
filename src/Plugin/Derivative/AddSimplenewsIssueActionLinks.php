@@ -21,9 +21,9 @@ class AddSimplenewsIssueActionLinks extends DeriverBase {
       $label = NodeType::load($node_type)->label();
       $this->derivatives[$node_type] = $base_plugin_definition;
       $this->derivatives[$node_type]['title'] = new TranslatableMarkup('Add @label', ['@label' => $label]);
-      $this->derivatives[$node_type]['route_parameters'] = array(
+      $this->derivatives[$node_type]['route_parameters'] = [
         'node_type' => $node_type,
-      );
+      ];
     }
     elseif (count($node_types) > 1) {
       $base_plugin_definition['route_name'] = 'node.add_page';

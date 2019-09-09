@@ -56,24 +56,24 @@ class SubscriptionItem extends EntityReferenceItem {
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
     $schema = parent::schema($field_definition);
 
-    $schema['columns']['status'] = array(
+    $schema['columns']['status'] = [
       'description' => 'A flag indicating whether the user is unsubscribed (0), subscribed (1) or unconfirmed (2).',
       'type' => 'int',
       'size' => 'tiny',
       'not null' => FALSE,
-    );
-    $schema['columns']['timestamp'] = array(
+    ];
+    $schema['columns']['timestamp'] = [
       'description' => 'UNIX timestamp of when the user is (un)subscribed.',
       'type' => 'int',
       'unsigned' => TRUE,
       'not null' => FALSE,
-    );
-    $schema['columns']['source'] = array(
+    ];
+    $schema['columns']['source'] = [
       'description' => 'The source via which the user is (un)subscription.',
       'type' => 'varchar',
       'length' => 24,
       'not null' => FALSE,
-    );
+    ];
     return $schema;
   }
 }

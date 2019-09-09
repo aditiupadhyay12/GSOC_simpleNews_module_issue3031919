@@ -16,13 +16,13 @@ class MailTest implements MailInterface {
   }
 
   public function getAttachments() {
-    return array(
-      array(
+    return [
+      [
         'uri' => 'example://test.png',
         'filemime' => 'x-example',
         'filename' => 'test.png',
-      ),
-    );
+      ],
+    ];
   }
 
   public function getBody() {
@@ -70,7 +70,7 @@ class MailTest implements MailInterface {
   }
 
   public function getTokenContext() {
-    return array();
+    return [];
   }
 
   /**

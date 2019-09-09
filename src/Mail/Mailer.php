@@ -148,7 +148,7 @@ class Mailer implements MailerInterface {
   /**
    * {@inheritdoc}
    */
-  public function attemptImmediateSend(array $conditions = array(), $use_batch = TRUE) {
+  public function attemptImmediateSend(array $conditions = [], $use_batch = TRUE) {
     if ($this->config->get('mail.use_cron')) {
       return FALSE;
     }
@@ -159,19 +159,19 @@ class Mailer implements MailerInterface {
       $spool_count = $this->spoolStorage->countMails($conditions);
       $num_operations = ceil($spool_count / $throttle);
 
-      $operations = array();
+      $operations = [];
       for ($i = 0; $i < $num_operations; $i++) {
-        $operations[] = array('_simplenews_batch_dispatcher', array('simplenews.mailer:sendSpool', $throttle, $conditions));
+        $operations[] = ['_simplenews_batch_dispatcher', ['simplenews.mailer:sendSpool', $throttle, $conditions]];
       }
 
       // Add separate operations to clear the spool and update the send status.
-      $operations[] = array('_simplenews_batch_dispatcher', array('simplenews.spool_storage:clear'));
-      $operations[] = array('_simplenews_batch_dispatcher', array('simplenews.mailer:updateSendStatus'));
+      $operations[] = ['_simplenews_batch_dispatcher', ['simplenews.spool_storage:clear']];
+      $operations[] = ['_simplenews_batch_dispatcher', ['simplenews.mailer:updateSendStatus']];
 
-      $batch = array(
+      $batch = [
         'operations' => $operations,
         'title' => t('Sending mails'),
-      );
+      ];
       batch_set($batch);
     }
     else {
@@ -186,7 +186,7 @@ class Mailer implements MailerInterface {
   /**
    * {@inheritdoc}
    */
-  public function sendSpool($limit = SpoolStorageInterface::UNLIMITED, array $conditions = array()) {
+  public function sendSpool($limit = SpoolStorageInterface::UNLIMITED, array $conditions = []) {
     $check_counter = 0;
 
     // Send pending messages from database cache.
@@ -198,7 +198,7 @@ class Mailer implements MailerInterface {
       $this->accountSwitcher->switchTo($anonymous_user);
 
       $count_fail = $count_skipped = $count_success = 0;
-      $sent = array();
+      $sent = [];
 
       $this->startTimer();
 
@@ -211,7 +211,7 @@ class Mailer implements MailerInterface {
         // in case of PHP execution time overrun.
         foreach ($spool->getProcessed() as $msid => $row) {
           $row_result = isset($row->result) ? $row->result : $result;
-          $this->spoolStorage->updateMails(array($msid), $row_result);
+          $this->spoolStorage->updateMails([$msid], $row_result);
           if ($row_result['status'] == SpoolStorageInterface::STATUS_DONE) {
             $count_success++;
             if (!isset($sent[$row->entity_type][$row->entity_id][$row->langcode])) {
@@ -237,9 +237,9 @@ class Mailer implements MailerInterface {
           // Break the sending if a percentage of max execution time was exceeded.
           $elapsed = $this->getCurrentExecutionTime();
           if ($elapsed > static::SEND_TIME_LIMIT * ini_get('max_execution_time')) {
-            $this->logger->warning('Sending interrupted: PHP maximum execution time almost exceeded. Remaining newsletters will be sent during the next cron run. If this warning occurs regularly you should reduce the !cron_throttle_setting.', array(
+            $this->logger->warning('Sending interrupted: PHP maximum execution time almost exceeded. Remaining newsletters will be sent during the next cron run. If this warning occurs regularly you should reduce the !cron_throttle_setting.', [
               '!cron_throttle_setting' => Link::fromTextAndUrl($this->t('Cron throttle setting'), Url::fromRoute('simplenews.settings_mail')),
-            ));
+            ]);
             break;
           }
         }
@@ -249,7 +249,7 @@ class Mailer implements MailerInterface {
       // prepared, report them separately.
       foreach ($spool->getProcessed() as $msid => $row) {
         $row_result = $row->result;
-        $this->spoolStorage->updateMails(array($msid), $row_result);
+        $this->spoolStorage->updateMails([$msid], $row_result);
         if ($row_result['status'] == SpoolStorageInterface::STATUS_DONE) {
           $count_success++;
           if (isset($row->langcode)) {
@@ -275,7 +275,7 @@ class Mailer implements MailerInterface {
           foreach ($ids as $entity_id => $languages) {
             $storage = $this->entityTypeManager
               ->getStorage($entity_type);
-            $storage->resetCache(array($entity_id));
+            $storage->resetCache([$entity_id]);
             $entity = $storage->load($entity_id);
             foreach ($languages as $langcode => $count) {
               $translation = $entity->getTranslation($langcode);
@@ -290,10 +290,10 @@ class Mailer implements MailerInterface {
       // Report sent result and elapsed time. On Windows systems getrusage() is
       // not implemented and hence no elapsed time is available.
       if (function_exists('getrusage')) {
-        $this->logger->notice('%success emails sent in %sec seconds, %skipped skipped, %fail failed sending.', array('%success' => $count_success, '%sec' => round($this->getCurrentExecutionTime(), 1), '%skipped' => $count_skipped, '%fail' => $count_fail));
+        $this->logger->notice('%success emails sent in %sec seconds, %skipped skipped, %fail failed sending.', ['%success' => $count_success, '%sec' => round($this->getCurrentExecutionTime(), 1), '%skipped' => $count_skipped, '%fail' => $count_fail]);
       }
       else {
-        $this->logger->notice('%success emails sent, %skipped skipped, %fail failed.', array('%success' => $count_success, '%skipped' => $count_skipped, '%fail' => $count_fail));
+        $this->logger->notice('%success emails sent, %skipped skipped, %fail failed.', ['%success' => $count_success, '%skipped' => $count_skipped, '%fail' => $count_fail]);
       }
 
       $this->state->set('simplenews.last_cron', REQUEST_TIME);
@@ -321,34 +321,34 @@ class Mailer implements MailerInterface {
       // Log sent result in watchdog.
       if ($this->config->get('mail.debug')) {
         if ($message['result']) {
-          $this->logger->debug('Outgoing email. Message type: %type<br />Subject: %subject<br />Recipient: %to', array('%type' => $mail->getKey(), '%to' => $message['to'], '%subject' => $message['subject']));
+          $this->logger->debug('Outgoing email. Message type: %type<br />Subject: %subject<br />Recipient: %to', ['%type' => $mail->getKey(), '%to' => $message['to'], '%subject' => $message['subject']]);
         }
         else {
-          $this->logger->error('Outgoing email failed. Message type: %type<br />Subject: %subject<br />Recipient: %to', array('%type' => $mail->getKey(), '%to' => $message['to'], '%subject' => $message['subject']));
+          $this->logger->error('Outgoing email failed. Message type: %type<br />Subject: %subject<br />Recipient: %to', ['%type' => $mail->getKey(), '%to' => $message['to'], '%subject' => $message['subject']]);
         }
       }
 
       // Build array of sent results for spool table and reporting.
       if ($message['result']) {
-        $result = array(
+        $result = [
           'status' => SpoolStorageInterface::STATUS_DONE,
           'error' => FALSE,
-        );
+        ];
       }
       else {
         // This error may be caused by faulty mailserver configuration or overload.
         // Mark "pending" to keep trying.
-        $result = array(
+        $result = [
           'status' => SpoolStorageInterface::STATUS_PENDING,
           'error' => TRUE,
-        );
+        ];
       }
     }
     catch (SkipMailException $e) {
-      $result = array(
+      $result = [
         'status' => SpoolStorageInterface::STATUS_SKIPPED,
         'error' => FALSE,
-      );
+      ];
     }
 
     return $result;
@@ -366,7 +366,7 @@ class Mailer implements MailerInterface {
 
     // Send newsletter to test addresses.
     // Emails are send direct, not using the spool.
-    $recipients = array('anonymous' => array(), 'user' => array());
+    $recipients = ['anonymous' => [], 'user' => []];
     foreach ($test_addresses as $mail) {
       $mail = trim($mail);
       if (!empty($mail)) {
@@ -385,11 +385,11 @@ class Mailer implements MailerInterface {
     }
     if (count($recipients['user'])) {
       $recipients_txt = implode(', ', $recipients['user']);
-      $this->messenger()->addMessage(t('Test newsletter sent to user %recipient.', array('%recipient' => $recipients_txt)));
+      $this->messenger()->addMessage(t('Test newsletter sent to user %recipient.', ['%recipient' => $recipients_txt]));
     }
     if (count($recipients['anonymous'])) {
       $recipients_txt = implode(', ', $recipients['anonymous']);
-      $this->messenger()->addMessage(t('Test newsletter sent to anonymous %recipient.', array('%recipient' => $recipients_txt)));
+      $this->messenger()->addMessage(t('Test newsletter sent to anonymous %recipient.', ['%recipient' => $recipients_txt]));
     }
 
     $this->accountSwitcher->switchBack();
@@ -421,9 +421,9 @@ class Mailer implements MailerInterface {
    * {@inheritdoc}
    */
   public function updateSendStatus() {
-    $counts = array(); // number of pending emails in the spool
-    $sum = array(); // sum of emails in the spool per tnid (translation id)
-    $send = array(); // nodes with the status 'send'
+    $counts = []; // number of pending emails in the spool
+    $sum = []; // sum of emails in the spool per tnid (translation id)
+    $send = []; // nodes with the status 'send'
 
     // For each pending newsletter count the number of pending emails in the spool.
     $query = \Drupal::entityQuery('node');
@@ -433,7 +433,7 @@ class Mailer implements MailerInterface {
     $nodes = Node::loadMultiple($nids);
     if ($nodes) {
       foreach ($nodes as $nid => $node) {
-        $counts[$node->simplenews_issue->target_id][$nid] = $this->spoolStorage->countMails(array('entity_id' => $nid, 'entity_type' => 'node'));
+        $counts[$node->simplenews_issue->target_id][$nid] = $this->spoolStorage->countMails(['entity_id' => $nid, 'entity_type' => 'node']);
       }
     }
     // Determine which nodes are send per translation group and per individual node.
@@ -473,10 +473,10 @@ class Mailer implements MailerInterface {
     // Windows based PHP systems don't accept formatted email addresses.
     $formatted_address = (mb_substr(PHP_OS, 0, 3) == 'WIN') ? $address : '"'. addslashes(Unicode::mimeHeaderEncode($name)) .'" <'. $address .'>';
 
-    return array(
+    return [
       'address' => $address,
       'formatted' => $formatted_address,
-    );
+    ];
   }
 
   /**

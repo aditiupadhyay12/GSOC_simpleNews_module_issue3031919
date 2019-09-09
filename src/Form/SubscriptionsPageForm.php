@@ -56,7 +56,7 @@ class SubscriptionsPageForm extends SubscriptionsFormBase {
           return $this->t('You will receive a confirmation e-mail shortly containing further instructions on how to cancel your subscription.');
       }
     }
-    return $this->t('The newsletter subscriptions for %mail have been updated.', array('%mail' => $form_state->getValue('mail')[0]['value']));
+    return $this->t('The newsletter subscriptions for %mail have been updated.', ['%mail' => $form_state->getValue('mail')[0]['value']]);
   }
 
 }

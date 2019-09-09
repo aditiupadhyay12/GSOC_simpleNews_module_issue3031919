@@ -52,17 +52,17 @@ class ConfirmAddForm extends ConfirmFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, $mail = '', NewsletterInterface $newsletter = NULL) {
     $form = parent::buildForm($form, $form_state);
-    $form['question'] = array(
-      '#markup' => '<p>' . t('Are you sure you want to add %user to the %newsletter mailing list?', array('%user' => simplenews_mask_mail($mail), '%newsletter' => $newsletter->name)) . "<p>\n",
-    );
-    $form['mail'] = array(
+    $form['question'] = [
+      '#markup' => '<p>' . t('Are you sure you want to add %user to the %newsletter mailing list?', ['%user' => simplenews_mask_mail($mail), '%newsletter' => $newsletter->name]) . "<p>\n",
+    ];
+    $form['mail'] = [
       '#type' => 'value',
       '#value' => $mail,
-    );
-    $form['newsletter'] = array(
+    ];
+    $form['newsletter'] = [
       '#type' => 'value',
       '#value' => $newsletter,
-    );
+    ];
     return $form;
   }
 
@@ -84,7 +84,7 @@ class ConfirmAddForm extends ConfirmFormBase {
       $form_state->setRedirectUrl(Url::fromUri("internal:$path"));
     }
     else {
-      $this->messenger()->addMessage(t('%user was added to the %newsletter mailing list.', array('%user' => $form_state->getValue('mail'), '%newsletter' => $form_state->getValue('newsletter')->name)));
+      $this->messenger()->addMessage(t('%user was added to the %newsletter mailing list.', ['%user' => $form_state->getValue('mail'), '%newsletter' => $form_state->getValue('newsletter')->name]));
       $form_state->setRedirect('<front>');
     }
   }

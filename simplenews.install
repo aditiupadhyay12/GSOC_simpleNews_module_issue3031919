@@ -14,90 +14,90 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
  * Implements hook_schema().
  */
 function simplenews_schema() {
-  $schema['simplenews_mail_spool'] = array(
+  $schema['simplenews_mail_spool'] = [
     'description' => 'Spool for temporary storage of newsletter emails.',
-    'fields' => array(
-      'msid' => array(
+    'fields' => [
+      'msid' => [
         'description' => 'The primary identifier for a mail spool record.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
-      ),
-      'entity_type' => array(
+      ],
+      'entity_type' => [
         'description' => 'The entity type of this newsletter issue.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
-      ),
-      'entity_id' => array(
+      ],
+      'entity_id' => [
         'description' => 'The entity id of this newsletter issue.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
-      ),
-      'newsletter_id' => array(
+      ],
+      'newsletter_id' => [
         'description' => 'The {simplenews_newsletter}.id this email belongs to.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
-      ),
-      'status' => array(
+      ],
+      'status' => [
         'description' => 'The sent status of the email (0 = hold, 1 = pending, 2 = done).',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
         'size' => 'tiny',
-      ),
-      'error' => array(
+      ],
+      'error' => [
         'description' => 'A boolean indicating whether an error occurred while sending the email.',
         'type' => 'int',
         'size' => 'tiny',
         'not null' => TRUE,
         'default' => 0,
-      ),
-      'timestamp' => array(
+      ],
+      'timestamp' => [
         'description' => 'The time status was set or changed.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
-      ),
-      'data' => array(
+      ],
+      'data' => [
         'description' => 'A serialized array of name value pairs that define a temporary subscriber.',
         'type' => 'text',
         'not null' => FALSE,
         'size' => 'big',
         'serialize' => TRUE,
-      ),
-      'snid' => array(
+      ],
+      'snid' => [
         'description' => 'Foreign key for subscriber table ({simplenews_subscriber}.id).',
         'type' => 'int',
         'not null' => FALSE,
-      ),
-    ),
-    'primary key' => array('msid'),
-    'indexes' => array(
-      'newsletter_id' => array('newsletter_id'),
-      'status' => array('status'),
-      'snid_newsletter_id' => array('snid', 'newsletter_id'),
-    ),
-    'foreign keys' => array(
-      'newsletter_id' => array(
+      ],
+    ],
+    'primary key' => ['msid'],
+    'indexes' => [
+      'newsletter_id' => ['newsletter_id'],
+      'status' => ['status'],
+      'snid_newsletter_id' => ['snid', 'newsletter_id'],
+    ],
+    'foreign keys' => [
+      'newsletter_id' => [
         'table' => 'simplenews_newsletter',
-        'columns' => array('newsletter_id'),
-      ),
-      'snid_newsletter_id' => array(
+        'columns' => ['newsletter_id'],
+      ],
+      'snid_newsletter_id' => [
         'table' => 'simplenews_subscription',
-        'columns' => array(
+        'columns' => [
           'snid' => 'snid',
           'newsletter_id' => 'newsletter_id',
-        ),
-      ),
-    ),
-  );
+        ],
+      ],
+    ],
+  ];
 
   return $schema;
 }
@@ -126,8 +126,8 @@ function simplenews_install() {
   $config->set('newsletter.from_name', $site_name);
   $config->save(TRUE);
 
-  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('subscribe to newsletters'));
-  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('subscribe to newsletters'));
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, ['subscribe to newsletters']);
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, ['subscribe to newsletters']);
 
   // Init the default newsletter.
   $newsletter = Newsletter::load('default');
@@ -171,12 +171,12 @@ function simplenews_update_8203() {
     ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
     ->setLabel(t('Subscriptions'))
     ->setSetting('target_type', 'simplenews_newsletter')
-    ->setDisplayOptions('form', array(
+    ->setDisplayOptions('form', [
       'type' => 'simplenews_subscription_select',
       'weight' => '0',
-      'settings' => array(),
-      'third_party_settings' => array(),
-    ));
+      'settings' => [],
+      'third_party_settings' => [],
+    ]);
 
   \Drupal::entityDefinitionUpdateManager()->installFieldStorageDefinition('subscriptions', 'simplenews_subscriber', 'simplenews', $field_definition);
 

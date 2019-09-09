@@ -17,7 +17,7 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
    *
    * @var array
    */
-  public static $modules = array('field', 'simplenews');
+  public static $modules = ['field', 'simplenews'];
 
   /**
    * @var \Drupal\user\UserInterface
@@ -35,10 +35,10 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
     $this->addField('string', 'field_shared', 'simplenews_subscriber');
 
     // Create a user.
-    $this->user = $this->drupalCreateUser(array(
+    $this->user = $this->drupalCreateUser([
       'administer simplenews subscriptions',
       'administer simplenews settings',
-    ));
+    ]);
     $this->user->setEmail('user@example.com');
     $this->user->set('field_shared', $this->randomMachineName());
     $this->user->save();
@@ -49,11 +49,11 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
    */
   public function testSubscriberFormFieldSync() {
     // Create a subscriber for the user.
-    $subscriber = Subscriber::create(array(
+    $subscriber = Subscriber::create([
       // Subscribers are linked to users by the uid field.
       'uid' => $this->user->id(),
       'mail' => 'anything@example.com',
-    ));
+    ]);
     $subscriber->save();
 
     // Edit subscriber field and assert user field is changed accordingly.
@@ -63,7 +63,7 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
     $this->assertRaw($this->user->field_shared->value);
 
     $new_value = $this->randomMachineName();
-    $this->drupalPostForm(NULL, array('field_shared[0][value]' => $new_value), t('Save'));
+    $this->drupalPostForm(NULL, ['field_shared[0][value]' => $new_value], t('Save'));
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
     $this->assertRaw($new_value);
 
@@ -71,10 +71,10 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
     $this->assertEqual($this->user->field_shared->value, $new_value);
 
     // Unset the sync setting and assert field is not synced.
-    $this->drupalPostForm('admin/config/people/simplenews/settings/subscriber', array('simplenews_sync_fields' => FALSE), t('Save configuration'));
+    $this->drupalPostForm('admin/config/people/simplenews/settings/subscriber', ['simplenews_sync_fields' => FALSE], t('Save configuration'));
 
     $unsynced_value = $this->randomMachineName();
-    $this->drupalPostForm('admin/people/simplenews/edit/' . $subscriber->id(), array('field_shared[0][value]' => $unsynced_value), t('Save'));
+    $this->drupalPostForm('admin/people/simplenews/edit/' . $subscriber->id(), ['field_shared[0][value]' => $unsynced_value], t('Save'));
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
     $this->assertRaw($unsynced_value);
 

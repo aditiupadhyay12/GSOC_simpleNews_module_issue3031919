@@ -67,37 +67,37 @@ class IssueItem extends EntityReferenceItem {
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
     $schema = parent::schema($field_definition);
 
-    $schema['columns']['handler'] = array(
+    $schema['columns']['handler'] = [
       'description' => 'The issue handler.',
       'type' => 'varchar',
       'length' => 255,
       'not null' => FALSE,
-    );
-    $schema['columns']['handler_settings'] = array(
+    ];
+    $schema['columns']['handler_settings'] = [
       'description' => 'The issue handler settings.',
       'type' => 'blob',
       'size' => 'big',
       'not null' => FALSE,
       'serialize' => TRUE,
-    );
-    $schema['columns']['status'] = array(
+    ];
+    $schema['columns']['status'] = [
       'description' => 'A flag indicating whether the issue is published (3), ready (2), pending (1) or not (0).',
       'type' => 'int',
       'size' => 'tiny',
       'not null' => FALSE,
-    );
-    $schema['columns']['sent_count'] = array(
+    ];
+    $schema['columns']['sent_count'] = [
       'description' => 'Counter of already sent newsletters.',
       'type' => 'int',
       'unsigned' => TRUE,
       'not null' => FALSE,
-    );
-    $schema['columns']['subscribers'] = array(
+    ];
+    $schema['columns']['subscribers'] = [
       'description' => 'Counter of subscribers.',
       'type' => 'int',
       'unsigned' => TRUE,
       'not null' => FALSE,
-    );
+    ];
     return $schema;
   }
 

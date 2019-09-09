@@ -22,13 +22,13 @@ class SimplenewsUninstallTest extends SimplenewsTestBase {
 
     \Drupal::service('module_installer')->uninstall(['simplenews_test']);
 
-    $admin_user = $this->drupalCreateUser(array(
+    $admin_user = $this->drupalCreateUser([
       'administer nodes',
       'administer simplenews settings',
       'administer simplenews subscriptions',
       'create simplenews_issue content',
       'administer modules',
-    ));
+    ]);
     $this->drupalLogin($admin_user);
 
     // Subscribe a user.

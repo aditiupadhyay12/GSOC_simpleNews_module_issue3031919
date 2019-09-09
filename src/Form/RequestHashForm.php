@@ -55,7 +55,7 @@ class RequestHashForm extends ConfirmFormBase {
    *   Necessary context to send the mail. Must at least include the simplenews
    *   subscriber.
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $key = '', $context = array()) {
+  public function buildForm(array $form, FormStateInterface $form_state, $key = '', $context = []) {
     $form = parent::buildForm($form, $form_state);
     $form_state->set('key', $key);
     $form_state->set('context', $context);

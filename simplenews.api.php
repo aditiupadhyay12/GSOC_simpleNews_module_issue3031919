@@ -67,12 +67,12 @@
  * @ingroup issue
  */
 function hook_simplenews_issue_operations() {
-  $operations = array(
-    'activate' => array(
+  $operations = [
+    'activate' => [
       'label' => t('Send'),
       'callback' => 'simplenews_issue_send',
-    ),
-  );
+    ],
+  ];
   return $operations;
 }
 
@@ -82,22 +82,22 @@ function hook_simplenews_issue_operations() {
  * @ingroup issue
  */
 function hook_simplenews_subscription_operations() {
-  $operations = array(
-    'activate' => array(
+  $operations = [
+    'activate' => [
       'label' => t('Activate'),
       'callback' => 'simplenews_subscription_activate',
-      'callback arguments' => array(\Drupal\simplenews\SubscriberInterface::ACTIVE),
-    ),
-    'inactivate' => array(
+      'callback arguments' => [\Drupal\simplenews\SubscriberInterface::ACTIVE],
+    ],
+    'inactivate' => [
       'label' => t('Inactivate'),
       'callback' => 'simplenews_subscription_activate',
-      'callback arguments' => array(\Drupal\simplenews\SubscriberInterface::INACTIVE),
-    ),
-    'delete' => array(
+      'callback arguments' => [\Drupal\simplenews\SubscriberInterface::INACTIVE],
+    ],
+    'delete' => [
       'label' => t('Delete'),
       'callback' => 'simplenews_subscription_delete_multiple',
-    ),
-  );
+    ],
+  ];
   return $operations;
 }
 
@@ -196,14 +196,14 @@ function hook_simplenews_unsubscribe(SimplenewsSubscriber $subscriber, $subscrip
  * @ingroup source
  */
 function hook_simplenews_source_cache_info() {
-  return array(
-    'SimplenewsSourceCacheNone' => array(
+  return [
+    'SimplenewsSourceCacheNone' => [
       'label' => t('No caching'),
       'description' => t('This allows to theme each newsletter separately.'),
-    ),
-    'SimplenewsSourceCacheBuild' => array(
+    ],
+    'SimplenewsSourceCacheBuild' => [
       'label' => t('Cached content source'),
       'description' => t('This caches the rendered content to be sent for multiple recipients. It is not possible to use subscriber specific theming but tokens can be used for personalization.'),
-    ),
-  );
+    ],
+  ];
 }

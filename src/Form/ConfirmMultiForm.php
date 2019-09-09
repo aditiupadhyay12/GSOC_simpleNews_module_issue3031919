@@ -45,22 +45,22 @@ class ConfirmMultiForm extends ConfirmFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, SubscriberInterface $subscriber = NULL) {
     $form = parent::buildForm($form, $form_state);
-    $form['question'] = array(
-      '#markup' => '<p>' . t('Are you sure you want to confirm the following subscription changes for %user?', array('%user' => simplenews_mask_mail($subscriber->getMail()))) . "<p>\n",
-    );
+    $form['question'] = [
+      '#markup' => '<p>' . t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($subscriber->getMail())]) . "<p>\n",
+    ];
 
     /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
     $subscription_manager = \Drupal::service('simplenews.subscription_manager');
 
-    $form['changes'] = array(
+    $form['changes'] = [
       '#theme' => 'item_list',
       '#items' => $subscription_manager->getChangesList($subscriber),
-    );
+    ];
 
-    $form['subscriber'] = array(
+    $form['subscriber'] = [
       '#type' => 'value',
       '#value' => $subscriber,
-    );
+    ];
     return $form;
   }
 
@@ -93,10 +93,10 @@ class ConfirmMultiForm extends ConfirmFormBase {
     }
 
     // Clear changes.
-    $subscriber->setChanges(array());
+    $subscriber->setChanges([]);
     $subscriber->save();
 
-    $this->messenger()->addMessage(t('Subscription changes confirmed for %user.', array('%user' => $subscriber->getMail())));
+    $this->messenger()->addMessage(t('Subscription changes confirmed for %user.', ['%user' => $subscriber->getMail()]));
     $form_state->setRedirect('<front>');
   }
 

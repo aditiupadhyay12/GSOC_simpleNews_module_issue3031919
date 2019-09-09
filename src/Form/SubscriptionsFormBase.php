@@ -140,7 +140,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
 
     // Modify UI texts.
     if ($mail = $this->entity->getMail()) {
-      $form['subscriptions']['widget']['#title'] = t('Subscriptions for %mail', array('%mail' => $mail));
+      $form['subscriptions']['widget']['#title'] = t('Subscriptions for %mail', ['%mail' => $mail]);
       $form['subscriptions']['widget']['#description'] = t('Check the newsletters you want to subscribe to. Uncheck the ones you want to unsubscribe from.');
     }
     else {
@@ -212,12 +212,12 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $mail = $form_state->getValue(array('mail', 0, 'value'));
+    $mail = $form_state->getValue(['mail', 0, 'value']);
     // Users should login to manage their subscriptions.
     if (\Drupal::currentUser()->isAnonymous() && $user = user_load_by_mail($mail)) {
       $message = $user->isBlocked() ?
-        $this->t('The email address %mail belongs to a blocked user.', array('%mail' => $mail)) :
-        $this->t('There is an account registered for the e-mail address %mail. Please log in to manage your newsletter subscriptions.', array('%mail' => $mail));
+        $this->t('The email address %mail belongs to a blocked user.', ['%mail' => $mail]) :
+        $this->t('There is an account registered for the e-mail address %mail. Please log in to manage your newsletter subscriptions.', ['%mail' => $mail]);
       $form_state->setErrorByName('mail', $message);
     }
 
@@ -238,7 +238,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
     // Subclasses try to load an existing subscriber in different ways in
     // buildForm. For anonymous user the email is unknown in buildForm, but here
     // we can try again to load an existing subscriber.
-    $mail = $form_state->getValue(array('mail', 0, 'value'));
+    $mail = $form_state->getValue(['mail', 0, 'value']);
     if ($this->entity->isNew() && $subscriber = Subscriber::loadByMail($mail)) {
       $this->setEntity($subscriber);
     }

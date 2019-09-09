@@ -28,37 +28,37 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     parent::setUp();
 
     // Create the filtered_html text format.
-    $filtered_html_format = \Drupal::entityTypeManager()->getStorage('filter_format')->create(array(
+    $filtered_html_format = \Drupal::entityTypeManager()->getStorage('filter_format')->create([
       'format' => 'filtered_html',
       'name' => 'Filtered HTML',
       'weight' => 0,
-      'filters' => array(
+      'filters' => [
         // URL filter.
-        'filter_url' => array(
+        'filter_url' => [
           'weight' => 0,
           'status' => 1,
-        ),
+        ],
         // HTML filter.
-        'filter_html' => array(
+        'filter_html' => [
           'weight' => 1,
           'status' => 1,
           'allowed-values'
-        ),
+        ],
         // Line break filter.
-        'filter_autop' => array(
+        'filter_autop' => [
           'weight' => 2,
           'status' => 1,
-        ),
+        ],
         // HTML corrector filter.
-        'filter_htmlcorrector' => array(
+        'filter_htmlcorrector' => [
           'weight' => 10,
           'status' => 1,
-        ),
-      ),
-    ));
+        ],
+      ],
+    ]);
     $filtered_html_format->save();
 
-    $admin_user = $this->drupalCreateUser(array(
+    $admin_user = $this->drupalCreateUser([
       'administer newsletters',
       'send newsletter',
       'administer nodes',
@@ -68,7 +68,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'view own unpublished content',
       'delete any simplenews_issue content',
       'administer simplenews settings',
-      $filtered_html_format->getPermissionName()));
+      $filtered_html_format->getPermissionName()]);
     $this->drupalLogin($admin_user);
   }
 
@@ -130,11 +130,11 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
 
     $this->setUpSubscribers(100);
 
-    $edit = array(
+    $edit = [
       'title[0][value]' => $this->randomString(10),
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue[target_id]' => 'default',
-    );
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -169,7 +169,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     }
 
     // Report time. @todo: Find a way to actually do some assertions here.
-    $this->pass(t('Mails have been sent in @sec seconds with build caching enabled.', array('@sec' => round($after - $before, 3))));
+    $this->pass(t('Mails have been sent in @sec seconds with build caching enabled.', ['@sec' => round($after - $before, 3)]));
   }
 
   /**
@@ -186,7 +186,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     // Set the format to HTML.
     $this->drupalGet('admin/config/services/simplenews');
     $this->clickLink(t('Edit'));
-    $edit_newsletter = array(
+    $edit_newsletter = [
       'format' => 'html',
       // Use umlaut to provoke mime encoding.
       'from_name' => 'Drupäl',
@@ -195,16 +195,16 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'from_address' => $this->randomEmail(),
       // Request a confirmation receipt.
       'receipt' => TRUE,
-    );
+    ];
     $this->drupalPostForm(NULL, $edit_newsletter, t('Save'));
     $this->clickLink(t('Edit'));
 
-    $edit = array(
+    $edit = [
       // Always use a character that is escaped.
       'title[0][value]' => $this->randomString() . '\'<',
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue[target_id]' => 'default',
-    );
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -272,18 +272,18 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     // Set the format to HTML.
     $this->drupalGet('admin/config/services/simplenews');
     $this->clickLink(t('Edit'));
-    $edit = array(
+    $edit = [
       'opt_inout' => 'hidden',
       // @todo: This shouldn't be necessary.
       'from_address' => $this->randomEmail(),
-    );
+    ];
     $this->drupalPostForm(NULL, $edit, t('Save'));
 
-    $edit = array(
+    $edit = [
       'title[0][value]' => $this->randomString(10),
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue[target_id]' => 'default',
-    );
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -321,11 +321,11 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->rebuildContainer();
     \Drupal::moduleHandler()->loadAll();
 
-    $edit = array(
+    $edit = [
       'title[0][value]' => $this->randomString(10),
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue[target_id]' => 'default',
-    );
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -351,7 +351,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     }
 
     // Report time. @todo: Find a way to actually do some assertions here.
-    $this->pass(t('Mails have been sent in @sec seconds with caching disabled.', array('@sec' => round($after - $before, 3))));
+    $this->pass(t('Mails have been sent in @sec seconds with caching disabled.', ['@sec' => round($after - $before, 3)]));
   }
 
   /**
@@ -360,11 +360,11 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   public function testSendMissingNode() {
     $this->setUpSubscribers(1);
 
-    $edit = array(
+    $edit = [
       'title[0][value]' => $this->randomString(10),
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue[target_id]' => 'default',
-    );
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -396,11 +396,11 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   public function testSendMissingSubscriber() {
     $this->setUpSubscribers(1);
 
-    $edit = array(
+    $edit = [
       'title[0][value]' => $this->randomString(10),
       'body[0][value]' => "Mail token: <strong>[simplenews-subscriber:mail]</strong>",
       'simplenews_issue[target_id]' => 'default',
-    );
+    ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
     $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);

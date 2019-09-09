@@ -26,21 +26,21 @@ class SubscriberForm extends SubscriptionsFormBase {
     $subscriber = $this->entity;
 
     if ($mail = $subscriber->getMail()) {
-      $form['#title'] = $this->t('Edit subscriber @mail', array('@mail' => $mail));
+      $form['#title'] = $this->t('Edit subscriber @mail', ['@mail' => $mail]);
     }
 
-    $form['activated'] = array(
+    $form['activated'] = [
       '#title' => t('Status'),
       '#type' => 'fieldset',
       '#description' => t('Whether the subscription is active or blocked.'),
       '#weight' => 15,
-    );
-    $form['activated']['status'] = array(
+    ];
+    $form['activated']['status'] = [
       '#type' => 'checkbox',
       '#title' => t('Active'),
       '#default_value' => $subscriber->getStatus(),
       '#disabled' => !$subscriber->get('status')->access('edit'),
-    );
+    ];
 
     $language_manager = \Drupal::languageManager();
     if ($language_manager->isMultilingual()) {
@@ -48,27 +48,27 @@ class SubscriberForm extends SubscriptionsFormBase {
       foreach ($languages as $langcode => $language) {
         $language_options[$langcode] = $language->getName();
       }
-      $form['language'] = array(
+      $form['language'] = [
         '#type' => 'fieldset',
         '#title' => t('Preferred language'),
         '#description' => t('The e-mails will be localized in language chosen. Real users have their preference in account settings.'),
         '#disabled' => FALSE,
-      );
+      ];
       if ($subscriber->getUserId()) {
         // Fallback if user has not defined a language.
-        $form['language']['langcode'] = array(
+        $form['language']['langcode'] = [
           '#type' => 'item',
           '#title' => t('User language'),
           '#markup' => $subscriber->language()->getName(),
-        );
+        ];
       }
       else {
-        $form['language']['langcode'] = array(
+        $form['language']['langcode'] = [
           '#type' => 'select',
           '#default_value' => $subscriber->language()->getId(),
           '#options' => $language_options,
           '#required' => TRUE,
-        );
+        ];
       }
     }
 
@@ -80,9 +80,9 @@ class SubscriberForm extends SubscriptionsFormBase {
    */
   protected function getSubmitMessage(FormStateInterface $form_state, $op, $confirm) {
     if ($this->getFormId() == 'simplenews_subscriber_add_form') {
-      return $this->t('Subscriber %label has been added.', array('%label' => $this->entity->label()));
+      return $this->t('Subscriber %label has been added.', ['%label' => $this->entity->label()]);
     }
-    return $this->t('Subscriber %label has been updated.', array('%label' => $this->entity->label()));
+    return $this->t('Subscriber %label has been updated.', ['%label' => $this->entity->label()]);
   }
 
   /**

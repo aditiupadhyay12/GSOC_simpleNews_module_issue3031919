@@ -77,11 +77,11 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
    */
   public function defaultConfiguration() {
     // By default, the block will contain 1 newsletter.
-    return array(
-      'newsletters' => array(),
+    return [
+      'newsletters' => [],
       'message' => t('Stay informed - subscribe to our newsletter.'),
       'unique_id' => '',
-    );
+    ];
   }
 
   /**
@@ -100,28 +100,28 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
       $options[$newsletter->id()] = $newsletter->name;
     }
 
-    $form['newsletters'] = array(
+    $form['newsletters'] = [
       '#type' => 'checkboxes',
       '#title' => t('Newsletters'),
       '#options' => $options,
       '#required' => TRUE,
       '#default_value' => $this->configuration['newsletters'],
-    );
-    $form['message'] = array(
+    ];
+    $form['message'] = [
       '#type' => 'textfield',
       '#title' => t('Block message'),
       '#size' => 60,
       '#maxlength' => 255,
       '#default_value' => $this->configuration['message'],
-    );
-    $form['unique_id'] = array(
+    ];
+    $form['unique_id'] = [
       '#type' => 'textfield',
       '#title' => t('Unique ID'),
       '#size' => 60,
       '#maxlength' => 255,
       '#description' => t('Each subscription block must have a unique form ID. If no value is provided, a random ID will be generated. Use this to have a predictable, short ID, e.g. to configure this form use a CAPTCHA.'),
       '#default_value' => $this->configuration['unique_id'],
-    );
+    ];
     /*if (\Drupal::moduleHandler()->moduleExists('views')) {
         $form['link_previous'] = array(
           '#type' => 'checkbox',

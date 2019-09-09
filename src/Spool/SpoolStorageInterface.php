@@ -58,7 +58,7 @@ interface SpoolStorageInterface {
    * @return \Drupal\simplenews\Spool\SpoolListInterface
    *   A mail spool list.
    */
-  function getMails($limit = self::UNLIMITED, $conditions = array());
+  function getMails($limit = self::UNLIMITED, $conditions = []);
 
   /**
    * Update status of mail data in spool table.
@@ -83,7 +83,7 @@ interface SpoolStorageInterface {
    * @return int
    *   Count of mail spool elements of the passed in arguments.
    */
-  function countMails(array $conditions = array());
+  function countMails(array $conditions = []);
 
   /**
    * Remove old records from mail spool table.
