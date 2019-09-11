@@ -2,7 +2,6 @@
 
 namespace Drupal\simplenews\Mail;
 
-use Drupal\simplenews\Mail\MailInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\SubscriberInterface;
@@ -33,8 +32,6 @@ interface MailerInterface {
    * Mail data is retrieved from the spool, rendered and send one by one
    * If sending is successful the message is marked as send in the spool.
    *
-   * @todo: Redesign API to allow language counter in multilingual sends.
-   *
    * @param int $limit
    *   (Optional) The maximum number of mails to send. Defaults to
    *   unlimited.
@@ -43,6 +40,8 @@ interface MailerInterface {
    *
    * @return int
    *   Returns the amount of sent mails.
+   *
+   * @todo: Redesign API to allow language counter in multilingual sends.
    */
   public function sendSpool($limit = SpoolStorageInterface::UNLIMITED, array $conditions = []);
 
@@ -79,7 +78,7 @@ interface MailerInterface {
    * @todo This function currently does not return information about which
    *       subscriber received a confirmation.
    */
-  function sendCombinedConfirmation(SubscriberInterface $subscriber);
+  public function sendCombinedConfirmation(SubscriberInterface $subscriber);
 
   /**
    * Update newsletter sent status.
@@ -111,4 +110,5 @@ interface MailerInterface {
    *    'formatted' => Formatted, mime encoded, from name and address
    */
   public function getFrom();
+
 }

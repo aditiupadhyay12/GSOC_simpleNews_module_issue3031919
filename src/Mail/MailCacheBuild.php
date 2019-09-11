@@ -12,7 +12,7 @@ class MailCacheBuild extends MailCacheStatic {
   /**
    * {@inheritdoc}
    */
-  function isCacheable(MailInterface $mail, $group, $key) {
+  public function isCacheable(MailInterface $mail, $group, $key) {
 
     // Only cache for anon users.
     if (\Drupal::currentUser()->isAuthenticated()) {

@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\Tests\simplenews\Functional;
+
 use Drupal\Component\Utility\Html;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;

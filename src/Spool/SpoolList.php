@@ -19,6 +19,8 @@ class SpoolList implements SpoolListInterface {
 
   /**
    * Array of the processed mail spool rows.
+   *
+   * @var array
    */
   protected $processed = [];
 
@@ -59,11 +61,11 @@ class SpoolList implements SpoolListInterface {
       ->getStorage($spool_data->entity_type)
       ->load($spool_data->entity_id);
     if (!$issue) {
-      // If the entity load failed, set the processed status done and proceed with
-      // the next mail.
+      // If the entity load failed, set the processed status done and proceed
+      // with the next mail.
       $this->processed[$spool_data->msid]->result = [
         'status' => SpoolStorageInterface::STATUS_DONE,
-        'error' => TRUE
+        'error' => TRUE,
       ];
       return $this->nextMail();
     }
@@ -80,7 +82,7 @@ class SpoolList implements SpoolListInterface {
       // processed status done and proceed with the next mail.
       $this->processed[$spool_data->msid]->result = [
         'status' => SpoolStorageInterface::STATUS_DONE,
-        'error' => TRUE
+        'error' => TRUE,
       ];
       return $this->nextMail();
     }
@@ -95,7 +97,7 @@ class SpoolList implements SpoolListInterface {
   /**
    * {@inheritdoc}
    */
-  function getProcessed() {
+  public function getProcessed() {
     $processed = $this->processed;
     $this->processed = [];
     return $processed;

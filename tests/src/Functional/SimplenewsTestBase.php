@@ -1,12 +1,5 @@
 <?php
 
-/**
- * @file
- * Simplenews test functions.
- *
- * @ingroup simplenews
- */
-
 namespace Drupal\Tests\simplenews\Functional;
 
 use Drupal\Core\Test\AssertMailTrait;
@@ -40,6 +33,9 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    */
   protected $config;
 
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp() {
     parent::setUp();
     $this->drupalPlaceBlock('local_tasks_block');
@@ -89,12 +85,12 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * Enable newsletter subscription block.
    *
    * @param array $settings
-   *  ['newsletters'] = Array of newsletters (id => 1)
-   *  ['message'] = Block message
-   *  ['link_previous'] = {1, 0} Display link to previous issues
-   *  ['rss_feed'] = {1, 0} Display RSS-feed icon
+   *   ['newsletters'] = Array of newsletters (id => 1)
+   *   ['message'] = Block message
+   *   ['link_previous'] = {1, 0} Display link to previous issues
+   *   ['rss_feed'] = {1, 0} Display RSS-feed icon.
    */
-  protected function setupSubscriptionBlock($settings = []) {
+  protected function setupSubscriptionBlock(array $settings = []) {
 
     $settings += [
       'newsletters' => [],
@@ -114,6 +110,14 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     return $block;
   }
 
+  /**
+   * Setup subscribers.
+   *
+   * @param int $count
+   *   Number of subscribers to set up.
+   * @param string $newsletter_id
+   *   Newsletter ID.
+   */
   protected function setUpSubscribers($count = 100, $newsletter_id = 'default') {
     // Subscribe users.
     $this->subscribers = [];
@@ -287,4 +291,5 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     $pos = strpos($body, (string) $needle);
     $this->assertEquals($pos !== FALSE, $exist, "$needle found in mail");
   }
+
 }

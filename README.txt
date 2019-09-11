@@ -105,7 +105,7 @@ INSTALLATION
     simplenews-newsletter-body.html.twig from the simplenews module directory
     to your theme directory. Both general and by-newsletter theming can
     be performed.
-    
+
       simplenews-newsletter-body.html.twig (for all newsletters)
       simplenews-newsletter-body--[newsletter_id].html.twig
       simplenews-newsletter-body--[view mode].html.twig
@@ -160,7 +160,8 @@ INSTALLATION
     specify an alternative destination page.
       Structure > Configuration > Web Services > Newsletters > edit newsletter category > Subscription settings
 
-    To skip the confirmation page you can add parameters to the subscription URL.
+    To skip the confirmation page you can add parameters to the subscription
+    URL.
       Example: [simplenews-subscribe-url]/ok
     When an alternative destination page has been defined the extra parameters
     will be added to the destination URL.

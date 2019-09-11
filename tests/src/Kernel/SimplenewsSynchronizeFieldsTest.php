@@ -18,7 +18,7 @@ class SimplenewsSynchronizeFieldsTest extends KernelTestBase {
   /**
    * Modules to enable.
    *
-   * @var array()
+   * @var array
    */
   public static $modules = ['simplenews', 'user', 'field', 'system', 'language'];
 
@@ -150,7 +150,7 @@ class SimplenewsSynchronizeFieldsTest extends KernelTestBase {
     // Create a subscriber.
     /** @var \Drupal\simplenews\Entity\Subscriber $subscriber */
     $subscriber = Subscriber::create([
-        'mail' => 'user@example.com',
+      'mail' => 'user@example.com',
     ]);
 
     // Assert that the shared field already has a value.
@@ -320,4 +320,5 @@ class SimplenewsSynchronizeFieldsTest extends KernelTestBase {
       'bundle' => $bundle,
     ])->save();
   }
+
 }

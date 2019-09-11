@@ -30,7 +30,7 @@ interface SubscriptionManagerInterface {
    *    website: via any website form (with or without confirmation email)
    *    mass subscribe: mass admin UI
    *    mass unsubscribe: mass admin UI
-   *    action: Drupal actions
+   *    action: Drupal actions.
    * @param string $preferred_langcode
    *   The language code (i.e. 'en', 'nl') of the user preferred language.
    *   Use '' for the site default language.
@@ -99,7 +99,7 @@ interface SubscriptionManagerInterface {
    * @return string[]
    *   Array of description strings describing the changes.
    */
-  public function getChangesList(SubscriberInterface $subscriber, $changes = NULL, $langcode = NULL);
+  public function getChangesList(SubscriberInterface $subscriber, array $changes = NULL, $langcode = NULL);
 
   /**
    * Send confirmations for previous subscription and unsubscription requests.

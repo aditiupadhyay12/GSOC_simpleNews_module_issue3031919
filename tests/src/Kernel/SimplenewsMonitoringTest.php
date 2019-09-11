@@ -1,10 +1,4 @@
 <?php
-/**
- * @file
- * Simplenews monitoring test functions.
- *
- * @ingroup simplenews
- */
 
 namespace Drupal\Tests\simplenews\Kernel;
 
@@ -23,7 +17,9 @@ class SimplenewsMonitoringTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['node', 'system', 'views', 'user', 'field', 'text', 'simplenews', 'monitoring', 'monitoring_test'];
+  public static $modules = [
+    'node', 'system', 'views', 'user', 'field', 'text', 'simplenews', 'monitoring', 'monitoring_test',
+  ];
 
   /**
    * Tests individual sensors.
@@ -66,4 +62,5 @@ class SimplenewsMonitoringTest extends KernelTestBase {
     monitoring_sensor_manager()->enableSensor($sensor_name);
     return monitoring_sensor_run($sensor_name, TRUE, TRUE);
   }
+
 }

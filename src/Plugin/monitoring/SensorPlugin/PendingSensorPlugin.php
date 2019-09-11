@@ -29,4 +29,5 @@ class PendingSensorPlugin extends SensorPluginBase {
   public function runSensor(SensorResultInterface $result) {
     $result->setValue(\Drupal::service('simplenews.spool_storage')->countMails(['status' => SpoolStorageInterface::STATUS_PENDING]));
   }
+
 }

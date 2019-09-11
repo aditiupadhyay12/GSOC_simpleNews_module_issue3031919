@@ -4,7 +4,6 @@ namespace Drupal\simplenews;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\user\UserInterface;
 
 /**
  * Simplenews subscriber entity interface.
@@ -24,7 +23,7 @@ interface SubscriberInterface extends ContentEntityInterface {
   /**
    * Returns if the subscriber is active or not.
    *
-   * @return boolean
+   * @return bool
    *   The subscribers status.
    */
   public function getStatus();
@@ -32,7 +31,7 @@ interface SubscriberInterface extends ContentEntityInterface {
   /**
    * Sets the status of the subscriber.
    *
-   * @param boolean $status
+   * @param bool $status
    *   The subscribers status.
    */
   public function setStatus($status);
@@ -132,31 +131,31 @@ interface SubscriberInterface extends ContentEntityInterface {
   public function isSubscribed($newsletter_id);
 
   /**
-   * Check if the subscriber has an inactive subscription to a certain newsletter.
+   * Check if the subscriber has an inactive subscription to a given newsletter.
    *
    * @param string $newsletter_id
    *   The ID of a newsletter.
    *
    * @return bool
-   *   Returns TRUE if the subscriber has the inactive subscription, otherwise FALSE.
+   *   TRUE if the subscriber has the inactive subscription, otherwise FALSE.
    */
   public function isUnsubscribed($newsletter_id);
 
   /**
-   * Check if the subscriber has a subscription to a certain newsletter and return it.
+   * Returns the subscription to a given newsletter..
    *
    * @param string $newsletter_id
    *   The ID of a newsletter.
    *
    * @return \Drupal\simplenews\Plugin\Field\FieldType\SubscriptionItem
-   *   Returns the subscription item if the subscriber has the subscription, otherwise FALSE.
+   *   The subscription item if the subscriber is subscribed, otherwise FALSE.
    */
   public function getSubscription($newsletter_id);
 
   /**
    * Get the ids of all subscribed newsletters.
    *
-   * @return array of newsletter ids
+   * @return array
    *   Returns the ids of all newsletters the subscriber is subscribed.
    */
   public function getSubscribedNewsletterIds();

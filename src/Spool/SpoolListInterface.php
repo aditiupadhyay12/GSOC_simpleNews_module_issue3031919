@@ -14,8 +14,9 @@ interface SpoolListInterface extends \Countable {
    * addressing them as BCC.
    *
    * @return \Drupal\simplenews\Mail\MailInterface
+   *   Next email to be sent.
    */
-  function nextMail();
+  public function nextMail();
 
   /**
    * Returns the processed mail spool rows, keyed by the msid.
@@ -23,7 +24,7 @@ interface SpoolListInterface extends \Countable {
    * Only rows that were processed while preparing the previously returned
    * source must be returned.
    *
-   * @return
+   * @return array
    *   An array of mail spool rows, keyed by the msid. Can optionally have set
    *   the following additional properties.
    *     - actual_nid: In case of content translation, the source node that was
@@ -32,5 +33,6 @@ interface SpoolListInterface extends \Countable {
    *       when the corresponding node failed to load.
    *     - status: A simplenews spool status to indicate the status.
    */
-  function getProcessed();
+  public function getProcessed();
+
 }

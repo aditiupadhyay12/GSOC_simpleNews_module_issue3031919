@@ -15,7 +15,7 @@ interface MailBuilderInterface {
    * @param \Drupal\simplenews\Mail\MailInterface $mail
    *   The mail object.
    */
-  function buildNewsletterMail(array &$message, MailInterface $mail);
+  public function buildNewsletterMail(array &$message, MailInterface $mail);
 
   /**
    * Build subject and body of the subscribe confirmation email.
@@ -25,7 +25,7 @@ interface MailBuilderInterface {
    * @param array $params
    *   Parameter array as used by hook_mail().
    */
-  function buildSubscribeMail(array &$message, array $params);
+  public function buildSubscribeMail(array &$message, array $params);
 
   /**
    * Build subject and body of the subscribe confirmation email.
@@ -35,7 +35,7 @@ interface MailBuilderInterface {
    * @param array $params
    *   Parameter array as used by hook_mail().
    */
-  function buildCombinedMail(&$message, $params);
+  public function buildCombinedMail(array &$message, array $params);
 
   /**
    * Build subject and body of the unsubscribe confirmation email.
@@ -45,5 +45,6 @@ interface MailBuilderInterface {
    * @param array $params
    *   Parameter array as used by hook_mail().
    */
-  function buildUnsubscribeMail(&$message, $params);
+  public function buildUnsubscribeMail(array &$message, array $params);
+
 }

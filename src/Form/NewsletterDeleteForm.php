@@ -15,7 +15,7 @@ class NewsletterDeleteForm extends EntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return t('Are you sure you want to delete %name?', ['%name' => $this->entity->label()]);
+    return $this->t('Are you sure you want to delete %name?', ['%name' => $this->entity->label()]);
   }
 
   /**
@@ -29,7 +29,7 @@ class NewsletterDeleteForm extends EntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getConfirmText() {
-    return t('Delete');
+    return $this->t('Delete');
   }
 
   /**
@@ -37,7 +37,7 @@ class NewsletterDeleteForm extends EntityConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->delete();
-    $this->messenger()->addMessage(t('Newsletter %label has been deleted.', ['%label' => $this->entity->label()]));
+    $this->messenger()->addMessage($this->t('Newsletter %label has been deleted.', ['%label' => $this->entity->label()]));
     \Drupal::logger('simplenews')->notice('Newsletter %label has been deleted.', ['%label' => $this->entity->label()]);
     $form_state->setRedirect('simplenews.newsletter_list');
   }

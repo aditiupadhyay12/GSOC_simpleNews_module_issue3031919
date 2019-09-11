@@ -3,6 +3,7 @@
 namespace Drupal\simplenews\EventSubscriber;
 
 use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\migrate\Event\MigrateEvents;
@@ -17,6 +18,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * type is a simplenews content type and adds the field.
  */
 class MigrationSubscriber implements EventSubscriberInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The entity field manager.
@@ -56,7 +59,7 @@ class MigrationSubscriber implements EventSubscriberInterface {
     $field_storage = FieldStorageConfig::loadByName('node', 'simplenews_issue');
     $field = FieldConfig::create([
       'field_storage' => $field_storage,
-      'label' => t('Issue'),
+      'label' => $this->t('Issue'),
       'bundle' => $node_type,
       'translatable' => TRUE,
     ]);
@@ -78,4 +81,5 @@ class MigrationSubscriber implements EventSubscriberInterface {
     }
     return $return;
   }
+
 }

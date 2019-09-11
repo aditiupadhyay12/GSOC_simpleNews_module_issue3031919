@@ -80,7 +80,7 @@ class Newsletter extends ConfigEntityBase implements NewsletterInterface {
   public $format;
 
   /**
-   * Priority indicator
+   * Priority indicator.
    *
    * @var int
    */
@@ -89,7 +89,7 @@ class Newsletter extends ConfigEntityBase implements NewsletterInterface {
   /**
    * TRUE if a read receipt should be requested.
    *
-   * @var boolean
+   * @var bool
    */
   public $receipt;
 
@@ -117,13 +117,14 @@ class Newsletter extends ConfigEntityBase implements NewsletterInterface {
   /**
    * Indicates if hyperlinks should be kept inline or extracted.
    *
-   * @var boolean
+   * @var bool
    */
   public $hyperlinks = TRUE;
 
   /**
-   * Allowed recipient handlers.  If none are selected, then all of them will
-   * be available.
+   * Allowed recipient handlers.
+   *
+   * If none are selected, then all of them will be available.
    *
    * @var array
    */

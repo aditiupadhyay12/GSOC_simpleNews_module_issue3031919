@@ -18,9 +18,11 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
   /**
    * Modules to enable.
    *
-   * @var  array
+   * @var array
    */
-  public static $modules = ['locale', 'config_translation', 'content_translation'];
+  public static $modules = [
+    'locale', 'config_translation', 'content_translation',
+  ];
 
   /**
    * Administrative user.
@@ -43,9 +45,14 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
    */
   protected $secondaryLanguage;
 
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp() {
     parent::setUp();
-    $this->adminUser = $this->drupalCreateUser(['bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'access administration pages', 'administer filters', 'translate interface', 'subscribe to newsletters', 'administer site configuration', 'translate any entity', 'administer content translation', 'administer simplenews subscriptions', 'send newsletter', 'create content translations']);
+    $this->adminUser = $this->drupalCreateUser([
+      'bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'access administration pages', 'administer filters', 'translate interface', 'subscribe to newsletters', 'administer site configuration', 'translate any entity', 'administer content translation', 'administer simplenews subscriptions', 'send newsletter', 'create content translations',
+    ]);
     $this->drupalLogin($this->adminUser);
     $this->setUpLanguages();
   }
@@ -79,12 +86,13 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
   }
 
   /**
-   * Install a the specified language if it has not been already. Otherwise make sure that
-   * the language is enabled.
+   * Install a the specified language if it has not been already.
+   *
+   * Otherwise make sure that the language is enabled.
    *
    * Copied from Drupali18nTestCase::addLanguage().
    *
-   * @param $language_code
+   * @param string $language_code
    *   The language code the check.
    */
   protected function addLanguage($language_code) {
@@ -92,6 +100,9 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     $language->save();
   }
 
+  /**
+   * Test newsletter issue translations.
+   */
   public function testNewsletterIssueTranslation() {
     // Sign up three users, one in english and two in spanish.
     $english_mail = $this->randomEmail();
@@ -139,6 +150,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     $this->clickLink(t('Newsletter'));
     $this->drupalPostForm(NULL, [], t('Send now'));
     $this->cronRun();
+    // @codingStandardsIgnoreLine
     //simplenews_cron();
 
     $this->assertEqual(3, count($this->getMails()));

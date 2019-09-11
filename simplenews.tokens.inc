@@ -78,13 +78,6 @@ function simplenews_token_info() {
 function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $bubbleable_metadata) {
   $replacements = [];
   $sanitize = !empty($options['sanitize']);
-  if (isset($options['langcode'])) {
-    $url_options['language'] = \Drupal::languageManager()->getLanguage($options['langcode']);
-    $langcode = $options['langcode'];
-  }
-  else {
-    $langcode = NULL;
-  }
 
   switch ($type) {
     case 'simplenews-subscriber':

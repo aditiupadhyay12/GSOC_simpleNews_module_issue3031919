@@ -17,8 +17,8 @@ use Drupal\Core\TypedData\DataDefinition;
  *   allowed bundles.
  * - handler: The issue handler.
  * - handler_settings: The issue handler settings.
- * - status: A flag indicating whether the issue is published (3), ready (2), pending (1) or
- *   not (0)
+ * - status: A flag indicating whether the issue is published (3), ready (2),
+ *   pending (1) or not (0).
  * - sent_count: Counter of already sent newsletters.
  * - subscribers: Counter of subscribers.
  *
@@ -101,6 +101,9 @@ class IssueItem extends EntityReferenceItem {
     return $schema;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function setValue($values, $notify = TRUE) {
     if (count($values) == 1 && isset($values['target_id'])) {
       $values = array_merge($this->values, $values);
@@ -120,6 +123,5 @@ class IssueItem extends EntityReferenceItem {
     }
     parent::setValue($values, $notify);
   }
-
 
 }

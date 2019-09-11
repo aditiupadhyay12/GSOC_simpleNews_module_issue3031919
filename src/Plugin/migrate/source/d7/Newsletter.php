@@ -68,7 +68,9 @@ class Newsletter extends DrupalSqlBase {
   protected function query71() {
     $q = $this->select('simplenews_category', 'c');
     $q->innerJoin('taxonomy_term_data', 't', 't.tid = c.tid');
-    $q->fields('c', ['tid', 'format', 'priority', 'receipt', 'from_name', 'email_subject', 'from_address', 'hyperlinks', 'new_account', 'opt_inout', 'block']);
+    $q->fields('c', [
+      'tid', 'format', 'priority', 'receipt', 'from_name', 'email_subject', 'from_address', 'hyperlinks', 'new_account', 'opt_inout', 'block',
+    ]);
     $q->fields('t', ['name', 'description', 'weight']);
     $q->orderBy('c.tid');
 

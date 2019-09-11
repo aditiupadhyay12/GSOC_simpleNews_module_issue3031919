@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Module file for Simpelnews rules integration.
+ * Module file for Simplenews rules integration.
  */
 
 use Drupal\simplenews\Entity\Newsletter;
@@ -10,7 +10,6 @@ use Drupal\simplenews\Entity\Newsletter;
 define('SIMPLENEWS_RULES_CONFIRMATION_DEFAULT', 0);
 define('SIMPLENEWS_RULES_CONFIRMATION_YES', 1);
 define('SIMPLENEWS_RULES_CONFIRMATION_NO', 2);
-
 
 /**
  * Returns the options for the confirmation paramter.
@@ -35,7 +34,7 @@ function simplenews_rules_simplenews_unsubscribe($subscriber, $subscription) {
 }
 
 /**
- * Implements hook_simplenews_unsubscribe().
+ * Implements hook_simplenews_subscribe().
  */
 function simplenews_rules_simplenews_subscribe($subscriber, $subscription) {
   $args = array(

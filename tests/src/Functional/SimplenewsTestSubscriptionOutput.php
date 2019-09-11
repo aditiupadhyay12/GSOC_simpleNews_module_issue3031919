@@ -17,9 +17,9 @@ class SimplenewsTestSubscriptionOutput extends SimplenewsTestBase {
     // Enable the extra field.
     entity_get_display('user', 'user', 'default')
       ->setComponent('simplenews', [
-          'label' => 'hidden',
-          'type' => 'simplenews',
-        ])
+        'label' => 'hidden',
+        'type' => 'simplenews',
+      ])
       ->save();
 
     // Create admin user.
@@ -50,4 +50,5 @@ class SimplenewsTestSubscriptionOutput extends SimplenewsTestBase {
     $this->drupalGet('user/' . $user->id());
     $this->assertNoLink('Manage subscriptions');
   }
+
 }

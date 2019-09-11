@@ -13,26 +13,28 @@ interface MailInterface {
    * Returns the newsletter issue entity.
    *
    * @return \Drupal\Core\Entity\ContentEntityInterface
+   *   Newsletter issue entity.
    */
-  function getIssue();
+  public function getIssue();
 
   /**
    * Returns the subscriber object.
    *
    * @return \Drupal\simplenews\SubscriberInterface
+   *   Subscriber object.
    */
-  function getSubscriber();
+  public function getSubscriber();
 
   /**
    * Returns the mail headers.
    *
-   * @param $headers
+   * @param array $headers
    *   The default mail headers.
    *
-   * @return
+   * @return array
    *   Mail headers as an array.
    */
-  function getHeaders(array $headers);
+  public function getHeaders(array $headers);
 
   /**
    * Returns the mail subject.
@@ -40,7 +42,7 @@ interface MailInterface {
    * @return string
    *   The mail subject.
    */
-  function getSubject();
+  public function getSubject();
 
   /**
    * Returns the mail body.
@@ -48,7 +50,7 @@ interface MailInterface {
    * @return string
    *   The body, as plaintext or html depending on the format.
    */
-  function getBody();
+  public function getBody();
 
   /**
    * Returns the plaintext body.
@@ -56,7 +58,7 @@ interface MailInterface {
    * @return string
    *   The body as plain text.
    */
-  function getPlainBody();
+  public function getPlainBody();
 
   /**
    * Returns the mail format.
@@ -64,7 +66,7 @@ interface MailInterface {
    * @return string
    *   The mail format as string, either 'plain' or 'html'.
    */
-  function getFormat();
+  public function getFormat();
 
   /**
    * Returns the recipient of this newsletter mail.
@@ -72,7 +74,7 @@ interface MailInterface {
    * @return string
    *   The recipient mail address(es) of this newsletter as a string.
    */
-  function getRecipient();
+  public function getRecipient();
 
   /**
    * The language that should be used for this newsletter mail.
@@ -80,7 +82,7 @@ interface MailInterface {
    * @return string
    *   The langcode.
    */
-  function getLanguage();
+  public function getLanguage();
 
   /**
    * Returns an array of attachments for this newsletter mail.
@@ -88,7 +90,7 @@ interface MailInterface {
    * @return array
    *   An array of managed file objects with properties uri, filemime and so on.
    */
-  function getAttachments();
+  public function getAttachments();
 
   /**
    * Returns the token context to be used with token replacements.
@@ -96,7 +98,7 @@ interface MailInterface {
    * @return array
    *   An array of objects as required by token_replace().
    */
-  function getTokenContext();
+  public function getTokenContext();
 
   /**
    * Returns the mail key to be used for mails.
@@ -104,7 +106,7 @@ interface MailInterface {
    * @return string
    *   The mail key, either test or node.
    */
-  function getKey();
+  public function getKey();
 
   /**
    * Set the mail key.
@@ -112,7 +114,7 @@ interface MailInterface {
    * @param string $key
    *   The mail key, either 'test' or 'node'.
    */
-  function setKey($key);
+  public function setKey($key);
 
   /**
    * Returns the formatted from mail address.
@@ -120,7 +122,7 @@ interface MailInterface {
    * @return string
    *   The mail address with a name.
    */
-  function getFromFormatted();
+  public function getFromFormatted();
 
   /**
    * Returns the plain mail address.
@@ -128,5 +130,6 @@ interface MailInterface {
    * @return string
    *   The mail address.
    */
-  function getFromAddress();
+  public function getFromAddress();
+
 }

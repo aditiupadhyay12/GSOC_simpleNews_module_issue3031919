@@ -40,7 +40,7 @@ class SubscriptionItem extends EntityReferenceItem {
     $properties['status'] = DataDefinition::create('integer')
       ->setLabel(t('Status'))
       ->setSetting('unsigned', TRUE);
-    
+
     $properties['timestamp'] = DataDefinition::create('timestamp')
       ->setLabel(t('Timestamp'));
 
@@ -76,4 +76,5 @@ class SubscriptionItem extends EntityReferenceItem {
     ];
     return $schema;
   }
+
 }

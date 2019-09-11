@@ -21,10 +21,10 @@ class NewsletterForm extends EntityForm {
 
     $form['name'] = [
       '#type' => 'textfield',
-      '#title' => t('Name'),
+      '#title' => $this->t('Name'),
       '#maxlength' => 255,
       '#default_value' => $newsletter->label(),
-      '#description' => t("The newsletter name."),
+      '#description' => $this->t("The newsletter name."),
       '#required' => TRUE,
     ];
     $form['id'] = [
@@ -39,19 +39,19 @@ class NewsletterForm extends EntityForm {
     ];
     $form['description'] = [
       '#type' => 'textarea',
-      '#title' => t('Description'),
+      '#title' => $this->t('Description'),
       '#default_value' => $newsletter->description,
-      '#description' => t("A description of the newsletter."),
+      '#description' => $this->t("A description of the newsletter."),
     ];
     $links = [':mime_mail_url' => 'http://drupal.org/project/mimemail', ':html_url' => 'http://drupal.org/project/htmlmail'];
-    $description = t('Newsletter format. Install <a href=":mime_mail_url">Mime Mail</a> module or <a href=":html_url">HTML Mail</a> module to send newsletters in HTML format.', $links);
+    $description = $this->t('Newsletter format. Install <a href=":mime_mail_url">Mime Mail</a> module or <a href=":html_url">HTML Mail</a> module to send newsletters in HTML format.', $links);
     $form['weight'] = [
       '#type' => 'hidden',
       '#value' => $newsletter->weight,
-     ];
+    ];
     $form['subscription'] = [
       '#type' => 'fieldset',
-      '#title' => t('Subscription settings'),
+      '#title' => $this->t('Subscription settings'),
       '#collapsible' => FALSE,
     ];
 
@@ -59,10 +59,10 @@ class NewsletterForm extends EntityForm {
     $options = \Drupal::service('plugin.manager.simplenews_recipient_handler')->getOptions();
     $form['subscription']['allowed_handlers'] = [
       '#type' => 'checkboxes',
-      '#title' => t('Allowed recipient handlers'),
+      '#title' => $this->t('Allowed recipient handlers'),
       '#options' => $options,
       '#default_value' => $newsletter->allowed_handlers,
-      '#description' => t('Restrict which recipient handlers are allowed when using this newsletter.  If none are selected, then all of them will be available.'),
+      '#description' => $this->t('Restrict which recipient handlers are allowed when using this newsletter.  If none are selected, then all of them will be available.'),
       '#access' => count($options) > 1,
     ];
 
@@ -70,25 +70,25 @@ class NewsletterForm extends EntityForm {
     $options = simplenews_new_account_options();
     $form['subscription']['new_account'] = [
       '#type' => 'select',
-      '#title' => t('Subscribe new account'),
+      '#title' => $this->t('Subscribe new account'),
       '#options' => $options,
       '#default_value' => $newsletter->new_account,
-      '#description' => t('None: This newsletter is not listed on the user registration page.<br />Default on: This newsletter is listed on the user registion page and is selected by default.<br />Default off: This newsletter is listed on the user registion page and is not selected by default.<br />Silent: A new user is automatically subscribed to this newsletter. The newsletter is not listed on the user registration page.'),
+      '#description' => $this->t('None: This newsletter is not listed on the user registration page.<br />Default on: This newsletter is listed on the user registion page and is selected by default.<br />Default off: This newsletter is listed on the user registion page and is not selected by default.<br />Silent: A new user is automatically subscribed to this newsletter. The newsletter is not listed on the user registration page.'),
     ];
 
-    // Type of (un)subsribe confirmation
+    // Type of (un)subsribe confirmation.
     $options = simplenews_opt_inout_options();
     $form['subscription']['opt_inout'] = [
       '#type' => 'select',
-      '#title' => t('Opt-in/out method'),
+      '#title' => $this->t('Opt-in/out method'),
       '#options' => $options,
       '#default_value' => $newsletter->opt_inout,
-      '#description' => t('Hidden: This newsletter does not appear on subscription forms. No unsubscription footer in newsletter.<br /> Single: Users are (un)subscribed immediately, no confirmation email is sent.<br />Double: When (un)subscribing at a subscription form, anonymous users receive an (un)subscription confirmation email. Authenticated users are (un)subscribed immediately.'),
+      '#description' => $this->t('Hidden: This newsletter does not appear on subscription forms. No unsubscription footer in newsletter.<br /> Single: Users are (un)subscribed immediately, no confirmation email is sent.<br />Double: When (un)subscribing at a subscription form, anonymous users receive an (un)subscription confirmation email. Authenticated users are (un)subscribed immediately.'),
     ];
 
     $form['email'] = [
       '#type' => 'fieldset',
-      '#title' => t('Email settings'),
+      '#title' => $this->t('Email settings'),
       '#collapsible' => FALSE,
     ];
     // Hide format selection if there is nothing to choose.
@@ -97,7 +97,7 @@ class NewsletterForm extends EntityForm {
     if (count($format_options) > 1) {
       $form['email']['format'] = [
         '#type' => 'radios',
-        '#title' => t('Email format'),
+        '#title' => $this->t('Email format'),
         '#default_value' => $newsletter->format,
         '#options' => $format_options,
       ];
@@ -108,15 +108,15 @@ class NewsletterForm extends EntityForm {
         '#value' => key($format_options),
       ];
       $form['email']['format_text'] = [
-        '#markup' => t('Newsletter emails will be sent in %format format.', ['%format' => $newsletter->format]),
+        '#markup' => $this->t('Newsletter emails will be sent in %format format.', ['%format' => $newsletter->format]),
       ];
     }
     // Type of hyperlinks.
     $form['email']['hyperlinks'] = [
       '#type' => 'radios',
-      '#title' => t('Hyperlink conversion'),
-      '#description' => t('Determine how the conversion to text is performed.'),
-      '#options' => [t('Append hyperlinks as a numbered reference list'), t('Display hyperlinks inline with the text')],
+      '#title' => $this->t('Hyperlink conversion'),
+      '#description' => $this->t('Determine how the conversion to text is performed.'),
+      '#options' => [$this->t('Append hyperlinks as a numbered reference list'), $this->t('Display hyperlinks inline with the text')],
       '#default_value' => $newsletter->hyperlinks,
       '#states' => [
         'visible' => [
@@ -129,41 +129,41 @@ class NewsletterForm extends EntityForm {
 
     $form['email']['priority'] = [
       '#type' => 'select',
-      '#title' => t('Email priority'),
+      '#title' => $this->t('Email priority'),
       '#default_value' => $newsletter->priority,
       '#options' => simplenews_get_priority(),
     ];
     $form['email']['receipt'] = [
       '#type' => 'checkbox',
-      '#title' => t('Request receipt'),
+      '#title' => $this->t('Request receipt'),
       '#return_value' => 1,
       '#default_value' => $newsletter->receipt,
     ];
 
-    // Email sender name
+    // Email sender name.
     $form['simplenews_sender_information'] = [
       '#type' => 'fieldset',
-      '#title' => t('Sender information'),
+      '#title' => $this->t('Sender information'),
       '#collapsible' => FALSE,
     ];
     $form['simplenews_sender_information']['from_name'] = [
       '#type' => 'textfield',
-      '#title' => t('From name'),
+      '#title' => $this->t('From name'),
       '#size' => 60,
       '#maxlength' => 128,
       '#default_value' => $newsletter->from_name,
     ];
 
-    // Email subject
+    // Email subject.
     $form['simplenews_subject'] = [
       '#type' => 'fieldset',
-      '#title' => t('Newsletter subject'),
+      '#title' => $this->t('Newsletter subject'),
       '#collapsible' => FALSE,
     ];
 
     $form['simplenews_subject']['subject'] = [
       '#type' => 'textfield',
-      '#title' => t('Email subject'),
+      '#title' => $this->t('Email subject'),
       '#size' => 60,
       '#maxlength' => 128,
       '#required' => TRUE,
@@ -173,14 +173,16 @@ class NewsletterForm extends EntityForm {
     if (\Drupal::moduleHandler()->moduleExists('token')) {
       $form['simplenews_subject']['token_browser'] = [
         '#theme' => 'token_tree_link',
-        '#token_types' => ['simplenews-newsletter', 'node', 'simplenews-subscriber'],
+        '#token_types' => [
+          'simplenews-newsletter', 'node', 'simplenews-subscriber',
+        ],
       ];
     }
 
-    // Email from address
+    // Email from address.
     $form['simplenews_sender_information']['from_address'] = [
       '#type' => 'email',
-      '#title' => t('From email address'),
+      '#title' => $this->t('From email address'),
       '#size' => 60,
       '#maxlength' => 128,
       '#required' => TRUE,
@@ -190,14 +192,14 @@ class NewsletterForm extends EntityForm {
     $form['actions'] = ['#type' => 'actions'];
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => t('Save'),
+      '#value' => $this->t('Save'),
       '#weight' => 50,
     ];
 
     if ($newsletter->id) {
       $form['actions']['delete'] = [
         '#type' => 'submit',
-        '#value' => t('Delete'),
+        '#value' => $this->t('Delete'),
         '#weight' => 55,
       ];
     }
@@ -214,11 +216,11 @@ class NewsletterForm extends EntityForm {
     $edit_link = \Drupal::linkGenerator()->generate($this->t('Edit'), $this->entity->toUrl());
 
     if ($status == SAVED_UPDATED) {
-      $this->messenger()->addMessage(t('Newsletter %label has been updated.', ['%label' => $newsletter->label()]));
+      $this->messenger()->addMessage($this->t('Newsletter %label has been updated.', ['%label' => $newsletter->label()]));
       \Drupal::logger('simplenews')->notice('Newsletter %label has been updated.', ['%label' => $newsletter->label(), 'link' => $edit_link]);
     }
     else {
-      $this->messenger()->addMessage(t('Newsletter %label has been added.', ['%label' => $newsletter->label()]));
+      $this->messenger()->addMessage($this->t('Newsletter %label has been added.', ['%label' => $newsletter->label()]));
       \Drupal::logger('simplenews')->notice('Newsletter %label has been added.', ['%label' => $newsletter->label(), 'link' => $edit_link]);
     }
 

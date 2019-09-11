@@ -8,7 +8,6 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\simplenews\Plugin\Field\FieldType\SubscriptionItem;
 use Drupal\simplenews\SubscriberInterface;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;

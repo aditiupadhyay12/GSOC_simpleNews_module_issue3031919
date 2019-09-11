@@ -58,7 +58,7 @@ interface SpoolStorageInterface {
    * @return \Drupal\simplenews\Spool\SpoolListInterface
    *   A mail spool list.
    */
-  function getMails($limit = self::UNLIMITED, $conditions = []);
+  public function getMails($limit = self::UNLIMITED, array $conditions = []);
 
   /**
    * Update status of mail data in spool table.
@@ -66,24 +66,24 @@ interface SpoolStorageInterface {
    * Time stamp is set to current time.
    *
    * @param array $msids
-   *   Array of Mail spool ids to be updated
+   *   Array of Mail spool ids to be updated.
    * @param array $data
    *   Array containing email sent results, with the following keys:
    *   - status: Any of the status constants.
    *   - error: (optional) The error id.  Defaults to 0 (no error).
    */
-  function updateMails($msids, array $data);
+  public function updateMails(array $msids, array $data);
 
   /**
    * Count data in mail spool table.
    *
    * @param array $conditions
-   *   (Optional) Array of conditions which are applied to the query. Defaults
+   *   (Optional) Array of conditions which are applied to the query. Defaults.
    *
    * @return int
    *   Count of mail spool elements of the passed in arguments.
    */
-  function countMails(array $conditions = []);
+  public function countMails(array $conditions = []);
 
   /**
    * Remove old records from mail spool table.
@@ -94,7 +94,7 @@ interface SpoolStorageInterface {
    * @return int
    *   Number of deleted spool rows.
    */
-  function clear();
+  public function clear();
 
   /**
    * Remove records from mail spool table according to the conditions.
@@ -102,23 +102,23 @@ interface SpoolStorageInterface {
    * @return int
    *   Count deleted
    */
-  function deleteMails(array $conditions);
+  public function deleteMails(array $conditions);
 
   /**
    * Adds a newsletter issue to the mail spool.
    *
-   * @param Drupal\Core\Entity\ContentEntityInterface $issue
+   * @param \Drupal\Core\Entity\ContentEntityInterface $issue
    *   The newsletter issue to be sent.
    */
-  function addIssue(ContentEntityInterface $issue);
+  public function addIssue(ContentEntityInterface $issue);
 
   /**
    * Deletes a newsletter issue from the mail spool.
    *
-   * @param Drupal\Core\Entity\ContentEntityInterface $issue
+   * @param \Drupal\Core\Entity\ContentEntityInterface $issue
    *   The newsletter issue to be deleted.
    */
-  function deleteIssue(ContentEntityInterface $issue);
+  public function deleteIssue(ContentEntityInterface $issue);
 
   /**
    * Save mail message in mail cache table.
@@ -133,12 +133,12 @@ interface SpoolStorageInterface {
    *   - status: (optional) Defaults to SpoolStorageInterface::STATUS_PENDING
    *   - time: (optional) Defaults to REQUEST_TIME.
    */
-  function addMail(array $spool);
+  public function addMail(array $spool);
 
   /**
    * Builds a recipient handler class for a given newsletter issue.
    *
-   * @param Drupal\Core\Entity\ContentEntityInterface $issue
+   * @param \Drupal\Core\Entity\ContentEntityInterface $issue
    *   The newsletter issue to be sent.
    * @param array $edited_values
    *   (optional) Modified values, if called from an edit form.
@@ -146,19 +146,20 @@ interface SpoolStorageInterface {
    *   (optional, defaults to FALSE) If set, also return the set of valid
    *   options for choice of recipient handler.
    *
-   * @return \Drupal\simplenews\RecipientHandler\RecipientHandlerInterface | array
+   * @return \Drupal\simplenews\RecipientHandler\RecipientHandlerInterface|array
    *   A constructed recipient handler plugin.  If $return_options is set then
    *   the return is an array of two items: the recipient handler plugin and
    *   the result of RecipientHandlerManager::getOptions().
    *
-   * @throws Exception if the handler class does not exist.
+   * @throws \Exception
+   *   If the handler class does not exist.
    */
-  function getRecipientHandler(ContentEntityInterface $issue, array $edited_values = NULL, $return_options = FALSE);
+  public function getRecipientHandler(ContentEntityInterface $issue, array $edited_values = NULL, $return_options = FALSE);
 
   /**
    * Returns a summary of key newsletter issue parameters.
    *
-   * @param $issue
+   * @param \Drupal\Core\Entity\ContentEntityInterface $issue
    *   The newsletter issue entity.
    *
    * @return array
@@ -167,17 +168,17 @@ interface SpoolStorageInterface {
    *   - sent_count: number of emails sent.
    *   - description: readable description of status and email counts.
    */
-  function issueSummary(ContentEntityInterface $issue);
+  public function issueSummary(ContentEntityInterface $issue);
 
   /**
    * Returns a count of the recipients for a newsletter issue.
    *
-   * @param $issue
+   * @param \Drupal\Core\Entity\ContentEntityInterface $issue
    *   The newsletter issue entity.
    *
    * @return int
    *   Count of recipients.
    */
-  function issueCountRecipients(ContentEntityInterface $issue);
+  public function issueCountRecipients(ContentEntityInterface $issue);
 
 }

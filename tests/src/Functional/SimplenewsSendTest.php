@@ -1,12 +1,5 @@
 <?php
 
-/**
- * @file
- * Simplenews send test functions.
- *
- * @ingroup simplenews
- */
-
 namespace Drupal\Tests\simplenews\Functional;
 
 use Drupal\node\Entity\Node;
@@ -27,6 +20,9 @@ class SimplenewsSendTest extends SimplenewsTestBase {
    */
   public static $modules = ['system_mail_failure_test'];
 
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp() {
     parent::setUp();
 
@@ -55,7 +51,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'type' => 'simplenews_issue',
       'title' => $this->randomString(10),
       'uid' => 0,
-      'status' => 1
+      'status' => 1,
     ]);
     $node->simplenews_issue->target_id = $this->getRandomNewsletter();
     $node->simplenews_issue->handler = 'simplenews_all';
@@ -85,7 +81,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'type' => 'simplenews_issue',
       'title' => $this->randomString(10),
       'uid' => 0,
-      'status' => 1
+      'status' => 1,
     ]);
     $node->simplenews_issue->target_id = $this->getRandomNewsletter();
     $node->simplenews_issue->handler = 'simplenews_all';
@@ -179,7 +175,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
         'title[0][value]' => $this->randomString(10),
         'simplenews_issue[target_id]' => 'default',
         // The last newsletter shouldn't be published.
-        'status[value]' => $i != 2
+        'status[value]' => $i != 2,
       ];
       $this->drupalPostForm(NULL, $edit, ('Save'));
       $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
@@ -408,6 +404,12 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(0, count($this->subscribers), t('all subscribers have been received a mail'));
   }
 
+  /**
+   * Test newsletter update.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
   public function testUpdateNewsletter() {
     // Create a second newsletter.
     $this->drupalGet('admin/config/services/simplenews');
@@ -442,7 +444,6 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       $second_newsletter_id = $this->getRandomNewsletter();
     } while ($first_newsletter_id == $second_newsletter_id);
 
-
     $this->clickLink(t('Edit'));
     $update = [
       'simplenews_issue[target_id]' => $second_newsletter_id,
@@ -453,7 +454,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
     $node = Node::load($node->id());
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter sending not started.'));
-    $this->assertEqual($second_newsletter_id, $node->simplenews_issue->target_id, t('Newsletter has newsletter_id ' . $second_newsletter_id . '.'));
+    $this->assertEqual($second_newsletter_id, $node->simplenews_issue->target_id, t('Newsletter has newsletter_id @id.', ['@id' => $second_newsletter_id]));
   }
 
   /**
@@ -587,7 +588,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       $user = User::create([
         'name' => $this->randomMachineName(),
         'mail' => $subscriber,
-        'status' => 1
+        'status' => 1,
       ]);
       $user->save();
       $users[$subscriber] = $user->id();
@@ -599,7 +600,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'title' => $this->randomString(10),
       'uid' => '0',
       'status' => 1,
-      'body' => 'User ID: [current-user:uid]'
+      'body' => 'User ID: [current-user:uid]',
     ]);
 
     $node->simplenews_issue->target_id = $this->getRandomNewsletter();
@@ -705,4 +706,5 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertTrue(strpos($mails[0]['body'], strtoupper($title)) != FALSE);
     $this->assertTrue(strpos($mails[0]['subject'], $title) != FALSE);
   }
+
 }

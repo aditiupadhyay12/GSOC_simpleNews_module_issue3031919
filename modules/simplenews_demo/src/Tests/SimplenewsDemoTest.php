@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\simplenews_demo\Tests\SimplenewsDemoTest.
- */
 
 namespace Drupal\simplenews_demo\Tests;
 
@@ -34,7 +30,9 @@ class SimplenewsDemoTest extends WebTestBase {
     // Install simplenews_demo module.
     \Drupal::service('module_installer')->install(['simplenews_demo']);
     // Log in with all relevant permissions.
-    $this->drupalLogin($this->drupalCreateUser(['administer simplenews subscriptions', 'send newsletter', 'administer newsletters', 'administer simplenews settings']));
+    $this->drupalLogin($this->drupalCreateUser([
+      'administer simplenews subscriptions', 'send newsletter', 'administer newsletters', 'administer simplenews settings',
+    ]));
   }
 
   /**
@@ -62,15 +60,18 @@ class SimplenewsDemoTest extends WebTestBase {
     $this->assertText(t('Weekly content update'));
     // Assert demo newsletters sent.
     $this->drupalGet('admin/content/simplenews');
+    // @codingStandardsIgnoreLine
     //$this->assertText('Scheduled weekly content newsletter issue');
     $this->assertText('Sent press releases');
     $this->assertText('Unpublished press releases');
     $this->assertText('Pending special offers');
     $this->assertText('Stopped special offers');
+    // @codingStandardsIgnoreLine
     //$this->assertText('Scheduled weekly content newsletter issue - Week ');
     $this->assertRaw(t('Newsletter issue sent to 2 subscribers.'));
     $this->assertRaw(t('Newsletter issue is pending, 0 mails sent out of 3.'));
     // Weekly newsletter.
+    // @codingStandardsIgnoreLine
     //$this->assertRaw(t('Newsletter issue sent to 1 subscribers.'));
     // Assert demo subscribers.
     $this->drupalGet('admin/people/simplenews');

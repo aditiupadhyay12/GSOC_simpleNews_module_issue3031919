@@ -35,4 +35,5 @@ class StopIssue extends ActionBase {
     }
     return AccessResult::neutral();
   }
+
 }

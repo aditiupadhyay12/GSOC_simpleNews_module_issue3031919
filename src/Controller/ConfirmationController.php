@@ -19,15 +19,17 @@ class ConfirmationController extends ControllerBase {
    * This function is called by clicking the confirm link in the confirmation
    * email. It handles both subscription addition and subscription removal.
    *
+   * @param int $snid
+   *   The subscriber id.
+   * @param int $timestamp
+   *   The timestamp of the request.
+   * @param bool $hash
+   *   The confirmation hash.
+   * @param bool $immediate
+   *   Perform the action immediately if TRUE.
+   *
    * @see simplenews_confirm_add_form()
    * @see simplenews_confirm_removal_form()
-   *
-   * @param $snid
-   *   The subscriber id.
-   * @param $timestamp
-   *   The timestamp of the request.
-   * @param $hash
-   *   The confirmation hash.
    */
   public function confirmCombined($snid, $timestamp, $hash, $immediate = FALSE) {
     $config = \Drupal::config('simplenews.settings');
@@ -48,7 +50,7 @@ class ConfirmationController extends ControllerBase {
 
     // Redirect and display message if no changes are available.
     if ($subscriber && !$subscriber->getChanges()) {
-      $this->messenger()->addMessage(t('All changes to your subscriptions where already applied. No changes made.'));
+      $this->messenger()->addMessage($this->t('All changes to your subscriptions where already applied. No changes made.'));
       return $this->redirect('<front>');
     }
 
@@ -63,8 +65,8 @@ class ConfirmationController extends ControllerBase {
         $build['#attached']['html_head'][] = $html_head;
         return $build;
       }
-      // When not called with immediate parameter the user will be directed to the
-      // (un)subscribe confirmation page.
+      // When not called with immediate parameter the user will be directed to
+      // the (un)subscribe confirmation page.
       if (!$immediate) {
         $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmMultiForm', $subscriber);
         $build['#attached']['html_head'][] = $html_head;
@@ -89,7 +91,7 @@ class ConfirmationController extends ControllerBase {
         $subscriber->setChanges([]);
         $subscriber->save();
 
-        $this->messenger()->addMessage(t('Subscription changes confirmed for %user.', ['%user' => $subscriber->getMail()]));
+        $this->messenger()->addMessage($this->t('Subscription changes confirmed for %user.', ['%user' => $subscriber->getMail()]));
         return $this->redirect('<front>');
       }
     }
@@ -97,7 +99,7 @@ class ConfirmationController extends ControllerBase {
   }
 
   /**
-   * Menu callback: confirm the user's (un)subscription request
+   * Menu callback: confirm the user's (un)subscription request.
    *
    * This function is called by clicking the confirm link in the confirmation
    * email or the unsubscribe link in the footer of the newsletter. It handles
@@ -114,27 +116,29 @@ class ConfirmationController extends ControllerBase {
    */
 
   /**
-   * Menu callback: confirm the user's (un)subscription request
+   * Menu callback: confirm the user's (un)subscription request.
    *
    * This function is called by clicking the confirm link in the confirmation
    * email or the unsubscribe link in the footer of the newsletter. It handles
    * both subscription addition and subscription removal.
    *
+   * @param string $action
+   *   Either add or remove.
+   * @param int $snid
+   *   The subscriber id.
+   * @param int $newsletter_id
+   *   The newsletter id.
+   * @param int $timestamp
+   *   The timestamp of the request.
+   * @param string $hash
+   *   The confirmation hash.
+   * @param bool $immediate
+   *   Perform the action immediately if TRUE.
+   *
    * @see simplenews_confirm_add_form()
    * @see simplenews_confirm_removal_form()
-   *
-   * @param $action
-   *   Either add or remove.
-   * @param $snid
-   *   The subscriber id.
-   * @param $newsletter_id
-   *   The newsletter id.
-   * @param $timestamp
-   *   The timestamp of the request.
-   * @param $hash
-   *   The confirmation hash.
    */
-  function confirmSubscription($action, $snid, $newsletter_id, $timestamp, $hash, $immediate = FALSE) {
+  public function confirmSubscription($action, $snid, $newsletter_id, $timestamp, $hash, $immediate = FALSE) {
     $config = \Drupal::config('simplenews.settings');
 
     // Prevent search engines from indexing this page.
@@ -166,8 +170,8 @@ class ConfirmationController extends ControllerBase {
         return $build;
       }
       // When called with additional arguments the user will be directed to the
-      // (un)subscribe confirmation page. The additional arguments will be passed
-      // on to the confirmation page.
+      // (un)subscribe confirmation page. The additional arguments will be
+      // passed on to the confirmation page.
       if (!$immediate) {
         if ($action == 'remove') {
           $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmRemovalForm', $subscriber->getMail(), $newsletter);
@@ -190,7 +194,7 @@ class ConfirmationController extends ControllerBase {
           if ($path = $config->get('subscription.confirm_unsubscribe_page')) {
             return $this->redirect(Url::fromUri("internal:$path")->getRouteName());
           }
-          $this->messenger()->addMessage(t('%user was unsubscribed from the %newsletter mailing list.', ['%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name]));
+          $this->messenger()->addMessage($this->t('%user was unsubscribed from the %newsletter mailing list.', ['%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name]));
           return $this->redirect('<front>');
         }
         elseif ($action == 'add') {
@@ -198,11 +202,12 @@ class ConfirmationController extends ControllerBase {
           if ($path = $config->get('subscription.confirm_subscribe_page')) {
             return $this->redirect(Url::fromUri("internal:$path")->getRouteName());
           }
-          $this->messenger()->addMessage(t('%user was added to the %newsletter mailing list.', ['%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name]));
+          $this->messenger()->addMessage($this->t('%user was added to the %newsletter mailing list.', ['%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name]));
           return $this->redirect('<front>');
         }
       }
     }
     throw new NotFoundHttpException();
   }
+
 }

@@ -2,22 +2,14 @@
 
 namespace Drupal\simplenews\Plugin\simplenews\RecipientHandler;
 
-use Drupal\Core\Database\Query\SelectInterface;
-use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\simplenews\RecipientHandler\RecipientHandlerInterface;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
-
 
 /**
  * Base class for all Recipient Handler classes.
  */
 abstract class RecipientHandlerBase extends PluginBase implements RecipientHandlerInterface {
-
-  /**
-   * The configuration.
-   */
-  protected $configuration;
 
   /**
    * The newsletter issue.
@@ -35,10 +27,14 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
 
   /**
    * The newsletter IDs.
+   *
+   * @var array
    */
   protected $newsletterIds;
 
   /**
+   * RecipientHandlerBase constructor.
+   *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
    * @param string $plugin_id
@@ -48,7 +44,6 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->configuration = $configuration;
     $this->issue = $configuration['_issue'];
     $this->connection = $configuration['_connection'];
     $this->newsletterIds = $configuration['_newsletter_ids'];
@@ -108,12 +103,12 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
    * @return int
    *   Newsletter ID.
    *
-   * @throws Exception if the configuration doesn't specify a single newsletter
-   * ID.
+   * @throws \Exception
+   *   The configuration doesn't specify a single newsletter ID.
    */
   protected function getNewsletterId() {
     if (count($this->newsletterIds) != 1) {
-      throw new Exception("Recipient handler requires a single newsletter ID.");
+      throw new \Exception("Recipient handler requires a single newsletter ID.");
     }
     return $this->newsletterIds[0];
   }
@@ -127,11 +122,11 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
    *
    * @param string $field
    *   Field to set: 'snid', 'data' (automatically serialised) or 'uid'
-   *  (automatically stored in 'data' array with key 'uid').
+   *   (automatically stored in 'data' array with key 'uid').
    * @param array $values
    *   Values to set for field.
    */
-  protected function addArrayToSpool($field, $values) {
+  protected function addArrayToSpool($field, array $values) {
     if (empty($values)) {
       return;
     }
@@ -146,7 +141,9 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
 
     if ($field == 'uid') {
       $field = 'data';
-      $values = array_map(function($v) { return ['uid' => $v]; }, $values);
+      $values = array_map(function ($v) {
+        return ['uid' => $v];
+      }, $values);
     }
 
     $insert = $this->connection->insert('simplenews_mail_spool')

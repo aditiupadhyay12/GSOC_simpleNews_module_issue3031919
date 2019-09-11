@@ -106,21 +106,25 @@ class MailEntity implements MailInterface {
         $headers['X-Priority'] = '1';
         $headers['X-MSMail-Priority'] = 'Highest';
         break;
+
       case SIMPLENEWS_PRIORITY_HIGH:
         $headers['Priority'] = 'urgent';
         $headers['X-Priority'] = '2';
         $headers['X-MSMail-Priority'] = 'High';
         break;
+
       case SIMPLENEWS_PRIORITY_NORMAL:
         $headers['Priority'] = 'normal';
         $headers['X-Priority'] = '3';
         $headers['X-MSMail-Priority'] = 'Normal';
         break;
+
       case SIMPLENEWS_PRIORITY_LOW:
         $headers['Priority'] = 'non-urgent';
         $headers['X-Priority'] = '4';
         $headers['X-MSMail-Priority'] = 'Low';
         break;
+
       case SIMPLENEWS_PRIORITY_LOWEST:
         $headers['Priority'] = 'non-urgent';
         $headers['X-Priority'] = '5';
@@ -132,7 +136,7 @@ class MailEntity implements MailInterface {
     $headers['From'] = $this->getFromFormatted();
     $headers['List-Unsubscribe'] = '<' . \Drupal::token()->replace('[simplenews-subscriber:unsubscribe-url]', $this->getTokenContext(), ['sanitize' => FALSE]) . '>';
 
-    // Add general headers
+    // Add general headers.
     $headers['Precedence'] = 'bulk';
     return $headers;
   }
@@ -140,7 +144,7 @@ class MailEntity implements MailInterface {
   /**
    * {@inheritdoc}
    */
-  function getTokenContext() {
+  public function getTokenContext() {
     return [
       'newsletter' => $this->getNewsletter(),
       'simplenews_subscriber' => $this->getSubscriber(),
@@ -151,21 +155,21 @@ class MailEntity implements MailInterface {
   /**
    * {@inheritdoc}
    */
-  function setKey($key) {
+  public function setKey($key) {
     $this->key = $key;
   }
 
   /**
    * {@inheritdoc}
    */
-  function getKey() {
+  public function getKey() {
     return $this->key;
   }
 
   /**
    * {@inheritdoc}
    */
-  function getFromFormatted() {
+  public function getFromFormatted() {
     // Windows based PHP systems don't accept formatted email addresses.
     if (mb_substr(PHP_OS, 0, 3) == 'WIN') {
       return $this->getFromAddress();
@@ -176,42 +180,42 @@ class MailEntity implements MailInterface {
   /**
    * {@inheritdoc}
    */
-  function getFromAddress() {
+  public function getFromAddress() {
     return $this->getNewsletter()->from_address;
   }
 
   /**
    * {@inheritdoc}
    */
-  function getRecipient() {
+  public function getRecipient() {
     return $this->getSubscriber()->getMail();
   }
 
   /**
    * {@inheritdoc}
    */
-  function getFormat() {
+  public function getFormat() {
     return $this->getNewsletter()->format;
   }
 
   /**
    * {@inheritdoc}
    */
-  function getLanguage() {
+  public function getLanguage() {
     return $this->getSubscriber()->getLangcode();
   }
 
   /**
    * {@inheritdoc}
    */
-  function getIssue() {
+  public function getIssue() {
     return $this->issue;
   }
 
   /**
    * {@inheritdoc}
    */
-  function getSubject() {
+  public function getSubject() {
     // Build email subject and perform some sanitizing.
     // Use the requested language if enabled.
     $langcode = $this->getLanguage();
@@ -228,12 +232,13 @@ class MailEntity implements MailInterface {
    */
   protected function setContext() {
 
-    // Switch to the user
+    // Switch to the user.
     if ($this->uid = $this->getSubscriber()->getUserId()) {
       \Drupal::service('account_switcher')->switchTo(User::load($this->uid));
     }
 
     // Change language if the requested language is enabled.
+    // @codingStandardsIgnoreStart
     /*$language = $this->getLanguage();
     $languages = LanguageManagerInterface::getLanguages();
     if (isset($languages[$language])) {
@@ -245,6 +250,7 @@ class MailEntity implements MailInterface {
         $GLOBALS['language_content'] = $languages[$language];
       }
     }*/
+    // @codingStandardsIgnoreEnd
   }
 
   /**
@@ -284,7 +290,7 @@ class MailEntity implements MailInterface {
     }
 
     // Build message body
-    // Supported view modes: 'email_plain', 'email_html', 'email_textalt'
+    // Supported view modes: 'email_plain', 'email_html', 'email_textalt'.
     $build = \Drupal::entityTypeManager()->getViewBuilder($this->getIssue()->getEntityTypeId())->view($this->getIssue(), 'email_' . $format, $this->getLanguage());
     $build['#entity_type'] = $this->getIssue()->getEntityTypeId();
     // @todo: Consider using render caching.
@@ -378,9 +384,9 @@ class MailEntity implements MailInterface {
   }
 
   /**
-   * {@inhertidoc}
+   * {@inheritdoc}
    */
-  function getAttachments() {
+  public function getAttachments() {
     if ($cache = $this->cache->get($this, 'data', 'attachments')) {
       return $cache;
     }

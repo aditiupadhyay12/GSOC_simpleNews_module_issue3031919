@@ -1,12 +1,5 @@
 <?php
 
-/**
- * @file
- * Simplenews source test functions.
- *
- * @ingroup simplenews
- */
-
 namespace Drupal\Tests\simplenews\Functional;
 
 use Drupal\Component\Utility\Unicode;
@@ -24,6 +17,9 @@ use Symfony\Component\Yaml\Yaml;
  */
 class SimplenewsSourceTest extends SimplenewsTestBase {
 
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp() {
     parent::setUp();
 
@@ -42,7 +38,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
         'filter_html' => [
           'weight' => 1,
           'status' => 1,
-          'allowed-values'
+          'allowed-values' => '',
         ],
         // Line break filter.
         'filter_autop' => [
@@ -68,7 +64,8 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'view own unpublished content',
       'delete any simplenews_issue content',
       'administer simplenews settings',
-      $filtered_html_format->getPermissionName()]);
+      $filtered_html_format->getPermissionName(),
+    ]);
     $this->drupalLogin($admin_user);
   }
 
@@ -141,7 +138,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
 
     // Add node to spool.
     \Drupal::service('simplenews.spool_storage')->addIssue($node);
-    // Unsubscribe one of the recipients to make sure that he doesn't receive
+    // Unsubscribe one of the recipients to make sure that they don't receive
     // the mail.
     \Drupal::service('simplenews.subscription_manager')->unsubscribe(array_shift($this->subscribers), $this->getRandomNewsletter(), FALSE, 'test');
 
@@ -175,7 +172,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   /**
    * Send a newsletter with the HTML format.
    */
-  public function testSendHTML() {
+  public function testSendHtml() {
     $this->setUpSubscribers(5);
 
     // Use custom testing mail system to support HTML mails.
@@ -442,4 +439,5 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       ->fetchAssoc();
     $this->assertEqual(SpoolStorageInterface::STATUS_SKIPPED, $spool_row['status']);
   }
+
 }

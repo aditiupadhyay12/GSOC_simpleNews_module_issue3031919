@@ -1,10 +1,10 @@
 <?php
+
 /**
  * @file
- *
  * Drush commands for administer Simplenews.
  */
-use Drupal\simplenews\Mail\MailerInterface;
+
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 
 /**
@@ -19,7 +19,7 @@ function simplenews_drush_command() {
     'drupal dependencies' => ['simplenews'],
     'options' => [
       'pipe' => dt('Just print the count value to allow parsing'),
-    ]
+    ],
   ];
 
   $items['simplenews-spool-send'] = [
@@ -84,7 +84,8 @@ function drush_simplenews_spool_send($limit = FALSE) {
   if ($sent > 0) {
     $remaining = \Drupal::service('simplenews.spool_storage')->countMails();
     if (drush_get_option(['p', 'pipe'])) {
-      // For pipe, print the sent first and then the remaining count, separated by a space.
+      // For pipe, print the sent first and then the remaining count, separated
+      // by a space.
       drush_print_pipe($sent . " " . $remaining);
     }
     else {

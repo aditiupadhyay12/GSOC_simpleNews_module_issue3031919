@@ -1,16 +1,16 @@
 <?php
-use Drupal\node\Entity\Node;
-use Drupal\simplenews\Entity\Newsletter;
-use Drupal\simplenews\Entity\Subscriber;
-use Drupal\user\Entity\User;
 
 /**
  * @file
  * Simplenews_demo base install file.
  */
 
+use Drupal\node\Entity\Node;
+use Drupal\simplenews\Entity\Newsletter;
+use Drupal\simplenews\Entity\Subscriber;
+use Drupal\user\Entity\User;
 
-/*
+/**
  * Implements hook_install().
  *
  * Declares initial configuration for simplenews_demo.
@@ -31,14 +31,14 @@ function simplenews_demo_install() {
     $newsletter->save();
   }
 
-  // add subscriber fields to the form display.
+  // Add subscriber fields to the form display.
   entity_get_form_display('simplenews_subscriber', 'simplenews_subscriber', 'default')
     ->setComponent('field_first_name', [
       'type' => 'string_textfield',
       'weight' => '2',
       'settings' => [
         'size' => 60,
-        'placeholder' => ''
+        'placeholder' => '',
       ],
       'third_party_settings' => [],
     ])
@@ -47,7 +47,7 @@ function simplenews_demo_install() {
       'weight' => '3',
       'settings' => [
         'size' => 60,
-        'placeholder' => ''
+        'placeholder' => '',
       ],
       'third_party_settings' => [],
     ])
@@ -56,7 +56,7 @@ function simplenews_demo_install() {
       'weight' => '4',
       'settings' => [
         'size' => 60,
-        'placeholder' => ''
+        'placeholder' => '',
       ],
       'third_party_settings' => [],
     ])
@@ -106,16 +106,18 @@ function simplenews_demo_install() {
   $demo_user_blocked->save();
   // Create an inactive subscriber.
   $subscriber_inactive = Subscriber::create([
-      'mail' => 'd@example.com',
-      'status' => FALSE
-    ]
+    'mail' => 'd@example.com',
+    'status' => FALSE,
+  ]
   );
   $subscriber_inactive->save();
-  // subscribe user to both newsletters.
+  // Subscribe user to both newsletters.
   $subscription_manager->subscribe($demo_user_active->getEmail(), $newsletters['press_releases']->id(), FALSE);
   $subscription_manager->subscribe($demo_user_active->getEmail(), $newsletters['special_offers']->id(), FALSE);
 
   // Create an issue for scheduled sending.
+  // Disabled because of issue #3062330.
+  // @codingStandardsIgnoreStart
   // $scheduled_issue = Node::create(array(
   //   'type' => 'simplenews_issue',
   //   'id' => 'simplenews_issue_scheduled',
@@ -153,6 +155,7 @@ function simplenews_demo_install() {
   //   ))
   //   ->fields($record)
   //   ->execute();
+  // @codingStandardsIgnoreEnd
 
   // A newsletter to send.
   $spool_storage = \Drupal::service('simplenews.spool_storage');
@@ -166,7 +169,7 @@ function simplenews_demo_install() {
     'simplenews_issue' => [
       'target_id' => 'press_releases',
       'handler' => 'simplenews_all',
-      'handler_settings' => []
+      'handler_settings' => [],
     ],
   ]);
   $node->save();
@@ -191,7 +194,7 @@ function simplenews_demo_install() {
     'simplenews_issue' => [
       'target_id' => 'special_offers',
       'handler' => 'simplenews_all',
-      'handler_settings' => []
+      'handler_settings' => [],
     ],
   ]);
   $node->save();
@@ -208,7 +211,7 @@ function simplenews_demo_install() {
     'simplenews_issue' => [
       'target_id' => 'press_releases',
       'handler' => 'simplenews_all',
-      'handler_settings' => []
+      'handler_settings' => [],
     ],
   ]);
   $node->save();
@@ -225,7 +228,7 @@ function simplenews_demo_install() {
     'simplenews_issue' => [
       'target_id' => 'special_offers',
       'handler' => 'simplenews_all',
-      'handler_settings' => []
+      'handler_settings' => [],
     ],
   ]);
   $node->save();

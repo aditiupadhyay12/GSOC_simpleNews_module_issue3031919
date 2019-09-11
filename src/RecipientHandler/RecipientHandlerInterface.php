@@ -3,8 +3,6 @@
 namespace Drupal\simplenews\RecipientHandler;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
-use Drupal\Core\Database\Connection;
-use Drupal\Core\Entity\ContentEntityInterface;
 
 /**
  * Interface for Simplenews Recipient Handler Classes.
@@ -14,10 +12,10 @@ interface RecipientHandlerInterface extends \Countable, PluginInspectionInterfac
   /**
    * Adds a newsletter issue to the mail spool.
    *
-   * @return integer
+   * @return int
    *   Number of recipients added.
    */
-  function addToSpool();
+  public function addToSpool();
 
   /**
    * Returns the elements to add to the settings form for handler settings.
@@ -25,6 +23,6 @@ interface RecipientHandlerInterface extends \Countable, PluginInspectionInterfac
    * @return array
    *   The form elements.
    */
-  function settingsForm();
+  public function settingsForm();
 
 }

@@ -5,8 +5,7 @@ namespace Drupal\simplenews\Plugin\simplenews\RecipientHandler;
 use Drupal\simplenews\SubscriberInterface;
 
 /**
- * This handler sends a newsletter issue to all subscribers of a given
- * newsletter.
+ * This handler sends a newsletter issue to all its subscribers.
  *
  * As newsletters may have 100k subscribers, this class must be fast so extend
  * from RecipientHandlerSelectBase.

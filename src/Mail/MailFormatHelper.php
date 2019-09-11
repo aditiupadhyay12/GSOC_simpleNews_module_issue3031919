@@ -2,6 +2,8 @@
 
 namespace Drupal\simplenews\Mail;
 
+use Drupal\Core\Mail\MailFormatHelper as CoreMailFormatHelper;
+
 /**
  * Extended mail formatter helpers.
  *
@@ -35,7 +37,7 @@ class MailFormatHelper {
     }
 
     // Perform standard drupal html to text conversion.
-    return \Drupal\Core\Mail\MailFormatHelper::htmlToText($text);
+    return CoreMailFormatHelper::htmlToText($text);
   }
 
   /**

@@ -9,6 +9,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\Core\Messenger\MessengerTrait;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\simplenews\recipientHandler\RecipientHandlerManager;
 
 /**
@@ -16,28 +17,39 @@ use Drupal\simplenews\recipientHandler\RecipientHandlerManager;
  */
 class SpoolStorage implements SpoolStorageInterface {
   use MessengerTrait;
+  use StringTranslationTrait;
 
   /**
+   * The database connection.
+   *
    * @var \Drupal\Core\Database\Connection
    */
   protected $connection;
 
   /**
+   * The lock.
+   *
    * @var \Drupal\Core\Lock\LockBackendInterface
    */
   protected $lock;
 
   /**
+   * The config factory.
+   *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $config;
 
   /**
+   * The module handler.
+   *
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   protected $moduleHandler;
 
   /**
+   * The recipient handler manager.
+   *
    * @var \Drupal\simplenews\recipientHandler\recipientHandlerManager
    */
   protected $recipientHandlerManager;
@@ -51,9 +63,9 @@ class SpoolStorage implements SpoolStorageInterface {
    *   The lock.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
-   * @param \Drupal\Core\Extension\ModuleHandlerInterface
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
-   * @param \Drupal\simplenews\recipientHandler\recipientHandlerManager
+   * @param \Drupal\simplenews\recipientHandler\RecipientHandlerManager $recipient_handler_manager
    *   The recipient handler manager.
    */
   public function __construct(Connection $connection, LockBackendInterface $lock, ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, RecipientHandlerManager $recipient_handler_manager) {
@@ -67,7 +79,7 @@ class SpoolStorage implements SpoolStorageInterface {
   /**
    * {@inheritdoc}
    */
-  public function getMails($limit = self::UNLIMITED, $conditions = []) {
+  public function getMails($limit = self::UNLIMITED, array $conditions = []) {
     $messages = [];
 
     // Continue to support 'nid' as a condition.
@@ -83,8 +95,8 @@ class SpoolStorage implements SpoolStorageInterface {
     }
 
     // Special case for the status condition, the in progress actually only
-    // includes spool items whose locking time has expired. So this need to build
-    // an OR condition for them.
+    // includes spool items whose locking time has expired. So this needs to
+    // build an OR condition for them.
     $status_or = new Condition('OR');
     $statuses = is_array($conditions['status']) ? $conditions['status'] : [$conditions['status']];
     foreach ($statuses as $status) {
@@ -115,7 +127,7 @@ class SpoolStorage implements SpoolStorageInterface {
     // so that duplicate messages are not sent.
     if ($this->lock->acquire('simplenews_acquire_mail')) {
       // Get message id's
-      // Allocate messages
+      // Allocate messages.
       if ($limit > 0) {
         $query->range(0, $limit);
       }
@@ -123,7 +135,7 @@ class SpoolStorage implements SpoolStorageInterface {
         $messages[$message->msid] = $message;
       }
       if (count($messages) > 0) {
-        // Set the state and the timestamp of the messages
+        // Set the state and the timestamp of the messages.
         $this->updateMails(
           array_keys($messages), ['status' => SpoolStorageInterface::STATUS_IN_PROGRESS]
         );
@@ -140,7 +152,7 @@ class SpoolStorage implements SpoolStorageInterface {
   /**
    * {@inheritdoc}
    */
-  public function updateMails($msids, array $data) {
+  public function updateMails(array $msids, array $data) {
     $this->connection->update('simplenews_mail_spool')
       ->condition('msid', (array) $msids, 'IN')
       ->fields([
@@ -197,7 +209,7 @@ class SpoolStorage implements SpoolStorageInterface {
 
     $query->addExpression('COUNT(*)', 'count');
 
-    return (int)$query
+    return (int) $query
       ->execute()
       ->fetchField();
   }
@@ -237,7 +249,7 @@ class SpoolStorage implements SpoolStorageInterface {
     if (!$issue->isPublished()) {
       $issue->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_PUBLISH;
       $issue->save();
-      $this->messenger()->addMessage(t('Newsletter issue %title will be sent when published.', ['%title' => $issue->getTitle()]));
+      $this->messenger()->addMessage($this->t('Newsletter issue %title will be sent when published.', ['%title' => $issue->getTitle()]));
       return;
     }
 
@@ -256,10 +268,10 @@ class SpoolStorage implements SpoolStorageInterface {
 
     // Attempt to send immediately, if configured to do so.
     if (\Drupal::service('simplenews.mailer')->attemptImmediateSend(['entity_type' => $issue->getEntityTypeId(), 'entity_id' => $issue->id()])) {
-      $this->messenger()->addMessage(t('Newsletter issue %title sent.', ['%title' => $issue->getTitle()]));
+      $this->messenger()->addMessage($this->t('Newsletter issue %title sent.', ['%title' => $issue->getTitle()]));
     }
     else {
-      $this->messenger()->addMessage(t('Newsletter issue %title pending.', ['%title' => $issue->getTitle()]));
+      $this->messenger()->addMessage($this->t('Newsletter issue %title pending.', ['%title' => $issue->getTitle()]));
     }
   }
 
@@ -275,7 +287,7 @@ class SpoolStorage implements SpoolStorageInterface {
     $issue->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_NOT;
     $issue->save();
 
-    $this->messenger()->addMessage(t('Sending of %title was stopped. @count pending email(s) were deleted.', [
+    $this->messenger()->addMessage($this->t('Sending of %title was stopped. @count pending email(s) were deleted.', [
       '%title' => $issue->getTitle(),
       '@count' => $count,
     ]));
@@ -305,7 +317,9 @@ class SpoolStorage implements SpoolStorageInterface {
    */
   public function getRecipientHandler(ContentEntityInterface $issue, array $edited_values = NULL, $return_options = FALSE) {
     $field = $issue->get('simplenews_issue');
-    $newsletter_ids = $field->isEmpty() ? [] : array_map(function ($i) { return $i['target_id']; }, $field->getValue());
+    $newsletter_ids = $field->isEmpty() ? [] : array_map(function ($i) {
+      return $i['target_id'];
+    }, $field->getValue());
     $newsletter_id = $edited_values['target_id'] ?? $newsletter_ids[0] ?? NULL;
     $handler = ($edited_values['handler'] ?? $field->handler) ?: 'simplenews_all';
 
@@ -334,10 +348,10 @@ class SpoolStorage implements SpoolStorageInterface {
     $summary['count'] = (int) $issue->simplenews_issue->subscribers;
 
     if ($status == SIMPLENEWS_STATUS_SEND_READY) {
-      $summary['description'] = t('Newsletter issue sent to @count subscribers.', ['@count' => $summary['count']]);
+      $summary['description'] = $this->t('Newsletter issue sent to @count subscribers.', ['@count' => $summary['count']]);
     }
     elseif ($status == SIMPLENEWS_STATUS_SEND_PENDING) {
-      $summary['description'] = t('Newsletter issue is pending, @sent mails sent out of @count.', [
+      $summary['description'] = $this->t('Newsletter issue is pending, @sent mails sent out of @count.', [
         '@sent' => $summary['sent_count'],
         '@count' => $summary['count'],
       ]);
@@ -345,10 +359,10 @@ class SpoolStorage implements SpoolStorageInterface {
     else {
       $summary['count'] = $this->issueCountRecipients($issue);
       if ($status == SIMPLENEWS_STATUS_SEND_NOT) {
-        $summary['description'] = t('Newsletter issue will be sent to @count subscribers.', ['@count' => $summary['count']]);
+        $summary['description'] = $this->t('Newsletter issue will be sent to @count subscribers.', ['@count' => $summary['count']]);
       }
       else {
-        $summary['description'] = t('Newsletter issue will be sent to @count subscribers on publish.', ['@count' => $summary['count']]);
+        $summary['description'] = $this->t('Newsletter issue will be sent to @count subscribers on publish.', ['@count' => $summary['count']]);
       }
     }
 

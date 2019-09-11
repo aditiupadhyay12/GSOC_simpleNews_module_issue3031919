@@ -31,6 +31,8 @@ class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWid
   protected $newsletterIds;
 
   /**
+   * Subscription hidden flag.
+   *
    * @var bool
    */
   protected $hidden;
@@ -110,8 +112,8 @@ class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWid
   /**
    * {@inheritdoc}
    */
-  public function extractNewsletterIds($form_state_value, $selected = TRUE) {
-    $selected_ids = array_map(function($item) {
+  public function extractNewsletterIds(array $form_state_value, $selected = TRUE) {
+    $selected_ids = array_map(function ($item) {
       return $item['target_id'];
     }, $form_state_value);
     return $selected ? $selected_ids : array_diff($this->newsletterIds, $selected_ids);

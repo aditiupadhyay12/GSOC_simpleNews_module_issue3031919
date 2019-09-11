@@ -62,7 +62,7 @@ class NewsletterSettingsForm extends ConfigFormBase {
       '#type' => 'fieldset',
       '#title' => $this->t('Sender information'),
       '#collapsible' => FALSE,
-      '#description' => $this->t('Default sender address that will only be used for confirmation emails. You can specify sender information for each newsletter separately on the newsletter\'s settings page.'),
+      '#description' => $this->t("Default sender address that will only be used for confirmation emails. You can specify sender information for each newsletter separately on the newsletter's settings page."),
     ];
     $form['simplenews_sender_info']['simplenews_from_name'] = [
       '#type' => 'textfield',

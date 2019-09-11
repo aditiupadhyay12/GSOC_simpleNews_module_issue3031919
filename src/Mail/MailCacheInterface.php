@@ -31,7 +31,7 @@ interface MailCacheInterface {
    * @return mixed
    *   The cached data or NULL.
    */
-  function get(MailInterface $mail, $group, $key);
+  public function get(MailInterface $mail, $group, $key);
 
   /**
    * Write an element to the cache.
@@ -54,5 +54,6 @@ interface MailCacheInterface {
    * @param mixed $data
    *   The data to be saved in the cache.
    */
-  function set(MailInterface $mail, $group, $key, $data);
+  public function set(MailInterface $mail, $group, $key, $data);
+
 }

@@ -2,6 +2,7 @@
 
 namespace Drupal\simplenews\Plugin\views\field;
 
+use Drupal\node\Entity\Node;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
 
@@ -43,13 +44,13 @@ class SendStatus extends FieldPluginBase {
   /**
    * Return a compiled message to display.
    *
-   * @param $node
+   * @param \Drupal\node\Entity\Node $node
    *   The node object.
    *
    * @return array
    *   An array containing the elements of the message to be rendered.
    */
-  protected function getMessage($node) {
+  protected function getMessage(Node $node) {
     $status = $node->simplenews_issue->status;
     $message = \Drupal::service('simplenews.spool_storage')->issueSummary($node);
 
@@ -66,4 +67,5 @@ class SendStatus extends FieldPluginBase {
 
     return $message;
   }
+
 }

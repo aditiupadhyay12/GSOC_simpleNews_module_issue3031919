@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Contains \Drupal\simplenews\RecipientHandler\RecipientHandlerManager.
- */
-
 namespace Drupal\simplenews\RecipientHandler;
 
 use Drupal\Component\Utility\Xss;
@@ -45,7 +41,8 @@ class RecipientHandlerManager extends DefaultPluginManager {
    *   (optional) Restrict to handlers that are valid for the specified
    *   newsletter ID.
    *
-   * @return An array with key as handler ID and value as handler label.
+   * @return array
+   *   An array with key as handler ID and value as handler label.
    */
   public function getOptions($newsletter_id = NULL) {
     $handlers = $this->getDefinitions();

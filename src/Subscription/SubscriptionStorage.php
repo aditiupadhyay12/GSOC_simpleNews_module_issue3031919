@@ -14,7 +14,7 @@ class SubscriptionStorage extends SqlContentEntityStorage implements Subscriptio
   /**
    * {@inheritdoc}
    */
-  public function deleteSubscriptions($conditions = []) {
+  public function deleteSubscriptions(array $conditions = []) {
 
     $table_name = 'simplenews_subscriber__subscriptions';
     if (!Database::getConnection()->schema()->tableExists($table_name)) {
@@ -42,4 +42,5 @@ class SubscriptionStorage extends SqlContentEntityStorage implements Subscriptio
       ->condition('ss.subscriptions_status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
     return $query->execute()->fetchAllAssoc('mail');
   }
+
 }

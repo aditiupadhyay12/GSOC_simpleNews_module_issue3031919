@@ -62,4 +62,5 @@ class Link extends FieldPluginBase {
       return $this->renderLink($entity, $values);
     }
   }
+
 }

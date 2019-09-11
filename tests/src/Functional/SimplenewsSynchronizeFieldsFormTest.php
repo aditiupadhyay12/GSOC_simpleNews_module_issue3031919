@@ -20,6 +20,8 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
   public static $modules = ['field', 'simplenews'];
 
   /**
+   * User.
+   *
    * @var \Drupal\user\UserInterface
    */
   protected $user;

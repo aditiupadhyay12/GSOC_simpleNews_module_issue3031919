@@ -22,8 +22,9 @@ class SubscriberExportForm extends FormBase {
   /**
    * Implement getEmails($states, $subscribed, $newsletters)
    */
-  function getEmails($states, $subscribed, $newsletters) {
-    // Build conditions for active state, subscribed state and newsletter selection.
+  public function getEmails($states, $subscribed, $newsletters) {
+    // Build conditions for active state, subscribed state and newsletter
+    // selection.
     if (isset($states['active'])) {
       $condition_active[] = SubscriberInterface::ACTIVE;
     }
@@ -57,7 +58,7 @@ class SubscriberExportForm extends FormBase {
     if ($mails) {
       return implode(", ", $mails);
     }
-    return t('No addresses were found.');
+    return $this->t('No addresses were found.');
   }
 
   /**
@@ -71,36 +72,36 @@ class SubscriberExportForm extends FormBase {
 
     $form['states'] = [
       '#type' => 'checkboxes',
-      '#title' => t('Status'),
+      '#title' => $this->t('Status'),
       '#options' => [
-        'active' => t('Active users'),
-        'inactive' => t('Inactive users'),
+        'active' => $this->t('Active users'),
+        'inactive' => $this->t('Inactive users'),
       ],
       '#default_value' => $default['states'],
-      '#description' => t('Subscriptions matching the selected states will be exported.'),
+      '#description' => $this->t('Subscriptions matching the selected states will be exported.'),
       '#required' => TRUE,
     ];
 
     $form['subscribed'] = [
       '#type' => 'checkboxes',
-      '#title' => t('Subscribed'),
+      '#title' => $this->t('Subscribed'),
       '#options' => [
-        'subscribed' => t('Subscribed to the newsletter'),
-        'unconfirmed' => t('Unconfirmed to the newsletter'),
-        'unsubscribed' => t('Unsubscribed from the newsletter'),
+        'subscribed' => $this->t('Subscribed to the newsletter'),
+        'unconfirmed' => $this->t('Unconfirmed to the newsletter'),
+        'unsubscribed' => $this->t('Unsubscribed from the newsletter'),
       ],
       '#default_value' => $default['subscribed'],
-      '#description' => t('Subscriptions matching the selected subscription states will be exported.'),
+      '#description' => $this->t('Subscriptions matching the selected subscription states will be exported.'),
       '#required' => TRUE,
     ];
 
     $options = simplenews_newsletter_list();
     $form['newsletters'] = [
       '#type' => 'checkboxes',
-      '#title' => t('Newsletter'),
+      '#title' => $this->t('Newsletter'),
       '#options' => $options,
       '#default_value' => $default['newsletters'],
-      '#description' => t('Subscriptions matching the selected newsletters will be exported.'),
+      '#description' => $this->t('Subscriptions matching the selected newsletters will be exported.'),
       '#required' => TRUE,
     ];
 
@@ -110,7 +111,7 @@ class SubscriberExportForm extends FormBase {
     if (isset($_GET['states']) && empty($input)) {
       $form['emails'] = [
         '#type' => 'textarea',
-        '#title' => t('Export results'),
+        '#title' => $this->t('Export results'),
         '#cols' => 60,
         '#rows' => 5,
         '#value' => $this->getEmails($_GET['states'], $_GET['subscribed'], $_GET['newsletters']),
@@ -119,16 +120,9 @@ class SubscriberExportForm extends FormBase {
 
     $form['submit'] = [
       '#type' => 'submit',
-      '#value' => t('Export'),
+      '#value' => $this->t('Export'),
     ];
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
   }
 
   /**
@@ -143,4 +137,5 @@ class SubscriberExportForm extends FormBase {
     $options['query']['newsletters'] = array_keys(array_filter($form_values['newsletters']));
     $form_state->setRedirect('simplenews.subscriber_export', [], $options);
   }
+
 }

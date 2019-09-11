@@ -25,7 +25,7 @@ class SimplenewsFieldUiTest extends SimplenewsTestBase {
   }
 
   /**
-   * Test that a new content type has a simplenews_issue field when is used as a simplenews newsletter.
+   * Test that a new content type has a simplenews_issue field.
    */
   public function testContentTypeCreation() {
     $admin_user = $this->drupalCreateUser([
@@ -46,9 +46,11 @@ class SimplenewsFieldUiTest extends SimplenewsTestBase {
 
     $this->drupalGet('admin/structure/types');
     $this->clickLink(t('Add content type'));
+    $name = 'simplenews_issue';
+    $type = strtolower($name);
     $edit = [
-      'name' => $name = 'simplenews_issue',
-      'type' => $type = strtolower($name),
+      'name' => $name,
+      'type' => $type,
       'simplenews_content_type' => TRUE,
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
@@ -60,4 +62,5 @@ class SimplenewsFieldUiTest extends SimplenewsTestBase {
     $this->drupalGet('admin/config/services/simplenews/settings/newsletter');
     $this->assertText('These settings are default to all newsletters. Newsletter specific settings');
   }
+
 }

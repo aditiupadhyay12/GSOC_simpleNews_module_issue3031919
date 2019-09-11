@@ -5,9 +5,10 @@
  * Hooks provided by the Simplenews module.
  */
 
+use Drupal\simplenews\Entity\Newsletter;
+use Drupal\simplenews\Entity\Subscriber;
+
 /**
- * @mainpage Simplenews API documentation.
- *
  * Simplenews builds on the following basic concepts.
  *
  * @link subscriber Subscribers @endlink subscribe to @link newsletter
@@ -23,6 +24,7 @@
  * first instanciated based on the mail spool and then used to generated the
  * actual mail content.
  *
+ * @mainpage Simplenews API documentation.
  */
 
 /**
@@ -104,91 +106,107 @@ function hook_simplenews_subscription_operations() {
 /**
  * Act after a newsletter category has been saved.
  *
+ * @param \Drupal\simplenews\Entity\Newsletter $newsletter
+ *   The newsletter object.
+ *
  * @ingroup newsletter
  */
-function hook_simplenews_newsletter_update(SimplenewsNewsletter $newsletter) {
+function hook_simplenews_newsletter_update(Newsletter $newsletter) {
 
 }
 
 /**
  * Act after a newsletter category has been deleted.
  *
+ * @param \Drupal\simplenews\Entity\Newsletter $newsletter
+ *   The newsletter object.
+ *
  * @ingroup newsletter
  */
-function hook_simplenews_newsletter_delete(SimplenewsNewsletter $newsletter) {
+function hook_simplenews_newsletter_delete(Newsletter $newsletter) {
 
 }
 
 /**
  * Act after a newsletter category has been inserted.
  *
+ * @param \Drupal\simplenews\Entity\Newsletter $newsletter
+ *   The newsletter object.
+ *
  * @ingroup newsletter
  */
-function hook_simplenews_newsletter_insert(SimplenewsNewsletter $newsletter) {
+function hook_simplenews_newsletter_insert(Newsletter $newsletter) {
 
 }
 
 /**
  * Act after a subscriber is updated.
  *
+ * @param \Drupal\simplenews\Entity\Subscriber $subscriber
+ *   The subscriber object including all subscriptions of this user.
+ *
  * @ingroup subscriber
  */
-function hook_simplenews_subscriber_update(SimplenewsSubscriber $subscriber) {
+function hook_simplenews_subscriber_update(Subscriber $subscriber) {
 
 }
 
 /**
  * Act after a new subscriber has been created.
  *
+ * @param \Drupal\simplenews\Entity\Subscriber $subscriber
+ *   The subscriber object including all subscriptions of this user.
+ *
  * @ingroup subscriber
  */
-function hook_simplenews_subscriber_insert(SimplenewsSubscriber $subscriber) {
+function hook_simplenews_subscriber_insert(Subscriber $subscriber) {
 
 }
 
 /**
  * Act after a subscriber has been deleted.
  *
+ * @param \Drupal\simplenews\Entity\Subscriber $subscriber
+ *   The subscriber object including all subscriptions of this user.
+ *
  * @ingroup subscriber
  */
-function hook_simplenews_subscriber_delete(SimplenewsSubscriber $subscriber) {
+function hook_simplenews_subscriber_delete(Subscriber $subscriber) {
 
 }
 
 /**
  * Invoked if a subscriber is subscribed to a newsletter.
  *
- * @param $subscriber
+ * @param \Drupal\simplenews\Entity\Subscriber $subscriber
  *   The subscriber object including all subscriptions of this user.
- *
- * @param $subscription
+ * @param string $subscription
  *   The subscription object for this specific subscribe action.
  *
  * @ingroup subscriber
  */
-function hook_simplenews_subscribe_user(SimplenewsSubscriber $subscriber, $subscription) {
+function hook_simplenews_subscribe_user(Subscriber $subscriber, $subscription) {
 
 }
 
 /**
  * Invoked if a subscriber is unsubscribed from a newsletter.
  *
- * @param $subscriber
+ * @param \Drupal\simplenews\Entity\Subscriber $subscriber
  *   The subscriber object including all subscriptions of this user.
- *
- * @param $subscription
+ * @param string $subscription
  *   The subscription object for this specific unsubscribe action.
  *
  * @ingroup subscriber
  */
-function hook_simplenews_unsubscribe(SimplenewsSubscriber $subscriber, $subscription) {
+function hook_simplenews_unsubscribe(Subscriber $subscriber, $subscription) {
 
 }
 
 /**
  * Expose SimplenewsSource cache implementations.
  *
- * @return
+ * @return array
  *   An array keyed by the name of the class that provides the implementation,
  *   the array value consists of another array with the keys label and
  *   description.

@@ -15,7 +15,7 @@ class RequestHashForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return t('This link has expired.');
+    return $this->t('This link has expired.');
   }
 
   /**
@@ -29,7 +29,7 @@ class RequestHashForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getConfirmText() {
-    return t('Request new confirmation mail');
+    return $this->t('Request new confirmation mail');
   }
 
   /**
@@ -49,13 +49,20 @@ class RequestHashForm extends ConfirmFormBase {
   /**
    * Request new hash form.
    *
-   * @param $key
+   * @param array $form
+   *   An associative array containing the structure of the form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   * @param string $key
    *   The mail key to be sent.
-   * @param $context
+   * @param array $context
    *   Necessary context to send the mail. Must at least include the simplenews
    *   subscriber.
+   *
+   * @return array
+   *   The form structure.
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $key = '', $context = []) {
+  public function buildForm(array $form, FormStateInterface $form_state, $key = '', array $context = []) {
     $form = parent::buildForm($form, $form_state);
     $form_state->set('key', $key);
     $form_state->set('context', $context);
@@ -66,19 +73,12 @@ class RequestHashForm extends ConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $params['from'] = \Drupal::service('simplenews.mailer')->getFrom();
     $params['context'] = $form_state->get('context');
     $subscriber = $params['context']['simplenews_subscriber'];
     \Drupal::service('plugin.manager.mail')->mail('simplenews', $form_state->get('key'), $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
-    $this->messenger()->addMessage(t('The confirmation mail has been sent.'));
+    $this->messenger()->addMessage($this->t('The confirmation mail has been sent.'));
     $form_state->setRedirect('<front>');
   }
 

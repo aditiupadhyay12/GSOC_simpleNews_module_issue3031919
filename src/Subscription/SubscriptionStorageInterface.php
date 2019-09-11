@@ -17,7 +17,7 @@ interface SubscriptionStorageInterface {
    *
    * @ingroup subscription
    */
-  public function deleteSubscriptions($conditions = []);
+  public function deleteSubscriptions(array $conditions = []);
 
   /**
    * Returns a list of active subscriptions for a given newsletter.
@@ -34,4 +34,5 @@ interface SubscriptionStorageInterface {
    * @ingroup subscription
    */
   public function getSubscriptionsByNewsletter($newsletter_id);
+
 }

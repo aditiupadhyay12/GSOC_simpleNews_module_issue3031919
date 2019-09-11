@@ -37,7 +37,9 @@ class MailSettingsForm extends ConfigFormBase {
       '#description' => $this->t('When checked cron will be used to send newsletters (recommended). Test newsletters and confirmation emails will be sent immediately. Leave unchecked for testing purposes.'),
     ];
 
-    $throttle_val = [1, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+    $throttle_val = [
+      1, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000,
+    ];
     $throttle = array_combine($throttle_val, $throttle_val);
     $throttle[SpoolStorageInterface::UNLIMITED] = $this->t('Unlimited');
     if (function_exists('getrusage')) {

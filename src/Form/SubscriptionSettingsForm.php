@@ -139,7 +139,7 @@ class SubscriptionSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Body text for unchanged combined confirmation mail'),
       '#default_value' => $config->get('subscription.confirm_combined_body_unchanged'),
       '#rows' => 5,
-      '#description' => $this->t('This body is used when there are no change requests which have no effect, e.g trying to subscribe when already being subscribed to a newsletter.')
+      '#description' => $this->t('This body is used when there are no change requests which have no effect, e.g trying to subscribe when already being subscribed to a newsletter.'),
     ];
 
     $form['subscription_mail']['combined']['simplenews_confirm_combined_line_subscribe_unsubscribed'] = [

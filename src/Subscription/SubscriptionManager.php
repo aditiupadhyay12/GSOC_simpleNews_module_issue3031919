@@ -34,36 +34,50 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   protected $confirmations = [];
 
   /**
+   * Subscribed cache.
+   *
    * @var array
    */
   protected $subscribedCache = [];
 
   /**
+   * The mailer.
+   *
    * @var \Drupal\simplenews\Mail\MailerInterface
    */
   protected $mailer;
 
   /**
+   * The language manager.
+   *
    * @var \Drupal\Core\Language\LanguageManagerInterface
    */
   protected $languageManager;
 
   /**
+   * Configuration.
+   *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $config;
 
   /**
+   * The token.
+   *
    * @var \Drupal\Core\Utility\Token
    */
   protected $token;
 
   /**
+   * The logger interface.
+   *
    * @var \Psr\Log\LoggerInterface
    */
   protected $logger;
 
   /**
+   * The current user.
+   *
    * @var \Drupal\Core\Session\AccountInterface
    */
   protected $currentUser;
@@ -81,6 +95,8 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
    *   The token service.
    * @param \Psr\Log\LoggerInterface $logger
    *   The simplenews logger channel.
+   * @param \Drupal\Core\Session\AccountInterface $current_user
+   *   The current user.
    */
   public function __construct(LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory, MailerInterface $mailer, Token $token, LoggerInterface $logger, AccountInterface $current_user) {
     $this->languageManager = $language_manager;
@@ -131,7 +147,8 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
     if (!$subscriber) {
       throw new \Exception('The subscriber does not exist.');
     }
-    // The unlikely case that a user is unsubscribed from a non existing mailing list is logged
+    // The unlikely case that a user is unsubscribed from a non existing mailing
+    // list is logged.
     if (!$newsletter = Newsletter::load($newsletter_id)) {
       $this->logger->error('Attempt to unsubscribe from non existing mailing list ID %id', ['%id' => $newsletter_id]);
       return $this;
@@ -160,7 +177,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   public function isSubscribed($mail, $newsletter_id) {
     if (!isset($this->subscribedCache[$mail][$newsletter_id])) {
       $subscriber = Subscriber::loadByMail($mail);
-      // Check that a subscriber was found, he is active and subscribed to the
+      // Check that a subscriber was found, it is active and subscribed to the
       // requested newsletter_id.
       $this->subscribedCache[$mail][$newsletter_id] = $subscriber && $subscriber->getStatus() && $subscriber->isSubscribed($newsletter_id);
     }
@@ -170,7 +187,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   /**
    * {@inheritdoc}
    */
-  public function getChangesList(SubscriberInterface $subscriber, $changes = NULL, $langcode = NULL) {
+  public function getChangesList(SubscriberInterface $subscriber, array $changes = NULL, $langcode = NULL) {
     if (empty($langcode)) {
       $language = $this->languageManager->getCurrentLanguage();
       $langcode = $language->getId();
@@ -215,7 +232,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
 
       $this->mailer->sendCombinedConfirmation($subscriber);
 
-      // Save the changes in the subscriber if there is a real subscriber object.
+      // Save changes in the subscriber if there is a real subscriber object.
       if ($subscriber->id()) {
         $subscriber->save();
       }
@@ -277,6 +294,5 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
       return $newsletter->opt_inout == 'double';
     }
   }
-
 
 }

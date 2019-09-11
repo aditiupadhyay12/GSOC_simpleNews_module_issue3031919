@@ -16,21 +16,21 @@ class ConfirmRemovalForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return t('Confirm remove subscription');
+    return $this->t('Confirm remove subscription');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getConfirmText() {
-    return t('Unsubscribe');
+    return $this->t('Unsubscribe');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDescription() {
-    return t('This action will unsubscribe you from the newsletter mailing list.');
+    return $this->t('This action will unsubscribe you from the newsletter mailing list.');
   }
 
   /**
@@ -53,7 +53,7 @@ class ConfirmRemovalForm extends ConfirmFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, $mail = '', NewsletterInterface $newsletter = NULL) {
     $form = parent::buildForm($form, $form_state);
     $form['question'] = [
-      '#markup' => '<p>' . t('Are you sure you want to remove %user from the %newsletter mailing list?', ['%user' => simplenews_mask_mail($mail), '%newsletter' => $newsletter->name]) . "<p>\n",
+      '#markup' => '<p>' . $this->t('Are you sure you want to remove %user from the %newsletter mailing list?', ['%user' => simplenews_mask_mail($mail), '%newsletter' => $newsletter->name]) . "<p>\n",
     ];
     $form['mail'] = [
       '#type' => 'value',
@@ -69,13 +69,6 @@ class ConfirmRemovalForm extends ConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     \Drupal::service('simplenews.subscription_manager')->unsubscribe($form_state->getValue('mail'), $form_state->getValue('newsletter')->id(), FALSE, 'website');
 
@@ -84,8 +77,9 @@ class ConfirmRemovalForm extends ConfirmFormBase {
       $form_state->setRedirectUrl(Url::fromUri("internal:$path"));
     }
     else {
-      $this->messenger()->addMessage(t('%user was unsubscribed from the %newsletter mailing list.', ['%user' => $form_state->getValue('mail'), '%newsletter' => $form_state->getValue('newsletter')->name]));
+      $this->messenger()->addMessage($this->t('%user was unsubscribed from the %newsletter mailing list.', ['%user' => $form_state->getValue('mail'), '%newsletter' => $form_state->getValue('newsletter')->name]));
       $form_state->setRedirect('<front>');
     }
   }
+
 }

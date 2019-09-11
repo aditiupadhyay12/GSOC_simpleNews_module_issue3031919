@@ -13,7 +13,7 @@ use Drupal\simplenews\Entity\Subscriber;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides an 'Simplenews subscription' block with all available newsletters and an email field.
+ * Provides a subscription block with all available newsletters and email field.
  *
  * @Block(
  *   id = "simplenews_subscription_block",
@@ -57,7 +57,6 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
     $this->formBuilder = $formBuilder;
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -71,7 +70,6 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
     );
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -79,7 +77,7 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
     // By default, the block will contain 1 newsletter.
     return [
       'newsletters' => [],
-      'message' => t('Stay informed - subscribe to our newsletter.'),
+      'message' => $this->t('Stay informed - subscribe to our newsletter.'),
       'unique_id' => '',
     ];
   }
@@ -88,7 +86,7 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
    * {@inheritdoc}
    */
   protected function blockAccess(AccountInterface $account) {
-    // Only grant access to users with the 'subscribe to newsletters' permission.
+    // Only allow users with the 'subscribe to newsletters' permission.
     return AccessResult::allowedIfHasPermission($account, 'subscribe to newsletters');
   }
 
@@ -102,44 +100,46 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
 
     $form['newsletters'] = [
       '#type' => 'checkboxes',
-      '#title' => t('Newsletters'),
+      '#title' => $this->t('Newsletters'),
       '#options' => $options,
       '#required' => TRUE,
       '#default_value' => $this->configuration['newsletters'],
     ];
     $form['message'] = [
       '#type' => 'textfield',
-      '#title' => t('Block message'),
+      '#title' => $this->t('Block message'),
       '#size' => 60,
       '#maxlength' => 255,
       '#default_value' => $this->configuration['message'],
     ];
     $form['unique_id'] = [
       '#type' => 'textfield',
-      '#title' => t('Unique ID'),
+      '#title' => $this->t('Unique ID'),
       '#size' => 60,
       '#maxlength' => 255,
-      '#description' => t('Each subscription block must have a unique form ID. If no value is provided, a random ID will be generated. Use this to have a predictable, short ID, e.g. to configure this form use a CAPTCHA.'),
+      '#description' => $this->t('Each subscription block must have a unique form ID. If no value is provided, a random ID will be generated. Use this to have a predictable, short ID, e.g. to configure this form use a CAPTCHA.'),
       '#default_value' => $this->configuration['unique_id'],
     ];
+    // @codingStandardsIgnoreStart
     /*if (\Drupal::moduleHandler()->moduleExists('views')) {
         $form['link_previous'] = array(
           '#type' => 'checkbox',
-          '#title' => t('Display link to previous issues'),
+          '#title' => $this->t('Display link to previous issues'),
           '#return_value' => 1,
           '#default_value' => variable_get('simplenews_block_l_' . $delta, 1),
-          '#description' => t('Link points to newsletter/newsletter_id, which is provided by the newsletter issue list default view.'),
+          '#description' => $this->t('Link points to newsletter/newsletter_id, which is provided by the newsletter issue list default view.'),
         );
       }*/
     /*if (\Drupal::moduleHandler()->moduleExists('views')) {
       $form['rss_feed'] = array(
         '#type' => 'checkbox',
-        '#title' => t('Display RSS-feed icon'),
+        '#title' => $this->t('Display RSS-feed icon'),
         '#return_value' => 1,
         '#default_value' => variable_get('simplenews_block_r_' . $delta, 1),
-        '#description' => t('Link points to newsletter/feed/newsletter_id, which is provided by the newsletter issue list default view.'),
+        '#description' => $this->t('Link points to newsletter/feed/newsletter_id, which is provided by the newsletter issue list default view.'),
       );
     }*/
+    // @codingStandardsIgnoreEnd
     return $form;
   }
 
@@ -149,10 +149,12 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
   public function blockSubmit($form, FormStateInterface $form_state) {
     $this->configuration['newsletters'] = array_filter($form_state->getValue('newsletters'));
     $this->configuration['message'] = $form_state->getValue('message');
+    // @codingStandardsIgnoreStart
     //$this->configuration['link_previous'] = $form_state->getValue('link_previous');
     //$this->configuration['rss_feed'] = $form_state->getValue('rss_feed');
+    // @codingStandardsIgnoreEnd
     $this->configuration['unique_id'] = empty($form_state->getValue('unique_id')) ? \Drupal::service('uuid')->generate() : $form_state->getValue('unique_id');
-}
+  }
 
   /**
    * {@inheritdoc}

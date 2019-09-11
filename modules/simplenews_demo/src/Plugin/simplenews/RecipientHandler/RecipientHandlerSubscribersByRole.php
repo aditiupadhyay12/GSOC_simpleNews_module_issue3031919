@@ -2,7 +2,6 @@
 
 namespace Drupal\simplenews_demo\Plugin\simplenews\RecipientHandler;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\simplenews\SubscriberInterface;
 use Drupal\simplenews\Plugin\simplenews\RecipientHandler\RecipientHandlerEntityBase;
 

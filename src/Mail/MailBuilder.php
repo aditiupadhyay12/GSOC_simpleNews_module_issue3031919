@@ -4,7 +4,6 @@ namespace Drupal\simplenews\Mail;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Utility\Token;
-use Drupal\simplenews\Mail\MailInterface;
 use Drupal\simplenews\Subscription\SubscriptionManagerInterface;
 
 /**
@@ -13,16 +12,22 @@ use Drupal\simplenews\Subscription\SubscriptionManagerInterface;
 class MailBuilder implements MailBuilderInterface {
 
   /**
+   * The token service.
+   *
    * @var \Drupal\Core\Utility\Token
    */
   protected $token;
 
   /**
+   * The config factory.
+   *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $config;
 
   /**
+   * The subscription manager.
+   *
    * @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface
    */
   protected $subscriptionManager;
@@ -46,7 +51,7 @@ class MailBuilder implements MailBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  function buildNewsletterMail(array &$message, MailInterface $mail) {
+  public function buildNewsletterMail(array &$message, MailInterface $mail) {
     // Get message data from the mail.
     $message['headers'] = $mail->getHeaders($message['headers']);
     $message['subject'] = $mail->getSubject();
@@ -82,10 +87,10 @@ class MailBuilder implements MailBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  function buildSubscribeMail(array &$message, array $params) {
+  public function buildSubscribeMail(array &$message, array $params) {
     $context = $params['context'];
 
-    // Use formatted from address "name" <mail_address>
+    // Use formatted from address "name" <mail_address>.
     $message['headers']['From'] = $params['from']['formatted'];
 
     $message['subject'] = $this->config->get('subscription.confirm_subscribe_subject');
@@ -102,12 +107,12 @@ class MailBuilder implements MailBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  function buildCombinedMail(&$message, $params) {
+  public function buildCombinedMail(array &$message, array $params) {
     $context = $params['context'];
     $subscriber = $context['simplenews_subscriber'];
     $langcode = $message['langcode'];
 
-    // Use formatted from address "name" <mail_address>
+    // Use formatted from address "name" <mail_address>.
     $message['headers']['From'] = $params['from']['formatted'];
 
     $message['subject'] = $this->config->get('subscription.confirm_combined_subject');
@@ -130,7 +135,7 @@ class MailBuilder implements MailBuilderInterface {
     // one without a confirmation link.
     $body_key = $actual_changes ? 'combined_body' : 'combined_body_unchanged';
 
-    $body = $this->config->get('subscription.confirm_' .$body_key);
+    $body = $this->config->get('subscription.confirm_' . $body_key);
     // The changes list is not an actual token.
     $body = str_replace('[changes-list]', $changes_list, $body);
     $message['body'][] = $this->token->replace($body, $context, ['sanitize' => FALSE]);
@@ -139,10 +144,10 @@ class MailBuilder implements MailBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  function buildUnsubscribeMail(&$message, $params) {
+  public function buildUnsubscribeMail(array &$message, array $params) {
     $context = $params['context'];
 
-    // Use formatted from address "name" <mail_address>
+    // Use formatted from address "name" <mail_address>.
     $message['headers']['From'] = $params['from']['formatted'];
 
     $message['subject'] = $this->config->get('subscription.confirm_subscribe_subject');

@@ -40,7 +40,7 @@ class PrepareUninstallForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $batch = [
-      'title' => t('Deleting subscribers'),
+      'title' => $this->t('Deleting subscribers'),
       'operations' => [
         [
           [__CLASS__, 'deleteSubscribers'], [],
@@ -52,7 +52,7 @@ class PrepareUninstallForm extends FormBase {
           [__CLASS__, 'purgeFieldData'], [],
         ],
       ],
-      'progress_message' => static::t('Deleting Simplenews data... Completed @percentage% (@current of @total).'),
+      'progress_message' => $this->t('Deleting Simplenews data... Completed @percentage% (@current of @total).'),
     ];
     batch_set($batch);
 

@@ -3,9 +3,11 @@
 namespace Drupal\simplenews\Plugin\simplenews\RecipientHandler;
 
 /**
- * Base for Recipient Handler classes that access the underlying database
- * directly use a Select query.  This is very fast, but won't work with custom
- * storage and can lead to more complex queries.
+ * Base for Recipient Handlers that access the database directly using Select.
+ *
+ * Derivatives access the underlying database directly use a Select query.
+ * This is very fast, but won't work with custom storage and can lead to more
+ * complex queries.
  */
 abstract class RecipientHandlerSelectBase extends RecipientHandlerBase {
 

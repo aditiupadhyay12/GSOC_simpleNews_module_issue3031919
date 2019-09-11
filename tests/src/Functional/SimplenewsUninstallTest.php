@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\simplenews\Tests\SimplenewsUninstallTest.
- */
-
 namespace Drupal\Tests\simplenews\Functional;
 
 /**

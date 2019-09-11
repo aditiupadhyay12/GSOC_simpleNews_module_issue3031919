@@ -30,14 +30,14 @@ class SubscriberForm extends SubscriptionsFormBase {
     }
 
     $form['activated'] = [
-      '#title' => t('Status'),
+      '#title' => $this->t('Status'),
       '#type' => 'fieldset',
-      '#description' => t('Whether the subscription is active or blocked.'),
+      '#description' => $this->t('Whether the subscription is active or blocked.'),
       '#weight' => 15,
     ];
     $form['activated']['status'] = [
       '#type' => 'checkbox',
-      '#title' => t('Active'),
+      '#title' => $this->t('Active'),
       '#default_value' => $subscriber->getStatus(),
       '#disabled' => !$subscriber->get('status')->access('edit'),
     ];
@@ -50,15 +50,15 @@ class SubscriberForm extends SubscriptionsFormBase {
       }
       $form['language'] = [
         '#type' => 'fieldset',
-        '#title' => t('Preferred language'),
-        '#description' => t('The e-mails will be localized in language chosen. Real users have their preference in account settings.'),
+        '#title' => $this->t('Preferred language'),
+        '#description' => $this->t('The e-mails will be localized in language chosen. Real users have their preference in account settings.'),
         '#disabled' => FALSE,
       ];
       if ($subscriber->getUserId()) {
         // Fallback if user has not defined a language.
         $form['language']['langcode'] = [
           '#type' => 'item',
-          '#title' => t('User language'),
+          '#title' => $this->t('User language'),
           '#markup' => $subscriber->language()->getName(),
         ];
       }

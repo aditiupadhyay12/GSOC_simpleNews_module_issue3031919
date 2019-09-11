@@ -121,10 +121,11 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     }
 
     // Register a new user through the form.
+    $pass = $this->randomMachineName();
     $edit = [
       'name' => $this->randomMachineName(),
       'mail' => $this->randomEmail(),
-      'pass[pass1]' => $pass = $this->randomMachineName(),
+      'pass[pass1]' => $pass,
       'pass[pass2]' => $pass,
       'subscriptions[' . $off_double_newsletter_id . ']' => $off_double_newsletter_id,
     ];
@@ -165,7 +166,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
           $this->assertNoField('subscriptions[' . $newsletter->id() . ']', t('Hidden newsletter is not shown.'));
         }
         elseif ($newsletter->new_account == 'on' || $newsletter->name == 'off-double' || $newsletter->new_account == 'silent') {
-          // All on, silent and the explicitly selected newsletter should be checked.
+          // All on, silent and the explicitly selected newsletter should be
+          // checked.
           $this->assertFieldChecked($this->getNewsletterFieldId($newsletter->id()));
         }
         else {
@@ -183,6 +185,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertNoFieldChecked($this->getNewsletterFieldId($off_double_newsletter_id));
 
     // Get a newsletter which has the block enabled.
+    // @codingStandardsIgnoreStart
     /*foreach ($newsletters as $newsletter) {
       // The default newsletter is missing the from mail address. Use another one.
       if ($newsletter->block == TRUE && $newsletter->newsletter_id != 1 && $newsletter->opt_inout != 'hidden') {
@@ -190,8 +193,10 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
         break;
       }
     }*/
+    // @codingStandardsIgnoreEnd
 
-    // Check saving the subscriber as admin does not wipe the hidden newsletter settings.
+    // Check saving the subscriber as admin does not wipe the hidden newsletter
+    // settings.
     $this->drupalLogin($admin_user);
     $subscriber = Subscriber::loadByMail($user->getEmail());
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
@@ -202,6 +207,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertTrue($subscriber->isSubscribed('on_hidden'));
     $this->assertTrue($subscriber->isUnsubscribed($off_double_newsletter_id));
 
+    // @codingStandardsIgnoreStart
     /*$this->setupSubscriptionBlock($edit_newsletter->newsletter_id, $settings = array(
       'issue count' => 2,
       'previous issues' => 1,
@@ -259,6 +265,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     \Drupal::entityManager()->getStorage('simplenews_newsletter')->resetCache();
     $this->assertFalse(Newsletter::load($edit_newsletter->newsletter_id));
     $this->assertFalse(db_query('SELECT newsletter_id FROM {simplenews_newsletter} WHERE newsletter_id = :newsletter_id', array(':newsletter_id' => $edit_newsletter->newsletter_id))->fetchField());*/
+    // @codingStandardsIgnoreEnd
     // Check if the help text is displayed.
     $this->drupalGet('admin/help/simplenews');
     $this->assertText('Simplenews adds elements to the newsletter node add/edit');
@@ -273,11 +280,11 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
    */
   public function testSubscriptionManagement() {
     $admin_user = $this->drupalCreateUser([
-        'administer newsletters',
-        'administer simplenews settings',
-        'administer simplenews subscriptions',
-        'administer users'
-      ]);
+      'administer newsletters',
+      'administer simplenews settings',
+      'administer simplenews subscriptions',
+      'administer users',
+    ]);
     $this->drupalLogin($admin_user);
 
     // Create a newsletter.
@@ -309,7 +316,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       }
     }
 
-    // Create a user and assign him one of the mail addresses of the all group.
+    // Create a user and assign one of the mail addresses of the all group.
     // The other subscribers will not be users, just anonymous subscribers.
     $user = $this->drupalCreateUser(['subscribe to newsletters']);
     // Make sure that user_save() does not update the user object, as it will
@@ -344,7 +351,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       $email = trim($rows[$i]->find('xpath', '/td[1]')->getText());
       $mail_addresses[] = $email;
       if ($email == $user_mail) {
-         // The user to which the mail was assigned should show the user name.
+        // The user to which the mail was assigned should show the user name.
         $this->assertEqual(trim($rows[$i]->find('xpath', '/td[2]/a')->getText()), $user->getAccountName());
       }
       else {
@@ -390,19 +397,19 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Filter a single mail address, the one assigned to a user.
     $edit = [
-      'mail' => mb_substr(current($subscribers['all']), 0, 4)
+      'mail' => mb_substr(current($subscribers['all']), 0, 4),
     ];
     $this->drupalGet('admin/people/simplenews', ['query' => ['mail' => $edit['mail']]]);
 
     $rows = $this->xpath('//tbody/tr');
     $this->assertEqual(1, count($rows));
     $this->assertEqual(current($subscribers['all']), trim($rows[0]->find('xpath', '/td[1]')->getText()));
-    // Mysteriously, the username is sometimes a span and sometimes a link.  Accept both.
+    // Mysteriously, the username is sometimes a span and sometimes a link.
+    // Accept both.
     $this->assertEqual($user->label(), trim($rows[0]->find('xpath', '/td[2]/span|/td[2]/a')->getText()));
 
     // Reset the filter.
     $this->drupalGet('admin/people/simplenews');
-
 
     // Test mass-unsubscribe, unsubscribe one from the first group and one from
     // the all group, but only from the first newsletter.
@@ -421,9 +428,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertNoText($first_mail);
     $this->assertText($all_mail);
 
-
     // Limit to first newsletter, the all mail shouldn't be shown anymore.
-
     $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_target_id' => $first]]);
     $this->assertNoText($first_mail);
     $this->assertNoText($all_mail);
@@ -620,7 +625,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertTrue(preg_match('|admin/people/simplenews/edit/(\d+)\?destination|', $this->getUrl(), $matches), 'Subscriber found');
     $subscriber = Subscriber::load($matches[1]);
 
-    $this->assertTitle(t('Edit subscriber @mail', ['@mail' => $subscriber->getMail()]) . ' | Drupal');
+    $this->assertTitle('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
     $this->assertFieldChecked('edit-status');
 
     // Disable account.
@@ -634,7 +639,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Re-enable account.
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
-    $this->assertTitle(t('Edit subscriber @mail', ['@mail' => $subscriber->getMail()]) . ' | Drupal');
+    $this->assertTitle('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
     $this->assertNoFieldChecked('edit-status');
     $edit = [
       'status' => TRUE,
@@ -646,7 +651,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Remove the newsletter.
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
-    $this->assertTitle(t('Edit subscriber @mail', ['@mail' => $subscriber->getMail()]) . ' | Drupal');
+    $this->assertTitle('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscriber = Subscriber::load($subscriber->id());
     $nlids = $subscriber->getSubscribedNewsletterIds();
@@ -659,7 +664,9 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $nlids = $subscriber->getSubscribedNewsletterIds();
     $this->assertFalse($subscription_manager->isSubscribed($subscriber->getMail(), reset($nlids)), t('Subscriber not subscribed anymore.'));
 
-    // @todo Test Admin subscriber edit preferred language $subscription->language
+    /*
+     * @todo Test Admin subscriber edit preferred $subscription->language
+     */
 
     // Register a subscriber with an insecure e-mail address through the API
     // and make sure the address is correctly encoded.
@@ -677,7 +684,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Create a new user for the next test.
     $new_user = $this->drupalCreateUser(['subscribe to newsletters']);
     // Test for saving the subscription for no newsletter.
-    $this->drupalPostForm('user/' . $new_user->id() . '/simplenews', null, t('Save'));
+    $this->drupalPostForm('user/' . $new_user->id() . '/simplenews', NULL, t('Save'));
     $this->assertText('The newsletter subscriptions for user ' . $new_user->getAccountName() . ' have been updated.');
 
     // Editing a subscriber with subscription.
@@ -729,23 +736,25 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
    */
   public function testContentTypes() {
     $admin_user = $this->drupalCreateUser([
-        'administer blocks',
-        'administer content types',
-        'administer nodes',
-        'access administration pages',
-        'administer permissions',
-        'administer newsletters',
-        'administer simplenews subscriptions',
-        'bypass node access',
-        'send newsletter',
-      ]);
+      'administer blocks',
+      'administer content types',
+      'administer nodes',
+      'access administration pages',
+      'administer permissions',
+      'administer newsletters',
+      'administer simplenews subscriptions',
+      'bypass node access',
+      'send newsletter',
+    ]);
     $this->drupalLogin($admin_user);
 
     $this->drupalGet('admin/structure/types');
     $this->clickLink(t('Add content type'));
+    $name = $this->randomMachineName();
+    $type = strtolower($name);
     $edit = [
-      'name' => $name = $this->randomMachineName(),
-      'type' => $type = strtolower($name),
+      'name' => $name,
+      'type' => $type,
       'simplenews_content_type' => TRUE,
     ];
     $this->drupalPostForm(NULL, $edit, t('Save content type'));
@@ -826,7 +835,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalPostForm('admin/structure/types/manage/' . $type, $edit, t('Save content type'));
 
     // Verify that the newsletter settings are still shown.
-    // Note: Previously the field got autoremoved. We leave it remaining due to potential data loss.
+    // Note: Previously the field got autoremoved. We leave it remaining due to
+    // potential data loss.
     $this->drupalGet('node/add/' . $type);
     $this->assertNoText(t('Replacement patterns'));
     $this->assertText(t('Issue'));
@@ -864,7 +874,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'administer newsletters',
       'create simplenews_issue content',
       'administer nodes',
-      'administer simplenews subscriptions'
+      'administer simplenews subscriptions',
     ]);
     $this->drupalLogin($admin_user);
 
@@ -888,7 +898,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $newsletters = simplenews_newsletter_get_all();
 
-    // Filter out subscribers by their subscription status and assert the output.
+    // Filter out subscribers by their subscription status and assert the
+    // output.
     $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED]]);
     $row = $this->xpath('//tbody/tr');
     $this->assertEqual(1, count($row));
@@ -918,13 +929,14 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'create simplenews_issue content',
       'administer simplenews subscriptions',
       'administer nodes',
-      'send newsletter'
+      'send newsletter',
     ]);
     $this->drupalLogin($admin_user);
 
     // Create a newsletter.
+    $name = $this->randomMachineName();
     $edit = [
-      'name' => $name = $this->randomMachineName(),
+      'name' => $name,
       'id'  => mb_strtolower($name),
     ];
     $this->drupalPostForm('admin/config/services/simplenews/add', $edit, t('Save'));
@@ -975,7 +987,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $edit = [
       'node_bulk_form[0]' => TRUE,
       'node_bulk_form[1]' => TRUE,
-      'action' => 'simplenews_send_action'
+      'action' => 'simplenews_send_action',
     ];
     $this->drupalPostForm(NULL, $edit, t('Apply to selected items'));
     // Check the relevant messages.
@@ -996,7 +1008,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $edit = [
       'node_bulk_form[0]' => TRUE,
       'node_bulk_form[1]' => TRUE,
-      'action' => 'simplenews_stop_action'
+      'action' => 'simplenews_stop_action',
     ];
     $this->drupalPostForm(NULL, $edit, t('Apply to selected items'));
     // Check the stop message.
@@ -1016,7 +1028,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $edit = [
       'node_bulk_form[0]' => TRUE,
       'node_bulk_form[1]' => TRUE,
-      'action' => 'simplenews_send_action'
+      'action' => 'simplenews_send_action',
     ];
     $this->drupalPostForm(NULL, $edit, t('Apply to selected items'));
     // Run cron to send the mails.
@@ -1040,9 +1052,9 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
    */
   public function testAccess() {
     $admin_user = $this->drupalCreateUser([
-        'administer newsletters',
-        'administer simplenews subscriptions',
-      ]);
+      'administer newsletters',
+      'administer simplenews subscriptions',
+    ]);
     $this->drupalLogin($admin_user);
 
     // Create a newsletter.
@@ -1079,8 +1091,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Grant view permission.
     $view_user = $this->drupalCreateUser([
-        'view simplenews subscriptions',
-      ]);
+      'view simplenews subscriptions',
+    ]);
     $this->drupalLogin($view_user);
 
     // Check can see username and email.

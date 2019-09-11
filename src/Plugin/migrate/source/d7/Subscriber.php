@@ -22,7 +22,7 @@ class Subscriber extends DrupalSqlBase {
     return [
       'snid' => $this->t('Subscriber ID'),
       'activated' => $this->t('Activated'),
-      'mail' => $this->t('Subscriber\'s e-mail address'),
+      'mail' => $this->t("Subscriber's e-mail address"),
       'uid' => $this->t('Corresponding user'),
       'language' => $this->t('Language'),
       'changes' => $this->t('Pending unconfirmed subscription changes'),

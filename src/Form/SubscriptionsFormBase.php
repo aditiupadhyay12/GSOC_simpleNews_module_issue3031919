@@ -140,12 +140,12 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
 
     // Modify UI texts.
     if ($mail = $this->entity->getMail()) {
-      $form['subscriptions']['widget']['#title'] = t('Subscriptions for %mail', ['%mail' => $mail]);
-      $form['subscriptions']['widget']['#description'] = t('Check the newsletters you want to subscribe to. Uncheck the ones you want to unsubscribe from.');
+      $form['subscriptions']['widget']['#title'] = $this->t('Subscriptions for %mail', ['%mail' => $mail]);
+      $form['subscriptions']['widget']['#description'] = $this->t('Check the newsletters you want to subscribe to. Uncheck the ones you want to unsubscribe from.');
     }
     else {
-      $form['subscriptions']['widget']['#title'] = t('Manage your newsletter subscriptions');
-      $form['subscriptions']['widget']['#description'] = t('Select the newsletter(s) to which you want to subscribe or unsubscribe.');
+      $form['subscriptions']['widget']['#title'] = $this->t('Manage your newsletter subscriptions');
+      $form['subscriptions']['widget']['#description'] = $this->t('Select the newsletter(s) to which you want to subscribe or unsubscribe.');
     }
 
     return $form;
@@ -157,14 +157,14 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
   protected function actions(array $form, FormStateInterface $form_state) {
     // There are three user groups for subscriptions forms:
     // 1) An authenticated subscriber updating existing subscriptions. The main
-    //    case is a logged in user, but it could also be an anonymous
-    //    subscription authenticated by means of a hash. In both cases, the
-    //    email address is set.
+    // case is a logged in user, but it could also be an anonymous subscription
+    // authenticated by means of a hash. In both cases, the email address is
+    // set.
     // 2) An unauthenticated user who enters an email address in the form and
-    //    requests to subscribe or unsubscribe. In this case the email address
-    //    is not set.
+    // requests to subscribe or unsubscribe. In this case the email address
+    // is not set.
     // 3) An administrator adding a new subscription. In this case the email
-    //    address is not set, but there is a logged in user.
+    // address is not set, but there is a logged in user.
     $has_widget = !$this->getSubscriptionWidget($form_state)->isHidden();
     $has_mail = (bool) $this->entity->getMail();
 
@@ -188,14 +188,14 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
       if ($has_widget || !$this->entity->isSubscribed($this->getOnlyNewsletterId())) {
         // Subscribe button.
         $actions[static::SUBMIT_SUBSCRIBE] = $actions['submit'];
-        $actions[static::SUBMIT_SUBSCRIBE]['#value'] = t('Subscribe');
+        $actions[static::SUBMIT_SUBSCRIBE]['#value'] = $this->t('Subscribe');
         $actions[static::SUBMIT_SUBSCRIBE]['#submit'][] = '::submitSubscribe';
       }
 
       if ($has_widget || $this->entity->isSubscribed($this->getOnlyNewsletterId())) {
         // Unsubscribe button.
         $actions[static::SUBMIT_UNSUBSCRIBE] = $actions['submit'];
-        $actions[static::SUBMIT_UNSUBSCRIBE]['#value'] = t('Unsubscribe');
+        $actions[static::SUBMIT_UNSUBSCRIBE]['#value'] = $this->t('Unsubscribe');
         $actions[static::SUBMIT_UNSUBSCRIBE]['#submit'][] = '::submitUnsubscribe';
       }
     }
@@ -225,7 +225,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
     // available, at least one must be checked.
     $update = in_array('::submitUpdate', $form_state->getSubmitHandlers());
     if (!$update && !$this->getSubscriptionWidget($form_state)->isHidden() && !count($form_state->getValue('subscriptions'))) {
-      $form_state->setErrorByName('subscriptions', t('You must select at least one newsletter.'));
+      $form_state->setErrorByName('subscriptions', $this->t('You must select at least one newsletter.'));
     }
 
     parent::validateForm($form, $form_state);
@@ -335,4 +335,5 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
     return $this->getSubscriptionWidget($form_state)
       ->extractNewsletterIds($form_state->getValue('subscriptions'), $selected);
   }
+
 }

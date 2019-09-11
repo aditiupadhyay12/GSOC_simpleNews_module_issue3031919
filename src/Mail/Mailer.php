@@ -16,9 +16,6 @@ use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
-use Drupal\simplenews\NewsletterInterface;
-use Drupal\simplenews\Mail\MailEntity;
-use Drupal\simplenews\Mail\MailInterface;
 use Drupal\simplenews\SkipMailException;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\SubscriberInterface;
@@ -46,36 +43,50 @@ class Mailer implements MailerInterface {
   const SEND_TIME_LIMIT = 0.8;
 
   /**
+   * The simplenews spool storage.
+   *
    * @var \Drupal\simplenews\Spool\SpoolStorageInterface
    */
   protected $spoolStorage;
 
   /**
+   * The mail manager.
+   *
    * @var \Drupal\Core\Mail\MailManagerInterface
    */
   protected $mailManager;
 
   /**
+   * State service.
+   *
    * @var \Drupal\Core\State\StateInterface
    */
   protected $state;
 
   /**
+   * A logger instance.
+   *
    * @var \Psr\Log\LoggerInterface
    */
   protected $logger;
 
   /**
+   * Account switcher.
+   *
    * @var \Drupal\Core\Session\AccountSwitcherInterface
    */
   protected $accountSwitcher;
 
   /**
+   * Lock service.
+   *
    * @var \Drupal\Core\Lock\LockBackendInterface
    */
   protected $lock;
 
   /**
+   * The config factory.
+   *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $config;
@@ -161,7 +172,10 @@ class Mailer implements MailerInterface {
 
       $operations = [];
       for ($i = 0; $i < $num_operations; $i++) {
-        $operations[] = ['_simplenews_batch_dispatcher', ['simplenews.mailer:sendSpool', $throttle, $conditions]];
+        $operations[] = [
+          '_simplenews_batch_dispatcher',
+          ['simplenews.mailer:sendSpool', $throttle, $conditions],
+        ];
       }
 
       // Add separate operations to clear the spool and update the send status.
@@ -170,7 +184,7 @@ class Mailer implements MailerInterface {
 
       $batch = [
         'operations' => $operations,
-        'title' => t('Sending mails'),
+        'title' => $this->t('Sending mails'),
       ];
       batch_set($batch);
     }
@@ -234,7 +248,7 @@ class Mailer implements MailerInterface {
         // sending. The remainder will be sent during the next cron run.
         if (++$check_counter >= static::SEND_CHECK_INTERVAL && ini_get('max_execution_time') > 0) {
           $check_counter = 0;
-          // Break the sending if a percentage of max execution time was exceeded.
+          // Stop sending if a percentage of max execution time was exceeded.
           $elapsed = $this->getCurrentExecutionTime();
           if ($elapsed > static::SEND_TIME_LIMIT * ini_get('max_execution_time')) {
             $this->logger->warning('Sending interrupted: PHP maximum execution time almost exceeded. Remaining newsletters will be sent during the next cron run. If this warning occurs regularly you should reduce the !cron_throttle_setting.', [
@@ -290,10 +304,19 @@ class Mailer implements MailerInterface {
       // Report sent result and elapsed time. On Windows systems getrusage() is
       // not implemented and hence no elapsed time is available.
       if (function_exists('getrusage')) {
-        $this->logger->notice('%success emails sent in %sec seconds, %skipped skipped, %fail failed sending.', ['%success' => $count_success, '%sec' => round($this->getCurrentExecutionTime(), 1), '%skipped' => $count_skipped, '%fail' => $count_fail]);
+        $this->logger->notice('%success emails sent in %sec seconds, %skipped skipped, %fail failed sending.', [
+          '%success' => $count_success,
+          '%sec' => round($this->getCurrentExecutionTime(), 1),
+          '%skipped' => $count_skipped,
+          '%fail' => $count_fail,
+        ]);
       }
       else {
-        $this->logger->notice('%success emails sent, %skipped skipped, %fail failed.', ['%success' => $count_success, '%skipped' => $count_skipped, '%fail' => $count_fail]);
+        $this->logger->notice('%success emails sent, %skipped skipped, %fail failed.', [
+          '%success' => $count_success,
+          '%skipped' => $count_skipped,
+          '%fail' => $count_fail,
+        ]);
       }
 
       $this->state->set('simplenews.last_cron', REQUEST_TIME);
@@ -321,10 +344,18 @@ class Mailer implements MailerInterface {
       // Log sent result in watchdog.
       if ($this->config->get('mail.debug')) {
         if ($message['result']) {
-          $this->logger->debug('Outgoing email. Message type: %type<br />Subject: %subject<br />Recipient: %to', ['%type' => $mail->getKey(), '%to' => $message['to'], '%subject' => $message['subject']]);
+          $this->logger->debug('Outgoing email. Message type: %type<br />Subject: %subject<br />Recipient: %to', [
+            '%type' => $mail->getKey(),
+            '%to' => $message['to'],
+            '%subject' => $message['subject'],
+          ]);
         }
         else {
-          $this->logger->error('Outgoing email failed. Message type: %type<br />Subject: %subject<br />Recipient: %to', ['%type' => $mail->getKey(), '%to' => $message['to'], '%subject' => $message['subject']]);
+          $this->logger->error('Outgoing email failed. Message type: %type<br />Subject: %subject<br />Recipient: %to', [
+            '%type' => $mail->getKey(),
+            '%to' => $message['to'],
+            '%subject' => $message['subject'],
+          ]);
         }
       }
 
@@ -336,8 +367,8 @@ class Mailer implements MailerInterface {
         ];
       }
       else {
-        // This error may be caused by faulty mailserver configuration or overload.
-        // Mark "pending" to keep trying.
+        // This error may be caused by faulty mailserver configuration or
+        // overload. Mark "pending" to keep trying.
         $result = [
           'status' => SpoolStorageInterface::STATUS_PENDING,
           'error' => TRUE,
@@ -363,7 +394,6 @@ class Mailer implements MailerInterface {
 
     // Send the test newsletter to the test address(es) specified in the node.
     // Build array of test email addresses.
-
     // Send newsletter to test addresses.
     // Emails are send direct, not using the spool.
     $recipients = ['anonymous' => [], 'user' => []];
@@ -385,11 +415,11 @@ class Mailer implements MailerInterface {
     }
     if (count($recipients['user'])) {
       $recipients_txt = implode(', ', $recipients['user']);
-      $this->messenger()->addMessage(t('Test newsletter sent to user %recipient.', ['%recipient' => $recipients_txt]));
+      $this->messenger()->addMessage($this->t('Test newsletter sent to user %recipient.', ['%recipient' => $recipients_txt]));
     }
     if (count($recipients['anonymous'])) {
       $recipients_txt = implode(', ', $recipients['anonymous']);
-      $this->messenger()->addMessage(t('Test newsletter sent to anonymous %recipient.', ['%recipient' => $recipients_txt]));
+      $this->messenger()->addMessage($this->t('Test newsletter sent to anonymous %recipient.', ['%recipient' => $recipients_txt]));
     }
 
     $this->accountSwitcher->switchBack();
@@ -421,11 +451,14 @@ class Mailer implements MailerInterface {
    * {@inheritdoc}
    */
   public function updateSendStatus() {
-    $counts = []; // number of pending emails in the spool
-    $sum = []; // sum of emails in the spool per tnid (translation id)
-    $send = []; // nodes with the status 'send'
+    // Number of pending emails in the spool.
+    $counts = [];
+    // Sum of emails in the spool per tnid (translation id)
+    $sum = [];
+    // Nodes with the status 'send'.
+    $send = [];
 
-    // For each pending newsletter count the number of pending emails in the spool.
+    // For each pending newsletter count pending emails in the spool.
     $query = \Drupal::entityQuery('node');
     $nids = $query
       ->condition('simplenews_issue.status', SIMPLENEWS_STATUS_SEND_PENDING)
@@ -436,10 +469,11 @@ class Mailer implements MailerInterface {
         $counts[$node->simplenews_issue->target_id][$nid] = $this->spoolStorage->countMails(['entity_id' => $nid, 'entity_type' => 'node']);
       }
     }
-    // Determine which nodes are send per translation group and per individual node.
+    // Determine which nodes are sent per translation group and individual node.
     foreach ($counts as $newsletter_id => $node_count) {
-      // The sum of emails per tnid is the combined status result for the group of translated nodes.
-      // Untranslated nodes have tnid == 0 which will be ignored later.
+      // The sum of emails per tnid is the combined status result for the group
+      // of translated nodes. Untranslated nodes have tnid == 0 which will be
+      // ignored later.
       $sum[$newsletter_id] = array_sum($node_count);
       foreach ($node_count as $nid => $count) {
         // Translated nodes (tnid != 0)
@@ -453,7 +487,7 @@ class Mailer implements MailerInterface {
       }
     }
 
-    // Update overall newsletter status
+    // Update overall newsletter status.
     if (!empty($send)) {
       foreach ($send as $nid) {
         $node = Node::load($nid);
@@ -471,7 +505,7 @@ class Mailer implements MailerInterface {
     $name = $this->config->get('newsletter.from_name');
 
     // Windows based PHP systems don't accept formatted email addresses.
-    $formatted_address = (mb_substr(PHP_OS, 0, 3) == 'WIN') ? $address : '"'. addslashes(Unicode::mimeHeaderEncode($name)) .'" <'. $address .'>';
+    $formatted_address = (mb_substr(PHP_OS, 0, 3) == 'WIN') ? $address : '"' . addslashes(Unicode::mimeHeaderEncode($name)) . '" <' . $address . '>';
 
     return [
       'address' => $address,
@@ -489,13 +523,13 @@ class Mailer implements MailerInterface {
     }
 
     $usage = getrusage();
-    $this->startTime = (float)($usage['ru_stime.tv_sec'] . '.' . $usage['ru_stime.tv_usec']) + (float)($usage['ru_utime.tv_sec'] . '.' . $usage['ru_utime.tv_usec']);
+    $this->startTime = (float) ($usage['ru_stime.tv_sec'] . '.' . $usage['ru_stime.tv_usec']) + (float) ($usage['ru_utime.tv_sec'] . '.' . $usage['ru_utime.tv_usec']);
   }
 
   /**
    * Returns the current execution time.
    *
-   * @return float
+   * @return float|null
    *   The elapsed PHP execution time since the last start.
    *
    * @see self::startTime()
@@ -503,11 +537,11 @@ class Mailer implements MailerInterface {
   protected function getCurrentExecutionTime() {
     // Windows systems don't implement getrusage(). There is no alternative.
     if (!function_exists('getrusage')) {
-      return;
+      return NULL;
     }
 
     $usage = getrusage();
-    $now = (float)($usage['ru_stime.tv_sec'] . '.' . $usage['ru_stime.tv_usec']) + (float)($usage['ru_utime.tv_sec'] . '.' . $usage['ru_utime.tv_usec']);
+    $now = (float) ($usage['ru_stime.tv_sec'] . '.' . $usage['ru_stime.tv_usec']) + (float) ($usage['ru_utime.tv_sec'] . '.' . $usage['ru_utime.tv_usec']);
 
     return $now - $this->startTime;
   }

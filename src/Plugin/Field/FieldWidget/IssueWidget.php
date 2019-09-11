@@ -43,9 +43,19 @@ class IssueWidget extends OptionsSelectWidget implements ContainerFactoryPluginI
   /**
    * Constructs an IssueWidget.
    *
+   * @param string $plugin_id
+   *   The plugin_id for the widget.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The definition of the field to which the widget is associated.
+   * @param array $settings
+   *   The widget settings.
+   * @param array $third_party_settings
+   *   Any third party settings.
    * @param \Drupal\simplenews\Spool\SpoolStorageInterface $spool_storage
    *   The spool storage.
-   * @param \Drupal\simplenews\recipientHandler\recipientHandlerManager
+   * @param \Drupal\simplenews\recipientHandler\RecipientHandlerManager $recipient_handler_manager
    *   The recipient handler manager.
    */
   public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, SpoolStorageInterface $spool_storage, RecipientHandlerManager $recipient_handler_manager) {
@@ -101,8 +111,8 @@ class IssueWidget extends OptionsSelectWidget implements ContainerFactoryPluginI
     if ((count($options) > 1) && !$items->isEmpty()) {
       $element['handler'] += [
         '#type' => 'select',
-        '#title' => t('Recipients'),
-        '#description' => t('How recipients should be selected.'),
+        '#title' => $this->t('Recipients'),
+        '#description' => $this->t('How recipients should be selected.'),
         '#options' => $options,
         '#default_value' => $handler->getPluginId(),
         '#ajax' => [

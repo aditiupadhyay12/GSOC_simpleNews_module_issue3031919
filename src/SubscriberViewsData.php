@@ -36,7 +36,7 @@ class SubscriberViewsData extends EntityViewsData {
       'real field' => 'uid',
       'field' => [
         'title' => $this->t('Username'),
-        'help' => $this->t('Provide a simple link to the subscriber\'s user account .'),
+        'help' => $this->t("Provide a simple link to the subscriber's user account."),
         'id' => 'simplenews_user_name',
       ],
     ];
@@ -53,4 +53,5 @@ class SubscriberViewsData extends EntityViewsData {
 
     return $data;
   }
+
 }
