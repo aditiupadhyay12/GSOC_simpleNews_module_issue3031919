@@ -9,6 +9,11 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class SubscriptionsBlockForm extends SubscriptionsFormBase {
 
+  /**
+   * Form unique ID.
+   *
+   * @var string
+   */
   protected $uniqueId;
 
   /**
@@ -29,7 +34,10 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Setup unique ID.
+   *
+   * @param string $id
+   *   Subscription block unique form ID.
    */
   public function setUniqueId($id) {
     $this->uniqueId = $id;
