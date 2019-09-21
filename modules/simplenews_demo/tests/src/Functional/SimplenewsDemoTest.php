@@ -1,15 +1,15 @@
 <?php
 
-namespace Drupal\simplenews_demo\Tests;
+namespace Drupal\Tests\simplenews_demo\Functional;
 
-use Drupal\simpletest\WebTestBase;
+use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests the demo module for Simplenews.
  *
  * @group simplenews
  */
-class SimplenewsDemoTest extends WebTestBase {
+class SimplenewsDemoTest extends BrowserTestBase {
 
   /**
    * Modules to enable.
@@ -21,7 +21,7 @@ class SimplenewsDemoTest extends WebTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
     // Install bartik theme.
     \Drupal::service('theme_handler')->install(['bartik']);
@@ -38,7 +38,7 @@ class SimplenewsDemoTest extends WebTestBase {
   /**
    * Asserts the demo module has been installed successfully.
    */
-  protected function testInstalled() {
+  public function testInstalled() {
     // Check for the two subscription blocks.
     $this->assertText('Simplenews multiple subscriptions');
     $this->assertText('Stay informed - subscribe to our newsletters.');
@@ -48,11 +48,11 @@ class SimplenewsDemoTest extends WebTestBase {
     $this->drupalGet('admin/config/services/simplenews');
     $this->clickLink(t('Edit'));
     // Assert default description is present.
-    $this->assertEqual('This is an example newsletter. Change it.', (string) $this->xpath('//textarea[@id="edit-description"]')[0]);
+    $this->assertEquals('This is an example newsletter. Change it.', $this->xpath('//textarea[@id="edit-description"]')[0]->getText());
     $from_name = $this->xpath('//input[@id="edit-from-name"]')[0];
     $from_address = $this->xpath('//input[@id="edit-from-address"]')[0];
-    $this->assertEqual('Drupal', (string) $from_name['value']);
-    $this->assertEqual('simpletest@example.com', (string) $from_address['value']);
+    $this->assertEquals('Drupal', (string) $from_name->getValue());
+    $this->assertEquals('simpletest@example.com', (string) $from_address->getValue());
     // Assert demo newsletters.
     $this->drupalGet('admin/config/services/simplenews');
     $this->assertText(t('Press releases'));
