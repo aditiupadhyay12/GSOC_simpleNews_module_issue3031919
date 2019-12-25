@@ -2,12 +2,14 @@
 
 namespace Drupal\simplenews\Form;
 
+use Drupal\Component\Utility\EmailValidatorInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\Subscription\SubscriptionManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -23,13 +25,33 @@ class SubscriberMassSubscribeForm extends FormBase {
   protected $languageManager;
 
   /**
+   * The subscription manager.
+   *
+   * @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface
+   */
+  protected $subscriptionManager;
+
+  /**
+   * The email validator.
+   *
+   * @var \Drupal\Component\Utility\EmailValidatorInterface
+   */
+  protected $emailValidator;
+
+  /**
    * Constructs a new SubscriberMassSubscribeForm.
    *
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    *   The language manager.
+   * @param \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager
+   *   The subscription manager.
+   * @param \Drupal\Component\Utility\EmailValidatorInterface $email_validator
+   *   The email validator.
    */
-  public function __construct(LanguageManagerInterface $language_manager) {
+  public function __construct(LanguageManagerInterface $language_manager, SubscriptionManagerInterface $subscription_manager, EmailValidatorInterface $email_validator) {
     $this->languageManager = $language_manager;
+    $this->subscriptionManager = $subscription_manager;
+    $this->emailValidator = $email_validator;
   }
 
   /**
@@ -37,7 +59,9 @@ class SubscriberMassSubscribeForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('language_manager')
+      $container->get('language_manager'),
+      $container->get('simplenews.subscription_manager'),
+      $container->get('email.validator')
     );
   }
 
@@ -125,19 +149,17 @@ class SubscriberMassSubscribeForm extends FormBase {
       if ($email == '') {
         continue;
       }
-      if (valid_email_address($email)) {
+      if ($this->emailValidator->isValid($email)) {
         $subscriber = Subscriber::loadByMail($email);
 
-        /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
-        $subscription_manager = \Drupal::service('simplenews.subscription_manager');
-
+        /** @var \Drupal\simplenews\Entity\Newsletter $newsletter */
         foreach (Newsletter::loadMultiple($checked_newsletters) as $newsletter) {
           // If there is a valid subscriber, check if there is a subscription
           // for the current newsletter and if this subscription has the status
           // unsubscribed.
           $is_unsubscribed = $subscriber ? $subscriber->isUnsubscribed($newsletter->id()) : FALSE;
           if (!$is_unsubscribed || $form_state->getValue('resubscribe') == TRUE) {
-            $subscription_manager->subscribe($email, $newsletter->id(), FALSE, 'mass subscribe', $langcode);
+            $this->subscriptionManager->subscribe($email, $newsletter->id(), FALSE, 'mass subscribe', $langcode);
             $added[] = $email;
           }
           else {

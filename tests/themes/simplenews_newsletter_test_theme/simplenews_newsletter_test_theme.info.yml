@@ -3,7 +3,7 @@ type: theme
 base theme: stable
 description: 'Theme for testing simplenews newsletter'
 version: VERSION
-core: 8.x
+core_version_requirement: ^8.8 || ^9
 regions:
   sidebar_first: 'Left sidebar'
   sidebar_second: 'Right sidebar'

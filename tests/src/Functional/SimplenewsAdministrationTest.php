@@ -249,7 +249,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $edit = array('block' => FALSE);
     $this->drupalPostForm(NULL, $edit, t('Save'));
 
-    \Drupal::entityManager()->getStorage('simplenews_newsletter')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_newsletter')->resetCache();
     $updated_newsletter = Newsletter::load($edit_newsletter->newsletter_id);
     $this->assertEqual(0, $updated_newsletter->block, t('Block for newsletter disabled'));
 
@@ -262,7 +262,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalPostForm(NULL, array(), t('Delete'));
 
     // Verify that the newsletter has been deleted.
-    \Drupal::entityManager()->getStorage('simplenews_newsletter')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('simplenews_newsletter')->resetCache();
     $this->assertFalse(Newsletter::load($edit_newsletter->newsletter_id));
     $this->assertFalse(db_query('SELECT newsletter_id FROM {simplenews_newsletter} WHERE newsletter_id = :newsletter_id', array(':newsletter_id' => $edit_newsletter->newsletter_id))->fetchField());*/
     // @codingStandardsIgnoreEnd

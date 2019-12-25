@@ -27,6 +27,11 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
   public static $modules = ['simplenews', 'simplenews_test', 'block'];
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'classy';
+
+  /**
    * The Simplenews settings config object.
    *
    * @var \Drupal\Core\Config\Config
@@ -162,11 +167,11 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
       'entity_type' => $entity_type,
       'bundle' => $bundle,
     ])->save();
-    entity_get_form_display($entity_type, $bundle, 'default')
+    \Drupal::service('entity_display.repository')->getFormDisplay($entity_type, $bundle)
       ->setComponent($field_name, [
         'type' => 'string_textfield',
       ])->save();
-    entity_get_display($entity_type, $bundle, 'default')
+    \Drupal::service('entity_display.repository')->getViewDisplay($entity_type, $bundle)
       ->setComponent($field_name, [
         'type' => 'string',
       ])->save();

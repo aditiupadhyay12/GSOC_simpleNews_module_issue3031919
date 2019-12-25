@@ -23,6 +23,6 @@ services:
     class: Drupal\simplenews\Mail\MailCacheBuild
   simplenews.migration_subscriber:
     class: Drupal\simplenews\EventSubscriber\MigrationSubscriber
-    arguments: ['@entity_field.manager']
+    arguments: ['@entity_field.manager', '@entity_display.repository']
     tags:
       - { name: event_subscriber }

@@ -52,7 +52,7 @@ function drush_simplenews_spool_count() {
     drush_print_pipe($count);
   }
   else {
-    drush_log(dt('Current simplenews mail spool count: @count', ['@count' => $count]), 'status');
+    \Drupal::logger('simplenews')->status('Current simplenews mail spool count: @count', ['@count' => $count]);
   }
 }
 
@@ -89,8 +89,8 @@ function drush_simplenews_spool_send($limit = FALSE) {
       drush_print_pipe($sent . " " . $remaining);
     }
     else {
-      drush_log(dt('Sent @count mails from the queue in @sec seconds.', ['@count' => $sent, '@sec' => $durance]), 'status');
-      drush_log(dt('Remaining simplenews mail spool count: @count', ['@count' => $remaining]), 'status');
+      \Drupal::logger('simplenews')->status('Sent @count mails from the queue in @sec seconds.', ['@count' => $sent, '@sec' => $durance]);
+      \Drupal::logger('simplenews')->status('Remaining simplenews mail spool count: @count', ['@count' => $remaining]);
     }
   }
 

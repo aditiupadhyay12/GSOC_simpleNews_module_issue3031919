@@ -32,7 +32,7 @@ function simplenews_demo_install() {
   }
 
   // Add subscriber fields to the form display.
-  entity_get_form_display('simplenews_subscriber', 'simplenews_subscriber', 'default')
+  \Drupal::service('entity_display.repository')->getFormDisplay('simplenews_subscriber', 'simplenews_subscriber')
     ->setComponent('field_first_name', [
       'type' => 'string_textfield',
       'weight' => '2',

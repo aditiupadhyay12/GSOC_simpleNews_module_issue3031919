@@ -261,7 +261,7 @@ function simplenews_form_node_type_submit(array $form, FormStateInterface $form_
     $field->save();
 
     // Set the default widget.
-    entity_get_form_display('node', $node_type->id(), 'default')
+    \Drupal::service('entity_display.repository')->getFormDisplay('node', $node_type->id())
       ->setComponent($field->getName())
       ->save();
   }

@@ -2,6 +2,7 @@
 
 namespace Drupal\simplenews\Form;
 
+use Drupal\Component\Utility\EmailValidatorInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -38,6 +39,13 @@ class NodeTabForm extends FormBase {
   protected $mailer;
 
   /**
+   * The email validator.
+   *
+   * @var \Drupal\Component\Utility\EmailValidatorInterface
+   */
+  protected $emailValidator;
+
+  /**
    * Constructs a new NodeTabForm.
    *
    * @param \Drupal\simplenews\Spool\SpoolStorageInterface $spool_storage
@@ -46,11 +54,14 @@ class NodeTabForm extends FormBase {
    *   The currently authenticated user.
    * @param \Drupal\simplenews\Mail\MailerInterface $simplenews_mailer
    *   The simplenews mailer service.
+   * @param \Drupal\Component\Utility\EmailValidatorInterface $email_validator
+   *   The email validator.
    */
-  public function __construct(SpoolStorageInterface $spool_storage, AccountInterface $current_user, MailerInterface $simplenews_mailer) {
+  public function __construct(SpoolStorageInterface $spool_storage, AccountInterface $current_user, MailerInterface $simplenews_mailer, EmailValidatorInterface $email_validator) {
     $this->spoolStorage = $spool_storage;
     $this->currentUser = $current_user;
     $this->mailer = $simplenews_mailer;
+    $this->emailValidator = $email_validator;
   }
 
   /**
@@ -60,7 +71,8 @@ class NodeTabForm extends FormBase {
     return new static(
       $container->get('simplenews.spool_storage'),
       $container->get('current_user'),
-      $container->get('simplenews.mailer')
+      $container->get('simplenews.mailer'),
+      $container->get('email.validator')
     );
   }
 
@@ -163,6 +175,11 @@ class NodeTabForm extends FormBase {
 
   /**
    * Validates the test address.
+   *
+   * @param array $form
+   *   An associative array containing the structure of the form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state.
    */
   public function validateTestAddress(array $form, FormStateInterface $form_state) {
     $test_address = $form_state->getValue('test_address');
@@ -171,7 +188,7 @@ class NodeTabForm extends FormBase {
       $mails = explode(',', $test_address);
       foreach ($mails as $mail) {
         $mail = trim($mail);
-        if (!valid_email_address($mail)) {
+        if (!$this->emailValidator->isValid($mail)) {
           $form_state->setErrorByName('test_address', $this->t('Invalid email address "%mail".', ['%mail' => $mail]));
         }
       }

@@ -22,7 +22,10 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
 
     // We install the demo module to get the recipient handlers. It creates
     // users and sends some mails so clear those first.
-    user_delete_multiple(\Drupal::entityQuery('user')->condition('uid', 0, '>')->execute());
+    $ids = \Drupal::entityQuery('user')->condition('uid', 0, '>')->execute();
+    $storage = \Drupal::entityTypeManager()->getStorage('user');
+    $entities = $storage->loadMultiple($ids);
+    $storage->delete($entities);
     simplenews_cron();
     $this->container->get('state')->set('system.test_mail_collector', []);
 

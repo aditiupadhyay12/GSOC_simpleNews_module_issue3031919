@@ -2,14 +2,54 @@
 
 namespace Drupal\simplenews\Form;
 
+use Drupal\Component\Utility\EmailValidatorInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\simplenews\Subscription\SubscriptionManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Do a mass subscription for a list of email addresses.
  */
 class SubscriberMassUnsubscribeForm extends FormBase {
+
+  /**
+   * The subscription manager.
+   *
+   * @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface
+   */
+  protected $subscriptionManager;
+
+  /**
+   * The email validator.
+   *
+   * @var \Drupal\Component\Utility\EmailValidatorInterface
+   */
+  protected $emailValidator;
+
+  /**
+   * Constructs a new SubscriberMassUnsubscribeForm.
+   *
+   * @param \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager
+   *   The subscription manager.
+   * @param \Drupal\Component\Utility\EmailValidatorInterface $email_validator
+   *   The email validator.
+   */
+  public function __construct(SubscriptionManagerInterface $subscription_manager, EmailValidatorInterface $email_validator) {
+    $this->subscriptionManager = $subscription_manager;
+    $this->emailValidator = $email_validator;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('simplenews.subscription_manager'),
+      $container->get('email.validator')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -56,14 +96,12 @@ class SubscriberMassUnsubscribeForm extends FormBase {
     $invalid = [];
     $checked_lists = array_keys(array_filter($form_state->getValue('newsletters')));
 
-    /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
-    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
     $emails = preg_split("/[\s,]+/", $form_state->getValue('emails'));
     foreach ($emails as $email) {
       $email = trim($email);
-      if (valid_email_address($email)) {
+      if ($this->emailValidator->isValid($email)) {
         foreach ($checked_lists as $newsletter_id) {
-          $subscription_manager->unsubscribe($email, $newsletter_id, FALSE, 'mass unsubscribe');
+          $this->subscriptionManager->unsubscribe($email, $newsletter_id, FALSE, 'mass unsubscribe');
           $removed[] = $email;
         }
       }

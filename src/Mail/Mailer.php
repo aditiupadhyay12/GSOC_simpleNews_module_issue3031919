@@ -403,7 +403,7 @@ class Mailer implements MailerInterface {
         $subscriber = Subscriber::loadByMail($mail, 'create', $this->languageManager->getCurrentLanguage());
 
         if ($account = $subscriber->getUser()) {
-          $recipients['user'][] = $account->getUserName() . ' <' . $mail . '>';
+          $recipients['user'][] = $account->getDisplayName() . ' <' . $mail . '>';
         }
         else {
           $recipients['anonymous'][] = $mail;

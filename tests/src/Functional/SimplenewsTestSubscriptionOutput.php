@@ -15,7 +15,7 @@ class SimplenewsTestSubscriptionOutput extends SimplenewsTestBase {
   public function testSubscriptionVisiblity() {
 
     // Enable the extra field.
-    entity_get_display('user', 'user', 'default')
+    \Drupal::service('entity_display.repository')->getViewDisplay('user', 'user')
       ->setComponent('simplenews', [
         'label' => 'hidden',
         'type' => 'simplenews',
