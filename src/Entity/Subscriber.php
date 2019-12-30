@@ -73,14 +73,14 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
    * {@inheritdoc}
    */
   public function getStatus() {
-    return $this->get('status')->value;
+    return $this->get('status')->value == SubscriberInterface::ACTIVE;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setStatus($status) {
-    $this->set('status', $status);
+    $this->set('status', $status ? SubscriberInterface::ACTIVE : SubscriberInterface::INACTIVE);
   }
 
   /**

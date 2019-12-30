@@ -8,7 +8,6 @@ use Drupal\node\Entity\Node;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\views\Entity\View;
-use Drupal\simplenews\SubscriberInterface;
 
 /**
  * Managing of newsletter categories and content types.
@@ -795,7 +794,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       $subscribers[] = Subscriber::create(['mail' => $this->randomEmail()]);
     }
     foreach ($subscribers as $subscriber) {
-      $subscriber->setStatus(SubscriberInterface::ACTIVE);
+      $subscriber->setStatus(TRUE);
     }
 
     // Subscribe to the default newsletter and set subscriber status.
@@ -884,7 +883,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       $subscribers[] = Subscriber::create(['mail' => $this->randomEmail()]);
     }
     foreach ($subscribers as $subscriber) {
-      $subscriber->setStatus(SubscriberInterface::ACTIVE);
+      $subscriber->setStatus(TRUE);
     }
 
     // Subscribe to the default newsletter and set subscriber status.
@@ -1069,7 +1068,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $user = $this->drupalCreateUser();
     $subscriber = Subscriber::create(['mail' => $user->getEmail()]);
     $subscriber->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
-    $subscriber->setStatus(SubscriberInterface::ACTIVE);
+    $subscriber->setStatus(TRUE);
     $subscriber->save();
 
     // Check anonymous user can't access admin page.

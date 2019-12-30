@@ -24,7 +24,6 @@ use Drupal\node\NodeInterface;
 use Drupal\node\NodeTypeInterface;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
-use Drupal\simplenews\SubscriberInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -434,10 +433,10 @@ function simplenews_user_insert(UserInterface $account) {
     // Set inactive if not created by an administrator.
     if (!\Drupal::currentUser()->hasPermission('administer users')) {
       // This user will be activated on first login (see simplenews_user_login)
-      $subscriber->setStatus(SubscriberInterface::INACTIVE);
+      $subscriber->setStatus(FALSE);
     }
     else {
-      $subscriber->setStatus(SubscriberInterface::ACTIVE);
+      $subscriber->setStatus(TRUE);
     }
     $subscriber->save();
   }
@@ -454,7 +453,7 @@ function simplenews_user_login(UserInterface $account) {
   if ($account->getLastAccessedTime() == 0) {
     $subscriber = Subscriber::loadByUid($account->id());
     if ($subscriber) {
-      $subscriber->setStatus(SubscriberInterface::ACTIVE);
+      $subscriber->setStatus(FALSE);
       $subscriber->save();
     }
   }

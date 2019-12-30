@@ -7,6 +7,7 @@
 
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\SubscriberInterface;
 
 /**
  * Simplenews builds on the following basic concepts.
@@ -88,12 +89,12 @@ function hook_simplenews_subscription_operations() {
     'activate' => [
       'label' => t('Activate'),
       'callback' => 'simplenews_subscription_activate',
-      'callback arguments' => [\Drupal\simplenews\SubscriberInterface::ACTIVE],
+      'callback arguments' => [SubscriberInterface::ACTIVE],
     ],
     'inactivate' => [
       'label' => t('Inactivate'),
       'callback' => 'simplenews_subscription_activate',
-      'callback arguments' => [\Drupal\simplenews\SubscriberInterface::INACTIVE],
+      'callback arguments' => [SubscriberInterface::INACTIVE],
     ],
     'delete' => [
       'label' => t('Delete'),
