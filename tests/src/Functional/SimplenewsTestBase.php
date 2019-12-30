@@ -109,10 +109,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     $settings['visibility']['request_path']['negate'] = TRUE;
     $settings['region'] = 'sidebar_first';
 
-    $block = $this->drupalPlaceBlock('simplenews_subscription_block', $settings);
-    $this->assertTrue($block->id());
-
-    return $block;
+    return $this->drupalPlaceBlock('simplenews_subscription_block', $settings);
   }
 
   /**
