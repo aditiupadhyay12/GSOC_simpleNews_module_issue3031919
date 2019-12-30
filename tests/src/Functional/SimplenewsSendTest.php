@@ -567,7 +567,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Verify.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
-    $this->assertFalse(Node::load($node->id()));
+    $this->assertEmpty(Node::load($node->id()));
     $spooled = \Drupal::database()->query('SELECT COUNT(*) FROM {simplenews_mail_spool} WHERE entity_id = :nid AND entity_type = :type', [':nid' => $node->id(), ':type' => 'node'])->fetchField();
     $this->assertEqual(0, $spooled, t('No mails remaining in spool.'));
   }
@@ -671,7 +671,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Check if the correct theme was used in mails.
     $this->assertTrue(strpos($mails[0]['body'], 'Simplenews test theme') != FALSE);
-    $this->assertTrue(preg_match('/ID: [0-9]/', $mails[0]['body']), 'Mail contains the subscriber ID');
+    $this->assertEqual(1, preg_match('/ID: [0-9]/', $mails[0]['body']), 'Mail contains the subscriber ID');
   }
 
   /**
