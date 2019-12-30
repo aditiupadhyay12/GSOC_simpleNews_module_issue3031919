@@ -420,7 +420,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $subscriber = Subscriber::loadByMail($mail);
     $account = user_load_by_mail($mail);
     $this->assertEqual($subscriber->getUserId(), $account->id());
-    $this->assertEqual($account->getUsername(), $edit['name']);
+    $this->assertEqual($account->getDisplayName(), $edit['name']);
 
     $this->drupalLogout();
 

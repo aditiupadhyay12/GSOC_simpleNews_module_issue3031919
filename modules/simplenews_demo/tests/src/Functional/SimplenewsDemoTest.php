@@ -29,7 +29,7 @@ class SimplenewsDemoTest extends BrowserTestBase {
   protected function setUp() {
     parent::setUp();
     // Install bartik theme.
-    \Drupal::service('theme_handler')->install(['bartik']);
+    \Drupal::service('theme_installer')->install(['bartik']);
     $theme_settings = $this->config('system.theme');
     $theme_settings->set('default', 'bartik')->save();
     // Install simplenews_demo module.

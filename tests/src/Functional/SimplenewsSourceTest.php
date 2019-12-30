@@ -133,7 +133,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
     ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     // Add node to spool.
@@ -158,11 +158,11 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       // Make sure the body is only attached once.
       $this->assertEqual(1, preg_match_all('/Mail token/', $mail['body'], $matches));
 
-      $this->assertTrue(strpos($mail['body'], (string) t('Unsubscribe from this newsletter')));
+      $this->assertTrue(strpos($mail['body'], (string) t('Unsubscribe from this newsletter')) !== FALSE);
       // Make sure the mail has the correct unsubscribe hash.
       $hash = simplenews_generate_hash($mail['to'], 'remove');
-      $this->assertTrue(strpos($mail['body'], $hash), 'Correct hash is used');
-      $this->assertTrue(strpos($mail['headers']['List-Unsubscribe'], $hash), 'Correct hash is used in header');
+      $this->assertTrue(strpos($mail['body'], $hash) !== FALSE, 'Correct hash is used');
+      $this->assertTrue(strpos($mail['headers']['List-Unsubscribe'], $hash) !== FALSE, 'Correct hash is used in header');
     }
 
     // Report time. @todo: Find a way to actually do some assertions here.
@@ -203,7 +203,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
     ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     // Add node to spool.
@@ -252,7 +252,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
 
       // @todo: Improve this check, there are currently two spaces, not sure
       // where they are coming from.
-      $this->assertTrue(strpos($mail['body'], 'class="newsletter-footer"'));
+      $this->assertTrue(strpos($mail['body'], 'class="newsletter-footer"') !== FALSE);
 
       // Verify receipt headers.
       $this->assertEqual($mail['headers']['Disposition-Notification-To'], $edit_newsletter['from_address']);
@@ -282,7 +282,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
     ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     // Add node to spool.
@@ -324,7 +324,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
     ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     // Add node to spool.
@@ -363,7 +363,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
     ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     // Add node to spool.
@@ -399,7 +399,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
     ];
     $this->drupalPostForm('node/add/simplenews_issue', $edit, ('Save'));
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     // Add node to spool.

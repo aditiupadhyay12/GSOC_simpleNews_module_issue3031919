@@ -131,7 +131,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       'body[0][value]' => 'Link to node: [node:url]',
     ];
     $this->drupalPostForm('node/add/simplenews_issue', $english, ('Save'));
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     $this->clickLink(t('Translate'));

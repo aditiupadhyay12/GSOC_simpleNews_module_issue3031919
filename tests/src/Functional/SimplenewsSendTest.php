@@ -124,7 +124,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
     ];
     $this->drupalPostForm(NULL, $edit, ('Save'));
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     $this->clickLink(t('Newsletter'));
@@ -178,7 +178,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
         'status[value]' => $i != 2,
       ];
       $this->drupalPostForm(NULL, $edit, ('Save'));
-      $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+      $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
       $nodes[] = Node::load($matches[1]);
 
       // Verify state.
@@ -204,7 +204,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
     ];
     $this->drupalPostForm(NULL, $edit, ('Save'));
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     $this->clickLink(t('Newsletter'));
@@ -287,7 +287,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Then save.
     $this->drupalPostForm(NULL, [], t('Save'));
 
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     $this->clickLink(t('Newsletter'));
@@ -361,7 +361,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'status[value]' => FALSE,
     ];
     $this->drupalPostForm(NULL, $edit, ('Save'));
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     $this->clickLink(t('Newsletter'));
@@ -432,7 +432,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => $first_newsletter_id,
     ];
     $this->drupalPostForm(NULL, $edit, ('Save'));
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created.');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created.');
 
     // Verify newsletter.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
@@ -498,7 +498,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
     ];
     $this->drupalPostForm(NULL, $edit, ('Save'));
-    $this->assertTrue(preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     $this->clickLink(t('Newsletter'));
@@ -645,7 +645,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
    */
   public function testNewsletterTheme() {
     // Install and enable the test theme.
-    \Drupal::service('theme_handler')->install(['simplenews_newsletter_test_theme']);
+    \Drupal::service('theme_installer')->install(['simplenews_newsletter_test_theme']);
     \Drupal::theme()->setActiveTheme(\Drupal::service('theme.initialization')->initTheme('simplenews_newsletter_test_theme'));
 
     $node = Node::create([

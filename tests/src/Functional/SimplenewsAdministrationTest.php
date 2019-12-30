@@ -446,7 +446,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
         $this->assertTrue(strpos($exported_mails, $mail) !== FALSE, t('Mail address exported correctly.'));
       }
       else {
-        $this->assertFALSE(strpos($exported_mails, $mail) !== FALSE, t('Unsubscribed mail address not exported.'));
+        $this->assertFalse(strpos($exported_mails, $mail), t('Unsubscribed mail address not exported.'));
       }
     }
 
@@ -622,7 +622,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->clickLink(t('Edit'), 1);
 
     // Get the subscriber id from the path.
-    $this->assertTrue(preg_match('|admin/people/simplenews/edit/(\d+)\?destination|', $this->getUrl(), $matches), 'Subscriber found');
+    $this->assertEqual(1, preg_match('|admin/people/simplenews/edit/(\d+)\?destination|', $this->getUrl(), $matches), 'Subscriber found');
     $subscriber = Subscriber::load($matches[1]);
 
     $this->assertTitle('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
@@ -826,7 +826,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertEqual('simplenews_test', $mails[0]['id']);
     $this->assertEqual($admin_user->getEmail(), $mails[0]['to']);
     $this->assertEqual(t('[Default newsletter] @title', ['@title' => $node->getTitle()]), $mails[0]['subject']);
-    $this->assertTrue(strpos($mails[0]['body'], 'User ID: ' . $admin_user->id()));
+    $this->assertTrue(strpos($mails[0]['body'], 'User ID: ' . $admin_user->id()) !== FALSE);
 
     // Update the content type, remove the simpletest checkbox.
     $edit = [
