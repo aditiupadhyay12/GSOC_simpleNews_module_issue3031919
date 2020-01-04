@@ -200,3 +200,31 @@ function simplenews_update_8203() {
     $config_factory->getEditable($config)->delete();
   }
 }
+
+/**
+ * Update all existing views using simplenews_subscriber.subscriptions.
+ */
+function simplenews_update_8204() {
+  $config_factory = \Drupal::configFactory();
+  foreach ($config_factory->listAll('views.view.') as $view_config_name) {
+    $view = $config_factory->getEditable($view_config_name);
+    $displays = $view->get('display');
+    foreach ($displays as $display_name => $display) {
+
+      if (!empty($display['display_options']['fields'])) {
+        foreach ($display['display_options']['fields'] as $field_name => $field) {
+          if (($field_name == 'subscriptions') && ($field['table'] == 'simplenews_subscriber__subscriptions')) {
+            // Update the field.
+            $key = "display.$display_name.display_options.fields.$field_name";
+            $view->clear($key);
+            $key .= '_target_id';
+            $field['id'] .= '_target_id';
+            $field['field'] .= '_target_id';
+            $view->set($key, $field);
+          }
+        }
+      }
+    }
+    $view->save(TRUE);
+  }
+}
