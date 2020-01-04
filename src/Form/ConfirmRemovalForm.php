@@ -73,7 +73,7 @@ class ConfirmRemovalForm extends ConfirmFormBase {
     \Drupal::service('simplenews.subscription_manager')->unsubscribe($form_state->getValue('mail'), $form_state->getValue('newsletter')->id(), FALSE, 'website');
 
     $config = \Drupal::config('simplenews.settings');
-    if ($path = $config->get('subscription.confirm_subscribe_page')) {
+    if ($path = $config->get('subscription.confirm_unsubscribe_page')) {
       $form_state->setRedirectUrl(Url::fromUri("internal:$path"));
     }
     else {
