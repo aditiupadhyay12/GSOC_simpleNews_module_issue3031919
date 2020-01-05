@@ -99,11 +99,11 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
       if (in_array($newsletter_id, $enable)) {
         $this->assertTrue($is_subscribed);
-        $this->assertEqual(1, count($subscription_newsletter));
+        $this->assertEquals(1, count($subscription_newsletter));
       }
       else {
         $this->assertFalse($is_subscribed);
-        $this->assertEqual(0, count($subscription_newsletter));
+        $this->assertEquals(0, count($subscription_newsletter));
       }
     }
 
@@ -112,7 +112,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $hash = simplenews_generate_hash($subscriber->getMail(), 'manage');
     $this->drupalPostForm('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash, [], t('Update'));
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $mail]));
-    $this->assertEqual(1, count($this->getMails()), t('No confirmation mails have been sent.'));
+    $this->assertEquals(1, count($this->getMails()), t('No confirmation mails have been sent.'));
 
     // Unsubscribe from two of the three enabled newsletters.
     $disable = array_rand(array_flip($enable), 2);
@@ -384,7 +384,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $subscriber = Subscriber::loadByMail($mail);
     $this->assertNotNull($subscriber, 'New subscriber entity successfully loaded.');
     $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEqual(SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED, $subscription->status, t('Subscription is unconfirmed'));
+    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED, $subscription->status, t('Subscription is unconfirmed'));
     $confirm_url = $this->extractConfirmationLink($this->getMail(0));
 
     $this->drupalGet($confirm_url);
@@ -496,7 +496,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $subscriber = Subscriber::loadByMail($mail);
     $this->assertNotEqual($subscriber, FALSE, 'New subscriber entity successfully loaded.');
     $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEqual(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
+    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
 
     // Now the same with the newsletter/subscriptions page.
     $mail = $this->randomEmail(8);
@@ -570,7 +570,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $this->assertTrue($subscriber->isSubscribed($newsletter_id));
     $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEqual(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
+    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
 
     // Attempt to fetch the page using a wrong hash but correct format.
     $hash = simplenews_generate_hash($subscriber->getMail() . 'a', 'manage');
@@ -617,7 +617,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $this->assertTrue($subscriber->isSubscribed($newsletter_id));
     $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEqual(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
+    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
   }
 
   /**
@@ -680,7 +680,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $subscriber = Subscriber::loadByMail($mail);
     $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEqual(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
+    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
 
     // Unsubscribe again.
     $edit = [
@@ -692,7 +692,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscriber = Subscriber::loadByMail($mail);
     $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEqual(SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED, $subscription->status);
+    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED, $subscription->status);
   }
 
   /**
@@ -791,7 +791,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $subscriber = Subscriber::loadByMail($subscriber_user->getEmail());
     $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEqual(SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED, $subscription->status, t('Subscription is unsubscribed'));
+    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED, $subscription->status, t('Subscription is unsubscribed'));
 
     // 5. Subscribe authenticated via account page
     // Subscribe + submit
@@ -933,7 +933,24 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $subscriber = Subscriber::loadByMail($mail);
     $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEqual(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
+    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
+
+    // Check that an unsubscribe link works without any permissions.
+    $this->drupalLogout();
+    user_role_revoke_permissions(DRUPAL_ANONYMOUS_RID, ['subscribe to newsletters']);
+
+    $node = $this->drupalCreateNode([
+      'type' => 'simplenews_issue',
+      'simplenews_issue[target_id]' => ['target_id' => $newsletter_id],
+    ]);
+    \Drupal::service('simplenews.spool_storage')->addIssue($node);
+    \Drupal::service('simplenews.mailer')->sendSpool();
+
+    $unsubscribe_url = $this->extractConfirmationLink($this->getMail(0));
+    $this->drupalGet($unsubscribe_url);
+    $this->assertText('Confirm remove subscription');
+    $this->drupalPostForm(NULL, [], t('Unsubscribe'));
+    $this->assertText('was unsubscribed from the Default newsletter mailing list.');
   }
 
   /**
