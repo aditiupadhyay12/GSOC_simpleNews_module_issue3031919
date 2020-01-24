@@ -189,16 +189,7 @@ class SpoolStorage implements SpoolStorageInterface {
         }
         $status_or = new Condition('OR');
         foreach ($value as $status) {
-          // Do not count pending entries unless they are expired.
-          if ($status == SpoolStorageInterface::STATUS_IN_PROGRESS) {
-            $status_or->condition((new Condition('AND'))
-              ->condition('status', $status)
-              ->condition('timestamp', $this->getExpirationTime(), '<')
-            );
-          }
-          else {
-            $status_or->condition('status', $status);
-          }
+          $status_or->condition('status', $status);
         }
         $query->condition($status_or);
       }

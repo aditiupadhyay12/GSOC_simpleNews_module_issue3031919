@@ -78,7 +78,9 @@ interface SpoolStorageInterface {
    * Count data in mail spool table.
    *
    * @param array $conditions
-   *   (Optional) Array of conditions which are applied to the query. Defaults.
+   *   (Optional) Array of conditions which are applied to the query. If not
+   *   set, status defaults to SpoolStorageInterface::STATUS_PENDING,
+   *   SpoolStorageInterface::STATUS_IN_PROGRESS.
    *
    * @return int
    *   Count of mail spool elements of the passed in arguments.

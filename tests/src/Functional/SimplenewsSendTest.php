@@ -93,17 +93,16 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Make sure that they have been added.
     $this->assertEqual(\Drupal::service('simplenews.spool_storage')->countMails(), 5);
 
-    // Mark them as pending, fake a currently running send process.
+    // Mark them as 'in progress', fake a currently running send process.
     $this->assertEqual(count(\Drupal::service('simplenews.spool_storage')->getMails(2)), 2);
 
-    // Those two should be excluded from the count now.
-    $this->assertEqual(\Drupal::service('simplenews.spool_storage')->countMails(), 3);
+    // Those two should be excluded if we get mails a second time.
+    $this->assertEqual(count(\Drupal::service('simplenews.spool_storage')->getMails()), 3);
 
-    // Get two additional spool entries.
-    $this->assertEqual(count(\Drupal::service('simplenews.spool_storage')->getMails(2)), 2);
-
-    // Now only one should be returned by the count.
-    $this->assertEqual(\Drupal::service('simplenews.spool_storage')->countMails(), 1);
+    // The count should still include all the mails because they are still
+    // in the spool.  This is needed for correct operation of code such as
+    // Mailer::updateSendStatus().
+    $this->assertEqual(\Drupal::service('simplenews.spool_storage')->countMails(), 5);
   }
 
   /**
