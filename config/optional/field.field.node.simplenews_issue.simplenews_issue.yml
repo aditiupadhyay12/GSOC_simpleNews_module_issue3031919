@@ -21,6 +21,7 @@ default_value:
     handler_settings: {  }
     status: 0
     sent_count: 0
+    error_count: 0
     subscribers: 0
 default_value_callback: ''
 settings:

@@ -32,9 +32,11 @@ class SendStatus extends FieldPluginBase {
           '#getsize' => TRUE,
         ];
       }
+
+      $error_count = $message['error_count'] ? ' ❌{{ error_count }}' : '';
       $output['text'] = [
         '#type' => 'inline_template',
-        '#template' => '<span title="{{ description }}">{{ sent_count }}/{{ count }}</span>',
+        '#template' => "<span title=\"{{ description }}\">{{ sent_count }}/{{ count }}$error_count</span>",
         '#context' => $message,
       ];
       return $output;

@@ -73,11 +73,11 @@ class SimplenewsDemoTest extends BrowserTestBase {
     $this->assertText('Stopped special offers');
     // @codingStandardsIgnoreLine
     //$this->assertText('Scheduled weekly content newsletter issue - Week ');
-    $this->assertRaw(t('Newsletter issue sent to 2 subscribers.'));
-    $this->assertRaw(t('Newsletter issue is pending, 0 mails sent out of 3.'));
+    $this->assertRaw(t('Newsletter issue sent to 2 subscribers, 0 errors.'));
+    $this->assertRaw(t('Newsletter issue is pending, 0 mails sent out of 3, 0 errors.'));
     // Weekly newsletter.
     // @codingStandardsIgnoreLine
-    //$this->assertRaw(t('Newsletter issue sent to 1 subscribers.'));
+    //$this->assertRaw(t('Newsletter issue sent to 1 subscribers, 0 errors.'));
     // Assert demo subscribers.
     $this->drupalGet('admin/people/simplenews');
     $this->assertText('a@example.com');

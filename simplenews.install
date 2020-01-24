@@ -6,9 +6,9 @@
  */
 
 use Drupal\Core\Database\Database;
-use Drupal\simplenews\Entity\Newsletter;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\simplenews\Entity\Newsletter;
 
 /**
  * Implements hook_schema().
@@ -44,19 +44,12 @@ function simplenews_schema() {
         'default' => '',
       ],
       'status' => [
-        'description' => 'The sent status of the email (0 = hold, 1 = pending, 2 = done).',
+        'description' => 'The sent status of the email (0 = hold, 1 = pending, 2 = done, 3 = in progress, 4 = skipped, 5 = failed).',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
         'size' => 'tiny',
-      ],
-      'error' => [
-        'description' => 'A boolean indicating whether an error occurred while sending the email.',
-        'type' => 'int',
-        'size' => 'tiny',
-        'not null' => TRUE,
-        'default' => 0,
       ],
       'timestamp' => [
         'description' => 'The time status was set or changed.',
@@ -227,4 +220,40 @@ function simplenews_update_8204() {
     }
     $view->save(TRUE);
   }
+}
+
+/**
+ * Add simplenews_issue error_count property.
+ */
+function simplenews_update_8205() {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $storage_definition = $manager->getFieldStorageDefinition('simplenews_issue', 'node');
+  $table_mapping = \Drupal::service('entity_type.manager')->getStorage('node')->getTableMapping();
+  $table_names[] = $table_mapping->getDedicatedDataTableName($storage_definition);
+  $table_names[] = $table_mapping->getDedicatedRevisionTableName($storage_definition);
+  $column_name = $table_mapping->getFieldColumnName($storage_definition, 'error_count');
+
+  $schema = Database::getConnection()->schema();
+  $new_property = [
+    'description' => 'Counter of already sent newsletters.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => FALSE,
+  ];
+
+  foreach ($table_names as $table_name) {
+    if (!$schema->fieldExists($table_name, $column_name)) {
+      $schema->addField($table_name, $column_name, $new_property);
+    }
+  }
+
+  $manager->updateFieldStorageDefinition($storage_definition);
+}
+
+/**
+ * Remove simplenews_mail_spool error field.
+ */
+function simplenews_update_8206() {
+  $schema = Database::getConnection()->schema();
+  $schema->dropField('simplenews_mail_spool', 'error');
 }

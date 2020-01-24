@@ -999,7 +999,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
         $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
       }
       else {
-        $this->assertEqual('Newsletter issue is pending, 0 mails sent out of 3.', trim($row->find('xpath', '/td[6]/img')->getAttribute('title')));
+        $this->assertEqual('Newsletter issue is pending, 0 mails sent out of 3, 0 errors.', trim($row->find('xpath', '/td[6]/img')->getAttribute('title')));
         $this->assertEqual(file_url_transform_relative(file_create_url(drupal_get_path('module', 'simplenews') . '/images/sn-cron.png')), trim($row->find('xpath', '/td[6]/img')->getAttribute('src')));
       }
     }
@@ -1040,7 +1040,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
         $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
       }
       else {
-        $this->assertEqual('Newsletter issue sent to 3 subscribers.', trim($row->find('xpath', '/td[6]/img')->getAttribute('title')));
+        $this->assertEqual('Newsletter issue sent to 3 subscribers, 0 errors.', trim($row->find('xpath', '/td[6]/img')->getAttribute('title')));
         $this->assertEqual(file_url_transform_relative(file_create_url(drupal_get_path('module', 'simplenews') . '/images/sn-sent.png')), trim($row->find('xpath', '/td[6]/img')->getAttribute('src')));
       }
     }

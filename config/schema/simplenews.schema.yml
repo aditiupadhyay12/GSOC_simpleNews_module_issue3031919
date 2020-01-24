@@ -205,6 +205,9 @@ field.value.simplenews_issue:
     sent_count:
       type: integer
       label: Sent count
+    error_count:
+      type: integer
+      label: Error count
     subscribers:
       type: integer
       label: Subscriber count

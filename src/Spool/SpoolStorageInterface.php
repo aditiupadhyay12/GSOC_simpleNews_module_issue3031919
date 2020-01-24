@@ -15,12 +15,12 @@ interface SpoolStorageInterface {
   const STATUS_HOLD = 0;
 
   /**
-   * Pending.
+   * Pending, or retrying failure.
    */
   const STATUS_PENDING = 1;
 
   /**
-   * Mail spool entry is done.
+   * Done, sent successfully.
    */
   const STATUS_DONE = 2;
 
@@ -30,9 +30,14 @@ interface SpoolStorageInterface {
   const STATUS_IN_PROGRESS = 3;
 
   /**
-   * Marks a spool entry as skipped (not sent, but done).
+   * Skipped (not sent, but done).
    */
   const STATUS_SKIPPED = 4;
+
+  /**
+   * Failed, not retrying.
+   */
+  const STATUS_FAILED = 5;
 
   /**
    * Used when sending an unlimited amount of mails from the spool.
@@ -43,9 +48,8 @@ interface SpoolStorageInterface {
    * This function allocates mails to be sent in current run.
    *
    * Drupal acquire_lock guarantees that no concurrency issue happened.
-   * If the message status is SpoolStorageInterface::STATUS_IN_PROGRESS but the
-   * maximum send time has expired, the mail id will be returned as a mail which
-   * is not allocated to another process.
+   * Messages with status SpoolStorageInterface::STATUS_IN_PROGRESS will only
+   * be returned if the maximum send time has expired.
    *
    * @param int $limit
    *   (Optional) The maximum number of mails to load from the spool. Defaults
@@ -67,12 +71,10 @@ interface SpoolStorageInterface {
    *
    * @param array $msids
    *   Array of Mail spool ids to be updated.
-   * @param array $data
-   *   Array containing email sent results, with the following keys:
-   *   - status: Any of the status constants.
-   *   - error: (optional) The error id.  Defaults to 0 (no error).
+   * @param int $status
+   *   One of the SpoolStorageInterface::STATUS_* constants.
    */
-  public function updateMails(array $msids, array $data);
+  public function updateMails(array $msids, $status);
 
   /**
    * Count data in mail spool table.
@@ -168,6 +170,7 @@ interface SpoolStorageInterface {
    *   An array containing the following elements:
    *   - count: total number of emails that will be sent or have been sent.
    *   - sent_count: number of emails sent.
+   *   - error_count: number of send errors.
    *   - description: readable description of status and email counts.
    */
   public function issueSummary(ContentEntityInterface $issue);

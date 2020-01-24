@@ -12,7 +12,7 @@ use Drupal\simplenews\SubscriberInterface;
 interface MailerInterface {
 
   /**
-   * Send mail spool immediatly if cron should not be used.
+   * Send mail spool immediately if cron should not be used.
    *
    * @param array $conditions
    *   (Optional) Array of spool conditions which are applied to the query.
@@ -51,8 +51,8 @@ interface MailerInterface {
    * @param \Drupal\simplenews\Mail\MailInterface $mail
    *   The mail object.
    *
-   * @return bool
-   *   TRUE if the email was successfully delivered; otherwise FALSE.
+   * @return int
+   *   One of the SpoolStorageInterface::STATUS_* constants.
    */
   public function sendMail(MailInterface $mail);
 

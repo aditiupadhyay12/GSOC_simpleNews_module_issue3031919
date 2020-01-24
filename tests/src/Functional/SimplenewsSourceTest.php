@@ -384,7 +384,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertEqual(0, count($this->getMails()));
 
     $spool_row = \Drupal::database()->query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
-    $this->assertEqual(SpoolStorageInterface::STATUS_DONE, $spool_row->status);
+    $this->assertEqual(SpoolStorageInterface::STATUS_SKIPPED, $spool_row->status);
   }
 
   /**
@@ -415,7 +415,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertEqual(0, count($this->getMails()));
 
     $spool_row = \Drupal::database()->query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
-    $this->assertEqual(SpoolStorageInterface::STATUS_DONE, $spool_row->status);
+    $this->assertEqual(SpoolStorageInterface::STATUS_SKIPPED, $spool_row->status);
   }
 
   /**

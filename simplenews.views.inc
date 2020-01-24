@@ -144,32 +144,13 @@ function simplenews_views_data() {
 
   $data['simplenews_mail_spool']['status'] = [
     'title' => t('Sent status'),
-    'help' => t('The sent status of the email (0 = hold, 1 = pending, 2 = done).'),
+    'help' => t('The sent status of the email (0 = hold, 1 = pending, 2 = done, 3 = in progress, 4 = skipped, 5 = failed).'),
     'field' => [
       'id' => 'numeric',
       'click sortable' => TRUE,
     ],
     'filter' => [
       'id' => 'numeric',
-      'allow empty' => TRUE,
-    ],
-    'argument' => [
-      'id' => 'numeric',
-    ],
-    'sort' => [
-      'id' => 'standard',
-    ],
-  ];
-
-  $data['simplenews_mail_spool']['error'] = [
-    'title' => t('Error'),
-    'help' => t('A boolean indicating whether an error occurred while sending the email.'),
-    'field' => [
-      'id' => 'boolean',
-      'click sortable' => TRUE,
-    ],
-    'filter' => [
-      'id' => 'boolean',
       'allow empty' => TRUE,
     ],
     'argument' => [

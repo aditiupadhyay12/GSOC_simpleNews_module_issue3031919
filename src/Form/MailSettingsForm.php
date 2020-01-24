@@ -43,7 +43,7 @@ class MailSettingsForm extends ConfigFormBase {
     $throttle = array_combine($throttle_val, $throttle_val);
     $throttle[SpoolStorageInterface::UNLIMITED] = $this->t('Unlimited');
     if (function_exists('getrusage')) {
-      $description_extra = '<br />' . $this->t('Cron execution must not exceed the PHP maximum execution time of %max seconds. You find the time spend to send emails in the <a href="/admin/reports/dblog">Recent log entries</a>.', ['%max' => ini_get('max_execution_time')]);
+      $description_extra = '<br />' . $this->t('Cron execution must not exceed the PHP maximum execution time of %max seconds. You can find the time taken to send emails in the <a href="/admin/reports/dblog">Recent log entries</a>.', ['%max' => ini_get('max_execution_time')]);
     }
     else {
       $description_extra = '<br />' . $this->t('Cron execution must not exceed the PHP maximum execution time of %max seconds.', ['%max' => ini_get('max_execution_time')]);
@@ -53,7 +53,7 @@ class MailSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Cron throttle'),
       '#options' => $throttle,
       '#default_value' => $config->get('mail.throttle'),
-      '#description' => $this->t('Sets the numbers of newsletters sent per cron run. Failure to send will also be counted.') . $description_extra,
+      '#description' => $this->t('Sets the number of newsletters processed per cron run. Failures and skipped entries count towards the total.') . $description_extra,
     ];
     $form['simplenews_mail_backend']['simplenews_spool_expire'] = [
       '#type' => 'select',
@@ -65,13 +65,13 @@ class MailSettingsForm extends ConfigFormBase {
         14 => \Drupal::translation()->formatPlural(2, '1 week', '@count weeks'),
       ],
       '#default_value' => $config->get('mail.spool_expire'),
-      '#description' => $this->t('Newsletter mails are spooled. How long must messages be retained in the spool after successful sending. Keeping the message in the spool allows mail statistics (which is not yet implemented). If cron is not used, immediate expiration is advised.'),
+      '#description' => $this->t('Controls the duration that messages are retained in the spool after processing. Keeping messages in the spool can be useful for statistics or analysing errors.'),
     ];
     $form['simplenews_mail_backend']['simplenews_debug'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Log emails'),
       '#default_value' => $config->get('mail.debug'),
-      '#description' => $this->t('When checked all outgoing simplenews emails are logged in the system log. A logged email does not guarantee that it is send or will be delivered. It only indicates that a message is sent to the PHP mail() function. No status information is available of delivery by the PHP mail() function.'),
+      '#description' => $this->t('When checked all outgoing simplenews emails are logged in the system log. A logged success does not guarantee delivery. The default PHP mail() function returns success without waiting to check if the mail can be delivered.'),
     ];
     return parent::buildForm($form, $form_state);
   }

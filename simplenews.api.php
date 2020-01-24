@@ -7,6 +7,7 @@
 
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\SubscriberInterface;
 
 /**
@@ -225,4 +226,24 @@ function hook_simplenews_source_cache_info() {
       'description' => t('This caches the rendered content to be sent for multiple recipients. It is not possible to use subscriber specific theming but tokens can be used for personalization.'),
     ],
   ];
+}
+
+/**
+ * Invoked after sending of every mail to allow altering of the result.
+ *
+ * A common use of this hook is categorise errors and distinguish a global
+ * failure from an error that is specific to a single recipient.
+ *
+ * @param int $result
+ *   One of the SpoolStorageInterface::STATUS_* constants.
+ * @param array $message
+ *   The message returned by \Drupal\Core\Mail\MailManagerInterface::mail().
+ */
+function hook_simplenews_mail_result_alter(&$result, array $message) {
+  if (specific_error()) {
+    $result = SpoolStorageInterface::STATUS_FAILED;
+  }
+  if (global_error()) {
+    throw new AbortSendingException('Mail transport error');
+  }
 }

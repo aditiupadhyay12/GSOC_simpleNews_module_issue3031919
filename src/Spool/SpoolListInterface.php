@@ -8,31 +8,32 @@ namespace Drupal\simplenews\Spool;
 interface SpoolListInterface extends \Countable {
 
   /**
-   * Returns a Simplenews source to be sent.
-   *
-   * A single source may represent any number of mail spool rows, e.g. by
-   * addressing them as BCC.
+   * Returns a Simplenews mail to be sent.
    *
    * @return \Drupal\simplenews\Mail\MailInterface
-   *   Next email to be sent.
+   *   Next mail to be sent.
    */
   public function nextMail();
 
   /**
-   * Returns the processed mail spool rows, keyed by the msid.
+   * Records the result of sending the last mail.
    *
-   * Only rows that were processed while preparing the previously returned
-   * source must be returned.
+   * @param int $result
+   *   One of the SpoolStorageInterface::STATUS_* constants.
+   */
+  public function setLastMailResult($result);
+
+  /**
+   * Returns the results of all mails that have been processed by this list.
+   *
+   * This function cancels any remaining mails in the list.
    *
    * @return array
-   *   An array of mail spool rows, keyed by the msid. Can optionally have set
-   *   the following additional properties.
-   *     - actual_nid: In case of content translation, the source node that was
-   *       used for this mail.
-   *     - error: FALSE if the prepration for this row failed. For example set
-   *       when the corresponding node failed to load.
-   *     - status: A simplenews spool status to indicate the status.
+   *   An array of mail spool rows. Each array value is a simplenews_mail_spool
+   *   database row plus the following additional properties.
+   *     - langcode: language used to send this mail.
+   *     - result: one of the SpoolStorageInterface::STATUS_* constants.
    */
-  public function getProcessed();
+  public function getResults();
 
 }

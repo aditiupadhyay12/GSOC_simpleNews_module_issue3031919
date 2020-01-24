@@ -20,6 +20,7 @@ use Drupal\Core\TypedData\DataDefinition;
  * - status: A flag indicating whether the issue is published (3), ready (2),
  *   pending (1) or not (0).
  * - sent_count: Counter of already sent newsletters.
+ * - error_count: Counter of send errors.
  * - subscribers: Counter of subscribers.
  *
  * @FieldType(
@@ -52,6 +53,10 @@ class IssueItem extends EntityReferenceItem {
 
     $properties['sent_count'] = DataDefinition::create('integer')
       ->setLabel(t('Sent count'))
+      ->setSetting('unsigned', TRUE);
+
+    $properties['error_count'] = DataDefinition::create('integer')
+      ->setLabel(t('Error count'))
       ->setSetting('unsigned', TRUE);
 
     $properties['subscribers'] = DataDefinition::create('integer')
@@ -92,6 +97,12 @@ class IssueItem extends EntityReferenceItem {
       'unsigned' => TRUE,
       'not null' => FALSE,
     ];
+    $schema['columns']['error_count'] = [
+      'description' => 'Counter of already sent newsletters.',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => FALSE,
+    ];
     $schema['columns']['subscribers'] = [
       'description' => 'Counter of subscribers.',
       'type' => 'int',
@@ -116,6 +127,9 @@ class IssueItem extends EntityReferenceItem {
       }
       if (!isset($values['sent_count']) || $values['sent_count'] == NULL) {
         $values['sent_count'] = 0;
+      }
+      if (!isset($values['error_count']) || $values['error_count'] == NULL) {
+        $values['error_count'] = 0;
       }
       if (!isset($values['subscribers']) || $values['subscribers'] == NULL) {
         $values['subscribers'] = 0;

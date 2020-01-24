@@ -80,7 +80,7 @@ class SpoolStorage implements SpoolStorageInterface {
    * {@inheritdoc}
    */
   public function getMails($limit = self::UNLIMITED, array $conditions = []) {
-    $messages = [];
+    $spool_rows = [];
 
     // Continue to support 'nid' as a condition.
     if (!empty($conditions['nid'])) {
@@ -123,22 +123,19 @@ class SpoolStorage implements SpoolStorageInterface {
     }
 
     /* BEGIN CRITICAL SECTION */
-    // The semaphore ensures that multiple processes get different message ID's,
-    // so that duplicate messages are not sent.
+    // The semaphore ensures that multiple processes get different mail spool
+    // rows so that duplicate messages are not sent.
     if ($this->lock->acquire('simplenews_acquire_mail')) {
-      // Get message id's
-      // Allocate messages.
+      // Fetch mail spool rows.
       if ($limit > 0) {
         $query->range(0, $limit);
       }
-      foreach ($query->execute() as $message) {
-        $messages[$message->msid] = $message;
+      foreach ($query->execute() as $spool_row) {
+        $spool_rows[$spool_row->msid] = $spool_row;
       }
-      if (count($messages) > 0) {
-        // Set the state and the timestamp of the messages.
-        $this->updateMails(
-          array_keys($messages), ['status' => SpoolStorageInterface::STATUS_IN_PROGRESS]
-        );
+      if (count($spool_rows) > 0) {
+        // Set the state and the timestamp of the mails.
+        $this->updateMails(array_keys($spool_rows), SpoolStorageInterface::STATUS_IN_PROGRESS);
       }
 
       $this->lock->release('simplenews_acquire_mail');
@@ -146,18 +143,17 @@ class SpoolStorage implements SpoolStorageInterface {
 
     /* END CRITICAL SECTION */
 
-    return new SpoolList($messages);
+    return $this->createSpoolList($spool_rows);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function updateMails(array $msids, array $data) {
+  public function updateMails(array $msids, $status) {
     $this->connection->update('simplenews_mail_spool')
       ->condition('msid', (array) $msids, 'IN')
       ->fields([
-        'status' => $data['status'],
-        'error' => isset($data['error']) ? (int) $data['error'] : 0,
+        'status' => $status,
         'timestamp' => REQUEST_TIME,
       ])
       ->execute();
@@ -247,6 +243,7 @@ class SpoolStorage implements SpoolStorageInterface {
     $recipient_handler = $this->getRecipientHandler($issue);
     $issue->simplenews_issue->subscribers = $recipient_handler->addToSpool();
     $issue->simplenews_issue->sent_count = 0;
+    $issue->simplenews_issue->error_count = 0;
     $issue->simplenews_issue->status = SIMPLENEWS_STATUS_SEND_PENDING;
 
     // Save except if already saving.
@@ -335,25 +332,23 @@ class SpoolStorage implements SpoolStorageInterface {
    */
   public function issueSummary(ContentEntityInterface $issue) {
     $status = $issue->simplenews_issue->status;
-    $summary['sent_count'] = (int) $issue->simplenews_issue->sent_count;
-    $summary['count'] = (int) $issue->simplenews_issue->subscribers;
+    $params['@sent'] = $summary['sent_count'] = (int) $issue->simplenews_issue->sent_count;
+    $params['@error'] = $summary['error_count'] = (int) $issue->simplenews_issue->error_count;
+    $params['@count'] = $summary['count'] = (int) $issue->simplenews_issue->subscribers;
 
     if ($status == SIMPLENEWS_STATUS_SEND_READY) {
-      $summary['description'] = $this->t('Newsletter issue sent to @count subscribers.', ['@count' => $summary['count']]);
+      $summary['description'] = $this->t('Newsletter issue sent to @sent subscribers, @error errors.', $params);
     }
     elseif ($status == SIMPLENEWS_STATUS_SEND_PENDING) {
-      $summary['description'] = $this->t('Newsletter issue is pending, @sent mails sent out of @count.', [
-        '@sent' => $summary['sent_count'],
-        '@count' => $summary['count'],
-      ]);
+      $summary['description'] = $this->t('Newsletter issue is pending, @sent mails sent out of @count, @error errors.', $params);
     }
     else {
-      $summary['count'] = $this->issueCountRecipients($issue);
+      $params['@count'] = $summary['count'] = $this->issueCountRecipients($issue);
       if ($status == SIMPLENEWS_STATUS_SEND_NOT) {
-        $summary['description'] = $this->t('Newsletter issue will be sent to @count subscribers.', ['@count' => $summary['count']]);
+        $summary['description'] = $this->t('Newsletter issue will be sent to @count subscribers.', $params);
       }
       else {
-        $summary['description'] = $this->t('Newsletter issue will be sent to @count subscribers on publish.', ['@count' => $summary['count']]);
+        $summary['description'] = $this->t('Newsletter issue will be sent to @count subscribers on publish.', $params);
       }
     }
 
@@ -378,6 +373,21 @@ class SpoolStorage implements SpoolStorageInterface {
     $timeout = $this->config->get('mail.spool_progress_expiration');
     $expiration_time = REQUEST_TIME - $timeout;
     return $expiration_time;
+  }
+
+  /**
+   * Creates an instance of SpoolListInterface.
+   *
+   * Derived classes can override this to use a different implementation.
+   *
+   * @param array $spool_rows
+   *   List of mail spool rows.
+   *
+   * @return \Drupal\simplenews\SpoolSpoolListInterface
+   *   The spool list.
+   */
+  protected function createSpoolList(array $spool_rows) {
+    return new SpoolList($spool_rows, $this);
   }
 
 }

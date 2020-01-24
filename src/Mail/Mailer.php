@@ -6,6 +6,7 @@ use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
 use Psr\Log\LoggerInterface;
 use Drupal\Core\Mail\MailManagerInterface;
@@ -16,6 +17,7 @@ use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\AbortSendingException;
 use Drupal\simplenews\SkipMailException;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\SubscriberInterface;
@@ -41,6 +43,14 @@ class Mailer implements MailerInterface {
    * At 80% of the PHP max execution time, sending is interrupted.
    */
   const SEND_TIME_LIMIT = 0.8;
+
+  /**
+   * Array indicating which status values to track results for.
+   */
+  const TRACK_RESULTS = [
+    SpoolStorageInterface::STATUS_DONE => TRUE,
+    SpoolStorageInterface::STATUS_FAILED =>TRUE
+  ];
 
   /**
    * The simplenews spool storage.
@@ -120,6 +130,13 @@ class Mailer implements MailerInterface {
   protected $mailCache;
 
   /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
    * Constructs a Mailer.
    *
    * @param \Drupal\simplenews\Spool\SpoolStorageInterface $spool_storage
@@ -142,8 +159,10 @@ class Mailer implements MailerInterface {
    *   The language manager.
    * @param \Drupal\simplenews\Mail\MailCacheInterface $mail_cache
    *   The simplenews mail cache.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler.
    */
-  public function __construct(SpoolStorageInterface $spool_storage, MailManagerInterface $mail_manager, StateInterface $state, LoggerInterface $logger, AccountSwitcherInterface $account_switcher, LockBackendInterface $lock, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, LanguageManagerInterface $language_manager, MailCacheInterface $mail_cache) {
+  public function __construct(SpoolStorageInterface $spool_storage, MailManagerInterface $mail_manager, StateInterface $state, LoggerInterface $logger, AccountSwitcherInterface $account_switcher, LockBackendInterface $lock, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, LanguageManagerInterface $language_manager, MailCacheInterface $mail_cache, ModuleHandlerInterface $module_handler) {
     $this->spoolStorage = $spool_storage;
     $this->mailManager = $mail_manager;
     $this->state = $state;
@@ -154,6 +173,7 @@ class Mailer implements MailerInterface {
     $this->entityTypeManager = $entity_type_manager;
     $this->languageManager = $language_manager;
     $this->mailCache = $mail_cache;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -216,84 +236,55 @@ class Mailer implements MailerInterface {
 
       $this->startTimer();
 
-      while ($mail = $spool->nextMail()) {
-        $mail->setKey('node');
-        $result = $this->sendMail($mail);
+      try {
+        while ($mail = $spool->nextMail()) {
+          $mail->setKey('node');
+          $result = $this->sendMail($mail);
+          $spool->setLastMailResult($result);
 
-        // Update spool status.
-        // This is not optimal for performance but prevents duplicate emails
-        // in case of PHP execution time overrun.
-        foreach ($spool->getProcessed() as $msid => $row) {
-          $row_result = isset($row->result) ? $row->result : $result;
-          $this->spoolStorage->updateMails([$msid], $row_result);
-          if ($row_result['status'] == SpoolStorageInterface::STATUS_DONE) {
-            $count_success++;
-            if (!isset($sent[$row->entity_type][$row->entity_id][$row->langcode])) {
-              $sent[$row->entity_type][$row->entity_id][$row->langcode] = 1;
+          // Check every n emails if we exceed the limit.
+          // When PHP maximum execution time is almost elapsed we interrupt
+          // sending. The remainder will be sent during the next cron run.
+          if (++$check_counter >= static::SEND_CHECK_INTERVAL && ini_get('max_execution_time') > 0) {
+            $check_counter = 0;
+            // Stop sending if a percentage of max execution time was exceeded.
+            $elapsed = $this->getCurrentExecutionTime();
+            if ($elapsed > static::SEND_TIME_LIMIT * ini_get('max_execution_time')) {
+              $this->logger->warning('Sending interrupted: PHP maximum execution time almost exceeded. Remaining newsletters will be sent during the next cron run. If this warning occurs regularly you should reduce the !cron_throttle_setting.', [
+                '!cron_throttle_setting' => Link::fromTextAndUrl($this->t('Cron throttle setting'), Url::fromRoute('simplenews.settings_mail')),
+              ]);
+              break;
             }
-            else {
-              $sent[$row->entity_type][$row->entity_id][$row->langcode]++;
-            }
-          }
-          elseif ($row_result['status'] == SpoolStorageInterface::STATUS_SKIPPED) {
-            $count_skipped++;
-          }
-          if ($row_result['error']) {
-            $count_fail++;
-          }
-        }
-
-        // Check every n emails if we exceed the limit.
-        // When PHP maximum execution time is almost elapsed we interrupt
-        // sending. The remainder will be sent during the next cron run.
-        if (++$check_counter >= static::SEND_CHECK_INTERVAL && ini_get('max_execution_time') > 0) {
-          $check_counter = 0;
-          // Stop sending if a percentage of max execution time was exceeded.
-          $elapsed = $this->getCurrentExecutionTime();
-          if ($elapsed > static::SEND_TIME_LIMIT * ini_get('max_execution_time')) {
-            $this->logger->warning('Sending interrupted: PHP maximum execution time almost exceeded. Remaining newsletters will be sent during the next cron run. If this warning occurs regularly you should reduce the !cron_throttle_setting.', [
-              '!cron_throttle_setting' => Link::fromTextAndUrl($this->t('Cron throttle setting'), Url::fromRoute('simplenews.settings_mail')),
-            ]);
-            break;
           }
         }
       }
+      catch (AbortSendingException $e) {
+        $this->logger->error($e->getMessage());
+      }
 
-      // It is possible that all or at the end some results failed to get
-      // prepared, report them separately.
-      foreach ($spool->getProcessed() as $msid => $row) {
-        $row_result = $row->result;
-        $this->spoolStorage->updateMails([$msid], $row_result);
-        if ($row_result['status'] == SpoolStorageInterface::STATUS_DONE) {
-          $count_success++;
-          if (isset($row->langcode)) {
-            if (!isset($sent[$row->entity_type][$row->entity_id][$row->langcode])) {
-              $sent[$row->entity_type][$row->entity_id][$row->langcode] = 1;
-            }
-            else {
-              $sent[$row->entity_type][$row->entity_id][$row->langcode]++;
-            }
-          }
-        }
-        elseif ($row_result['status'] == SpoolStorageInterface::STATUS_SKIPPED) {
-          $count_skipped++;
-        }
-        if ($row_result['error']) {
-          $count_fail++;
+      // Calculate counts.
+      $results_table = [];
+      $freq = array_fill(0, SpoolStorageInterface::STATUS_FAILED + 1, 0);
+      foreach ($spool->getResults() as $row) {
+        $freq[$row->result]++;
+        if (isset(static::TRACK_RESULTS[$row->result])) {
+          $item = &$results_table[$row->entity_type][$row->entity_id][$row->langcode][$row->result];
+          $item = ($item ?? 0) + 1;;
         }
       }
 
       // Update subscriber count.
       if ($this->lock->acquire('simplenews_update_sent_count')) {
-        foreach ($sent as $entity_type => $ids) {
+        foreach ($results_table as $entity_type => $ids) {
+          $storage = $this->entityTypeManager->getStorage($entity_type);
+
           foreach ($ids as $entity_id => $languages) {
-            $storage = $this->entityTypeManager
-              ->getStorage($entity_type);
             $storage->resetCache([$entity_id]);
             $entity = $storage->load($entity_id);
-            foreach ($languages as $langcode => $count) {
+            foreach ($languages as $langcode => $counts) {
               $translation = $entity->getTranslation($langcode);
-              $translation->simplenews_issue->sent_count = $translation->simplenews_issue->sent_count + $count;
+              $translation->simplenews_issue->sent_count += $counts[SpoolStorageInterface::STATUS_DONE] ?? 0;
+              $translation->simplenews_issue->error_count += $counts[SpoolStorageInterface::STATUS_FAILED] ?? 0;
             }
             $entity->save();
           }
@@ -303,27 +294,26 @@ class Mailer implements MailerInterface {
 
       // Report sent result and elapsed time. On Windows systems getrusage() is
       // not implemented and hence no elapsed time is available.
+      $log_array = [
+        '%success' => $freq[SpoolStorageInterface::STATUS_DONE],
+        '%skipped' => $freq[SpoolStorageInterface::STATUS_SKIPPED],
+        '%fail' => $freq[SpoolStorageInterface::STATUS_FAILED],
+        '%retry' => $freq[SpoolStorageInterface::STATUS_PENDING],
+      ];
+
       if (function_exists('getrusage')) {
-        $this->logger->notice('%success emails sent in %sec seconds, %skipped skipped, %fail failed sending.', [
-          '%success' => $count_success,
-          '%sec' => round($this->getCurrentExecutionTime(), 1),
-          '%skipped' => $count_skipped,
-          '%fail' => $count_fail,
-        ]);
+        $log_array['%sec'] = round($this->getCurrentExecutionTime(), 1);
+        $this->logger->notice('%success emails sent in %sec seconds, %skipped skipped, %fail failed permanently, %retry failed retrying.', $log_array);
       }
       else {
-        $this->logger->notice('%success emails sent, %skipped skipped, %fail failed.', [
-          '%success' => $count_success,
-          '%skipped' => $count_skipped,
-          '%fail' => $count_fail,
-        ]);
+        $this->logger->notice('%success emails sent, %skipped skipped, %fail failed permanently, %retry failed retrying.', $log_array);
       }
 
       $this->state->set('simplenews.last_cron', REQUEST_TIME);
-      $this->state->set('simplenews.last_sent', $count_success);
+      $this->state->set('simplenews.last_sent', $freq[SpoolStorageInterface::STATUS_DONE]);
 
       $this->accountSwitcher->switchBack();
-      return $count_success;
+      return $freq[SpoolStorageInterface::STATUS_DONE];
     }
   }
 
@@ -359,27 +349,12 @@ class Mailer implements MailerInterface {
         }
       }
 
-      // Build array of sent results for spool table and reporting.
-      if ($message['result']) {
-        $result = [
-          'status' => SpoolStorageInterface::STATUS_DONE,
-          'error' => FALSE,
-        ];
-      }
-      else {
-        // This error may be caused by faulty mailserver configuration or
-        // overload. Mark "pending" to keep trying.
-        $result = [
-          'status' => SpoolStorageInterface::STATUS_PENDING,
-          'error' => TRUE,
-        ];
-      }
+      // By default, failures are left in PENDING state to retry.
+      $result = $message['result'] ? SpoolStorageInterface::STATUS_DONE : SpoolStorageInterface::STATUS_PENDING;
+      $this->moduleHandler->alter('simplenews_mail_result', $result, $message);
     }
     catch (SkipMailException $e) {
-      $result = [
-        'status' => SpoolStorageInterface::STATUS_SKIPPED,
-        'error' => FALSE,
-      ];
+      $result = SpoolStorageInterface::STATUS_SKIPPED;
     }
 
     return $result;

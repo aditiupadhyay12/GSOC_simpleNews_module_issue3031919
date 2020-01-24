@@ -5,6 +5,7 @@ namespace Drupal\Tests\simplenews\Functional;
 use Drupal\node\Entity\Node;
 use Drupal\user\Entity\User;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\simplenews\Spool\SpoolStorageInterface;
 
 /**
  * Test cases for creating and sending newsletters.
@@ -12,13 +13,6 @@ use Drupal\Core\Messenger\MessengerInterface;
  * @group simplenews
  */
 class SimplenewsSendTest extends SimplenewsTestBase {
-
-  /**
-   * Modules to enable.
-   *
-   * @var array
-   */
-  public static $modules = ['system_mail_failure_test'];
 
   /**
    * {@inheritdoc}
@@ -470,13 +464,27 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     \Drupal::service('simplenews.spool_storage')->addIssue($issue);
 
-    // Force all sent mails to fail.
+    // Force some mails to fail, then abort.
     \Drupal::messenger()->deleteAll();
-    \Drupal::configFactory()->getEditable('system.mail')->set('interface.default', 'test_php_mail_failure')->save();
+    $results_alter = [SpoolStorageInterface::STATUS_PENDING, SpoolStorageInterface::STATUS_FAILED, -1];
+    $this->container->get('state')->set('simplenews.test_result_alter', $results_alter);
     simplenews_cron();
 
     // Check there is no error message.
     $this->assertEqual(count(\Drupal::messenger()->messagesByType(MessengerInterface::TYPE_ERROR)), 0, t('No error messages printed'));
+
+    // Check the status on the newsletter tab.  The pending mail should be
+    // retried
+    $this->drupalGet('node/1/simplenews');
+    $this->assertText('Newsletter issue is pending, 0 mails sent out of 5, 1 errors.');
+
+    // Allow one mail to succeed, and the pending mail should be treated as an
+    // error.
+    $results_alter = [SpoolStorageInterface::STATUS_DONE, SpoolStorageInterface::STATUS_PENDING, SpoolStorageInterface::STATUS_FAILED];
+    $this->container->get('state')->set('simplenews.test_result_alter', $results_alter);
+    simplenews_cron();
+    $this->drupalGet('node/1/simplenews');
+    $this->assertText('Newsletter issue sent to 2 subscribers, 3 errors.');
   }
 
   /**
