@@ -154,12 +154,15 @@ function simplenews_node_delete($node) {
 function simplenews_entity_operation(EntityInterface $entity) {
   $operations = [];
 
-  if ($entity->getEntityTypeId() == 'node' && simplenews_check_node_types($entity->bundle())) {
-    $operations['simplenews'] = [
-      'title' => t('Newsletter'),
-      'url' => Url::fromRoute('simplenews.node_tab', ['node' => $entity->id()]),
-      'weight' => 90,
-    ];
+  if ($entity->getEntityTypeId() == 'node') {
+    $url = Url::fromRoute('simplenews.node_tab', ['node' => $entity->id()]);
+    if ($url->access()) {
+      $operations['simplenews'] = [
+        'title' => t('Newsletter'),
+        'url' => $url,
+        'weight' => 90,
+      ];
+    }
   }
 
   return $operations;
