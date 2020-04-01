@@ -8,6 +8,7 @@
 use Drupal\Core\Database\Database;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\simplenews\Entity\Newsletter;
 
 /**
@@ -119,8 +120,8 @@ function simplenews_install() {
   $config->set('newsletter.from_name', $site_name);
   $config->save(TRUE);
 
-  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, ['subscribe to newsletters']);
-  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, ['subscribe to newsletters']);
+  user_role_grant_permissions(AccountInterface::ANONYMOUS_ROLE, ['subscribe to newsletters']);
+  user_role_grant_permissions(AccountInterface::AUTHENTICATED_ROLE, ['subscribe to newsletters']);
 
   // Init the default newsletter.
   $newsletter = Newsletter::load('default');

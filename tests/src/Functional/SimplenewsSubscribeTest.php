@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\simplenews\Functional;
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
@@ -937,7 +938,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     // Check that an unsubscribe link works without any permissions.
     $this->drupalLogout();
-    user_role_revoke_permissions(DRUPAL_ANONYMOUS_RID, ['subscribe to newsletters']);
+    user_role_revoke_permissions(AccountInterface::ANONYMOUS_ROLE, ['subscribe to newsletters']);
 
     $node = $this->drupalCreateNode([
       'type' => 'simplenews_issue',
