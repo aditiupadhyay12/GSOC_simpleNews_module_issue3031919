@@ -54,10 +54,12 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
 
     $form = parent::form($form, $form_state);
 
-    $form['message'] = [
-      '#type' => 'item',
-      '#markup' => $this->message,
-    ];
+    if ($this->message) {
+      $form['message'] = [
+        '#type' => 'item',
+        '#markup' => $this->message,
+      ];
+    }
 
     return $form;
   }
