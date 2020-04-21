@@ -13,6 +13,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldConfig;
@@ -936,4 +937,51 @@ function simplenews_migrate_prepare_row(Row $row, MigrateSourceInterface $source
       $row->setSourceProperty('simplenews_content_type', unserialize($value));
     }
   }
+}
+
+/**
+ * Replaces tokens in a mail subject line.
+ *
+ * This is a wrapper to Token::replace() for the email subject.
+ *
+ * @param string $text
+ *   An HTML string containing replaceable tokens.
+ * @param array $data
+ *   (optional) An array of keyed objects.
+ * @param array $options
+ *   (optional) A keyed array of settings and flags to control the token
+ *   replacement process.
+ *
+ * @return string
+ *   String with tokens replaced.
+ */
+function simplenews_token_replace_subject($text, array $data = [], array $options = []) {
+  // The input string must be escaped in case of special characters like &.
+  // The output must remain as markup. The surprising fact is that the Drupal
+  // mail system expects to receive markup and automatically decodes it.
+  return Markup::create(\Drupal::token()->replace(Html::escape($text), $data, $options));
+}
+
+/**
+ * Replaces tokens in a mail body.
+ *
+ * This is a wrapper to Token::replace() for the email body.
+ *
+ * @param string $text
+ *   An HTML string containing replaceable tokens.
+ * @param array $data
+ *   (optional) An array of keyed objects.
+ * @param array $options
+ *   (optional) A keyed array of settings and flags to control the token
+ *   replacement process.
+ *
+ * @return string
+ *   String with tokens replaced.
+ */
+function simplenews_token_replace_body($text, array $data = [], array $options = []) {
+  // The input string must be formatted which is done using the fallback text
+  // formatter. The output must remain as markup. The default mail plugin will
+  // automatically convert to text. A plugin that supports HTML can send the
+  // markup directly.
+  return Markup::create(\Drupal::token()->replace(check_markup($text), $data, $options));
 }

@@ -217,7 +217,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
         'simplenews_subscriber' => $subscriber,
         'newsletter' => Newsletter::load($newsletter_id),
       ];
-      $changes_list[$newsletter_id] = $this->token->replace($line, $newsletter_context, ['sanitize' => FALSE]);
+      $changes_list[$newsletter_id] = simplenews_token_replace_body($line, $newsletter_context);
     }
     return $changes_list;
   }

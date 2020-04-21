@@ -955,6 +955,33 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
   }
 
   /**
+   * Tests formatting and escaping of subscription mails.
+   */
+  public function testFormatting() {
+    $this->config('simplenews.settings')
+      ->set('subscription.confirm_subscribe_subject', 'Please <join> us & enjoy "[simplenews-newsletter:name]"')
+      ->set('subscription.confirm_subscribe_unsubscribed', "Hello & welcome,\n\nclick to join us <[simplenews-subscriber:subscribe-url]>")
+      ->save();
+
+    $newsletter_id = $this->getRandomNewsletter();
+    $newsletter = Newsletter::load($newsletter_id);
+    $newsletter->name = 'Rise & <shine>';
+    $newsletter->save();
+
+    $mail = $this->randomEmail(8);
+    $edit = [
+      "subscriptions[$newsletter_id]" => '1',
+      'mail[0][value]' => $mail,
+    ];
+    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Subscribe'));
+
+    $captured_emails = $this->container->get('state')->get('system.test_mail_collector') ?: [];
+    $email = end($captured_emails);
+    $this->assertEquals('Please <join> us & enjoy "Rise & <shine>"', $email['subject']);
+    $this->assertContains("Hello & welcome,\n\nclick to join us\n<http", $email['body']);
+  }
+
+  /**
    * Gets the number of subscribers entities.
    */
   protected function countSubscribers() {

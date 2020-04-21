@@ -5,6 +5,7 @@ namespace Drupal\Tests\simplenews\Functional;
 use Drupal\node\Entity\Node;
 use Drupal\user\Entity\User;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 
 /**
@@ -685,8 +686,8 @@ class SimplenewsSendTest extends SimplenewsTestBase {
    * Test the correct handling of HTML special characters in plain text mails.
    */
   public function testHtmlEscaping() {
-
     $title = '><\'"-&&amp;--*';
+    $name = 'Rise & shine';
     $node = Node::create([
       'type' => 'simplenews_issue',
       'title' => $title,
@@ -696,6 +697,11 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $node->simplenews_issue->target_id = $this->getRandomNewsletter();
     $node->simplenews_issue->handler = 'simplenews_all';
     $node->save();
+
+    $newsletter = Newsletter::load($node->simplenews_issue->target_id);
+    $newsletter->name = $name;
+    $newsletter->subject = '<[simplenews-newsletter:name]> [node:title]';
+    $newsletter->save();
 
     // Send the node.
     \Drupal::service('simplenews.spool_storage')->addIssue($node);
@@ -708,10 +714,10 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     $mails = $this->getMails();
 
-    // Check that the node title is displayed unaltered in the subject and
-    // unaltered except being uppercased due to the HTML conversion in the body.
-    $this->assertTrue(strpos($mails[0]['body'], strtoupper($title)) != FALSE);
-    $this->assertTrue(strpos($mails[0]['subject'], $title) != FALSE);
+    // Check subject and body.  Note that the title is uppercased due to the
+    // HTML conversion in the body.
+    $this->assertContains(strtoupper($title), $mails[0]['body']);
+    $this->assertEquals("<$name> $title", $mails[0]['subject']);
   }
 
 }

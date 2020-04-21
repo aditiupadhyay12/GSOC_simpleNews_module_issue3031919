@@ -134,7 +134,7 @@ class MailEntity implements MailInterface {
 
     // Add user specific header data.
     $headers['From'] = $this->getFromFormatted();
-    $headers['List-Unsubscribe'] = '<' . \Drupal::token()->replace('[simplenews-subscriber:unsubscribe-url]', $this->getTokenContext(), ['sanitize' => FALSE]) . '>';
+    $headers['List-Unsubscribe'] = '<' . \Drupal::token()->replace('[simplenews-subscriber:unsubscribe-url]', $this->getTokenContext()) . '>';
 
     // Add general headers.
     $headers['Precedence'] = 'bulk';
@@ -219,7 +219,7 @@ class MailEntity implements MailInterface {
     // Build email subject and perform some sanitizing.
     // Use the requested language if enabled.
     $langcode = $this->getLanguage();
-    $subject = \Drupal::token()->replace($this->getNewsletter()->subject, $this->getTokenContext(), ['sanitize' => FALSE, 'langcode' => $langcode]);
+    $subject = simplenews_token_replace_subject($this->getNewsletter()->subject, $this->getTokenContext(), ['langcode' => $langcode]);
 
     // Line breaks are removed from the email subject to prevent injection of
     // malicious data into the email header.
