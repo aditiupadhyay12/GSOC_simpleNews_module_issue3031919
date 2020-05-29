@@ -108,7 +108,7 @@ function simplenews_install() {
   $site_mail = \Drupal::config('system.site')->get('mail');
   $site_name = \Drupal::config('system.site')->get('name');
 
-  $config = $config = \Drupal::configFactory()->getEditable('simplenews.settings');
+  $config = \Drupal::configFactory()->getEditable('simplenews.settings');
   if (empty($site_mail)) {
     $site_mail = ini_get('sendmail_from');
   }
@@ -257,4 +257,13 @@ function simplenews_update_8205() {
 function simplenews_update_8206() {
   $schema = Database::getConnection()->schema();
   $schema->dropField('simplenews_mail_spool', 'error');
+}
+
+/**
+ * Initialize tidy unconfirmed subscribers setting.
+ */
+function simplenews_update_8207() {
+  $config = \Drupal::configFactory()->getEditable('simplenews.settings');
+  $config->set('subscription.tidy_unconfirmed', 0);
+  $config->save();
 }

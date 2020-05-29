@@ -30,6 +30,22 @@ class SubscriptionSettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('simplenews.settings');
 
+    $form['subscription_tidy'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Tidy unconfirmed subscriptions'),
+      '#collapsible' => FALSE,
+    ];
+
+    $form['subscription_tidy']['simplenews_tidy_unconfirmed'] = [
+      '#type' => 'number',
+      '#title' => t('Days'),
+      '#default_value' => empty($database['port']) ? '' : $database['port'],
+      '#min' => 0,
+      '#max' => 365,
+      '#description' => $this->t('Tidy unconfirmed subscriptions after a number of days (recommended), or zero to skip.'),
+      '#default_value' => $config->get('subscription.tidy_unconfirmed'),
+    ];
+
     $form['subscription_mail'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Confirmation emails'),
@@ -191,6 +207,7 @@ class SubscriptionSettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config('simplenews.settings')
+      ->set('subscription.tidy_unconfirmed', $form_state->getValue('simplenews_tidy_unconfirmed'))
       ->set('subscription.use_combined', $form_state->getValue('simplenews_use_combined'))
       ->set('subscription.confirm_subscribe_subject', $form_state->getValue('simplenews_confirm_subscribe_subject'))
       ->set('subscription.confirm_subscribe_unsubscribed', $form_state->getValue('simplenews_confirm_subscribe_unsubscribed'))

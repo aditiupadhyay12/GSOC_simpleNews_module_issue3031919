@@ -336,6 +336,9 @@ function simplenews_cron() {
   \Drupal::service('simplenews.spool_storage')->clear();
   // Update sent status for newsletter admin panel.
   \Drupal::service('simplenews.mailer')->updateSendStatus();
+
+  // Tidy subscriptions.
+  \Drupal::service('simplenews.subscription_manager')->tidy();
 }
 
 /**

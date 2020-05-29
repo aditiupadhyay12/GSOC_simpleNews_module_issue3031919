@@ -37,6 +37,9 @@ simplenews.settings:
       type: mapping
       label: Subscription settings
       mapping:
+        tidy_unconfirmed:
+          type: integer
+          label: Tidy unconfirmed subscriptions after a number of days
         use_combined:
           type: string
           label: Combined setting

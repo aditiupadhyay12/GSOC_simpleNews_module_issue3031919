@@ -83,6 +83,13 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   protected $currentUser;
 
   /**
+   * The subscriber storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $subscriberStorage;
+
+  /**
    * Constructs a SubscriptionManager.
    *
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
@@ -105,6 +112,7 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
     $this->token = $token;
     $this->logger = $logger;
     $this->currentUser = $current_user;
+    $this->subscriberStorage = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber');
   }
 
   /**
@@ -247,6 +255,30 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
    */
   public function reset() {
     $this->subscribedCache = [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function tidy() {
+    $days = $this->config->get('subscription.tidy_unconfirmed');
+    if (!$days) {
+      return;
+    }
+
+    // Query subscribers with unconfirmed subscriptions due to be tidied.
+    $max_age = strtotime("-$days days");
+    $unconfirmed = \Drupal::entityQuery('simplenews_subscriber')
+      ->condition('subscriptions.status', SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED)
+      ->condition('subscriptions.timestamp', $max_age, '<')
+      ->execute();
+
+    // Exclude any subscribers with confirmed subscriptions.
+    $confirmed = \Drupal::entityQuery('simplenews_subscriber')
+      ->condition('subscriptions.status', SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED, '<>')
+      ->execute();
+    $delete = array_diff($unconfirmed, $confirmed);
+    $this->subscriberStorage->delete($this->subscriberStorage->loadMultiple($delete));
   }
 
   /**
