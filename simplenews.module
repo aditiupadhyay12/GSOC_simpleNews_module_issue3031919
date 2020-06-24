@@ -986,5 +986,5 @@ function simplenews_token_replace_body($text, array $data = [], array $options =
   // formatter. The output must remain as markup. The default mail plugin will
   // automatically convert to text. A plugin that supports HTML can send the
   // markup directly.
-  return Markup::create(\Drupal::token()->replace(check_markup($text), $data, $options));
+  return Markup::create(check_markup(\Drupal::token()->replace($text, $data, $options)));
 }
