@@ -112,7 +112,7 @@ INSTALLATION
       simplenews-newsletter-body--[newsletter_id]--[view mode].html.twig
 
       [newsletter_id]: Machine readable name of the newsletter category
-      [view mode]: 'email-plain', 'email-html', 'email-textalt'
+      [view mode]: 'email-plain', 'email-html'
       Example:
         simplenews-newsletter-body--1--email-plain.html.twig
 
