@@ -93,6 +93,9 @@ simplenews.settings:
         use_cron:
           type: boolean
           label: Use cron
+        textalt:
+          type: boolean
+          label: Generate plain-text alternative
         throttle:
           type: integer
           label: Mails to send per cron run

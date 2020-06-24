@@ -65,10 +65,12 @@ class MailBuilder implements MailBuilderInterface {
       $message['params']['format'] = 'text/html';
       $message['params']['plain'] = NULL;
 
-      // Provide a plain text version, both in params][plaintext (Mime Mail) and
-      // plain (Swiftmailer).
-      $message['params']['plaintext'] = $mail->getPlainBody();
-      $message['plain'] = $message['params']['plaintext'];
+      if ($this->config->get('mail.textalt')) {
+        // Provide a plain text version, both in params][plaintext (Mime Mail) and
+        // plain (Swiftmailer).
+        $message['params']['plaintext'] = $mail->getPlainBody();
+        $message['plain'] = $message['params']['plaintext'];
+      }
 
       // Add attachments, again, both for the attachments key (Mime Mail) and
       // files (Swiftmailer).

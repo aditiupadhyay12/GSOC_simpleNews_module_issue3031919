@@ -272,5 +272,14 @@ function simplenews_update_8207() {
  * Remove redundant view mode 'email_textalt'.
  */
 function simplenews_update_830001() {
- \Drupal::entityTypeManager()->getStorage('entity_view_mode')->load('node.email_textalt')->delete();
+  \Drupal::entityTypeManager()->getStorage('entity_view_mode')->load('node.email_textalt')->delete();
+}
+
+/**
+ * Initialize plain-text alternative setting.
+ */
+function simplenews_update_830002() {
+  $config = \Drupal::configFactory()->getEditable('simplenews.settings');
+  $config->set('mail.textalt', TRUE);
+  $config->save();
 }

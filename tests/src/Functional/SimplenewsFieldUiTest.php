@@ -58,7 +58,7 @@ class SimplenewsFieldUiTest extends SimplenewsTestBase {
     $this->assertText('simplenews_issue');
     // Check if the help text is displayed.
     $this->drupalGet('admin/structure/types/manage/' . $type . '/display');
-    $this->assertText("'Plain' display settings apply to the content of emails");
+    $this->assertText("'Email:HTML' display settings apply to the HTML content of emails");
     $this->drupalGet('admin/config/services/simplenews/settings/newsletter');
     $this->assertText('These settings are default to all newsletters. Newsletter specific settings');
   }

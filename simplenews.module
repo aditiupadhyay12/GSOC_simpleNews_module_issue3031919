@@ -711,7 +711,7 @@ function simplenews_help($route_name, RouteMatchInterface $route_match) {
 
     case 'entity.entity_view_display.node.default':
       $type = $route_match->getParameter('node_type');
-      $help = ($type->id() == 'simplenews_issue') ? '<p>' . t("'Plain' display settings apply to the content of emails send in plain text format. 'HTML' display settings apply to both HTML and plain text alternative content of emails send in HTML format.") . "</p>\n" : '';
+      $help = ($type->id() == 'simplenews_issue') ? '<p>' . t("'Email:HTML' display settings apply to the HTML content of emails sent in HTML format. 'Email:Plain' display settings apply to emails sent in plain text format and the plain text alternative content of emails sent in HTML format.") . "</p>\n" : '';
       return $help;
   }
 }

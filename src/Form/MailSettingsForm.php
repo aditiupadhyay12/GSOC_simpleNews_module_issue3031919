@@ -37,6 +37,13 @@ class MailSettingsForm extends ConfigFormBase {
       '#description' => $this->t('When checked cron will be used to send newsletters (recommended). Test newsletters and confirmation emails will be sent immediately. Leave unchecked for testing purposes.'),
     ];
 
+    $form['simplenews_mail_backend']['simplenews_textalt'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Generate plain-text alternative'),
+      '#default_value' => $config->get('mail.textalt'),
+      '#description' => $this->t('Generate plain-text alternative for HTML mails (less recommended). If you are using the recommended Swift Mailer module then disable this option and allow that module to generate them. If you enable this option then you need to configure both "Email: HTML" and "Email: Plain" view modes.'),
+    ];
+
     $throttle_val = [
       1, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000,
     ];
@@ -82,6 +89,7 @@ class MailSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config('simplenews.settings')
       ->set('mail.use_cron', $form_state->getValue('simplenews_use_cron'))
+      ->set('mail.textalt', $form_state->getValue('simplenews_textalt'))
       ->set('mail.source_cache', $form_state->getValue('simplenews_source_cache'))
       ->set('mail.throttle', $form_state->getValue('simplenews_throttle'))
       ->set('mail.spool_expire', $form_state->getValue('simplenews_spool_expire'))

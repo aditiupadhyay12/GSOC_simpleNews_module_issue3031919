@@ -96,6 +96,10 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertEqual($plain_mail->getSubject(), $mail['subject']);
     $this->assertTrue(strpos($mail['body'], 'the plain body') !== FALSE);
 
+    // Now send an HTML message.
+    $config = $this->config('simplenews.settings');
+    $config->set('mail.textalt', TRUE);
+    $config->save();
     $html_mail = new MailTest('html');
     \Drupal::service('simplenews.mailer')->sendMail($html_mail);
     $mails = $this->getMails();
@@ -179,6 +183,11 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $mail_config = $this->config('system.mail');
     $mail_config->set('interface.default', 'test_simplenews_html_mail');
     $mail_config->save();
+
+    // Test plain text alternative.
+    $config = $this->config('simplenews.settings');
+    $config->set('mail.textalt', TRUE);
+    $config->save();
 
     // Set the format to HTML.
     $this->drupalGet('admin/config/services/simplenews');
