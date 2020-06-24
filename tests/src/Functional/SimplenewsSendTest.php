@@ -716,7 +716,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Check subject and body.  Note that the title is uppercased due to the
     // HTML conversion in the body.
-    $this->assertContains(strtoupper($title), $mails[0]['body']);
+    $this->assertStringContainsString(strtoupper($title), $mails[0]['body']);
     $this->assertEquals("<$name> $title", $mails[0]['subject']);
   }
 

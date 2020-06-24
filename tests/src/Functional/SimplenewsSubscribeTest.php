@@ -978,7 +978,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $captured_emails = $this->container->get('state')->get('system.test_mail_collector') ?: [];
     $email = end($captured_emails);
     $this->assertEquals('Please <join> us & enjoy "Rise & <shine>"', $email['subject']);
-    $this->assertContains("Hello & welcome,\n\nclick to join us\n<http", $email['body']);
+    $this->assertStringContainsString("Hello & welcome,\n\nclick to join us\n<http", $email['body']);
   }
 
   /**
