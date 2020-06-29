@@ -437,6 +437,7 @@ class Mailer implements MailerInterface {
     $query = \Drupal::entityQuery('node');
     $nids = $query
       ->condition('simplenews_issue.status', SIMPLENEWS_STATUS_SEND_PENDING)
+      ->accessCheck(FALSE)
       ->execute();
     $nodes = Node::loadMultiple($nids);
     if ($nodes) {
