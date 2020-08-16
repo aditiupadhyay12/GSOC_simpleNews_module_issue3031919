@@ -142,7 +142,7 @@ function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $
       }
 
       if (($user_tokens = \Drupal::token()->findWithPrefix($tokens, 'user')) && !empty($subscriber->uid)) {
-        $replacements += \Drupal::token()->generate('user', $user_tokens, ['user' => User::load($subscriber->uid)], $options, $bubbleable_metadata);
+        $replacements += \Drupal::token()->generate('user', $user_tokens, ['user' => $subscriber->getUser()], $options, $bubbleable_metadata);
       }
 
       break;
