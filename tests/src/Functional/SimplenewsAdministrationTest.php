@@ -438,14 +438,14 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
     $exported_mails = $export_field[0]->getText();
     foreach ($subscribers[$first] as $mail) {
-      $this->assertTrue(strpos($exported_mails, $mail) !== FALSE, t('Mail address exported correctly.'));
+      $this->assertStringContainsString($mail, $exported_mails, t('Mail address exported correctly.'));
     }
     foreach ($subscribers['all'] as $mail) {
       if ($mail != $all_mail) {
-        $this->assertTrue(strpos($exported_mails, $mail) !== FALSE, t('Mail address exported correctly.'));
+        $this->assertStringContainsString($mail, $exported_mails, t('Mail address exported correctly.'));
       }
       else {
-        $this->assertFalse(strpos($exported_mails, $mail), t('Unsubscribed mail address not exported.'));
+        $this->assertStringNotContainsString($mail, $exported_mails, t('Unsubscribed mail address not exported.'));
       }
     }
 
@@ -825,7 +825,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertEqual('simplenews_test', $mails[0]['id']);
     $this->assertEqual($admin_user->getEmail(), $mails[0]['to']);
     $this->assertEqual(t('[Default newsletter] @title', ['@title' => $node->getTitle()]), $mails[0]['subject']);
-    $this->assertTrue(strpos($mails[0]['body'], 'User ID: ' . $admin_user->id()) !== FALSE);
+    $this->assertStringContainsString('User ID: ' . $admin_user->id(), $mails[0]['body']);
 
     // Update the content type, remove the simpletest checkbox.
     $edit = [

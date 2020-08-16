@@ -176,9 +176,9 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       }
 
       // Verify that the link is in the correct language.
-      $this->assertTrue(strpos($mail['body'], $node_url) !== FALSE);
+      $this->assertStringContainsString($node_url, $mail['body']);
       // The <h1> tag is converted to uppercase characters.
-      $this->assertTrue(strpos($mail['body'], mb_strtoupper($title)) !== FALSE);
+      $this->assertStringContainsString(mb_strtoupper($title), $mail['body']);
     }
 
     // Verify sent subscriber count for each node.

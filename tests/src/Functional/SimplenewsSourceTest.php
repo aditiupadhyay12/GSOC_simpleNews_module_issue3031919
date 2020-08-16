@@ -94,7 +94,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertFalse(isset($mail['params']['attachments']));
 
     $this->assertEqual($plain_mail->getSubject(), $mail['subject']);
-    $this->assertTrue(strpos($mail['body'], 'the plain body') !== FALSE);
+    $this->assertStringContainsString('the plain body', $mail['body']);
 
     // Now send an HTML message.
     $config = $this->config('simplenews.settings');
@@ -116,12 +116,12 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertEqual(NULL, $mail['params']['plain']);
 
     $this->assertTrue(isset($mail['params']['plaintext']));
-    $this->assertTrue(strpos($mail['params']['plaintext'], 'the plain body') !== FALSE);
+    $this->assertStringContainsString('the plain body', $mail['params']['plaintext']);
     $this->assertTrue(isset($mail['params']['attachments']));
     $this->assertEqual('example://test.png', $mail['params']['attachments'][0]['uri']);
 
     $this->assertEqual($plain_mail->getSubject(), $mail['subject']);
-    $this->assertTrue(strpos($mail['body'], 'the body') !== FALSE);
+    $this->assertStringContainsString('the body', $mail['body']);
   }
 
   /**
@@ -157,16 +157,16 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     foreach (array_slice($this->getMails(), 0, 3) as $mail) {
       // Make sure that the same mail was used in the body token as it has been
       // sent to. Also verify that the mail is plaintext.
-      $this->assertTrue(strpos($mail['body'], '*' . $mail['to'] . '*') !== FALSE);
-      $this->assertFalse(strpos($mail['body'], '<strong>'));
+      $this->assertStringContainsString('*' . $mail['to'] . '*', $mail['body']);
+      $this->assertStringNotContainsString('<strong>', $mail['body']);
       // Make sure the body is only attached once.
       $this->assertEqual(1, preg_match_all('/Mail token/', $mail['body'], $matches));
 
-      $this->assertTrue(strpos($mail['body'], (string) t('Unsubscribe from this newsletter')) !== FALSE);
+      $this->assertStringContainsString((string) t('Unsubscribe from this newsletter'), $mail['body']);
       // Make sure the mail has the correct unsubscribe hash.
       $hash = simplenews_generate_hash($mail['to'], 'remove');
-      $this->assertTrue(strpos($mail['body'], $hash) !== FALSE, 'Correct hash is used');
-      $this->assertTrue(strpos($mail['headers']['List-Unsubscribe'], $hash) !== FALSE, 'Correct hash is used in header');
+      $this->assertStringContainsString($hash, $mail['body'], 'Correct hash is used');
+      $this->assertStringContainsString($hash, $mail['headers']['List-Unsubscribe'], 'Correct hash is used in header');
     }
 
     // Report time. @todo: Find a way to actually do some assertions here.
@@ -236,15 +236,15 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
 
       // Make sure that the same mail was used in the body token as it has been
       // sent to.
-      $this->assertTrue(strpos($mail['body'], '<strong>' . $mail['to'] . '</strong>') !== FALSE);
+      $this->assertStringContainsString('<strong>' . $mail['to'] . '</strong>', $mail['body']);
 
       // Make sure the body is only attached once.
       $this->assertEqual(1, preg_match_all('/Mail token/', $mail['body'], $matches));
 
       // Check the plaintext version, both params][plaintext (Mime Mail) and
       // plain (Swiftmailer).
-      $this->assertTrue(strpos($mail['params']['plaintext'], $mail['to']) !== FALSE);
-      $this->assertFalse(strpos($mail['params']['plaintext'], '<strong>'));
+      $this->assertStringContainsString($mail['to'], $mail['params']['plaintext']);
+      $this->assertStringNotContainsString('<strong>', $mail['params']['plaintext']);
       $this->assertEqual($mail['params']['plaintext'], $mail['plain']);
       // Make sure the body is only attached once.
       $this->assertEqual(1, preg_match_all('/Mail token/', $mail['params']['plaintext'], $matches));
@@ -261,7 +261,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
 
       // @todo: Improve this check, there are currently two spaces, not sure
       // where they are coming from.
-      $this->assertTrue(strpos($mail['body'], 'class="newsletter-footer"') !== FALSE);
+      $this->assertStringContainsString('class="newsletter-footer"', $mail['body']);
 
       // Verify receipt headers.
       $this->assertEqual($mail['headers']['Disposition-Notification-To'], $edit_newsletter['from_address']);
@@ -305,7 +305,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     // Test that tokens are correctly replaced.
     foreach (array_slice($this->getMails(), 0, 3) as $mail) {
       // Verify the unsubscribe link is not displayed for hidden newsletters.
-      $this->assertFalse(strpos($mail['body'], (string) t('Unsubscribe from this newsletter')));
+      $this->assertStringNotContainsString((string) t('Unsubscribe from this newsletter'), $mail['body']);
     }
   }
 
@@ -350,8 +350,8 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     foreach (array_slice($this->getMails(), 0, 3) as $mail) {
       // Make sure that the same mail was used in the body token as it has been
       // sent to. Also verify that the mail is plaintext.
-      $this->assertTrue(strpos($mail['body'], '*' . $mail['to'] . '*') !== FALSE);
-      $this->assertFalse(strpos($mail['body'], '<strong>'));
+      $this->assertStringContainsString('*' . $mail['to'] . '*', $mail['body']);
+      $this->assertStringNotContainsString('<strong>', $mail['body']);
       // Make sure the body is only attached once.
       $this->assertEqual(1, preg_match_all('/Mail token/', $mail['body'], $matches));
     }
