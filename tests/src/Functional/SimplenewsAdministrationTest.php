@@ -237,9 +237,9 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $this->assertEqual(count($displayed_issues), 2, 'Displys two recent issues.');
 
-    $this->assertFalse(in_array($generated_names[0], $displayed_issues));
-    $this->assertTrue(in_array($generated_names[1], $displayed_issues));
-    $this->assertTrue(in_array($generated_names[2], $displayed_issues));
+    $this->assertNotContains($generated_names[0], $displayed_issues);
+    $this->assertContains($generated_names[1], $displayed_issues);
+    $this->assertContains($generated_names[2], $displayed_issues);
 
     $this->drupalGet('admin/config/services/simplenews/manage/' . $edit_newsletter->id());
     $this->assertFieldByName('name', $edit_newsletter->name, t('Newsletter name is displayed when editing'));
@@ -461,8 +461,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $exported_mails = $export_field[0]->getText();
     $exported_mails = explode(', ', $exported_mails);
     $this->assertEqual(2, count($exported_mails));
-    $this->assertTrue(in_array($all_mail, $exported_mails));
-    $this->assertTrue(in_array($first_mail, $exported_mails));
+    $this->assertContains($all_mail, $exported_mails);
+    $this->assertContains($first_mail, $exported_mails);
 
     /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
     $subscription_manager = \Drupal::service('simplenews.subscription_manager');
@@ -489,8 +489,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
     $exported_mails = $export_field[0]->getText();
     $exported_mails = explode(', ', $exported_mails);
-    $this->assertTrue(in_array($unconfirmed[0], $exported_mails));
-    $this->assertTrue(in_array($unconfirmed[1], $exported_mails));
+    $this->assertContains($unconfirmed[0], $exported_mails);
+    $this->assertContains($unconfirmed[1], $exported_mails);
 
     // Only export unconfirmed mail addresses.
     $edit = [
@@ -505,8 +505,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $exported_mails = $export_field[0]->getText();
     $exported_mails = explode(', ', $exported_mails);
     $this->assertEqual(2, count($exported_mails));
-    $this->assertTrue(in_array($unconfirmed[0], $exported_mails));
-    $this->assertTrue(in_array($unconfirmed[1], $exported_mails));
+    $this->assertContains($unconfirmed[0], $exported_mails);
+    $this->assertContains($unconfirmed[1], $exported_mails);
 
     // Make sure the user is subscribed to the first newsletter_id.
     $spool_storage = \Drupal::service('simplenews.spool_storage');
@@ -594,7 +594,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $only_first_block = $this->setupSubscriptionBlock(['newsletters' => [$first]]);
     $all_block = $this->setupSubscriptionBlock(['newsletters' => array_keys($groups)]);
     $enabled_newsletters = $all_block->get('settings')['newsletters'];
-    $this->assertTrue(in_array($first, $enabled_newsletters));
+    $this->assertContains($first, $enabled_newsletters);
 
     // Delete newsletter.
     \Drupal::entityTypeManager()->getStorage('simplenews_newsletter')->resetCache();
@@ -610,7 +610,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $all_block = Block::load($all_block->id());
     $enabled_newsletters = $all_block->get('settings')['newsletters'];
-    $this->assertFalse(in_array($first, $enabled_newsletters));
+    $this->assertNotContains($first, $enabled_newsletters);
 
     // Verify that all subscriptions of that newsletter have been removed.
     $this->drupalGet('admin/people/simplenews');
