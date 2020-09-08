@@ -467,7 +467,11 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Force some mails to fail, then abort.
     \Drupal::messenger()->deleteAll();
-    $results_alter = [SpoolStorageInterface::STATUS_PENDING, SpoolStorageInterface::STATUS_FAILED, -1];
+    $results_alter = [
+      SpoolStorageInterface::STATUS_PENDING,
+      SpoolStorageInterface::STATUS_FAILED,
+      -1,
+    ];
     $this->container->get('state')->set('simplenews.test_result_alter', $results_alter);
     simplenews_cron();
 
@@ -481,7 +485,11 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Allow one mail to succeed, and the pending mail should be treated as an
     // error.
-    $results_alter = [SpoolStorageInterface::STATUS_DONE, SpoolStorageInterface::STATUS_PENDING, SpoolStorageInterface::STATUS_FAILED];
+    $results_alter = [
+      SpoolStorageInterface::STATUS_DONE,
+      SpoolStorageInterface::STATUS_PENDING,
+      SpoolStorageInterface::STATUS_FAILED,
+    ];
     $this->container->get('state')->set('simplenews.test_result_alter', $results_alter);
     simplenews_cron();
     $this->drupalGet('node/1/simplenews');

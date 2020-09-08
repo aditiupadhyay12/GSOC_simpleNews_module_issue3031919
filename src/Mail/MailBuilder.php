@@ -66,8 +66,8 @@ class MailBuilder implements MailBuilderInterface {
       $message['params']['plain'] = NULL;
 
       if ($this->config->get('mail.textalt')) {
-        // Provide a plain text version, both in params][plaintext (Mime Mail) and
-        // plain (Swiftmailer).
+        // Provide a plain text version, both in params][plaintext (Mime Mail)
+        // and plain (Swiftmailer).
         $message['params']['plaintext'] = $mail->getPlainBody();
         $message['plain'] = $message['params']['plaintext'];
       }
