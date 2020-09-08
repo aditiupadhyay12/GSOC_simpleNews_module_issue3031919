@@ -5,7 +5,6 @@
  * Hook implementations for the Simplenews Test module.
  */
 
-use Drupal\simplenews\Mail\MailInterface;
 use Drupal\simplenews\AbortSendingException;
 use Drupal\simplenews\SkipMailException;
 

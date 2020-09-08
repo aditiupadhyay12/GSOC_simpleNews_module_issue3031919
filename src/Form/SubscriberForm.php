@@ -22,7 +22,7 @@ class SubscriberForm extends SubscriptionsFormBase {
    */
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
-    /* @var \Drupal\simplenews\SubscriberInterface $subscriber */
+    /** @var \Drupal\simplenews\SubscriberInterface $subscriber */
     $subscriber = $this->entity;
 
     if ($mail = $subscriber->getMail()) {

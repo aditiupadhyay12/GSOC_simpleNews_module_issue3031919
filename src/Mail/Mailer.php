@@ -49,7 +49,7 @@ class Mailer implements MailerInterface {
    */
   const TRACK_RESULTS = [
     SpoolStorageInterface::STATUS_DONE => TRUE,
-    SpoolStorageInterface::STATUS_FAILED =>TRUE
+    SpoolStorageInterface::STATUS_FAILED => TRUE,
   ];
 
   /**
@@ -269,7 +269,8 @@ class Mailer implements MailerInterface {
         $freq[$row->result]++;
         if (isset(static::TRACK_RESULTS[$row->result])) {
           $item = &$results_table[$row->entity_type][$row->entity_id][$row->langcode][$row->result];
-          $item = ($item ?? 0) + 1;;
+          $item = ($item ?? 0) + 1;
+          ;
         }
       }
 

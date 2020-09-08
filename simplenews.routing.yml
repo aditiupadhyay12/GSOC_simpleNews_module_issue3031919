@@ -209,4 +209,3 @@ simplenews.node_tab:
   options:
     _admin_route: true
     no_cache: TRUE
-

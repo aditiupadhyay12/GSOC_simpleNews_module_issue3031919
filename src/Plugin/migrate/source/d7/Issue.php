@@ -2,7 +2,6 @@
 
 namespace Drupal\simplenews\Plugin\migrate\source\d7;
 
-use Drupal\migrate\Row;
 use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
 
 /**

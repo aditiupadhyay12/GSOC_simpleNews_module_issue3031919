@@ -475,7 +475,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(count(\Drupal::messenger()->messagesByType(MessengerInterface::TYPE_ERROR)), 0, t('No error messages printed'));
 
     // Check the status on the newsletter tab.  The pending mail should be
-    // retried
+    // retried.
     $this->drupalGet('node/1/simplenews');
     $this->assertText('Newsletter issue is pending, 0 mails sent out of 5, 1 errors.');
 
