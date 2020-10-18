@@ -67,17 +67,17 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Create a newsletter for all possible setting combinations.
     $new_account = ['none', 'off', 'on', 'silent'];
-    $opt_inout = ['hidden', 'single', 'double'];
+    $access = ['hidden', 'default'];
 
     foreach ($new_account as $new_account_setting) {
-      foreach ($opt_inout as $opt_inout_setting) {
+      foreach ($access as $access_setting) {
         $this->clickLink(t('Add newsletter'));
         $edit = [
-          'name' => implode('-', [$new_account_setting, $opt_inout_setting]),
-          'id' => implode('_', [$new_account_setting, $opt_inout_setting]),
+          'name' => implode('-', [$new_account_setting, $access_setting]),
+          'id' => implode('_', [$new_account_setting, $access_setting]),
           'description' => $this->randomString(20),
           'new_account' => $new_account_setting,
-          'opt_inout' => $opt_inout_setting,
+          'access' => $access_setting,
           'priority' => rand(0, 5),
           'receipt' => rand(0, 1) ? TRUE : FALSE,
           'from_name' => $this->randomMachineName(),
@@ -102,16 +102,16 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
         continue;
       }
 
-      // Explicitly subscribe to the off-double newsletter.
-      if ($newsletter->name == 'off-double') {
-        $off_double_newsletter_id = $newsletter->id();
+      // Explicitly subscribe to the off-default newsletter.
+      if ($newsletter->name == 'off-default') {
+        $off_default_newsletter_id = $newsletter->id();
       }
 
-      list($new_account_setting, $opt_inout_setting) = explode('-', $newsletter->name);
-      if ($newsletter->new_account == 'on' && $newsletter->opt_inout != 'hidden') {
+      list($new_account_setting, $access_setting) = explode('-', $newsletter->name);
+      if ($newsletter->new_account == 'on' && $newsletter->access != 'hidden') {
         $this->assertFieldChecked($this->getNewsletterFieldId($newsletter->id()));
       }
-      elseif ($newsletter->new_account == 'off' && $newsletter->opt_inout != 'hidden') {
+      elseif ($newsletter->new_account == 'off' && $newsletter->access != 'hidden') {
         $this->assertNoFieldChecked($this->getNewsletterFieldId($newsletter->id()));
       }
       else {
@@ -126,7 +126,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'mail' => $this->randomEmail(),
       'pass[pass1]' => $pass,
       'pass[pass2]' => $pass,
-      'subscriptions[' . $off_double_newsletter_id . ']' => $off_double_newsletter_id,
+      'subscriptions[' . $off_default_newsletter_id . ']' => $off_default_newsletter_id,
     ];
     $this->drupalPostForm(NULL, $edit, t('Create new account'));
 
@@ -135,7 +135,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     foreach ($newsletters as $newsletter) {
       // Check confirmation message for all on and non-hidden newsletters and
       // the one that was explicitly selected.
-      if (($newsletter->new_account == 'on' && $newsletter->opt_inout != 'hidden') || $newsletter->name == 'off-double') {
+      if (($newsletter->new_account == 'on' && $newsletter->access != 'hidden') || $newsletter->name == 'off-default') {
         $this->assertText(t('You have been subscribed to @name.', ['@name' => $newsletter->name]));
       }
       else {
@@ -160,11 +160,11 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
         if (strpos($newsletter->name, '-') === FALSE) {
           continue;
         }
-        list($new_account_setting, $opt_inout_setting) = explode('-', $newsletter->name);
-        if ($newsletter->opt_inout == 'hidden') {
+        list($new_account_setting, $access_setting) = explode('-', $newsletter->name);
+        if ($newsletter->access == 'hidden') {
           $this->assertNoField('subscriptions[' . $newsletter->id() . ']', t('Hidden newsletter is not shown.'));
         }
-        elseif ($newsletter->new_account == 'on' || $newsletter->name == 'off-double' || $newsletter->new_account == 'silent') {
+        elseif ($newsletter->new_account == 'on' || $newsletter->name == 'off-default' || $newsletter->new_account == 'silent') {
           // All on, silent and the explicitly selected newsletter should be
           // checked.
           $this->assertFieldChecked($this->getNewsletterFieldId($newsletter->id()));
@@ -177,17 +177,17 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Unsubscribe from a newsletter.
     $edit = [
-      'subscriptions[' . $off_double_newsletter_id . ']' => FALSE,
+      'subscriptions[' . $off_default_newsletter_id . ']' => FALSE,
     ];
     $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->drupalGet('user/' . $user->id() . '/simplenews');
-    $this->assertNoFieldChecked($this->getNewsletterFieldId($off_double_newsletter_id));
+    $this->assertNoFieldChecked($this->getNewsletterFieldId($off_default_newsletter_id));
 
     // Get a newsletter which has the block enabled.
     // @codingStandardsIgnoreStart
     /*foreach ($newsletters as $newsletter) {
       // The default newsletter is missing the from mail address. Use another one.
-      if ($newsletter->block == TRUE && $newsletter->newsletter_id != 1 && $newsletter->opt_inout != 'hidden') {
+      if ($newsletter->block == TRUE && $newsletter->newsletter_id != 1 && $newsletter->access != 'hidden') {
         $edit_newsletter = $newsletter;
         break;
       }
@@ -204,7 +204,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalPostForm('admin/people/simplenews/edit/' . $subscriber->id(), [], t('Save'));
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
     $this->assertTrue($subscriber->isSubscribed('on_hidden'));
-    $this->assertTrue($subscriber->isUnsubscribed($off_double_newsletter_id));
+    $this->assertTrue($subscriber->isUnsubscribed($off_default_newsletter_id));
 
     // @codingStandardsIgnoreStart
     /*$this->setupSubscriptionBlock($edit_newsletter->newsletter_id, $settings = array(

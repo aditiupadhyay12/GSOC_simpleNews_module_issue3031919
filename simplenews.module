@@ -59,9 +59,8 @@ define('SIMPLENEWS_STATUS_SEND_PENDING', 1);
 define('SIMPLENEWS_STATUS_SEND_READY', 2);
 define('SIMPLENEWS_STATUS_SEND_PUBLISH', 3);
 
-define('SIMPLENEWS_OPT_INOUT_HIDDEN', 'hidden');
-define('SIMPLENEWS_OPT_INOUT_SINGLE', 'single');
-define('SIMPLENEWS_OPT_INOUT_DOUBLE', 'double');
+define('SIMPLENEWS_ACCESS_DEFAULT', 'default');
+define('SIMPLENEWS_ACCESS_HIDDEN', 'hidden');
 
 /**
  * Implements hook_node_type_delete().
@@ -355,15 +354,15 @@ function simplenews_form_user_register_form_alter(&$form, FormStateInterface $fo
   // Determine to which other list a user is automatically subscribed.
   foreach (simplenews_newsletter_get_all() as $newsletter) {
     $subscribe_new_account = $newsletter->new_account;
-    $opt_inout_method = $newsletter->opt_inout;
-    if (($subscribe_new_account == 'on' || $subscribe_new_account == 'off') && ($opt_inout_method == 'single' || $opt_inout_method == 'double')) {
+    $access = $newsletter->isAccessible();
+    if (($subscribe_new_account == 'on' || $subscribe_new_account == 'off') && $access) {
       $options[$newsletter->id()] = $newsletter->name;
       if ($subscribe_new_account == 'on') {
         $default_value[] = $newsletter->id();
       }
     }
     else {
-      if ($subscribe_new_account == 'silent' || ($subscribe_new_account == 'on' && $opt_inout_method == SIMPLENEWS_OPT_INOUT_HIDDEN)) {
+      if ($subscribe_new_account == 'silent' || ($subscribe_new_account == 'on' && !$access)) {
         $hidden[] = $newsletter->id();
       }
     }
@@ -559,10 +558,6 @@ function simplenews_mail($key, &$message, $params) {
       $builder->buildNewsletterMail($message, $params['simplenews_mail']);
       break;
 
-    case 'subscribe':
-      $builder->buildSubscribeMail($message, $params);
-      break;
-
     case 'subscribe_combined':
       $builder->buildCombinedMail($message, $params);
       break;
@@ -618,14 +613,12 @@ function simplenews_newsletter_list() {
  */
 function simplenews_newsletter_get_visible(array $conditions = []) {
   $query = \Drupal::entityQuery('simplenews_newsletter');
-  $query
-    ->condition('opt_inout', SIMPLENEWS_OPT_INOUT_HIDDEN, '<>')
-    ->sort('weight');
+  $query->sort('weight');
   foreach ($conditions as $key => $value) {
     $query->condition($key, $value);
   }
   $result = $query->execute();
-  return !empty($result) ? Newsletter::loadMultiple($result) : [];
+  return !empty($result) ? array_filter(Newsletter::loadMultiple($result), function($n) { return $n->isAccessible(); }) : [];
 }
 
 /**
@@ -761,13 +754,12 @@ function simplenews_new_account_options() {
 }
 
 /**
- * Returns the available options for the opt_inout newsletter property.
+ * Returns the available options for the access newsletter property.
  */
-function simplenews_opt_inout_options() {
+function simplenews_access_options() {
   return [
-    SIMPLENEWS_OPT_INOUT_HIDDEN => t('Hidden'),
-    SIMPLENEWS_OPT_INOUT_SINGLE => t('Single'),
-    SIMPLENEWS_OPT_INOUT_DOUBLE => t('Double'),
+    SIMPLENEWS_ACCESS_DEFAULT => t('Default'),
+    SIMPLENEWS_ACCESS_HIDDEN => t('Hidden'),
   ];
 }
 
@@ -837,7 +829,7 @@ function template_preprocess_simplenews_newsletter_body(&$variables) {
   $variables['test_message'] = t('This is a test version of the newsletter.', [], ['langcode' => $variables['language']]);
 
   // Do not display the unsubscribe link by default for hidden categories.
-  $variables['opt_out_hidden'] = $variables['newsletter']->opt_inout == 'hidden';
+  $variables['opt_out_hidden'] = !$variables['newsletter']->isAccessible();
 }
 
 /**

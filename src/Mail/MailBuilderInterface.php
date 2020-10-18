@@ -25,16 +25,6 @@ interface MailBuilderInterface {
    * @param array $params
    *   Parameter array as used by hook_mail().
    */
-  public function buildSubscribeMail(array &$message, array $params);
-
-  /**
-   * Build subject and body of the subscribe confirmation email.
-   *
-   * @param array $message
-   *   Message array as used by hook_mail().
-   * @param array $params
-   *   Parameter array as used by hook_mail().
-   */
   public function buildCombinedMail(array &$message, array $params);
 
   /**

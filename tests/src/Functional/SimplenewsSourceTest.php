@@ -279,7 +279,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->drupalGet('admin/config/services/simplenews');
     $this->clickLink(t('Edit'));
     $edit = [
-      'opt_inout' => 'hidden',
+      'access' => 'hidden',
       // @todo: This shouldn't be necessary.
       'from_address' => $this->randomEmail(),
     ];

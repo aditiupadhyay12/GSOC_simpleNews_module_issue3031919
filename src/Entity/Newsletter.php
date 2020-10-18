@@ -40,7 +40,7 @@ use Drupal\simplenews\NewsletterInterface;
  *     "hyperlinks",
  *     "allowed_handlers",
  *     "new_account",
- *     "opt_inout",
+ *     "access",
  *     "weight",
  *   },
  *   links = {
@@ -138,11 +138,11 @@ class Newsletter extends ConfigEntityBase implements NewsletterInterface {
   public $new_account = 'none';
 
   /**
-   * Defines the Opt-In/out options.
+   * Controls access to subscribe and unsubscribe.
    *
    * @var string
    */
-  public $opt_inout = 'double';
+  public $access = SIMPLENEWS_ACCESS_DEFAULT;
 
   /**
    * Weight of this newsletter (used for sorting).
@@ -208,7 +208,13 @@ class Newsletter extends ConfigEntityBase implements NewsletterInterface {
         }
       }
     }
+  }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function isAccessible() {
+    return $this->access == SIMPLENEWS_ACCESS_DEFAULT;
   }
 
 }

@@ -124,10 +124,10 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
     $subscriber = Subscriber::loadByMail($mail, 'create', $preferred_langcode);
     $newsletter = Newsletter::load($newsletter_id);
 
-    // If confirmation is not explicitly specified, use the newsletter
+    // If confirmation is not explicitly specified, use the default
     // configuration.
     if ($confirm === NULL) {
-      $confirm = $this->requiresConfirmation($newsletter, $subscriber->getUserId());
+      $confirm = $this->requiresConfirmation($subscriber->getUserId());
     }
 
     if ($confirm) {
@@ -162,10 +162,10 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
       return $this;
     }
 
-    // If confirmation is not explicitly specified, use the newsletter
+    // If confirmation is not explicitly specified, use the default
     // configuration.
     if ($confirm === NULL) {
-      $confirm = $this->requiresConfirmation($newsletter, $subscriber->getUserId());
+      $confirm = $this->requiresConfirmation($subscriber->getUserId());
     }
 
     if ($confirm) {
@@ -306,24 +306,22 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   }
 
   /**
-   * Checks whether confirmation is required for this newsletter and user.
+   * Checks whether confirmation is required for this user.
    *
-   * @param \Drupal\simplenews\NewsletterInterface $newsletter
-   *   The newsletter entity.
    * @param int $uid
    *   The user ID that belongs to the email.
    *
    * @return bool
    *   TRUE if confirmation is required, FALSE if not.
    */
-  protected function requiresConfirmation(NewsletterInterface $newsletter, $uid) {
+  protected function requiresConfirmation($uid) {
     // If user is currently logged in, don't send confirmation.
-    // Other addresses receive a confirmation if double opt-in is selected.
+    // Other addresses receive a confirmation if configured.
     if ($this->currentUser->id() && $uid && $this->currentUser->id() == $uid) {
       return FALSE;
     }
     else {
-      return $newsletter->opt_inout == 'double';
+      return !$this->config->get('subscription.skip_verification');
     }
   }
 

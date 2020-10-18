@@ -24,7 +24,7 @@ interface SubscriptionManagerInterface {
    *   The newsletter ID.
    * @param bool|null $confirm
    *   TRUE = send confirmation mail; FALSE = subscribe immediate to the
-   *   newsletter; NULL means the default from the chosen newsletter is used.
+   *   newsletter; NULL means the default is used.
    * @param string $source
    *   Indication for source of subscription. Simplenews uses these sources:
    *    website: via any website form (with or without confirmation email)
@@ -54,7 +54,7 @@ interface SubscriptionManagerInterface {
    *   The newsletter ID.
    * @param bool|null $confirm
    *   If TRUE, send a confirmation mail; if FALSE, unsubscribe immediately.
-   *   NULL means the default from the chosen newsletter is used.
+   *   NULL means the default is used.
    * @param string $source
    *   Indicates the unsubscribe source. Simplenews uses these sources:
    *   - website: Via any website form (with or without confirmation email).

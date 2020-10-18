@@ -283,3 +283,29 @@ function simplenews_update_830002() {
   $config->set('mail.textalt', TRUE);
   $config->save();
 }
+
+/**
+ * Initialize skip_verification setting, remove single-confirmation emails.
+ * Convert newsletter field opt_inout to 'access'.
+ */
+function simplenews_update_830003() {
+  $config = \Drupal::configFactory()->getEditable('simplenews.settings');
+
+  $config->set('subscription.skip_verification', FALSE);
+
+  $config->clear('subscription.use_combined');
+  $config->clear('subscription.confirm_subscribe_subject');
+  $config->clear('subscription.confirm_subscribe_unsubscribed');
+  $config->clear('subscription.confirm_subscribe_subscribed');
+  $config->clear('subscription.confirm_unsubscribe_subscribed');
+  $config->clear('subscription.confirm_unsubscribe_unsubscribed');
+
+  $config->save();
+
+  $newsletter_types = \Drupal::service('entity_type.manager')->getStorage('simplenews_newsletter')->loadMultiple();
+  foreach($newsletter_types as $type) {
+    $type->set('access', $type->get('opt_inout') != 'hidden' ? 'default' : 'hidden');
+    $type->set('opt_inout', NULL);
+    $type->save();
+  }
+}

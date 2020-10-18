@@ -15,7 +15,6 @@ use Drupal\Core\Session\AnonymousUserSession;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
-use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\AbortSendingException;
 use Drupal\simplenews\SkipMailException;
@@ -409,18 +408,8 @@ class Mailer implements MailerInterface {
     $params['context']['simplenews_subscriber'] = $subscriber;
     // Send multiple if there is more than one change for this subscriber
     // single otherwise.
-    $use_combined = $this->config->get('subscription.use_combined');
-    $changes = $subscriber->getChanges();
-    if ((count($changes) > 1 && $use_combined != 'never') || $use_combined == 'always') {
-      $key = 'subscribe_combined';
-      $this->mailManager->mail('simplenews', $key, $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
-    }
-    else {
-      foreach ($changes as $newsletter_id => $key) {
-        $params['context']['newsletter'] = Newsletter::load($newsletter_id);
-        $this->mailManager->mail('simplenews', $key, $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
-      }
-    }
+    $key = 'subscribe_combined';
+    $this->mailManager->mail('simplenews', $key, $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
   }
 
   /**

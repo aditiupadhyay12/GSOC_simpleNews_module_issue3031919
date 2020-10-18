@@ -22,7 +22,14 @@ process:
   from_address: from_address
   hyperlinks: hyperlinks
   new_account: new_account
-  opt_inout: opt_inout
+  access:
+    -
+      plugin: static_map
+      source: opt_inout
+      map:
+        double: default
+        single: default
+        hidden: hidden
   weight: weight
 destination:
   plugin: entity:simplenews_newsletter

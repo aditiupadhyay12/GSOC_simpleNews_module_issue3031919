@@ -37,27 +37,12 @@ simplenews.settings:
       type: mapping
       label: Subscription settings
       mapping:
+        skip_verification:
+          type: boolean
+          label: Skip verification for anonymous users
         tidy_unconfirmed:
           type: integer
           label: Tidy unconfirmed subscriptions after a number of days
-        use_combined:
-          type: string
-          label: Combined setting
-        confirm_subscribe_subject:
-          type: label
-          label: Subscribe confirmation subject
-        confirm_subscribe_unsubscribed:
-          type: text
-          label: Subscribe confirmation message
-        confirm_subscribe_subscribed:
-          type: text
-          label: Already subscribed message
-        confirm_unsubscribe_subscribed:
-          type: text
-          label: Unsubscribe message
-        confirm_unsubscribe_unsubscribed:
-          type: text
-          label: Already Unsubscribe message
         confirm_combined_subject:
           type: label
           label: Combined subscribe subject
@@ -153,9 +138,9 @@ simplenews.newsletter.*:
     new_account:
       type: string
       label: 'Indicates how to integrate with the register form.'
-    opt_inout:
+    access:
       type: string
-      label: 'Defines the Opt-In/out options.'
+      label: 'Controls access to subscribe and unsubscribe.'
     weight:
       type: integer
       label: 'Weight of this newsletter (used for sorting).'

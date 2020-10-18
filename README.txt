@@ -169,26 +169,25 @@ INSTALLATION
       Destination: node/123
       Destination URL: node/123/ok
 
- 12. SINGLE OR DOUBLE OPT-IN AND OPT-OUT
+ 12. ACCESS
 
-    Every newsletter can be set to be double opt-in/out (default), single
-    opt-in/out, or hidden.
+    Every newsletter has an 'access' setting that determines whether subscribe
+    and unsubscribe are available on newsletter forms.
 
-    Double: A confirmation email is sent to confirm the (un)subscribe action.
-            No confirmation is sent when a user is (un)subscribed by the
-            administrator or when the user subscribes when creating an account.
-    Single: No confirmation email is sent. (un)subscribe is immediately.
-    Hidden: The newsletter is not listed in newsletter lists. Use this for
-    mandatory newsletters. Only administrators or modules can add a user to this
-    mailing list.
+    Default: Any user with 'Subscribe to newsletters' permissions can subscribe
+      and unsubscribe.
+    Hidden: Subscription is mandatory or handled programmatically by adding
+      manual code.
 
-    Note that single opt-in/out or hidden (forced) subscription is in some
-    countries forbidden by law.
+    Note that mandatory subscription is restricted by law in some countries.
 
-    SECURITY NOTICE: a newsletter set to be single opt-in or opt-out is
-    vulnerable to Cross Site Request Forgeries. Email addresses may be
-    (un)subscribed without a notice. Do not use this setting in uncontrolled
-    environments (like the internet!).
+    Moreover, note that subscribers can be added to the spool of a newsletter
+    issue through "Recipient Handlers" (missing documentation - see code in
+    RecipientHandlerInterface and examples in the demo sub-module) even when
+    subscribers don't have a subscription to the newsletter type corresponding
+    to the issue. This can be useful for the newsletter types with access set
+    to 'hidden'. Note that manual recipient handling is separate from manual
+    subscription handling — these are two separate concepts!
 
  13. TIPS
     A subscription page is available at: /newsletter/subscriptions

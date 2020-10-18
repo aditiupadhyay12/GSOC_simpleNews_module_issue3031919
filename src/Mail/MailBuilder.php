@@ -89,26 +89,6 @@ class MailBuilder implements MailBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function buildSubscribeMail(array &$message, array $params) {
-    $context = $params['context'];
-
-    // Use formatted from address "name" <mail_address>.
-    $message['headers']['From'] = $params['from']['formatted'];
-
-    $message['subject'] = $this->config->get('subscription.confirm_subscribe_subject');
-    $message['subject'] = simplenews_token_replace_subject($message['subject'], $context);
-    if ($context['simplenews_subscriber']->isSubscribed($context['newsletter']->id())) {
-      $body = $this->config->get('subscription.confirm_subscribe_subscribed');
-    }
-    else {
-      $body = $this->config->get('subscription.confirm_subscribe_unsubscribed');
-    }
-    $message['body'][] = simplenews_token_replace_body($body, $context);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function buildCombinedMail(array &$message, array $params) {
     $context = $params['context'];
     $subscriber = $context['simplenews_subscriber'];

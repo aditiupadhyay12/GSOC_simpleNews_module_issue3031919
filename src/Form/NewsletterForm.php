@@ -77,13 +77,13 @@ class NewsletterForm extends EntityForm {
     ];
 
     // Type of (un)subsribe confirmation.
-    $options = simplenews_opt_inout_options();
-    $form['subscription']['opt_inout'] = [
+    $options = simplenews_access_options();
+    $form['subscription']['access'] = [
       '#type' => 'select',
-      '#title' => $this->t('Opt-in/out method'),
+      '#title' => $this->t('Access'),
       '#options' => $options,
-      '#default_value' => $newsletter->opt_inout,
-      '#description' => $this->t('Hidden: This newsletter does not appear on subscription forms. No unsubscription footer in newsletter.<br /> Single: Users are (un)subscribed immediately, no confirmation email is sent.<br />Double: When (un)subscribing at a subscription form, anonymous users receive an (un)subscription confirmation email. Authenticated users are (un)subscribed immediately.'),
+      '#default_value' => $newsletter->access,
+      '#description' => $this->t("Default: Any user with 'Subscribe to newsletters' permission can subscribe and unsubscribe.<br />Hidden: Subscription is mandatory or controlled programmatically."),
     ];
 
     $form['email'] = [
