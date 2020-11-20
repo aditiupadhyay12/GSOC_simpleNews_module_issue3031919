@@ -1,4 +1,4 @@
-langcode: zxx #LANGCODE_NOT_APPLICABLE
+langcode: en
 status: true
 dependencies:
   config:

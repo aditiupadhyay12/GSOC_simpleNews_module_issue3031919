@@ -345,7 +345,6 @@ function simplenews_update_830005() {
   foreach ($fields as $field) {
     $updated_field = FieldConfig::create($field->toArray() + [
       'translatable' => FALSE,
-      'langcode' => 'zxx',
     ]);
     $updated_field->original = $field;
     $updated_field->enforceIsNew(FALSE);
