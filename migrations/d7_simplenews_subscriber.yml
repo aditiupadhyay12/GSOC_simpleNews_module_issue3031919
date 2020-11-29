@@ -17,7 +17,7 @@ process:
   changes: changes
   created: created
   subscriptions:
-    plugin: iterator
+    plugin: sub_process
     source: subscriptions
     process:
       target_id:
