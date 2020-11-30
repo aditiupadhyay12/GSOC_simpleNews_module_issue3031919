@@ -267,7 +267,7 @@ class Mailer implements MailerInterface {
       foreach ($spool->getResults() as $row) {
         $freq[$row->result]++;
         if (isset(static::TRACK_RESULTS[$row->result])) {
-          $item = &$results_table[$row->entity_type][$row->entity_id][$row->langcode][$row->result];
+          $item = &$results_table[$row->entity_type][$row->entity_id][$row->result];
           $item = ($item ?? 0) + 1;
           ;
         }
@@ -278,7 +278,7 @@ class Mailer implements MailerInterface {
         foreach ($results_table as $entity_type => $ids) {
           $storage = $this->entityTypeManager->getStorage($entity_type);
 
-          foreach ($ids as $entity_id => $languages) {
+          foreach ($ids as $entity_id => $counts) {
             $storage->resetCache([$entity_id]);
             $entity = $storage->load($entity_id);
             $entity->simplenews_issue->sent_count += $counts[SpoolStorageInterface::STATUS_DONE] ?? 0;
