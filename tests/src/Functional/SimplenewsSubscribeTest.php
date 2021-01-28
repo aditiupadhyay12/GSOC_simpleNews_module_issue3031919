@@ -928,6 +928,20 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
   }
 
   /**
+   * Tests access for a registered user to manage subscriptions with a hash.
+   */
+  public function testHashAuth() {
+    $user = $this->drupalCreateUser(['subscribe to newsletters']);
+    $mail = $user->getEmail();
+    $subscriber = Subscriber::loadByMail($mail, 'create');
+    $subscriber->save();
+    $hash = simplenews_generate_hash($mail, 'manage');
+    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
+    $this->submitForm([], t('Update'));
+    $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $mail]));
+  }
+
+  /**
    * Tests formatting and escaping of subscription mails.
    */
   public function testFormatting() {

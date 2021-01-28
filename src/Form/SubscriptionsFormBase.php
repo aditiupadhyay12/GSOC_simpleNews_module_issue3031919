@@ -214,7 +214,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $mail = $form_state->getValue(['mail', 0, 'value']);
     // Users should login to manage their subscriptions.
-    if (\Drupal::currentUser()->isAnonymous() && $user = user_load_by_mail($mail)) {
+    if (!$this->isAuthenticated() && $user = user_load_by_mail($mail)) {
       $message = $user->isBlocked() ?
         $this->t('The email address %mail belongs to a blocked user.', ['%mail' => $mail]) :
         $this->t('There is an account registered for the e-mail address %mail. Please log in to manage your newsletter subscriptions.', ['%mail' => $mail]);
@@ -229,6 +229,14 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
     }
 
     parent::validateForm($form, $form_state);
+  }
+
+  /**
+   * Check if there is an authenticated user who is viewing this form.
+   */
+  protected function isAuthenticated() {
+    $user_loaded = $this->getEntity()->getUser();
+    return ($user_loaded && $user_loaded->isAuthenticated());
   }
 
   /**
