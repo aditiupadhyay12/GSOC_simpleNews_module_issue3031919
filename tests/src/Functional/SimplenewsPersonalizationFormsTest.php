@@ -98,9 +98,10 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     $this->subscribe('default', $email);
 
     // Request new password.
-    $this->drupalPostForm('user/password', [
+    $this->drupalGet('user/password');
+    $this->submitForm([
       'name' => $email,
-    ], t('Submit'));
+    ], 'Submit');
 
     // Assert the email is not recognized as an account.
     $this->assertRaw(t('%name is not recognized as a username or an email address.', ['%name' => $email]));
@@ -122,7 +123,8 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Disable account.
     $this->drupalLogin($this->admin);
-    $this->drupalPostForm("user/$uid/cancel", [], t('Cancel account'));
+    $this->drupalGet("user/$uid/cancel");
+    $this->submitForm([], 'Cancel account');
 
     // Assert subscriber is inactive.
     $subscriber = $this->getLatestSubscriber();
@@ -143,7 +145,8 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Delete account.
     $this->drupalLogin($this->admin);
-    $this->drupalPostForm("user/$uid/cancel", ['user_cancel_method' => 'user_cancel_reassign'], t('Cancel account'));
+    $this->drupalGet("user/$uid/cancel");
+    $this->submitForm(['user_cancel_method' => 'user_cancel_reassign'], 'Cancel account');
 
     // Assert subscriptions are deleted.
     $subscriber = $this->getLatestSubscriber();
@@ -161,7 +164,8 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Block account.
     $this->drupalLogin($this->admin);
-    $this->drupalPostForm("user/$uid/edit", ['status' => 0], t('Save'));
+    $this->drupalGet("user/$uid/edit");
+    $this->submitForm(['status' => 0], 'Save');
     $this->drupalLogout();
 
     // Attempt subscribe and assert "blocked" message.

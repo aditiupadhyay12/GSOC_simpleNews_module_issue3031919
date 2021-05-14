@@ -51,11 +51,11 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
       'simplenews_issue[handler]' => 'simplenews_site_mail',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->submitForm($edit, 'Save');
 
     $this->clickLink(t('Newsletter'));
     $this->assertText(t('Send newsletter issue to 1 subscribers.'));
-    $this->drupalPostForm(NULL, [], t('Send now'));
+    $this->submitForm([], 'Send now');
     $this->checkRecipients(['simpletest@example.com' => 1]);
   }
 
@@ -75,11 +75,11 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
       'simplenews_issue[handler]' => 'simplenews_new_users',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->submitForm($edit, 'Save');
 
     $this->clickLink(t('Newsletter'));
     $this->assertText(t('Send newsletter issue to 3 subscribers.'));
-    $this->drupalPostForm(NULL, [], t('Send now'));
+    $this->submitForm([], 'Send now');
     $this->checkRecipients(array_slice($users, 0, 3));
   }
 
@@ -102,7 +102,7 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
       'simplenews_issue[handler]' => 'simplenews_subscribers_by_role',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->submitForm($edit, 'Save');
 
     // Edit and set the role.
     $this->clickLink(t('Edit'));
@@ -110,11 +110,11 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
     $edit = [
       'simplenews_issue[handler_settings][role]' => $rid,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->submitForm($edit, 'Save');
 
     $this->clickLink(t('Newsletter'));
     $this->assertText(t('Send newsletter issue to 2 subscribers.'));
-    $this->drupalPostForm(NULL, [], t('Send now'));
+    $this->submitForm([], 'Send now');
     $this->checkRecipients($recipients);
   }
 

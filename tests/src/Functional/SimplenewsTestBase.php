@@ -135,7 +135,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
       // @todo: Don't hardcode the default newsletter_id.
       'newsletters[' . $newsletter_id . ']' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Subscribe'));
+    $this->submitForm($edit, 'Subscribe');
   }
 
   /**
@@ -204,7 +204,8 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     foreach ($newsletter_ids as $newsletter_id) {
       $edit["subscriptions[$newsletter_id]"] = $newsletter_id;
     }
-    $this->drupalPostForm($path, $edit, $submit ?: t('Subscribe'));
+    $this->drupalGet($path);
+    $this->submitForm($edit, $submit ?: 'Subscribe');
     $this->assertResponse($response);
   }
 
@@ -224,7 +225,8 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
       'mail' => $email ?: $this->randomEmail(),
       'name' => $this->randomMachineName(),
     ];
-    $this->drupalPostForm('user/register', $edit, t('Create new account'));
+    $this->drupalGet('user/register');
+    $this->submitForm($edit, 'Create new account');
     // Return uid of new user.
     $uids = \Drupal::entityQuery('user')
       ->sort('created', 'DESC')
@@ -245,7 +247,8 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     $uid = $user->id();
     $timestamp = REQUEST_TIME;
     $hash = user_pass_rehash($user, $timestamp);
-    $this->drupalPostForm("/user/reset/$uid/$timestamp/$hash", [], t('Log in'));
+    $this->drupalGet("/user/reset/$uid/$timestamp/$hash");
+    $this->submitForm([], 'Log in');
   }
 
   /**

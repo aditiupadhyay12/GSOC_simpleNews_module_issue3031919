@@ -121,7 +121,8 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     $edit = [
       'language_configuration[content_translation]' => TRUE,
     ];
-    $this->drupalPostForm('admin/structure/types/manage/simplenews_issue', $edit, t('Save content type'));
+    $this->drupalGet('admin/structure/types/manage/simplenews_issue');
+    $this->submitForm($edit, 'Save content type');
 
     // Create a Newsletter including a translation.
     $newsletter_id = $this->getRandomNewsletter();
@@ -130,7 +131,8 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => $newsletter_id,
       'body[0][value]' => 'Link to node: [node:url]',
     ];
-    $this->drupalPostForm('node/add/simplenews_issue', $english, ('Save'));
+    $this->drupalGet('node/add/simplenews_issue');
+    $this->submitForm($english, 'Save');
     $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -140,7 +142,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       'title[0][value]' => $this->randomMachineName(),
       'body[0][value]' => 'Link to node: [node:url] ES',
     ];
-    $this->drupalPostForm(NULL, $spanish, t('Save (this translation)'));
+    $this->submitForm($spanish, 'Save (this translation)');
 
     \Drupal::entityTypeManager()->getStorage('node')->resetCache([$node->id()]);
     $node = Node::load($node->id());
@@ -148,7 +150,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
 
     // Send newsletter.
     $this->clickLink(t('Newsletter'));
-    $this->drupalPostForm(NULL, [], t('Send now'));
+    $this->submitForm([], t('Send now'));
     $this->cronRun();
     // @codingStandardsIgnoreLine
     //simplenews_cron();
@@ -194,12 +196,13 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       'langcode[0][value]' => 'en',
       'body[0][value]' => 'Link to node: [node:url]',
     ];
-    $this->drupalPostForm('node/add/simplenews_issue', $english, ('Save'));
+    $this->drupalGet('node/add/simplenews_issue');
+    $this->submitForm($english, 'Save');
     $this->clickLink(t('Edit'));
     $edit = [
       'langcode[0][value]' => 'es',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->submitForm($edit, 'Save');
   }
 
 }

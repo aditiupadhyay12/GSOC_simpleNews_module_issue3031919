@@ -41,7 +41,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
         'description' => $this->randomString(20),
         'access' => 'default',
       ];
-      $this->drupalPostForm(NULL, $edit, t('Save'));
+      $this->submitForm($edit, 'Save');
     }
 
     $newsletters = simplenews_newsletter_get_all();
@@ -57,7 +57,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     foreach ($enable as $newsletter_id) {
       $edit['subscriptions[' . $newsletter_id . ']'] = TRUE;
     }
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Subscribe'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Subscribe');
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.'));
 
     // Verify listed changes.
@@ -84,7 +85,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       }
     }
 
-    $this->drupalPostForm($confirm_url, [], t('Confirm'));
+    $this->drupalGet($confirm_url);
+    $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
 
     /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
@@ -111,7 +113,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     // Go to the manage page and submit without changes.
     $subscriber = Subscriber::loadByMail($mail);
     $hash = simplenews_generate_hash($subscriber->getMail(), 'manage');
-    $this->drupalPostForm('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash, [], t('Update'));
+    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
+    $this->submitForm([], 'Update');
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $mail]));
     $this->assertEquals(1, count($this->getMails()), t('No confirmation mails have been sent.'));
 
@@ -124,7 +127,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     foreach ($disable as $newsletter_id) {
       $edit['subscriptions[' . $newsletter_id . ']'] = TRUE;
     }
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Unsubscribe'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Unsubscribe');
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to cancel your subscription.'));
 
     // Unsubscribe with no confirmed email.
@@ -157,7 +161,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       }
     }
 
-    $this->drupalPostForm($confirm_url, [], t('Confirm'));
+    $this->drupalGet($confirm_url);
+    $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
 
     // Verify subscription changes.
@@ -181,7 +186,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     foreach (array_keys($newsletters) as $newsletter_id) {
       $edit['subscriptions[' . $newsletter_id . ']'] = TRUE;
     }
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Unsubscribe'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Unsubscribe');
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to cancel your subscription.'));
 
     $confirm_url = $this->extractConfirmationLink($this->getMail(2));
@@ -217,7 +223,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     foreach ($enable as $newsletter_id) {
       $edit['subscriptions[' . $newsletter_id . ']'] = TRUE;
     }
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Subscribe'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Subscribe');
 
     $subscriber = Subscriber::loadByMail($mail);
     $expired_timestamp = REQUEST_TIME - 86401;
@@ -225,7 +232,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $url = 'newsletter/confirm/combined/' . $subscriber->id() . '/' . $expired_timestamp . '/' . $hash;
     $this->drupalGet($url);
     $this->assertText(t('This link has expired.'));
-    $this->drupalPostForm(NULL, [], t('Request new confirmation mail'));
+    $this->submitForm([], 'Request new confirmation mail');
 
     $confirm_url = $this->extractConfirmationLink($this->getMail(4));
 
@@ -247,7 +254,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       }
     }
 
-    $this->drupalPostForm($confirm_url, [], t('Confirm'));
+    $this->drupalGet($confirm_url);
+    $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
   }
 
@@ -304,7 +312,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
         'description' => $this->randomString(20),
         'access' => 'default',
       ];
-      $this->drupalPostForm(NULL, $edit, t('Save'));
+      $this->submitForm($edit, 'Save');
     }
 
     $newsletter_id = $this->getRandomNewsletter();
@@ -333,7 +341,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       'mail[0][value]' => $mail,
     ];
-    $this->drupalPostForm('', $edit, t('Subscribe'));
+    $this->drupalGet('');
+    $this->submitForm($edit, 'Subscribe');
     $this->assertText(t('The email address @mail is not valid', ['@mail' => $mail]));
 
     // Now with valid email.
@@ -341,7 +350,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       'mail[0][value]' => $mail,
     ];
-    $this->drupalPostForm('', $edit, t('Subscribe'));
+    $this->drupalGet('');
+    $this->submitForm($edit, 'Subscribe');
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.'));
 
     $subscriber = Subscriber::loadByMail($mail);
@@ -355,7 +365,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
     $this->assertText(t('Subscribe to @newsletter', ['@newsletter' => $newsletter->name]));
 
-    $this->drupalPostForm(NULL, [], t('Confirm'));
+    $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
     $this->assertUrl(new Url('<front>'));
 
@@ -373,7 +383,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       'pass[pass1]' => $pass,
       'pass[pass2]' => $pass,
     ];
-    $this->drupalPostForm('user/register', $edit, t('Create new account'));
+    $this->drupalGet('user/register');
+    $this->submitForm($edit, 'Create new account');
 
     // Verify confirmation messages.
     $this->assertText(t('Registration successful. You are now logged in.'));
@@ -404,7 +415,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       "subscriptions[$newsletter_id]" => '1',
       'mail[0][value]' => $mail,
     ];
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Subscribe'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Subscribe');
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.'));
 
     $confirm_url = $this->extractConfirmationLink($this->getMail(2));
@@ -414,7 +426,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
     $this->assertText(t('Subscribe to @newsletter', ['@newsletter' => $newsletter->name]));
 
-    $this->drupalPostForm(NULL, [], t('Confirm'));
+    $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
 
     // 3. Subscribe anonymous via multi block.
@@ -431,14 +443,15 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       'mail[0][value]' => $mail,
     ];
-    $this->drupalPostForm('', $edit, t('Subscribe'));
+    $this->drupalGet('');
+    $this->submitForm($edit, 'Subscribe');
     $this->assertText(t('You must select at least one newsletter.'));
 
     // Now fill out the form and try again. The e-mail should still be listed.
     $edit = [
       'subscriptions[' . $newsletter_id . ']' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Subscribe'));
+    $this->submitForm($edit, 'Subscribe');
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.'));
 
     $confirm_url = $this->extractConfirmationLink($this->getMail(3));
@@ -448,7 +461,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
     $this->assertText(t('Subscribe to @newsletter', ['@newsletter' => $newsletter->name]));
 
-    $this->drupalPostForm(NULL, [], t('Confirm'));
+    $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
 
     // Try to subscribe again, this should not re-set the status to unconfirmed.
@@ -456,7 +469,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       'mail[0][value]' => $mail,
       'subscriptions[' . $newsletter_id . ']' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Subscribe'));
+    $this->submitForm($edit, 'Subscribe');
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.'));
 
     $subscriber = Subscriber::loadByMail($mail);
@@ -469,14 +482,15 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       'mail[0][value]' => $mail,
     ];
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Subscribe'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Subscribe');
     $this->assertText(t('You must select at least one newsletter.'));
 
     // Now fill out the form and try again.
     $edit = [
       'subscriptions[' . $newsletter_id . ']' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Subscribe'));
+    $this->submitForm($edit, 'Subscribe');
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.'));
 
     $confirm_url = $this->extractConfirmationLink($this->getMail(5));
@@ -486,21 +500,22 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
     $this->assertText(t('Subscribe to @newsletter', ['@newsletter' => $newsletter->name]));
 
-    $this->drupalPostForm(NULL, [], t('Confirm'));
+    $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
 
     // Test unsubscribe on newsletter/subscriptions page.
     $edit = [
       'mail[0][value]' => $mail,
     ];
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Unsubscribe'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Unsubscribe');
     $this->assertText(t('You must select at least one newsletter.'));
 
     // Now fill out the form and try again.
     $edit = [
       'subscriptions[' . $newsletter_id . ']' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Unsubscribe'));
+    $this->submitForm($edit, 'Unsubscribe');
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to cancel your subscription.'));
     $this->assertMailText(t('We have received a request for the following subscription changes for @mail', ['@mail' => $mail]), 6);
 
@@ -515,7 +530,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
     $this->assertText(t('Unsubscribe from @newsletter', ['@newsletter' => $newsletter->name]));
 
-    $this->drupalPostForm(NULL, [], t('Confirm'));
+    $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
 
     // Visit the newsletter/subscriptions page with the hash.
@@ -528,7 +543,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       'subscriptions[' . $newsletter_id . ']' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Update'));
+    $this->submitForm($edit, 'Update');
 
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $mail]));
 
@@ -551,7 +566,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       'mail[0][value]' => $mail,
       'subscriptions[' . $newsletter_id . ']' => TRUE,
     ];
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Unsubscribe'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Unsubscribe');
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to cancel your subscription.'));
     $this->assertMailText(t('Already unsubscribed from @newsletter', ['@newsletter' => $newsletter->name]), 7);
 
@@ -560,7 +576,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       'mail[0][value]' => $mail,
       'subscriptions[' . $newsletter_id . ']' => TRUE,
     ];
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Subscribe'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Subscribe');
 
     $subscriber = Subscriber::loadByMail($mail);
     $expired_timestamp = REQUEST_TIME - 86401;
@@ -568,7 +585,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $url = 'newsletter/confirm/add/' . $subscriber->id() . '/' . $newsletter_id . '/' . $expired_timestamp . '/' . $hash;
     $this->drupalGet($url);
     $this->assertText(t('This link has expired.'));
-    $this->drupalPostForm(NULL, [], t('Request new confirmation mail'));
+    $this->submitForm([], 'Request new confirmation mail');
 
     $confirm_url = $this->extractConfirmationLink($this->getMail(8));
 
@@ -577,7 +594,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
     $this->assertText(t('Subscribe to @newsletter', ['@newsletter' => $newsletter->name]));
 
-    $this->drupalPostForm(NULL, [], t('Confirm'));
+    $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
 
     // Make sure the subscription is confirmed now.
@@ -628,7 +645,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       'description' => $this->randomString(20),
       'access' => 'default',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->submitForm($edit, 'Save');
 
     $this->drupalLogout();
 
@@ -649,7 +666,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       'mail[0][value]' => $mail,
     ];
-    $this->drupalPostForm('', $edit, t('Subscribe'));
+    $this->drupalGet('');
+    $this->submitForm($edit, 'Subscribe');
     $this->assertText(t('You have been subscribed.'));
 
     $subscriber = Subscriber::loadByMail($mail);
@@ -661,7 +679,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       'mail[0][value]' => $mail,
       'subscriptions[' . $newsletter_id . ']' => TRUE,
     ];
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Unsubscribe'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Unsubscribe');
 
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscriber = Subscriber::loadByMail($mail);
@@ -710,7 +729,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
         'description' => $this->randomString(20),
         'access' => 'default',
       ];
-      $this->drupalPostForm(NULL, $edit, t('Save'));
+      $this->submitForm($edit, 'Save');
     }
 
     $newsletter_id = $this->getRandomNewsletter();
@@ -729,7 +748,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     // 1. Subscribe authenticated via block
     // Subscribe + submit
     // Assert confirmation message.
-    $this->drupalPostForm(NULL, [], t('Subscribe'));
+    $this->submitForm([], 'Subscribe');
     $this->assertText(t('You have been subscribed.'));
     $this->assertEqual($this->countSubscribers(), 1);
 
@@ -739,7 +758,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       "subscriptions[$newsletter_id]" => 0,
     ];
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Update'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Update');
     $this->assertRaw(t('The newsletter subscriptions for %mail have been updated.', ['%mail' => $subscriber_user->getEmail()]));
 
     // 3. Subscribe authenticated via subscription page
@@ -749,7 +769,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       "subscriptions[$newsletter_id]" => '1',
     ];
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Update'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Update');
     $this->assertRaw(t('The newsletter subscriptions for %mail have been updated.', ['%mail' => $subscriber_user->getEmail()]));
     $this->assertEqual($this->countSubscribers(), 1);
 
@@ -760,7 +781,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       "subscriptions[$newsletter_id]" => FALSE,
     ];
     $url = 'user/' . $subscriber_user->id() . '/simplenews';
-    $this->drupalPostForm($url, $edit, t('Save'));
+    $this->drupalGet($url);
+    $this->submitForm($edit, 'Save');
     $this->assertRaw(t('Your newsletter subscriptions have been updated.', ['%mail' => $subscriber_user->getEmail()]));
 
     $subscriber = Subscriber::loadByMail($subscriber_user->getEmail());
@@ -775,7 +797,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       "subscriptions[$newsletter_id]" => '1',
     ];
     $url = 'user/' . $subscriber_user->id() . '/simplenews';
-    $this->drupalPostForm($url, $edit, t('Save'));
+    $this->drupalGet($url);
+    $this->submitForm($edit, 'Save');
     $this->assertRaw(t('Your newsletter subscriptions have been updated.', ['%mail' => $subscriber_user->getEmail()]));
     $count = 1;
     $this->assertEqual($this->countSubscribers(), $count);
@@ -803,7 +826,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertResponse(200);
 
     $this->assertNoField('mail[0][value]');
-    $this->drupalPostForm(NULL, [], t('Update'));
+    $this->submitForm([], 'Update');
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $subscriber_user2->getEmail()]));
 
     // Nothing should have happened to subscriptions but this does create a
@@ -816,7 +839,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       'subscriptions[' . $newsletter_id . ']' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Update'));
+    $this->submitForm($edit, 'Update');
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $subscriber_user2->getEmail()]));
     $this->assertEqual($this->countSubscribers(), $count);
 
@@ -826,7 +849,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       'subscriptions[' . $newsletter_id . ']' => FALSE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Update'));
+    $this->submitForm($edit, 'Update');
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $subscriber_user2->getEmail()]));
 
     $this->assertNoFieldChecked('edit-subscriptions-' . $newsletter_id);
@@ -836,7 +859,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->drupalLogin($subscriber_user3);
 
     $this->assertNoField('mail[0][value]');
-    $this->drupalPostForm('newsletter/subscriptions', [], t('Update'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm([], 'Update');
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $subscriber_user3->getEmail()]));
 
     // Nothing should have happened to subscriptions but this does create a
@@ -849,7 +873,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       'subscriptions[' . $newsletter_id . ']' => TRUE,
     ];
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Update'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Update');
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $subscriber_user3->getEmail()]));
     $this->assertEqual($this->countSubscribers(), $count);
 
@@ -859,7 +884,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       'subscriptions[' . $newsletter_id . ']' => FALSE,
     ];
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Update'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Update');
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $subscriber_user3->getEmail()]));
 
     $this->assertNoFieldChecked('edit-subscriptions-' . $newsletter_id);
@@ -881,7 +907,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       'settings[newsletters][default]' => TRUE,
       'region' => 'header',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save block'));
+    $this->submitForm($edit, 'Save block');
     $this->drupalGet('');
     // Provided Unique ID is used as form_id.
     $this->assertFieldByXPath("//*[@id=\"simplenews-subscriptions-block-test-simplenews-123\"]", NULL, 'Form ID found and contains expected value.');
@@ -902,7 +928,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       "subscriptions[$newsletter_id]" => TRUE,
       'mail[0][value]' => $mail,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->submitForm($edit, 'Save');
     $this->assertText(t('Subscriber @mail has been added.', ['@mail' => $mail]));
 
     $subscriber = Subscriber::loadByMail($mail);
@@ -923,7 +949,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $unsubscribe_url = $this->extractConfirmationLink($this->getMail(0));
     $this->drupalGet($unsubscribe_url);
     $this->assertText('Confirm remove subscription');
-    $this->drupalPostForm(NULL, [], t('Unsubscribe'));
+    $this->submitForm([], 'Unsubscribe');
     $this->assertText('was unsubscribed from the Default newsletter mailing list.');
   }
 
@@ -937,7 +963,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $subscriber->save();
     $hash = simplenews_generate_hash($mail, 'manage');
     $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
-    $this->submitForm([], t('Update'));
+    $this->submitForm([], 'Update');
     $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $mail]));
   }
 
@@ -960,7 +986,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       "subscriptions[$newsletter_id]" => '1',
       'mail[0][value]' => $mail,
     ];
-    $this->drupalPostForm('newsletter/subscriptions', $edit, t('Subscribe'));
+    $this->drupalGet('newsletter/subscriptions');
+    $this->submitForm($edit, 'Subscribe');
 
     $captured_emails = $this->container->get('state')->get('system.test_mail_collector') ?: [];
     $email = end($captured_emails);

@@ -53,7 +53,7 @@ class SimplenewsFieldUiTest extends SimplenewsTestBase {
       'type' => $type,
       'simplenews_content_type' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
+    $this->submitForm($edit, 'Save and manage fields');
     $this->drupalGet('admin/structure/types/manage/' . $type . '/fields');
     $this->assertText('simplenews_issue');
     // Check if the help text is displayed.

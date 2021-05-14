@@ -117,7 +117,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'title[0][value]' => $this->randomString(10),
       'simplenews_issue[target_id]' => 'default',
     ];
-    $this->drupalPostForm(NULL, $edit, ('Save'));
+    $this->submitForm($edit, 'Save');
     $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -130,7 +130,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
 
     // Send now.
-    $this->drupalPostForm(NULL, [], t('Send now'));
+    $this->submitForm([], 'Send now');
 
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
@@ -171,7 +171,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
         // The last newsletter shouldn't be published.
         'status[value]' => $i != 2,
       ];
-      $this->drupalPostForm(NULL, $edit, ('Save'));
+      $this->submitForm($edit, 'Save');
       $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
       $nodes[] = Node::load($matches[1]);
 
@@ -197,7 +197,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'title[0][value]' => $this->randomString(10),
       'simplenews_issue[target_id]' => 'default',
     ];
-    $this->drupalPostForm(NULL, $edit, ('Save'));
+    $this->submitForm($edit, 'Save');
     $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -211,7 +211,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
 
     // Send now.
-    $this->drupalPostForm(NULL, [], t('Send now'));
+    $this->submitForm([], 'Send now');
 
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
@@ -274,12 +274,12 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
     ];
     // Try preview first.
-    $this->drupalPostForm(NULL, $edit, t('Preview'));
+    $this->submitForm($edit, 'Preview');
 
     $this->clickLink(t('Back to content editing'));
 
     // Then save.
-    $this->drupalPostForm(NULL, [], t('Save'));
+    $this->submitForm([], 'Save');
 
     $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
@@ -294,7 +294,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
 
     // Send now.
-    $this->drupalPostForm(NULL, [], t('Send now'));
+    $this->submitForm([], 'Send now');
 
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
@@ -354,7 +354,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
       'status[value]' => FALSE,
     ];
-    $this->drupalPostForm(NULL, $edit, ('Save'));
+    $this->submitForm($edit, 'Save');
     $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -368,7 +368,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
 
     // Send now.
-    $this->drupalPostForm(NULL, [], t('Send on publish'));
+    $this->submitForm([], 'Send on publish');
 
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache([$node->id()]);
@@ -376,7 +376,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_PUBLISH, $node->simplenews_issue->status, t('Newsletter set up for sending on publish.'));
 
     $this->clickLink(t('Edit'));
-    $this->drupalPostForm(NULL, ['status[value]' => TRUE], t('Save'));
+    $this->submitForm(['status[value]' => TRUE], 'Save');
 
     // Send on publish does not send immediately.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache([$node->id()]);
@@ -413,7 +413,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'id' => strtolower($this->randomMachineName(10)),
       'description' => $this->randomString(20),
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->submitForm($edit, 'Save');
     $this->assertText(t('Newsletter @name has been added', ['@name' => $edit['name']]));
 
     $this->drupalGet('node/add/simplenews_issue');
@@ -425,7 +425,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'title[0][value]' => $this->randomString(10),
       'simplenews_issue[target_id]' => $first_newsletter_id,
     ];
-    $this->drupalPostForm(NULL, $edit, ('Save'));
+    $this->submitForm($edit, 'Save');
     $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created.');
 
     // Verify newsletter.
@@ -442,7 +442,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $update = [
       'simplenews_issue[target_id]' => $second_newsletter_id,
     ];
-    $this->drupalPostForm(NULL, $update, t('Save'));
+    $this->submitForm($update, 'Save');
 
     // Verify newsletter.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
@@ -513,7 +513,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'title[0][value]' => $this->randomString(10),
       'simplenews_issue[target_id]' => 'default',
     ];
-    $this->drupalPostForm(NULL, $edit, ('Save'));
+    $this->submitForm($edit, 'Save');
     $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
@@ -527,7 +527,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
 
     // Send now.
-    $this->drupalPostForm(NULL, [], t('Send now'));
+    $this->submitForm([], 'Send now');
 
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
@@ -579,7 +579,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
     $this->drupalGet($node->toUrl('edit-form'));
     $this->clickLink(t('Delete'));
-    $this->drupalPostForm(NULL, [], t('Delete'));
+    $this->submitForm([], 'Delete');
 
     // Verify.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
