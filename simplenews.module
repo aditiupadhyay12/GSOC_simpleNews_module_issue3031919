@@ -562,9 +562,8 @@ function simplenews_mail($key, &$message, $params) {
       $builder->buildCombinedMail($message, $params);
       break;
 
-    case 'unsubscribe':
-      $builder->buildUnsubscribeMail($message, $params);
-      break;
+    default:
+      throw new \Exception("Unrecognised key $key");
   }
 
   // Debug message to check for outgoing emails messages.

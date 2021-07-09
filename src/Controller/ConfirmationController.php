@@ -164,8 +164,8 @@ class ConfirmationController extends ControllerBase {
           'simplenews_subscriber' => $subscriber,
           'newsletter' => $newsletter,
         ];
-        $token = $action == 'add' ? 'subscribe' : 'unsubscribe';
-        $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', $token, $context);
+        $key = $action == 'add' ? 'subscribe_combined' : 'unsubscribe';
+        $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', $key, $context);
         $build['#attached']['html_head'][] = $html_head;
         return $build;
       }
