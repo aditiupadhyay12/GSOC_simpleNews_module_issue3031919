@@ -406,8 +406,6 @@ class Mailer implements MailerInterface {
   public function sendCombinedConfirmation(SubscriberInterface $subscriber) {
     $params['from'] = $this->getFrom();
     $params['context']['simplenews_subscriber'] = $subscriber;
-    // Send multiple if there is more than one change for this subscriber
-    // single otherwise.
     $key = 'subscribe_combined';
     $this->mailManager->mail('simplenews', $key, $subscriber->getMail(), $subscriber->getLangcode(), $params, $params['from']['address']);
   }

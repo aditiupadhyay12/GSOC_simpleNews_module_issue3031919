@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
 /**
- * Provides an generic base class for a confirmation form.
+ * Requests a new confirmation if the link has expired.
  */
 class RequestHashForm extends ConfirmFormBase {
 

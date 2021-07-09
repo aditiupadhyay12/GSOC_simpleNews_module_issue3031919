@@ -617,7 +617,9 @@ function simplenews_newsletter_get_visible(array $conditions = []) {
     $query->condition($key, $value);
   }
   $result = $query->execute();
-  return !empty($result) ? array_filter(Newsletter::loadMultiple($result), function($n) { return $n->isAccessible(); }) : [];
+  return array_filter(Newsletter::loadMultiple($result), function ($n) {
+    return $n->isAccessible();
+  });
 }
 
 /**
