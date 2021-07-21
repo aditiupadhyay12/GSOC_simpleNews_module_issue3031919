@@ -309,3 +309,26 @@ function simplenews_update_830003() {
     $type->save();
   }
 }
+
+/**
+ * Initialize subscription validate settings.
+ */
+function simplenews_update_830004() {
+  $config = \Drupal::configFactory()->getEditable('simplenews.settings');
+  $config->set('subscription.validate_subject', "Manage your subscriptions at [site:name]");
+  $config->set('subscription.validate_body', "We have received a request to manage your subscriptions for [simplenews-subscriber:mail] at [site:url]. To proceed please use the link below.\r\n\r\n[simplenews-subscriber:manage-url]");
+
+  $config->clear('subscription.confirm_combined_line_subscribe_subscribed');
+  $config->clear('subscription.confirm_combined_line_subscribe_unsubscribed');
+  $config->clear('subscription.confirm_combined_line_unsubscribe_subscribed');
+  $config->clear('subscription.confirm_combined_line_unsubscribe_unsubscribed');
+
+  if ($config->get('subscription.confirm_combined_body') == "We have received a request for the following subscription changes for [simplenews-subscriber:mail] at [site:url]:\r\n\r\n[changes-list]\r\n\r\nTo confirm please use the link below.\r\n\r\n[simplenews-subscriber:combined-url]") {
+    $config->set('subscription.confirm_combined_body', "We have received a request to subscribe [simplenews-subscriber:mail] at [site:url]. To confirm please use the link below.\r\n\r\n[simplenews-subscriber:combined-url]");
+  }
+  if ($config->get('subscription.confirm_combined_body_unchanged') == "We have received a request for the following subscription changes for [simplenews-subscriber:mail] at [site:url]:\r\n\r\n[changes-list]\r\n\r\nNo confirmation necessary because all requested changes equal the current state.") {
+    $config->set('subscription.confirm_combined_body_unchanged', "We have received a request to subscribe [simplenews-subscriber:mail] at [site:url]. No confirmation necessary because you are already subscribed.");
+  }
+
+  $config->save();
+}

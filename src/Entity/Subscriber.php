@@ -385,6 +385,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
     $fields['subscriptions'] = BaseFieldDefinition::create('simplenews_subscription')
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       ->setLabel(t('Subscriptions'))
+      ->setDescription(t('Check the newsletters you want to subscribe to. Uncheck the ones you want to unsubscribe from.'))
       ->setSetting('target_type', 'simplenews_newsletter')
       ->setDisplayOptions('form', [
         'type' => 'simplenews_subscription_select',

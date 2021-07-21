@@ -9,7 +9,7 @@ use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\Entity\Newsletter;
 
 /**
- * Returns responses for confirmation routes.
+ * Returns responses for confirmation and subscriber routes.
  */
 class ConfirmationController extends ControllerBase {
 
@@ -164,7 +164,7 @@ class ConfirmationController extends ControllerBase {
           'simplenews_subscriber' => $subscriber,
           'newsletter' => $newsletter,
         ];
-        $key = $action == 'add' ? 'subscribe_combined' : 'unsubscribe';
+        $key = $action == 'add' ? 'subscribe_combined' : 'validate';
         $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', $key, $context);
         $build['#attached']['html_head'][] = $html_head;
         return $build;
@@ -208,6 +208,24 @@ class ConfirmationController extends ControllerBase {
       }
     }
     throw new NotFoundHttpException();
+  }
+
+  /**
+   * Redirects subscribers to the appropriate page.
+   *
+   * Redirect to the 'Newsletters' tab for authenticated users or the 'Access
+   * your subscriptions' page otherwise.
+   *
+   * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   *   Returns a redirect to the correct page.
+   */
+  public function subscriptionsPage() {
+    $user = $this->currentUser();
+
+    if ($user->isAuthenticated()) {
+      return $this->redirect('simplenews.newsletter_subscriptions_user', ['user' => $user->id()]);
+    }
+    return $this->redirect('simplenews.newsletter_validate');
   }
 
 }

@@ -562,6 +562,10 @@ function simplenews_mail($key, &$message, $params) {
       $builder->buildCombinedMail($message, $params);
       break;
 
+    case 'validate':
+      $builder->buildValidateMail($message, $params);
+      break;
+
     default:
       throw new \Exception("Unrecognised key $key");
   }

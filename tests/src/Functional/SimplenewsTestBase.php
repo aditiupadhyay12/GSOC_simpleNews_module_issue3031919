@@ -183,16 +183,20 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    *   The email to subscribe.
    * @param array $edit
    *   (optional) Additional form field values, keyed by form field names.
-   * @param string $submit
-   *   (optional) The value of the form submit button. Defaults to
-   *   t('Subscribe').
-   * @param string $path
-   *   (optional) The path where to expect the form, defaults to
-   *   'newsletter/subscriptions'.
-   * @param int $response
-   *   (optional) Expected response, defaults to 200.
+   * @param int $uid
+   *   (optional) User ID to update via newsletter tab.
    */
-  protected function subscribe($newsletter_ids, $email = NULL, array $edit = [], $submit = NULL, $path = 'newsletter/subscriptions', $response = 200) {
+  protected function subscribe($newsletter_ids, $email = NULL, array $edit = [], $uid = NULL) {
+    if (!$uid) {
+      // Setup subscription block with subscription form.
+      $block_settings = [
+        'newsletters' => array_keys(simplenews_newsletter_get_all()),
+        'message' => $this->randomMachineName(4),
+      ];
+
+      $block = $this->setupSubscriptionBlock($block_settings);
+    }
+
     if (isset($email)) {
       $edit += [
         'mail[0][value]' => $email,
@@ -204,9 +208,14 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     foreach ($newsletter_ids as $newsletter_id) {
       $edit["subscriptions[$newsletter_id]"] = $newsletter_id;
     }
+    $path = $uid ? "/user/$uid/simplenews" : '';
     $this->drupalGet($path);
-    $this->submitForm($edit, $submit ?: 'Subscribe');
-    $this->assertResponse($response);
+    $this->submitForm($edit, $uid ? t('Save') : t('Subscribe'));
+    $this->assertResponse(200);
+
+    if (!$uid) {
+      $block->delete();
+    }
   }
 
   /**
@@ -269,13 +278,16 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * Returns the body content of mail that has been sent.
    *
    * @param int $offset
-   *   Zero-based ordinal number of a sent mail.
+   *   Zero-based ordinal number of a sent mail. Defaults to most recent mail.
    *
    * @return string
    *   The body of the mail.
    */
-  protected function getMail($offset) {
+  protected function getMail($offset = NULL) {
     $mails = $this->getMails();
+    if (!isset($offset)) {
+      $offset = count($mails) - 1;
+    }
     $this->assertTrue(isset($mails[$offset]), t('Valid mails offset %offset (%count mails sent).', ['%offset' => $offset, '%count' => count($mails)]));
     return $mails[$offset]['body'];
   }
@@ -286,11 +298,11 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * @param string $needle
    *   The string to find.
    * @param int $offset
-   *   Specify to check the n:th last mail.
+   *   Zero-based ordinal number of a sent mail. Defaults to most recent mail.
    * @param bool $exist
    *   (optional) Whether the string is expected to be found or not.
    */
-  protected function assertMailText($needle, $offset, $exist = TRUE) {
+  protected function assertMailText($needle, $offset = NULL, $exist = TRUE) {
     $body = preg_replace('/\s+/', ' ', $this->getMail($offset));
     $this->verbose($body);
     $pos = strpos($body, (string) $needle);

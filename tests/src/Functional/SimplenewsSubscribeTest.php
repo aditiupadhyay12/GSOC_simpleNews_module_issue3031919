@@ -49,22 +49,10 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->drupalLogout();
 
     $enable = array_rand($newsletters, 3);
-
     $mail = $this->randomEmail(8);
-    $edit = [
-      'mail[0][value]' => $mail,
-    ];
-    foreach ($enable as $newsletter_id) {
-      $edit['subscriptions[' . $newsletter_id . ']'] = TRUE;
-    }
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Subscribe');
+    $this->subscribe($enable, $mail);
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.'));
-
-    // Verify listed changes.
-    foreach ($newsletters as $newsletter_id => $newsletter) {
-      $this->assertMailText(t('Subscribe to @name', ['@name' => $newsletter->name]), 0, in_array($newsletter_id, $enable));
-    }
+    $this->assertMailText(t('We have received a request to subscribe @user', ['@user' => $mail]));
 
     $mails = $this->getMails();
     $this->assertEqual($mails[0]['from'], 'simpletest@example.com');
@@ -73,19 +61,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $confirm_url = $this->extractConfirmationLink($this->getMail(0));
 
     $this->drupalGet($confirm_url);
-    $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
-
-    // Verify listed changes.
-    foreach ($newsletters as $newsletter_id => $newsletter) {
-      if (in_array($newsletter_id, $enable)) {
-        $this->assertText(t('Subscribe to @name', ['@name' => $newsletter->name]));
-      }
-      else {
-        $this->assertNoText(t('Subscribe to @name', ['@name' => $newsletter->name]));
-      }
-    }
-
-    $this->drupalGet($confirm_url);
+    $this->assertRaw(t('Are you sure you want to confirm your subscription for %user?', ['%user' => simplenews_mask_mail($mail)]));
     $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
 
@@ -115,7 +91,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $hash = simplenews_generate_hash($subscriber->getMail(), 'manage');
     $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
     $this->submitForm([], 'Update');
-    $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $mail]));
+    $this->assertText(t('Your newsletter subscriptions have been updated.'));
     $this->assertEquals(1, count($this->getMails()), t('No confirmation mails have been sent.'));
 
     // Unsubscribe from two of the three enabled newsletters.
@@ -125,45 +101,10 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       'mail[0][value]' => $mail,
     ];
     foreach ($disable as $newsletter_id) {
-      $edit['subscriptions[' . $newsletter_id . ']'] = TRUE;
+      $edit['subscriptions[' . $newsletter_id . ']'] = FALSE;
     }
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Unsubscribe');
-    $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to cancel your subscription.'));
-
-    // Unsubscribe with no confirmed email.
-    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
-    try {
-      $subscription_manager->unsubscribe('new@email.com', $newsletter_id, FALSE);
-      $this->fail('Exception not thrown.');
-    }
-    catch (\Exception $e) {
-      $this->assertEqual($e->getMessage(), 'The subscriber does not exist.');
-    }
-
-    // Verify listed changes.
-    foreach ($newsletters as $newsletter_id => $newsletter) {
-      $this->assertMailText(t('Unsubscribe from @name', ['@name' => $newsletter->name]), 1, in_array($newsletter_id, $disable));
-    }
-
-    $confirm_url = $this->extractConfirmationLink($this->getMail(1));
-
-    $this->drupalGet($confirm_url);
-    $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
-
-    // Verify listed changes.
-    foreach ($newsletters as $newsletter_id => $newsletter) {
-      if (in_array($newsletter_id, $disable)) {
-        $this->assertText(t('Unsubscribe from @name', ['@name' => $newsletter->name]));
-      }
-      else {
-        $this->assertNoText(t('Unsubscribe from @name', ['@name' => $newsletter->name]));
-      }
-    }
-
-    $this->drupalGet($confirm_url);
-    $this->submitForm([], 'Confirm');
-    $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
+    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
+    $this->submitForm($edit, t('Update'));
 
     // Verify subscription changes.
     $subscriber_storage->resetCache();
@@ -179,52 +120,24 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       }
     }
 
-    // Make sure that the /ok suffix works, unsubscribe from everything.
-    $edit = [
-      'mail[0][value]' => $mail,
-    ];
-    foreach (array_keys($newsletters) as $newsletter_id) {
-      $edit['subscriptions[' . $newsletter_id . ']'] = TRUE;
+    // Unsubscribe with no confirmed email.
+    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
+    try {
+      $subscription_manager->unsubscribe('new@email.com', $newsletter_id, FALSE);
+      $this->fail('Exception not thrown.');
     }
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Unsubscribe');
-    $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to cancel your subscription.'));
-
-    $confirm_url = $this->extractConfirmationLink($this->getMail(2));
-    $this->drupalGet($confirm_url);
-    $this->drupalGet($confirm_url . '/ok');
-    $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
-
-    // Verify subscription changes.
-    $subscriber_storage->resetCache();
-    $subscription_manager->reset();
-    foreach (array_keys($newsletters) as $newsletter_id) {
-      $this->assertFalse($subscription_manager->isSubscribed($mail, $newsletter_id));
+    catch (\Exception $e) {
+      $this->assertEqual($e->getMessage(), 'The subscriber does not exist.');
     }
-
-    // Call confirmation url after it is allready used.
-    // Using direct url.
-    $this->drupalGet($confirm_url . '/ok');
-    $this->assertSession()->statusCodeNotEquals(404);
-    $this->assertRaw(t('All changes to your subscriptions where already applied. No changes made.'));
-
-    // Using confirmation page.
-    $this->drupalGet($confirm_url);
-    $this->assertSession()->statusCodeNotEquals(404);
-    $this->assertRaw(t('All changes to your subscriptions where already applied. No changes made.'));
 
     // Test expired confirmation links.
     $enable = array_rand($newsletters, 3);
 
     $mail = $this->randomEmail(8);
-    $edit = [
-      'mail[0][value]' => $mail,
-    ];
     foreach ($enable as $newsletter_id) {
       $edit['subscriptions[' . $newsletter_id . ']'] = TRUE;
     }
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Subscribe');
+    $this->subscribe($enable, $mail);
 
     $subscriber = Subscriber::loadByMail($mail);
     $expired_timestamp = REQUEST_TIME - 86401;
@@ -234,25 +147,11 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertText(t('This link has expired.'));
     $this->submitForm([], 'Request new confirmation mail');
 
-    $confirm_url = $this->extractConfirmationLink($this->getMail(4));
+    $confirm_url = $this->extractConfirmationLink($this->getMail());
 
-    // Verify listed changes.
-    foreach ($newsletters as $newsletter_id => $newsletter) {
-      $this->assertMailText(t('Subscribe to @name', ['@name' => $newsletter->name]), 4, in_array($newsletter_id, $enable));
-    }
-
+    $this->assertMailText(t('We have received a request to subscribe @user', ['@user' => $mail]));
     $this->drupalGet($confirm_url);
-    $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
-
-    // Verify listed changes.
-    foreach ($newsletters as $newsletter_id => $newsletter) {
-      if (in_array($newsletter_id, $enable)) {
-        $this->assertText(t('Subscribe to @name', ['@name' => $newsletter->name]));
-      }
-      else {
-        $this->assertNoText(t('Subscribe to @name', ['@name' => $newsletter->name]));
-      }
-    }
+    $this->assertRaw(t('Are you sure you want to confirm your subscription for %user?', ['%user' => simplenews_mask_mail($mail)]));
 
     $this->drupalGet($confirm_url);
     $this->submitForm([], 'Confirm');
@@ -263,11 +162,10 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
    * Extract a confirmation link from a mail body.
    */
   protected function extractConfirmationLink($body) {
-    $pattern = '@newsletter/confirm/.+@';
-    preg_match($pattern, $body, $match);
+    $pattern = '@newsletter/confirm/.+/.+/.+/.{20,}@';
     $found = preg_match($pattern, $body, $match);
     if (!$found) {
-      $this->fail('Confirmation URL found.');
+      $this->fail(t('No confirmation URL found in "@body".', ['@body' => $body]));
       return FALSE;
     }
     $confirm_url = $match[0];
@@ -276,12 +174,26 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
   }
 
   /**
+   * Extract a validation link from a mail body.
+   */
+  protected function extractValidationLink($body) {
+    $pattern = '@newsletter/subscriptions/.+/.+/.{20,}@';
+    $found = preg_match($pattern, $body, $match);
+    if (!$found) {
+      $this->fail(t('No validation URL found in "@body".', ['@body' => $body]));
+      return FALSE;
+    }
+    $validate_url = $match[0];
+    $this->pass(t('Validation URL found: @url', ['@url' => $validate_url]));
+    return $validate_url;
+  }
+
+  /**
    * TestSubscribeAnonymous.
    *
    * Steps performed:
    *   0. Preparation
    *   1. Subscribe anonymous via block
-   *   2. Subscribe anonymous via subscription page
    *   3. Subscribe anonymous via multi block.
    */
   public function testSubscribeAnonymous() {
@@ -319,8 +231,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $this->drupalLogout();
 
-    // @codingStandardsIgnoreLine
-    //file_put_contents('output.html', $this->drupalGetContent());
     // 1. Subscribe anonymous via block
     // Subscribe + submit
     // Assert confirmation message
@@ -362,8 +272,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $this->drupalGet($confirm_url);
     $newsletter = Newsletter::load($newsletter_id);
-    $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
-    $this->assertText(t('Subscribe to @newsletter', ['@newsletter' => $newsletter->name]));
+    $this->assertRaw(t('Are you sure you want to confirm your subscription for %user?', ['%user' => simplenews_mask_mail($mail)]));
 
     $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
@@ -402,136 +311,33 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     // Disable the newsletter block.
     $single_block->delete();
 
-    // 2. Subscribe anonymous via subscription page
-    // Subscribe + submit
-    // Assert confirmation message
-    // Assert outgoing email
-    //
-    // Confirm using mail link
-    // Confirm using mail link
-    // Assert confirmation message.
-    $mail = $this->randomEmail(8);
-    $edit = [
-      "subscriptions[$newsletter_id]" => '1',
-      'mail[0][value]' => $mail,
-    ];
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Subscribe');
-    $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.'));
-
-    $confirm_url = $this->extractConfirmationLink($this->getMail(2));
-
-    $this->drupalGet($confirm_url);
-    $newsletter = Newsletter::load($newsletter_id);
-    $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
-    $this->assertText(t('Subscribe to @newsletter', ['@newsletter' => $newsletter->name]));
-
-    $this->submitForm([], 'Confirm');
-    $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
-
     // 3. Subscribe anonymous via multi block.
-    // Setup subscription block with subscription form.
-    $block_settings = [
-      'newsletters' => array_keys(simplenews_newsletter_get_all()),
-      'message' => $this->randomMachineName(4),
-    ];
-
-    $this->setupSubscriptionBlock($block_settings);
-
     // Try to submit multi-signup form without selecting a newsletter.
     $mail = $this->randomEmail(8);
-    $edit = [
-      'mail[0][value]' => $mail,
-    ];
-    $this->drupalGet('');
-    $this->submitForm($edit, 'Subscribe');
+    $this->subscribe([], $mail);
     $this->assertText(t('You must select at least one newsletter.'));
 
-    // Now fill out the form and try again. The e-mail should still be listed.
-    $edit = [
-      'subscriptions[' . $newsletter_id . ']' => TRUE,
-    ];
-    $this->submitForm($edit, 'Subscribe');
+    // Now fill out the form and try again.
+    $this->subscribe($newsletter_id, $mail);
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.'));
 
-    $confirm_url = $this->extractConfirmationLink($this->getMail(3));
+    $confirm_url = $this->extractConfirmationLink($this->getMail());
 
     $this->drupalGet($confirm_url);
     $newsletter = Newsletter::load($newsletter_id);
-    $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
-    $this->assertText(t('Subscribe to @newsletter', ['@newsletter' => $newsletter->name]));
+    $this->assertRaw(t('Are you sure you want to confirm your subscription for %user?', ['%user' => simplenews_mask_mail($mail)]));
 
     $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
 
     // Try to subscribe again, this should not re-set the status to unconfirmed.
-    $edit = [
-      'mail[0][value]' => $mail,
-      'subscriptions[' . $newsletter_id . ']' => TRUE,
-    ];
-    $this->submitForm($edit, 'Subscribe');
+    $this->subscribe($newsletter_id, $mail);
     $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.'));
 
     $subscriber = Subscriber::loadByMail($mail);
     $this->assertNotEqual($subscriber, FALSE, 'New subscriber entity successfully loaded.');
     $subscription = $subscriber->getSubscription($newsletter_id);
     $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
-
-    // Now the same with the newsletter/subscriptions page.
-    $mail = $this->randomEmail(8);
-    $edit = [
-      'mail[0][value]' => $mail,
-    ];
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Subscribe');
-    $this->assertText(t('You must select at least one newsletter.'));
-
-    // Now fill out the form and try again.
-    $edit = [
-      'subscriptions[' . $newsletter_id . ']' => TRUE,
-    ];
-    $this->submitForm($edit, 'Subscribe');
-    $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.'));
-
-    $confirm_url = $this->extractConfirmationLink($this->getMail(5));
-
-    $this->drupalGet($confirm_url);
-    $newsletter = Newsletter::load($newsletter_id);
-    $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
-    $this->assertText(t('Subscribe to @newsletter', ['@newsletter' => $newsletter->name]));
-
-    $this->submitForm([], 'Confirm');
-    $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
-
-    // Test unsubscribe on newsletter/subscriptions page.
-    $edit = [
-      'mail[0][value]' => $mail,
-    ];
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Unsubscribe');
-    $this->assertText(t('You must select at least one newsletter.'));
-
-    // Now fill out the form and try again.
-    $edit = [
-      'subscriptions[' . $newsletter_id . ']' => TRUE,
-    ];
-    $this->submitForm($edit, 'Unsubscribe');
-    $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to cancel your subscription.'));
-    $this->assertMailText(t('We have received a request for the following subscription changes for @mail', ['@mail' => $mail]), 6);
-
-    $confirm_url = $this->extractConfirmationLink($this->getMail(6));
-
-    $mails = $this->getMails();
-    $this->assertEqual($mails[0]['from'], 'simpletest@example.com');
-    $this->assertEqual($mails[0]['headers']['From'], '"Drupal" <simpletest@example.com>');
-
-    $this->drupalGet($confirm_url);
-    $newsletter = Newsletter::load($newsletter_id);
-    $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
-    $this->assertText(t('Unsubscribe from @newsletter', ['@newsletter' => $newsletter->name]));
-
-    $this->submitForm([], 'Confirm');
-    $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
 
     // Visit the newsletter/subscriptions page with the hash.
     $subscriber = Subscriber::loadByMail($mail);
@@ -545,7 +351,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     ];
     $this->submitForm($edit, 'Update');
 
-    $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $mail]));
+    $this->assertText(t('Your newsletter subscriptions have been updated.'));
 
     // Make sure the subscription is confirmed.
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
@@ -560,24 +366,9 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
     $this->assertResponse(404);
 
-    // Attempt to unsubscribe a non-existing subscriber.
-    $mail = $this->randomEmail();
-    $edit = [
-      'mail[0][value]' => $mail,
-      'subscriptions[' . $newsletter_id . ']' => TRUE,
-    ];
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Unsubscribe');
-    $this->assertText(t('You will receive a confirmation e-mail shortly containing further instructions on how to cancel your subscription.'));
-    $this->assertMailText(t('Already unsubscribed from @newsletter', ['@newsletter' => $newsletter->name]), 7);
-
     // Test expired confirmation links.
-    $edit = [
-      'mail[0][value]' => $mail,
-      'subscriptions[' . $newsletter_id . ']' => TRUE,
-    ];
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Subscribe');
+    $mail = $this->randomEmail();
+    $this->subscribe($newsletter_id, $mail);
 
     $subscriber = Subscriber::loadByMail($mail);
     $expired_timestamp = REQUEST_TIME - 86401;
@@ -587,12 +378,11 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertText(t('This link has expired.'));
     $this->submitForm([], 'Request new confirmation mail');
 
-    $confirm_url = $this->extractConfirmationLink($this->getMail(8));
+    $confirm_url = $this->extractConfirmationLink($this->getMail());
 
     $this->drupalGet($confirm_url);
     $newsletter = Newsletter::load($newsletter_id);
-    $this->assertRaw(t('Are you sure you want to confirm the following subscription changes for %user?', ['%user' => simplenews_mask_mail($mail)]));
-    $this->assertText(t('Subscribe to @newsletter', ['@newsletter' => $newsletter->name]));
+    $this->assertRaw(t('Are you sure you want to confirm your subscription for %user?', ['%user' => simplenews_mask_mail($mail)]));
 
     $this->submitForm([], 'Confirm');
     $this->assertRaw(t('Subscription changes confirmed for %user.', ['%user' => $mail]));
@@ -674,18 +464,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $subscription = $subscriber->getSubscription($newsletter_id);
     $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
 
-    // Unsubscribe again.
-    $edit = [
-      'mail[0][value]' => $mail,
-      'subscriptions[' . $newsletter_id . ']' => TRUE,
-    ];
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Unsubscribe');
-
-    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
-    $subscriber = Subscriber::loadByMail($mail);
-    $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED, $subscription->status);
   }
 
   /**
@@ -752,26 +530,21 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertText(t('You have been subscribed.'));
     $this->assertEqual($this->countSubscribers(), 1);
 
-    // 2. Unsubscribe authenticated via subscription page
-    // Unsubscribe + submit
-    // Assert confirmation message.
-    $edit = [
-      "subscriptions[$newsletter_id]" => 0,
-    ];
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Update');
-    $this->assertRaw(t('The newsletter subscriptions for %mail have been updated.', ['%mail' => $subscriber_user->getEmail()]));
+    // Disable the newsletter block.
+    $single_block->delete();
 
-    // 3. Subscribe authenticated via subscription page
+    // 3. Subscribe authenticated via subscription page redirecting to account page.
     // Subscribe + submit
     // Assert confirmation message.
     $this->resetSubscribers();
     $edit = [
       "subscriptions[$newsletter_id]" => '1',
     ];
+    $url = 'user/' . $subscriber_user->id() . '/simplenews';
     $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Update');
-    $this->assertRaw(t('The newsletter subscriptions for %mail have been updated.', ['%mail' => $subscriber_user->getEmail()]));
+    $this->assertSession()->addressEquals($url);
+    $this->submitForm($edit, 'Save');
+    $this->assertRaw(t('Your newsletter subscriptions have been updated.'));
     $this->assertEqual($this->countSubscribers(), 1);
 
     // 4. Unsubscribe authenticated via account page
@@ -780,10 +553,9 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       "subscriptions[$newsletter_id]" => FALSE,
     ];
-    $url = 'user/' . $subscriber_user->id() . '/simplenews';
     $this->drupalGet($url);
     $this->submitForm($edit, 'Save');
-    $this->assertRaw(t('Your newsletter subscriptions have been updated.', ['%mail' => $subscriber_user->getEmail()]));
+    $this->assertRaw(t('Your newsletter subscriptions have been updated.'));
 
     $subscriber = Subscriber::loadByMail($subscriber_user->getEmail());
     $subscription = $subscriber->getSubscription($newsletter_id);
@@ -799,20 +571,9 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $url = 'user/' . $subscriber_user->id() . '/simplenews';
     $this->drupalGet($url);
     $this->submitForm($edit, 'Save');
-    $this->assertRaw(t('Your newsletter subscriptions have been updated.', ['%mail' => $subscriber_user->getEmail()]));
+    $this->assertRaw(t('Your newsletter subscriptions have been updated.'));
     $count = 1;
     $this->assertEqual($this->countSubscribers(), $count);
-
-    // Disable the newsletter block.
-    $single_block->delete();
-
-    // Setup subscription block with subscription form.
-    $block_settings = [
-      'newsletters' => array_keys(simplenews_newsletter_get_all()),
-      'message' => $this->randomMachineName(4),
-    ];
-
-    $this->setupSubscriptionBlock($block_settings);
 
     // Try to submit multi-signup form without selecting a newsletter.
     $subscriber_user2 = $this->drupalCreateUser(['subscribe to newsletters']);
@@ -826,11 +587,12 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertResponse(200);
 
     $this->assertNoField('mail[0][value]');
-    $this->submitForm([], 'Update');
-    $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $subscriber_user2->getEmail()]));
+    $this->submitForm([], 'Save');
+    $this->assertText(t('Your newsletter subscriptions have been updated.'));
 
     // Nothing should have happened to subscriptions but this does create a
     // subscriber.
+    $this->drupalGet('user/' . $subscriber_user2->id() . '/simplenews');
     $this->assertNoFieldChecked('edit-subscriptions-' . $newsletter_id);
     $count++;
     $this->assertEqual($this->countSubscribers(), $count);
@@ -839,55 +601,21 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $edit = [
       'subscriptions[' . $newsletter_id . ']' => TRUE,
     ];
-    $this->submitForm($edit, 'Update');
-    $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $subscriber_user2->getEmail()]));
+    $this->submitForm($edit, 'Save');
+    $this->assertText(t('Your newsletter subscriptions have been updated.'));
     $this->assertEqual($this->countSubscribers(), $count);
 
+    $this->drupalGet('user/' . $subscriber_user2->id() . '/simplenews');
     $this->assertFieldChecked('edit-subscriptions-' . $newsletter_id);
 
     // Unsubscribe.
     $edit = [
       'subscriptions[' . $newsletter_id . ']' => FALSE,
     ];
-    $this->submitForm($edit, 'Update');
-    $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $subscriber_user2->getEmail()]));
+    $this->submitForm($edit, 'Save');
+    $this->assertText(t('Your newsletter subscriptions have been updated.'));
 
-    $this->assertNoFieldChecked('edit-subscriptions-' . $newsletter_id);
-
-    // And now the same for the newsletter/subscriptions page.
-    $subscriber_user3 = $this->drupalCreateUser(['subscribe to newsletters']);
-    $this->drupalLogin($subscriber_user3);
-
-    $this->assertNoField('mail[0][value]');
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm([], 'Update');
-    $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $subscriber_user3->getEmail()]));
-
-    // Nothing should have happened to subscriptions but this does create a
-    // subscriber.
-    $this->assertNoFieldChecked('edit-subscriptions-' . $newsletter_id);
-    $count++;
-    $this->assertEqual($this->countSubscribers(), $count);
-
-    // Now fill out the form and try again.
-    $edit = [
-      'subscriptions[' . $newsletter_id . ']' => TRUE,
-    ];
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Update');
-    $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $subscriber_user3->getEmail()]));
-    $this->assertEqual($this->countSubscribers(), $count);
-
-    $this->assertFieldChecked('edit-subscriptions-' . $newsletter_id);
-
-    // Unsubscribe.
-    $edit = [
-      'subscriptions[' . $newsletter_id . ']' => FALSE,
-    ];
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Update');
-    $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $subscriber_user3->getEmail()]));
-
+    $this->drupalGet('user/' . $subscriber_user2->id() . '/simplenews');
     $this->assertNoFieldChecked('edit-subscriptions-' . $newsletter_id);
   }
 
@@ -961,10 +689,19 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $mail = $user->getEmail();
     $subscriber = Subscriber::loadByMail($mail, 'create');
     $subscriber->save();
-    $hash = simplenews_generate_hash($mail, 'manage');
-    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
+
+    $this->drupalGet('newsletter/subscriptions');
+    $this->assertSession()->addressEquals('/newsletter/validate');
+
+    $this->submitForm(['mail' => $mail], 'Submit');
+    $this->assertSession()->pageTextContains("If $mail is subscribed, an email will be sent with a link to manage your subscriptions.");
+    $this->assertSession()->addressEquals('');
+    $validate_url = $this->extractValidationLink($this->getMail(0));
+
+    $this->drupalGet($validate_url);
+    $this->assertSession()->pageTextContains("Subscriptions for $mail");
     $this->submitForm([], 'Update');
-    $this->assertText(t('The newsletter subscriptions for @mail have been updated.', ['@mail' => $mail]));
+    $this->assertText(t('Your newsletter subscriptions have been updated.'));
   }
 
   /**
@@ -982,12 +719,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $newsletter->save();
 
     $mail = $this->randomEmail(8);
-    $edit = [
-      "subscriptions[$newsletter_id]" => '1',
-      'mail[0][value]' => $mail,
-    ];
-    $this->drupalGet('newsletter/subscriptions');
-    $this->submitForm($edit, 'Subscribe');
+    $this->subscribe([], $mail);
 
     $captured_emails = $this->container->get('state')->get('system.test_mail_collector') ?: [];
     $email = end($captured_emails);

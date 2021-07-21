@@ -47,7 +47,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     $email = $this->randomEmail();
 
     // Subscribe.
-    $this->subscribe('default', $email, ['field_shared[0][value]' => $this->randomString(10)]);
+    $this->subscribe([], $email, ['field_shared[0][value]' => $this->randomString(10)]);
 
     // Register.
     $new_value = $this->randomString(20);
@@ -73,7 +73,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     $user = User::load($uid);
 
     // Attempt subscribe and assert login message.
-    $this->subscribe('default', $email);
+    $this->subscribe([], $email);
     $this->assertRaw(t('There is an account registered for the e-mail address %mail. Please log in to manage your newsletter subscriptions', ['%mail' => $email]));
 
     // Login.
@@ -81,7 +81,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Subscribe.
     $new_value = $this->randomString(20);
-    $this->subscribe('default', NULL, ['field_shared[0][value]' => $new_value], t('Update'));
+    $this->subscribe('default', NULL, ['field_shared[0][value]' => $new_value], $uid);
 
     // Assert fields are updated.
     $this->drupalGet("user/$uid");
@@ -95,7 +95,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     $email = $this->randomEmail();
 
     // Subscribe.
-    $this->subscribe('default', $email);
+    $this->subscribe([], $email);
 
     // Request new password.
     $this->drupalGet('user/password');
@@ -118,7 +118,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Subscribe.
     $this->resetPassLogin(User::load($uid));
-    $this->subscribe('default', NULL, [], t('Update'));
+    $this->subscribe([], NULL, [], $uid);
     $this->drupalLogout();
 
     // Disable account.
@@ -141,7 +141,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     $uid = $this->registerUser($email);
 
     // Subscribe.
-    $this->subscribe('default', $email);
+    $this->subscribe([], $email);
 
     // Delete account.
     $this->drupalLogin($this->admin);
@@ -169,7 +169,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     $this->drupalLogout();
 
     // Attempt subscribe and assert "blocked" message.
-    $this->subscribe('default', $email);
+    $this->subscribe([], $email);
     $this->assertRaw(t('The email address %mail belongs to a blocked user.', ['%mail' => $email]));
   }
 

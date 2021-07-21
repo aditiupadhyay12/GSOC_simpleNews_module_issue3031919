@@ -3,9 +3,11 @@
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+use Drupal\simplenews\Entity\Subscriber;
 
 /**
- * Configure simplenews subscriptions of the logged user.
+ * Add subscriptions for authenticated user or new subscriber.
  */
 class SubscriptionsBlockForm extends SubscriptionsFormBase {
 
@@ -53,6 +55,8 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
     }
 
     $form = parent::form($form, $form_state);
+    $form['subscriptions']['widget']['#title'] = $this->t('Manage your newsletter subscriptions');
+    $form['subscriptions']['widget']['#description'] = $this->t('Select the newsletter(s) to which you want to subscribe.');
 
     if ($this->message) {
       $form['message'] = [
@@ -69,30 +73,71 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
    */
   protected function actions(array $form, FormStateInterface $form_state) {
     $actions = parent::actions($form, $form_state);
-    $actions[static::SUBMIT_UPDATE]['#value'] = $this->t('Update');
+    $actions['submit']['#value'] = $this->t('Subscribe');
+
+    $user = \Drupal::currentUser();
+    $link = $user->isAuthenticated() ? Url::fromRoute('simplenews.newsletter_subscriptions_user', ['user' => $user->id()]) : Url::fromRoute('simplenews.newsletter_validate');
+    $actions['manage'] = [
+      '#title' => $this->t('Manage existing'),
+      '#type' => 'link',
+      '#url' => $link,
+    ];
+
     return $actions;
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function getSubmitMessage(FormStateInterface $form_state, $op, $confirm) {
-    switch ($op) {
-      case static::SUBMIT_UPDATE:
-        return $this->t('The newsletter subscriptions for %mail have been updated.', ['%mail' => $form_state->getValue('mail')[0]['value']]);
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    parent::validateForm($form, $form_state);
 
-      case static::SUBMIT_SUBSCRIBE:
-        if ($confirm) {
-          return $this->t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.');
-        }
-        return $this->t('You have been subscribed.');
-
-      case static::SUBMIT_UNSUBSCRIBE:
-        if ($confirm) {
-          return $this->t('You will receive a confirmation e-mail shortly containing further instructions on how to cancel your subscription.');
-        }
-        return $this->t('You have been unsubscribed.');
+    // If the newsletter checkboxes are available, at least one must be checked.
+    if (!$this->getSubscriptionWidget($form_state)->isHidden() && !count($form_state->getValue('subscriptions'))) {
+      $form_state->setErrorByName('subscriptions', $this->t('You must select at least one newsletter.'));
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    // For an anonymous user the email is unknown in buildForm, but here we can
+    // try again to load an existing subscriber.
+    $mail = $form_state->getValue(['mail', 0, 'value']);
+    if ($this->entity->isNew() && $subscriber = Subscriber::loadByMail($mail)) {
+      $this->setEntity($subscriber);
+    }
+
+    parent::submitForm($form, $form_state);
+  }
+
+  /**
+   * Submit callback that subscribes to selected newsletters.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state object.
+   */
+  public function submitExtra(array $form, FormStateInterface $form_state) {
+    /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
+    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
+    foreach ($this->extractNewsletterIds($form_state, TRUE) as $newsletter_id) {
+      $subscription_manager->subscribe($this->entity->getMail(), $newsletter_id, NULL, 'website');
+    }
+    $sent = $subscription_manager->sendConfirmations();
+    $this->messenger()->addMessage($this->getSubmitMessage($form_state, $sent));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getSubmitMessage(FormStateInterface $form_state, $confirm) {
+    if ($confirm) {
+      return $this->t('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.');
+    }
+    return $this->t('You have been subscribed.');
   }
 
 }

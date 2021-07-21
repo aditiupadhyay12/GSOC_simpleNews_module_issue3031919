@@ -153,26 +153,25 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Set the password so that the login works.
     $user->passRaw = $edit['pass[pass1]'];
 
-    // Verify newsletter subscription pages.
+    // Verify newsletter subscription page, redirecting to newsletters tab.
     $this->drupalLogin($user);
-    foreach (['newsletter/subscriptions', 'user/' . $user->id() . '/simplenews'] as $path) {
-      $this->drupalGet($path);
-      foreach ($newsletters as $newsletter) {
-        if (strpos($newsletter->name, '-') === FALSE) {
-          continue;
-        }
-        list($new_account_setting, $access_setting) = explode('-', $newsletter->name);
-        if ($newsletter->access == 'hidden') {
-          $this->assertNoField('subscriptions[' . $newsletter->id() . ']', t('Hidden newsletter is not shown.'));
-        }
-        elseif ($newsletter->new_account == 'on' || $newsletter->name == 'off-default' || $newsletter->new_account == 'silent') {
-          // All on, silent and the explicitly selected newsletter should be
-          // checked.
-          $this->assertFieldChecked($this->getNewsletterFieldId($newsletter->id()));
-        }
-        else {
-          $this->assertNoFieldChecked($this->getNewsletterFieldId($newsletter->id()));
-        }
+    $this->drupalGet('newsletter/subscriptions');
+    $this->assertSession()->addressEquals('user/' . $user->id() . '/simplenews');
+    foreach ($newsletters as $newsletter) {
+      if (strpos($newsletter->name, '-') === FALSE) {
+        continue;
+      }
+      list($new_account_setting, $access_setting) = explode('-', $newsletter->name);
+      if ($newsletter->access == 'hidden') {
+        $this->assertNoField('subscriptions[' . $newsletter->id() . ']', t('Hidden newsletter is not shown.'));
+      }
+      elseif ($newsletter->new_account == 'on' || $newsletter->name == 'off-default' || $newsletter->new_account == 'silent') {
+        // All on, silent and the explicitly selected newsletter should be
+        // checked.
+        $this->assertFieldChecked($this->getNewsletterFieldId($newsletter->id()));
+      }
+      else {
+        $this->assertNoFieldChecked($this->getNewsletterFieldId($newsletter->id()));
       }
     }
 

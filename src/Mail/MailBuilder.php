@@ -100,15 +100,12 @@ class MailBuilder implements MailBuilderInterface {
     $message['subject'] = $this->config->get('subscription.confirm_combined_subject');
     $message['subject'] = simplenews_token_replace_subject($message['subject'], $context);
 
-    $changes_list = '';
     $actual_changes = 0;
-    foreach ($this->subscriptionManager->getChangesList($context['simplenews_subscriber'], $subscriber->getChanges(), $langcode) as $newsletter_id => $change) {
-      $changes_list .= ' - ' . $change . "\n";
 
+    foreach ($subscriber->getChanges() as $newsletter_id => $action) {
       // Count the actual changes.
       $subscribed = $context['simplenews_subscriber']->isSubscribed($newsletter_id);
-      $changes = $subscriber->getChanges();
-      if ($changes[$newsletter_id] == 'subscribe' && !$subscribed || $changes[$newsletter_id] == 'unsubscribe' && $subscribed) {
+      if ($action == 'subscribe' && !$subscribed || $action == 'unsubscribe' && $subscribed) {
         $actual_changes++;
       }
     }
@@ -118,8 +115,22 @@ class MailBuilder implements MailBuilderInterface {
     $body_key = $actual_changes ? 'combined_body' : 'combined_body_unchanged';
 
     $body = $this->config->get('subscription.confirm_' . $body_key);
-    // The changes list is not an actual token.
-    $body = str_replace('[changes-list]', $changes_list, $body);
+    $message['body'][] = simplenews_token_replace_body($body, $context);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildValidateMail(array &$message, array $params) {
+    $context = $params['context'];
+
+    // Use formatted from address "name" <mail_address>.
+    $message['headers']['From'] = $params['from']['formatted'];
+
+    $message['subject'] = $this->config->get('subscription.validate_subject');
+    $message['subject'] = simplenews_token_replace_subject($message['subject'], $context);
+
+    $body = $this->config->get('subscription.validate_body');
     $message['body'][] = simplenews_token_replace_body($body, $context);
   }
 

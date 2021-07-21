@@ -195,44 +195,6 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   /**
    * {@inheritdoc}
    */
-  public function getChangesList(SubscriberInterface $subscriber, array $changes = NULL, $langcode = NULL) {
-    if (empty($langcode)) {
-      $language = $this->languageManager->getCurrentLanguage();
-      $langcode = $language->getId();
-    }
-
-    if (empty($changes)) {
-      $changes = $subscriber->getChanges();
-    }
-
-    $changes_list = [];
-    foreach ($changes as $newsletter_id => $action) {
-      $subscribed = $subscriber->isSubscribed($newsletter_id);
-      // Get text for each possible combination.
-      if ($action == 'subscribe' && !$subscribed) {
-        $line = $this->config->get('subscription.confirm_combined_line_subscribe_unsubscribed');
-      }
-      elseif ($action == 'subscribe' && $subscribed) {
-        $line = $this->config->get('subscription.confirm_combined_line_subscribe_subscribed');
-      }
-      elseif ($action == 'unsubscribe' && !$subscribed) {
-        $line = $this->config->get('subscription.confirm_combined_line_unsubscribe_unsubscribed');
-      }
-      elseif ($action == 'unsubscribe' && $subscribed) {
-        $line = $this->config->get('subscription.confirm_combined_line_unsubscribe_subscribed');
-      }
-      $newsletter_context = [
-        'simplenews_subscriber' => $subscriber,
-        'newsletter' => Newsletter::load($newsletter_id),
-      ];
-      $changes_list[$newsletter_id] = simplenews_token_replace_body($line, $newsletter_context);
-    }
-    return $changes_list;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function sendConfirmations() {
     foreach ($this->confirmations as $mail => $changes) {
       $subscriber = Subscriber::loadByMail($mail, 'create', $this->languageManager->getCurrentLanguage());

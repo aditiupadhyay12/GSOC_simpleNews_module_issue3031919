@@ -2,8 +2,6 @@
 
 namespace Drupal\simplenews\Subscription;
 
-use Drupal\simplenews\SubscriberInterface;
-
 /**
  * Subscription management; subscribe, unsubscribe and get subscription status.
  */
@@ -82,24 +80,6 @@ interface SubscriptionManagerInterface {
    * @todo Caching should be done in simplenews_load_user_by_mail().
    */
   public function isSubscribed($mail, $newsletter_id);
-
-  /**
-   * Converts an array of subscription changes into descriptions.
-   *
-   * @param \Drupal\simplenews\SubscriberInterface $subscriber
-   *   Simplenews subscriber object.
-   * @param array $changes
-   *   (Optional) Array of changes, each is an array with the keys action and
-   *   newsletter_id. Defaults to $subscriber->getChanges(), which contains the
-   *   currently saved changes for the subscriber.
-   * @param string $langcode
-   *   (Optional) Specify the language of the description strings, defaults to
-   *   the current language.
-   *
-   * @return string[]
-   *   Array of description strings describing the changes.
-   */
-  public function getChangesList(SubscriberInterface $subscriber, array $changes = NULL, $langcode = NULL);
 
   /**
    * Send confirmations for previous subscription and unsubscription requests.

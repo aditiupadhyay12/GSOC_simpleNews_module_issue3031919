@@ -52,24 +52,18 @@ simplenews.settings:
         confirm_combined_body_unchanged:
           type: text
           label: Combined subscribe unchanged message
-        confirm_combined_line_subscribe_unsubscribed:
-          type: label
-          label: Combined subscribe message
-        confirm_combined_line_subscribe_subscribed:
-          type: label
-          label: Combined already subscribed message
-        confirm_combined_line_unsubscribe_subscribed:
-          type: label
-          label: Combined unsubscribe message
-        confirm_combined_line_unsubscribe_unsubscribed:
-          type: label
-          label: Combined already unsubscribed message
         confirm_subscribe_page:
           type: string
           label: Confirmation subscribe redirect page
         confirm_unsubscribe_page:
           type: string
           label: Confirmation unsubscribe redirect page
+        validate_subject:
+          type: label
+          label: Validate subject
+        validate_body:
+          type: text
+          label: Validate message
 
     mail:
       type: mapping

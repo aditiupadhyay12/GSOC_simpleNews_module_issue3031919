@@ -7,8 +7,8 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Form controller for the subscriber edit forms.
  *
- * The acting user is someone with administrative privileges managing other
- * users (not themselves).
+ * The acting user is someone with administrative privileges managing any
+ * subscriber.
  */
 class SubscriberForm extends SubscriptionsFormBase {
 
@@ -78,7 +78,7 @@ class SubscriberForm extends SubscriptionsFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function getSubmitMessage(FormStateInterface $form_state, $op, $confirm) {
+  protected function getSubmitMessage(FormStateInterface $form_state, $confirm) {
     if ($this->getFormId() == 'simplenews_subscriber_add_form') {
       return $this->t('Subscriber %label has been added.', ['%label' => $this->entity->label()]);
     }

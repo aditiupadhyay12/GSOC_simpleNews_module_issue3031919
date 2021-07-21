@@ -61,7 +61,7 @@ class SubscriptionSettingsForm extends ConfigFormBase {
 
     $form['subscription_mail'] = [
       '#type' => 'fieldset',
-      '#title' => $this->t('Confirmation emails'),
+      '#title' => $this->t('Subscriber emails'),
       '#collapsible' => FALSE,
     ];
 
@@ -100,28 +100,17 @@ class SubscriptionSettingsForm extends ConfigFormBase {
       '#description' => $this->t('This body is used when there are no change requests which have no effect, e.g trying to subscribe when already being subscribed to a newsletter.'),
     ];
 
-    $form['subscription_mail']['simplenews_confirm_combined_line_subscribe_unsubscribed'] = [
+    $form['subscription_mail']['simplenews_validate_subject'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Change text for a new subscription'),
-      '#default_value' => $config->get('subscription.confirm_combined_line_subscribe_unsubscribed'),
+      '#title' => $this->t('Subject text for validation mail'),
+      '#default_value' => $config->get('subscription.validate_subject'),
     ];
 
-    $form['subscription_mail']['simplenews_confirm_combined_line_subscribe_subscribed'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Change text when already subscribed'),
-      '#default_value' => $config->get('subscription.confirm_combined_line_subscribe_subscribed'),
-    ];
-
-    $form['subscription_mail']['simplenews_confirm_combined_line_unsubscribe_subscribed'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Change text for an unsubscription'),
-      '#default_value' => $config->get('subscription.confirm_combined_line_unsubscribe_subscribed'),
-    ];
-
-    $form['subscription_mail']['simplenews_confirm_combined_line_unsubscribe_unsubscribed'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Change text when already unsubscribed'),
-      '#default_value' => $config->get('subscription.confirm_combined_line_unsubscribe_unsubscribed'),
+    $form['subscription_mail']['simplenews_validate_body'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Body text for validation mail'),
+      '#default_value' => $config->get('subscription.validate_body'),
+      '#rows' => 5,
     ];
 
     $form['confirm_pages'] = [
@@ -154,10 +143,8 @@ class SubscriptionSettingsForm extends ConfigFormBase {
       ->set('subscription.confirm_combined_subject', $form_state->getValue('simplenews_confirm_combined_subject'))
       ->set('subscription.confirm_combined_body', $form_state->getValue('simplenews_confirm_combined_body'))
       ->set('subscription.confirm_combined_body_unchanged', $form_state->getValue('simplenews_confirm_combined_body_unchanged'))
-      ->set('subscription.confirm_combined_line_subscribe_unsubscribed', $form_state->getValue('simplenews_confirm_combined_line_subscribe_unsubscribed'))
-      ->set('subscription.confirm_combined_line_subscribe_subscribed', $form_state->getValue('simplenews_confirm_combined_line_subscribe_subscribed'))
-      ->set('subscription.confirm_combined_line_unsubscribe_subscribed', $form_state->getValue('simplenews_confirm_combined_line_unsubscribe_subscribed'))
-      ->set('subscription.confirm_combined_line_unsubscribe_unsubscribed', $form_state->getValue('simplenews_confirm_combined_line_unsubscribe_unsubscribed'))
+      ->set('subscription.validate_subject', $form_state->getValue('simplenews_validate_subject'))
+      ->set('subscription.validate_body', $form_state->getValue('simplenews_validate_body'))
       ->set('subscription.confirm_subscribe_page', $form_state->getValue('simplenews_confirm_subscribe_page'))
       ->set('subscription.confirm_unsubscribe_page', $form_state->getValue('simplenews_confirm_unsubscribe_page'))
       ->save();

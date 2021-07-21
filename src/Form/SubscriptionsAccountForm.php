@@ -28,7 +28,7 @@ class SubscriptionsAccountForm extends SubscriptionsFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function getSubmitMessage(FormStateInterface $form_state, $op, $confirm) {
+  protected function getSubmitMessage(FormStateInterface $form_state, $confirm) {
     $user = $form_state->get('user');
     if (\Drupal::currentUser()->id() == $user->id()) {
       return $this->t('Your newsletter subscriptions have been updated.');
