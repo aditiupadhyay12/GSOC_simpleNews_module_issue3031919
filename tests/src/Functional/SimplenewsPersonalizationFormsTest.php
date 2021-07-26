@@ -89,22 +89,12 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
   }
 
   /**
-   * Subscribe, request password: "name is not recognized".
+   * Subscribe, check no user is created.
    */
   public function testSubscribeRequestPassword() {
     $email = $this->randomEmail();
-
-    // Subscribe.
     $this->subscribe([], $email);
-
-    // Request new password.
-    $this->drupalGet('user/password');
-    $this->submitForm([
-      'name' => $email,
-    ], 'Submit');
-
-    // Assert the email is not recognized as an account.
-    $this->assertRaw(t('%name is not recognized as a username or an email address.', ['%name' => $email]));
+    $this->assertFalse(user_load_by_mail($email));
   }
 
   /**
