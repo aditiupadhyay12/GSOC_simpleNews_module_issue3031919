@@ -63,14 +63,14 @@ define('SIMPLENEWS_ACCESS_DEFAULT', 'default');
 define('SIMPLENEWS_ACCESS_HIDDEN', 'hidden');
 
 /**
- * Implements hook_node_type_delete().
+ * Implements hook_ENTITY_TYPE_delete() for node_type entity.
  */
 function simplenews_node_type_delete(NodeTypeInterface $info) {
   drupal_static_reset('simplenews_get_content_types');
 }
 
 /**
- * Implements hook_node_view().
+ * Implements hook_ENTITY_TYPE_view() for node entity.
  */
 function simplenews_node_view(array &$build, NodeInterface $node, $display, $view_mode) {
   if (!simplenews_check_node_types($node->getType())) {
@@ -114,7 +114,7 @@ function simplenews_node_view(array &$build, NodeInterface $node, $display, $vie
 }
 
 /**
- * Implements hook_node_presave().
+ * Implements hook_ENTITY_TYPE_presave() for node entity.
  */
 function simplenews_node_presave(NodeInterface $node) {
   if (!$node->hasField('simplenews_issue')) {
@@ -128,7 +128,7 @@ function simplenews_node_presave(NodeInterface $node) {
 }
 
 /**
- * Implements hook_node_delete().
+ * Implements hook_ENTITY_TYPE_delete() for node entity.
  */
 function simplenews_node_delete($node) {
   if (!simplenews_check_node_types($node->getType())) {
@@ -418,7 +418,7 @@ function simplenews_user_profile_form_submit($form, FormStateInterface $form_sta
 }
 
 /**
- * Implements hook_ENTITY_TYPE_create().
+ * Implements hook_ENTITY_TYPE_create() for user entity.
  */
 function simplenews_user_create(UserInterface $account) {
   // Copy values for shared fields from existing subscriber.
@@ -428,7 +428,7 @@ function simplenews_user_create(UserInterface $account) {
 }
 
 /**
- * Implements hook_user_insert().
+ * Implements hook_ENTITY_TYPE_insert() for user entity.
  *
  * If there is a matching subscription, link it to this account.
  */
@@ -440,8 +440,8 @@ function simplenews_user_insert(UserInterface $account) {
     if (!\Drupal::currentUser()->hasPermission('administer users')) {
       // This user will be activated on first login (see simplenews_user_login)
       $subscriber->setStatus(FALSE);
-    }
-    else {
+      }
+      else {
       $subscriber->setStatus(TRUE);
     }
     $subscriber->save();
@@ -483,7 +483,7 @@ function simplenews_user_presave(UserInterface $account) {
 }
 
 /**
- * Implements hook_user_delete().
+ * Implements hook_ENTITY_TYPE_delete() for user entity.
  */
 function simplenews_user_delete(UserInterface $account) {
   // Delete subscription when account is removed.
@@ -493,7 +493,7 @@ function simplenews_user_delete(UserInterface $account) {
 }
 
 /**
- * Implements hook_user_view().
+ * Implements hook_ENTITY_TYPE_view() for user entity.
  */
 function simplenews_user_view(array &$build, UserInterface $account, EntityViewDisplayInterface $display, $view_mode) {
   $user = \Drupal::currentUser();
