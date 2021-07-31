@@ -327,9 +327,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $mails = $this->getMails();
     $this->assertEqual(5, count($mails), t('All mails were sent.'));
     foreach ($mails as $mail) {
-      // @todo Temporarily strip tags from mail subjects until
-      //   https://www.drupal.org/node/2575791 is fixed.
-      $this->assertEqual($mail['subject'], '[Default newsletter] ' . strip_tags($edit['title[0][value]']), t('Mail has correct subject'));
+      $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
       $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }

@@ -959,6 +959,7 @@ function simplenews_token_replace_subject($text, array $data = [], array $option
   // The input string must be escaped in case of special characters like &.
   // The output must remain as markup. The surprising fact is that the Drupal
   // mail system expects to receive markup and automatically decodes it.
+  // @see https://www.drupal.org/node/2575791.
   return Markup::create(\Drupal::token()->replace(Html::escape($text), $data, $options));
 }
 
