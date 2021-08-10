@@ -306,6 +306,19 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+
+    // If there is not already a linked user, fill from an account with
+    // matching uid or email.
+    if (!$this->isNew() && !$this->getUserId() && $user = $this->getUser()) {
+      $this->fillFromAccount($user);
+    }
+  }
+
+  /**
    * Identifies configurable fields shared with a user.
    *
    * @param \Drupal\user\UserInterface $user
@@ -358,6 +371,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
       ->setDescription(t("The subscriber's email address."))
       ->setSetting('default_value', '')
       ->setRequired(TRUE)
+      ->addConstraint('UniqueField', [])
       ->setDisplayOptions('form', [
         'type' => 'email_default',
         'settings' => [],

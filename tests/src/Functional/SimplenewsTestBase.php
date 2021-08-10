@@ -270,6 +270,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     $snids = \Drupal::entityQuery('simplenews_subscriber')
       ->sort('created', 'DESC')
       ->range(0, 1)
+      ->accessCheck(FALSE)
       ->execute();
     return empty($snids) ? NULL : Subscriber::load(array_shift($snids));
   }

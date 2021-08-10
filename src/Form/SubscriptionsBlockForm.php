@@ -90,26 +90,34 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    $mail = $form_state->getValue(['mail', 0, 'value']);
+    if ($this->entity->isNew() && $subscriber = Subscriber::loadByMail($mail)) {
+      $this->setEntity($subscriber);
+    }
+
     parent::validateForm($form, $form_state);
 
     // If the newsletter checkboxes are available, at least one must be checked.
     if (!$this->getSubscriptionWidget($form_state)->isHidden() && !count($form_state->getValue('subscriptions'))) {
       $form_state->setErrorByName('subscriptions', $this->t('You must select at least one newsletter.'));
     }
+
+    $mail = $form_state->getValue(['mail', 0, 'value']);
+    // Users should login to manage their subscriptions.
+    if (!$this->isAuthenticated() && $user = user_load_by_mail($mail)) {
+      $message = $user->isBlocked() ?
+        $this->t('The email address %mail belongs to a blocked user.', ['%mail' => $mail]) :
+        $this->t('There is an account registered for the e-mail address %mail. Please log in to manage your newsletter subscriptions.', ['%mail' => $mail]);
+      $form_state->setErrorByName('mail', $message);
+    }
   }
 
   /**
-   * {@inheritdoc}
+   * Check if there is an authenticated user who is viewing this form.
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    // For an anonymous user the email is unknown in buildForm, but here we can
-    // try again to load an existing subscriber.
-    $mail = $form_state->getValue(['mail', 0, 'value']);
-    if ($this->entity->isNew() && $subscriber = Subscriber::loadByMail($mail)) {
-      $this->setEntity($subscriber);
-    }
-
-    parent::submitForm($form, $form_state);
+  protected function isAuthenticated() {
+    $user_loaded = $this->getEntity()->getUser();
+    return ($user_loaded && $user_loaded->isAuthenticated());
   }
 
   /**

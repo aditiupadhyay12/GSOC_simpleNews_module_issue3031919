@@ -108,7 +108,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Subscribe.
     $this->resetPassLogin(User::load($uid));
-    $this->subscribe([], NULL, [], $uid);
+    $this->subscribe('default', NULL, [], $uid);
     $this->drupalLogout();
 
     // Disable account.

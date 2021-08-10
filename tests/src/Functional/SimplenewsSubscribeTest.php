@@ -728,6 +728,66 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
   }
 
   /**
+   * Tests protection against duplicate subscribers.
+   */
+  public function testDuplicate() {
+    foreach (['a', 'b', 'c', 'd'] as $i) {
+      $edit = [
+        'name' => "news_$i",
+        'id' => $i,
+        'access' => 'default',
+      ];
+      Newsletter::create($edit)->save();
+    }
+
+    $this->config('simplenews.settings')
+      ->set('subscription.skip_verification', TRUE)
+      ->save();
+
+    // - Create 2 anon subscribers with email A and B.
+    // - Admin edits subscriber A to email B.
+    // - Should fail.
+    $mail_a = $this->randomEmail();
+    $this->subscribe('a', $mail_a);
+    $sub_a = $this->getLatestSubscriber();
+    $mail_b = $this->randomEmail();
+    $this->subscribe('b', $mail_b);
+    $sub_b = $this->getLatestSubscriber();
+    $this->assertEquals(2, $this->countSubscribers());
+
+    $admin_user = $this->drupalCreateUser(['administer simplenews subscriptions', 'administer users']);
+    $this->drupalLogin($admin_user);
+    $this->drupalGet('admin/people/simplenews/edit/' . $sub_a->id());
+    $this->submitForm(['mail[0][value]' => $mail_b], 'Save');
+    $this->assertSession()->pageTextContains("A simplenews subscriber with email $mail_b already exists.");
+    $this->assertEquals(2, $this->countSubscribers());
+
+    // - Create a registered user C with no subscriptions.
+    // - Admin changes email of subscriber A to C.
+    // - Should link subscriptions of A to C.
+    $user_c = $this->drupalCreateUser(['subscribe to newsletters']);
+    $this->submitForm(['mail[0][value]' => $user_c->getEmail()], 'Save');
+    $sub_c = Subscriber::loadByUid($user_c->id());
+    $this->assertEquals($sub_a->id(), $sub_c->id());
+    $this->assertEquals(['a'], $sub_c->getSubscribedNewsletterIds());
+    $this->assertEquals(2, $this->countSubscribers());
+
+    // - Create a registered user subscriber D.
+    // - Admin changes email to B.
+    // - Should delete subscriber B.
+    // - User D subscriptions should not change.
+    $user_d = $this->drupalCreateUser(['subscribe to newsletters']);
+    $this->subscribe('d', NULL, [], $user_d->id());
+    $this->assertEquals(3, $this->countSubscribers());
+
+    $this->drupalGet('user/' . $user_d->id() . '/edit');
+    $this->submitForm(['mail' => $mail_b], 'Save');
+    $this->assertEquals(2, $this->countSubscribers());
+    $sub_d = Subscriber::loadByUid($user_d->id());
+    $this->assertEquals(['d'], $sub_d->getSubscribedNewsletterIds());
+  }
+
+  /**
    * Gets the number of subscribers entities.
    */
   protected function countSubscribers() {

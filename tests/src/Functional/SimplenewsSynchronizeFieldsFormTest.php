@@ -52,11 +52,10 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
   public function testSubscriberFormFieldSync() {
     // Create a subscriber for the user.
     $subscriber = Subscriber::create([
-      // Subscribers are linked to users by the uid field.
-      'uid' => $this->user->id(),
-      'mail' => 'anything@example.com',
+      'mail' => 'user@example.com',
     ]);
     $subscriber->save();
+    $this->assertEquals($this->user->id(), $subscriber->getUserId());
 
     // Edit subscriber field and assert user field is changed accordingly.
     $this->drupalLogin($this->user);
