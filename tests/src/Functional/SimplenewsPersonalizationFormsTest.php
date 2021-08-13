@@ -63,7 +63,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
   }
 
   /**
-   * Register then subscribe: require login, fields updated.
+   * Register then subscribe: fields updated.
    */
   public function testSynchronizeRegisterSubscribe() {
     $email = $this->randomEmail();
@@ -72,18 +72,15 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     $uid = $this->registerUser($email, ['field_shared[0][value]' => $this->randomString(10)]);
     $user = User::load($uid);
 
-    // Attempt subscribe and assert login message.
-    $this->subscribe([], $email);
-    $this->assertRaw(t('There is an account registered for the e-mail address %mail. Please log in to manage your newsletter subscriptions', ['%mail' => $email]));
-
-    // Login.
-    $this->resetPassLogin($user);
-
-    // Subscribe.
+    // Subscribe anonymous with verification disabled.
+    $this->config('simplenews.settings')
+      ->set('subscription.skip_verification', TRUE)
+      ->save();
     $new_value = $this->randomString(20);
-    $this->subscribe('default', NULL, ['field_shared[0][value]' => $new_value], $uid);
+    $this->subscribe([], $email, ['field_shared[0][value]' => $new_value]);
 
     // Assert fields are updated.
+    $this->resetPassLogin($user);
     $this->drupalGet("user/$uid");
     $this->assertText(Html::escape($new_value));
   }
