@@ -23,7 +23,28 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
    *
    * @var string
    */
-  public $message;
+  protected $message;
+
+  /**
+   * The newsletters available to select from.
+   *
+   * @var string[]
+   */
+  protected $newsletterIds = [];
+
+  /**
+   * The default newsletters.
+   *
+   * @var string[]
+   */
+  protected $defaultNewsletterIds = [];
+
+  /**
+   * Whether to show "Manage existing" link.
+   *
+   * @var bool
+   */
+  protected $showManage = FALSE;
 
   /**
    * {@inheritdoc}
@@ -40,23 +61,92 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
    *
    * @param string $id
    *   Subscription block unique form ID.
+   *
+   * @return $this
    */
   public function setUniqueId($id) {
     $this->uniqueId = $id;
+    return $this;
+  }
+
+  /**
+   * Set message.
+   *
+   * @param string $message
+   *   Message to use as description for the block.
+   *
+   * @return $this
+   */
+  public function setMessage($message) {
+    $this->message = $message;
+    return $this;
+  }
+
+  /**
+   * Set the newsletters available to select from.
+   *
+   * @param string[] $newsletters
+   *   Newsletter IDs available to select from.
+   * @param string[] $defaults
+   *   (optional) Newsletter IDs selected by default.
+   *
+   * @return $this
+   */
+  public function setNewsletterIds(array $newsletters, array $defaults = []) {
+    $visible = array_keys(simplenews_newsletter_get_visible());
+    // Exclude newsletters already subscribed.
+    $subscribed = $this->entity->getSubscribedNewsletterIds();
+    $this->newsletterIds = array_diff(array_intersect($newsletters, $visible), $subscribed);
+    $this->defaultNewsletterIds = array_diff(array_intersect($defaults, $visible), $subscribed);
+    return $this;
+  }
+
+  /**
+   * Returns the newsletters available to select from.
+   *
+   * @return string[]
+   *   The newsletter IDs available to select from, as an indexed array.
+   */
+  public function getNewsletterIds() {
+    return $this->newsletterIds;
+  }
+
+  /**
+   * Set whether to show "Manage existing" link.
+   *
+   * @param bool $show
+   *   TRUE to show "Manage existing" link, FALSE to hide.
+   *
+   * @return $this
+   */
+  public function setShowManage($show) {
+    $this->showManage = $show;
+    return $this;
   }
 
   /**
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-    // Hide subscription widget if only one newsletter available.
-    if (count($this->getNewsletters()) == 1) {
-      $this->getSubscriptionWidget($form_state)->setHidden();
+    $this->getSubscriptionWidget($form_state)->setAvailableNewsletterIds($this->newsletterIds);
+
+    if (!$form_state->getUserInput()) {
+      // Set defaults.
+      foreach ($this->defaultNewsletterIds as $newsletter_id) {
+        $this->entity->subscribe($newsletter_id, SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, 'website');
+      }
     }
 
     $form = parent::form($form, $form_state);
     $form['subscriptions']['widget']['#title'] = $this->t('Manage your newsletter subscriptions');
     $form['subscriptions']['widget']['#description'] = $this->t('Select the newsletter(s) to which you want to subscribe.');
+    $hidden_default_ids = array_diff($this->defaultNewsletterIds, $this->getNewsletterIds());
+    $form['subscriptions']['widget']['#required'] = empty($hidden_default_ids);
+    $form['subscriptions']['widget']['#access'] = !empty($this->newsletterIds);
+
+    if (!$this->newsletterIds && !$this->defaultNewsletterIds) {
+      $this->message = $this->t('You are already subscribed');
+    }
 
     if ($this->message) {
       $form['message'] = [
@@ -73,15 +163,21 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
    */
   protected function actions(array $form, FormStateInterface $form_state) {
     $actions = parent::actions($form, $form_state);
-    $actions['submit']['#value'] = $this->t('Subscribe');
 
-    $user = \Drupal::currentUser();
-    $link = $user->isAuthenticated() ? Url::fromRoute('simplenews.newsletter_subscriptions_user', ['user' => $user->id()]) : Url::fromRoute('simplenews.newsletter_validate');
-    $actions['manage'] = [
-      '#title' => $this->t('Manage existing'),
-      '#type' => 'link',
-      '#url' => $link,
-    ];
+    $actions['submit']['#value'] = $this->t('Subscribe');
+    if (!$this->newsletterIds && !$this->defaultNewsletterIds) {
+      $actions['submit']['#attributes']['disabled'] = TRUE;
+    }
+
+    if ($this->showManage) {
+      $user = \Drupal::currentUser();
+      $link = $user->isAuthenticated() ? Url::fromRoute('simplenews.newsletter_subscriptions_user', ['user' => $user->id()]) : Url::fromRoute('simplenews.newsletter_validate');
+      $actions['manage'] = [
+        '#title' => $this->t('Manage existing'),
+        '#type' => 'link',
+        '#url' => $link,
+      ];
+    }
 
     return $actions;
   }
@@ -96,11 +192,6 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
     }
 
     parent::validateForm($form, $form_state);
-
-    // If the newsletter checkboxes are available, at least one must be checked.
-    if (!$this->getSubscriptionWidget($form_state)->isHidden() && !count($form_state->getValue('subscriptions'))) {
-      $form_state->setErrorByName('subscriptions', $this->t('You must select at least one newsletter.'));
-    }
 
     $mail = $form_state->getValue(['mail', 0, 'value']);
     // Cannot subscribe blocked users.
@@ -121,7 +212,12 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
   public function submitExtra(array $form, FormStateInterface $form_state) {
     /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
     $subscription_manager = \Drupal::service('simplenews.subscription_manager');
-    foreach ($this->extractNewsletterIds($form_state, TRUE) as $newsletter_id) {
+
+    // Subscribe the selected newsletters and any defaults that are hidden.
+    $selected_ids = $this->extractNewsletterIds($form_state, TRUE);
+    $hidden_default_ids = array_diff($this->defaultNewsletterIds, $this->getNewsletterIds());
+
+    foreach (array_unique(array_merge($selected_ids, $hidden_default_ids)) as $newsletter_id) {
       $subscription_manager->subscribe($this->entity->getMail(), $newsletter_id, NULL, 'website');
     }
     $sent = $subscription_manager->sendConfirmations();

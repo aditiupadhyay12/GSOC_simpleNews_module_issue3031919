@@ -76,7 +76,9 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
   public function defaultConfiguration() {
     // By default, the block will contain 1 newsletter.
     return [
+      'show_manage' => TRUE,
       'newsletters' => [],
+      'default_newsletters' => [],
       'message' => $this->t('Stay informed - subscribe to our newsletter.'),
       'unique_id' => '',
     ];
@@ -98,12 +100,25 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
       $options[$newsletter->id()] = $newsletter->name;
     }
 
+    $form['show_manage'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show manage link'),
+      '#description' => $this->t('Show a link to manage existing newsletters.'),
+      '#default_value' => $this->configuration['show_manage'],
+    ];
     $form['newsletters'] = [
       '#type' => 'checkboxes',
-      '#title' => $this->t('Newsletters'),
+      '#title' => $this->t('Visible Newsletters'),
+      '#description' => $this->t('Newsletters to show.'),
       '#options' => $options,
-      '#required' => TRUE,
       '#default_value' => $this->configuration['newsletters'],
+    ];
+    $form['default_newsletters'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Default newsletters'),
+      '#description' => $this->t('Newsletters that are selected by default. Newsletters that are not visible will be automatically subscribed.'),
+      '#options' => $options,
+      '#default_value' => $this->configuration['default_newsletters'],
     ];
     $form['message'] = [
       '#type' => 'textfield',
@@ -147,7 +162,9 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
+    $this->configuration['show_manage'] = $form_state->getValue('show_manage');
     $this->configuration['newsletters'] = array_filter($form_state->getValue('newsletters'));
+    $this->configuration['default_newsletters'] = array_filter($form_state->getValue('default_newsletters'));
     $this->configuration['message'] = $form_state->getValue('message');
     // @codingStandardsIgnoreStart
     //$this->configuration['link_previous'] = $form_state->getValue('link_previous');
@@ -161,14 +178,12 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
    */
   public function build() {
     /** @var \Drupal\simplenews\Form\SubscriptionsBlockForm $form_object */
-    $form_object = $this->entityTypeManager->getFormObject('simplenews_subscriber', 'block');
-    $form_object->setUniqueId($this->configuration['unique_id']);
-    $form_object->setNewsletterIds($this->configuration['newsletters']);
-    $form_object->message = $this->configuration['message'];
-
-    // Set the entity on the form.
-    $user = \Drupal::currentUser();
-    $form_object->setEntity(Subscriber::loadByUid($user->id(), 'create'));
+    $form_object = $this->entityTypeManager->getFormObject('simplenews_subscriber', 'block')
+      ->setUniqueId($this->configuration['unique_id'])
+      ->setEntity(Subscriber::loadByUid(\Drupal::currentUser()->id(), 'create'))
+      ->setNewsletterIds($this->configuration['newsletters'], $this->configuration['default_newsletters'])
+      ->setMessage($this->configuration['message'])
+      ->setShowManage($this->configuration['show_manage']);
 
     return $this->formBuilder->getForm($form_object);
   }

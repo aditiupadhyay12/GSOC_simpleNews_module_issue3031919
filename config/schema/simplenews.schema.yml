@@ -222,9 +222,18 @@ block.settings.simplenews_subscription_block:
       sequence:
         type: string
         label: Newsletter ID
+    default_newsletters:
+      type: sequence
+      label: Default newsletters
+      sequence:
+        type: string
+        label: Newsletter ID
     message:
       type: label
       label: Message
+    show_manage:
+      type: boolean
+      label: Show manage link
     unique_id:
       type: string
       label: Unique ID

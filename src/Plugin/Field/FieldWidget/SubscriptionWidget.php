@@ -5,7 +5,6 @@ namespace Drupal\simplenews\Plugin\Field\FieldWidget;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\OptionsButtonsWidget;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\OptGroup;
 use Drupal\simplenews\SubscriptionWidgetInterface;
 
@@ -31,42 +30,30 @@ class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWid
   protected $newsletterIds;
 
   /**
-   * Subscription hidden flag.
-   *
-   * @var bool
-   */
-  protected $hidden;
-
-  /**
    * {@inheritdoc}
    */
-  public function setAvailableNewsletterIds(array $newsletter_ids) {
-    $this->newsletterIds = $newsletter_ids;
+  public function setAvailableNewsletterIds(array $newsletter_ids = NULL) {
+    $this->newsletterIds = array_keys(simplenews_newsletter_get_visible());
+    if (isset($newsletter_ids)) {
+      $this->newsletterIds = array_intersect($newsletter_ids, $this->newsletterIds);
+    }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setHidden($set = TRUE) {
-    $this->hidden = (bool) $set;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isHidden() {
-    return $this->hidden;
+  public function getAvailableNewsletterIds() {
+    if (!isset($this->newsletterIds)) {
+      $this->setAvailableNewsletterIds();
+    }
+    return $this->newsletterIds;
   }
 
   /**
    * {@inheritdoc}
    */
   protected function getOptions(FieldableEntityInterface $entity) {
-    $options = parent::getOptions($entity);
-    if (isset($this->newsletterIds)) {
-      $options = array_intersect_key($options, array_flip($this->newsletterIds));
-    }
-    return $options;
+    return array_intersect_key(parent::getOptions($entity), array_flip($this->getAvailableNewsletterIds()));
   }
 
   /**
@@ -90,33 +77,11 @@ class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWid
   /**
    * {@inheritdoc}
    */
-  public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    if ($this->isHidden()) {
-      // "Hide" the element with #type => 'value' and a structure like a normal
-      // element.
-      foreach ($this->newsletterIds as $newsletter_id) {
-        $element[] = [
-          'target_id' => [
-            '#type' => 'value',
-            '#value' => $newsletter_id,
-          ],
-        ];
-      }
-    }
-    else {
-      $element = parent::formElement($items, $delta, $element, $form, $form_state);
-    }
-    return $element;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function extractNewsletterIds(array $form_state_value, $selected = TRUE) {
     $selected_ids = array_map(function ($item) {
       return $item['target_id'];
     }, $form_state_value);
-    return $selected ? $selected_ids : array_diff($this->newsletterIds, $selected_ids);
+    return $selected ? $selected_ids : array_diff($this->getAvailableNewsletterIds(), $selected_ids);
   }
 
 }

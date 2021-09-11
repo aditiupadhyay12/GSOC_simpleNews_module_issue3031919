@@ -332,3 +332,26 @@ function simplenews_update_830004() {
 
   $config->save();
 }
+
+/**
+ * Initialize new settings on subscription block.
+ */
+function simplenews_update_830005() {
+  $config_factory = \Drupal::configFactory();
+
+  foreach ($config_factory->listAll('block.block.') as $block_config_name) {
+    $block_config = $config_factory->getEditable($block_config_name);
+    if ($block_config->get('plugin') == 'simplenews_subscription_block') {
+      $newsletters = $block_config->get('settings.newsletters');
+      if (count(array_filter($block_config->get('settings.newsletters'))) == 1) {
+        $block_config->set('settings.default_newsletters', $newsletters)
+          ->set('settings.newsletters', []);
+      }
+      else {
+        $block_config->set('settings.default_newsletters', []);
+      }
+
+      $block_config->set('settings.show_manage', TRUE)->save(TRUE);
+    }
+  }
+}

@@ -18,22 +18,12 @@ interface SubscriptionWidgetInterface extends WidgetInterface {
   public function setAvailableNewsletterIds(array $newsletter_ids);
 
   /**
-   * Hide the widget.
+   * Returns the newsletters available to select from.
    *
-   * Must be called before ::formElement().
-   *
-   * @param bool $set
-   *   If FALSE, widget will not be hidden.
+   * @return string[]
+   *   The newsletter IDs available to select from, as an indexed array.
    */
-  public function setHidden($set = TRUE);
-
-  /**
-   * Whether the widget is set to be hidden.
-   *
-   * @return bool
-   *   Whether the widget is hidden.
-   */
-  public function isHidden();
+  public function getAvailableNewsletterIds();
 
   /**
    * Returns the IDs of the selected or deselected newsletters.

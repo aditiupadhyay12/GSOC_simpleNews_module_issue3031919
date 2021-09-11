@@ -241,7 +241,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     // Assert confirmation message
     // Setup subscription block with subscription form.
     $block_settings = [
-      'newsletters' => [$newsletter_id],
+      'default_newsletters' => [$newsletter_id],
       'message' => $this->randomMachineName(4),
     ];
     $single_block = $this->setupSubscriptionBlock($block_settings);
@@ -315,7 +315,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     // Try to submit multi-signup form without selecting a newsletter.
     $mail = $this->randomEmail(8);
     $this->subscribe([], $mail);
-    $this->assertText(t('You must select at least one newsletter.'));
+    $this->assertText(t('Manage your newsletter subscriptions field is required.'));
 
     // Now fill out the form and try again.
     $this->subscribe($newsletter_id, $mail);
@@ -443,7 +443,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     // Setup subscription block with subscription form.
     $block_settings = [
-      'newsletters' => [$newsletter_id],
+      'default_newsletters' => [$newsletter_id],
       'message' => $this->randomMachineName(4),
     ];
     $this->setupSubscriptionBlock($block_settings);
@@ -515,7 +515,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     // Setup subscription block with subscription form.
     $block_settings = [
-      'newsletters' => [$newsletter_id],
+      'default_newsletters' => [$newsletter_id],
       'message' => $this->randomMachineName(4),
     ];
     $single_block = $this->setupSubscriptionBlock($block_settings);
@@ -719,7 +719,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $newsletter->save();
 
     $mail = $this->randomEmail(8);
-    $this->subscribe([], $mail);
+    $this->subscribe('default', $mail);
 
     $captured_emails = $this->container->get('state')->get('system.test_mail_collector') ?: [];
     $email = end($captured_emails);
@@ -785,6 +785,66 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertEquals(2, $this->countSubscribers());
     $sub_d = Subscriber::loadByUid($user_d->id());
     $this->assertEquals(['d'], $sub_d->getSubscribedNewsletterIds());
+  }
+
+  /**
+   * Tests subscription block settings.
+   */
+  public function testBlockSettings() {
+    foreach (['a', 'b'] as $i) {
+      $edit = [
+        'name' => "news_$i",
+        'id' => $i,
+        'access' => 'default',
+      ];
+      Newsletter::create($edit)->save();
+    }
+
+    // Set up block with 2 newsletters available, no defaults.
+    $block = $this->setupSubscriptionBlock(['newsletters' => ['a', 'b']]);
+    $user = $this->drupalCreateUser(['subscribe to newsletters']);
+    $this->drupalLogin($user);
+
+    // Check both newsletters are available. Get an error if we don't pick any.
+    $this->assertSession()->fieldExists('subscriptions[a]');
+    $this->assertSession()->fieldExists('subscriptions[b]');
+    $this->submitForm([], 'Subscribe');
+    $this->assertSession()->pageTextContains("Manage your newsletter subscriptions field is required.");
+
+    // Subscribe to 'a'. Check only 'b' is now available.
+    $this->submitForm(['subscriptions[a]' => 'a'], 'Subscribe');
+    $this->assertSession()->pageTextContains("You have been subscribed.");
+    $this->assertSession()->fieldNotExists('subscriptions[a]');
+
+    // Subscribe to 'b'. Check no newsletters are available.
+    $this->submitForm(['subscriptions[b]' => 'b'], 'Subscribe');
+    $this->assertSession()->pageTextContains("You have been subscribed.");
+    $this->assertSession()->pageTextContains("You are already subscribed");
+    $this->assertSession()->fieldNotExists('subscriptions[b]');
+
+    // Click 'Manage existing' and unsubscribe.
+    $this->clickLink('Manage existing');
+    $this->assertSession()->addressEquals('user/' . $user->id() . '/simplenews');
+    $this->submitForm(['subscriptions[a]' => '0', 'subscriptions[b]' => '0'], 'Save');
+
+    // Default one newsletter on, check it is ticked.
+    $block->getPlugin()->setConfigurationValue('default_newsletters', ['a']);
+    $block->save();
+    $this->drupalGet('');
+    $this->assertSession()->checkboxChecked('subscriptions[a]');
+    $this->assertSession()->checkboxNotChecked('subscriptions[b]');
+
+    // Also make it hidden. Check can subscribe without picking any.
+    // Remove the manage link and check it isn't shown.
+    $block->getPlugin()->setConfigurationValue('newsletters',  ['b']);
+    $block->getPlugin()->setConfigurationValue('show_manage', FALSE);
+    $block->save();
+    $this->drupalGet('');
+    $this->assertSession()->linkNotExistsExact('Manage existing');
+    $this->assertSession()->fieldNotExists('subscriptions[a]');
+    $this->submitForm([], 'Subscribe');
+    $this->assertSession()->pageTextContains("You have been subscribed.");
+    $this->assertTrue(\Drupal::service('simplenews.subscription_manager')->isSubscribed($user->getEmail(), 'a'));
   }
 
   /**

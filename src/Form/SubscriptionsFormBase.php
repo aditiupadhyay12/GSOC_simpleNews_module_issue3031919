@@ -5,7 +5,6 @@ namespace Drupal\simplenews\Form;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\simplenews\Entity\Newsletter;
 
 /**
  * Entity form for Subscriber with common routines.
@@ -13,70 +12,11 @@ use Drupal\simplenews\Entity\Newsletter;
 abstract class SubscriptionsFormBase extends ContentEntityForm {
 
   /**
-   * The newsletters available to select from.
-   *
-   * @var \Drupal\simplenews\Entity\Newsletter[]
-   */
-  protected $newsletters;
-
-  /**
    * Allow delete button.
    *
    * @var bool
    */
   protected $allowDelete = FALSE;
-
-  /**
-   * Set the newsletters available to select from.
-   *
-   * Unless called otherwise, all newsletters will be available.
-   *
-   * @param string[] $newsletters
-   *   An array of Newsletter IDs.
-   */
-  public function setNewsletterIds(array $newsletters) {
-    $this->newsletters = Newsletter::loadMultiple($newsletters);
-  }
-
-  /**
-   * Returns the newsletters available to select from.
-   *
-   * @return \Drupal\simplenews\Entity\Newsletter[]
-   *   The newsletters available to select from, indexed by ID.
-   */
-  public function getNewsletters() {
-    if (!isset($this->newsletters)) {
-      $this->setNewsletterIds(array_keys(simplenews_newsletter_get_visible()));
-    }
-    return $this->newsletters;
-  }
-
-  /**
-   * Returns the newsletters available to select from.
-   *
-   * @return string[]
-   *   The newsletter IDs available to select from, as an indexed array.
-   */
-  public function getNewsletterIds() {
-    return array_keys($this->getNewsletters());
-  }
-
-  /**
-   * Convenience method for the case of only one available newsletter.
-   *
-   * @see ::setNewsletterIds()
-   *
-   * @return string|null
-   *   If there is exactly one newsletter available in this form, this method
-   *   returns its ID. Otherwise it returns NULL.
-   */
-  protected function getOnlyNewsletterId() {
-    $newsletters = $this->getNewsletterIds();
-    if (count($newsletters) == 1) {
-      return array_shift($newsletters);
-    }
-    return NULL;
-  }
 
   /**
    * Returns a message to display to the user upon successful form submission.
@@ -102,16 +42,6 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
    */
   protected function getSubscriptionWidget(FormStateInterface $form_state) {
     return $this->getFormDisplay($form_state)->getRenderer('subscriptions');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function form(array $form, FormStateInterface $form_state) {
-    $this->getSubscriptionWidget($form_state)
-      ->setAvailableNewsletterIds(array_keys($this->getNewsletters()));
-
-    return parent::form($form, $form_state);
   }
 
   /**

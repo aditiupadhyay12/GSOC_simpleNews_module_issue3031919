@@ -47,7 +47,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     $email = $this->randomEmail();
 
     // Subscribe.
-    $this->subscribe([], $email, ['field_shared[0][value]' => $this->randomString(10)]);
+    $this->subscribe('default', $email, ['field_shared[0][value]' => $this->randomString(10)]);
 
     // Register.
     $new_value = $this->randomString(20);
@@ -77,7 +77,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
       ->set('subscription.skip_verification', TRUE)
       ->save();
     $new_value = $this->randomString(20);
-    $this->subscribe([], $email, ['field_shared[0][value]' => $new_value]);
+    $this->subscribe('default', $email, ['field_shared[0][value]' => $new_value]);
 
     // Assert fields are updated.
     $this->resetPassLogin($user);
@@ -128,7 +128,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     $uid = $this->registerUser($email);
 
     // Subscribe.
-    $this->subscribe([], $email);
+    $this->subscribe('default', $email);
 
     // Delete account.
     $this->drupalLogin($this->admin);
@@ -156,7 +156,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     $this->drupalLogout();
 
     // Attempt subscribe and assert "blocked" message.
-    $this->subscribe([], $email);
+    $this->subscribe('default', $email);
     $this->assertRaw(t('The email address %mail belongs to a blocked user.', ['%mail' => $email]));
   }
 
