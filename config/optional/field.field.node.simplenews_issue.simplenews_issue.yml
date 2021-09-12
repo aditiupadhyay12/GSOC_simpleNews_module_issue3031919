@@ -13,7 +13,7 @@ bundle: simplenews_issue
 label: Newsletter
 description: ''
 required: true
-translatable: true
+translatable: false
 default_value:
   -
     target_id: default

@@ -9,6 +9,7 @@ use Drupal\Core\Database\Database;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\field\Entity\FieldConfig;
 use Drupal\simplenews\Entity\Newsletter;
 
 /**
@@ -353,5 +354,24 @@ function simplenews_update_830005() {
 
       $block_config->set('settings.show_manage', TRUE)->save(TRUE);
     }
+  }
+}
+
+/**
+ * Changes field simplenews_issue to non-translatable.
+ */
+function simplenews_update_830006() {
+  $fields = \Drupal::entityTypeManager()
+    ->getStorage('field_config')
+    ->loadByProperties([
+      'field_type' => 'simplenews_issue',
+    ]);
+  foreach ($fields as $field) {
+    $updated_field = FieldConfig::create($field->toArray() + [
+      'translatable' => FALSE,
+    ]);
+    $updated_field->original = $field;
+    $updated_field->enforceIsNew(FALSE);
+    $updated_field->save();
   }
 }

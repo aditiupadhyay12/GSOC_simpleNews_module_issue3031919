@@ -152,8 +152,6 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     $this->clickLink(t('Newsletter'));
     $this->submitForm([], t('Send now'));
     $this->cronRun();
-    // @codingStandardsIgnoreLine
-    //simplenews_cron();
 
     $this->assertEqual(3, count($this->getMails()));
 
@@ -184,12 +182,13 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       $this->assertStringContainsStringIgnoringCase($title, $mail['body']);
     }
 
-    // Verify sent subscriber count for each node.
+    // Verify sent subscriber count.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache([$node->id()]);
     $node = Node::load($node->id());
     $translation = $node->getTranslation($this->secondaryLanguage);
-    $this->assertEqual(1, $node->simplenews_issue->sent_count, 'subscriber count is correct for english');
-    $this->assertEqual(2, $translation->simplenews_issue->sent_count, 'subscriber count is correct for spanish');
+    $this->assertEqual(3, $node->simplenews_issue->sent_count, 'subscriber count is correct');
+    $this->drupalGet('/admin/content/simplenews');
+    $this->assertSession()->responseContains('<span title="Newsletter issue sent to 3 subscribers, 0 errors.">3/3</span>');
 
     // Make sure the language of a node can be changed.
     $english = [
