@@ -352,6 +352,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
 
     // Test that tokens are correctly replaced.
     foreach (array_slice($this->getMails(), 0, 3) as $mail) {
+      $this->assertStringContainsString($node->getTitle(), $mail['body']);
       // Make sure that the same mail was used in the body token as it has been
       // sent to. Also verify that the mail is plaintext.
       $this->assertStringContainsString('*' . $mail['to'] . '*', $mail['body']);

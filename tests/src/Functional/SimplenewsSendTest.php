@@ -684,6 +684,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $mails = $this->getMails();
 
     // Check if the correct theme was used in mails.
+    $this->assertStringContainsString($node->getTitle(), $mails[0]['body']);
     $this->assertStringContainsString('Simplenews test theme', $mails[0]['body']);
     $this->assertEquals(1, preg_match('/ID: [0-9]/', $mails[0]['body']), 'Mail contains the subscriber ID');
   }
