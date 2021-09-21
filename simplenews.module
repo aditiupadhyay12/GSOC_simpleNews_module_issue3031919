@@ -395,6 +395,10 @@ function simplenews_form_user_register_form_alter(&$form, FormStateInterface $fo
 function simplenews_user_profile_form_submit($form, FormStateInterface $form_state) {
   $account = $form_state->getFormObject()->getEntity();
   // Process subscription check boxes.
+  // @todo As part of https://www.drupal.org/project/simplenews/issues/3035367
+  // fix this so it doesn't send a confirmation mail and instead confirms the
+  // subscription when the user first logs in.
+
   /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
   $subscription_manager = \Drupal::service('simplenews.subscription_manager');
   // Invalid input (non-array) could result in a NULL return value, ensure to
@@ -403,7 +407,7 @@ function simplenews_user_profile_form_submit($form, FormStateInterface $form_sta
     $ids = array_filter($form_state->getValue('subscriptions'));
     if ($ids) {
       foreach (Newsletter::loadMultiple($ids) as $newsletter) {
-        $subscription_manager->subscribe($account->getEmail(), $newsletter->id(), FALSE, 'website', $account->getPreferredLangcode());
+        $subscription_manager->subscribe($account->getEmail(), $newsletter->id(), NULL, 'website', $account->getPreferredLangcode());
         \Drupal::messenger()->addMessage(t('You have been subscribed to %newsletter.', ['%newsletter' => $newsletter->name]));
       }
     }
@@ -411,7 +415,7 @@ function simplenews_user_profile_form_submit($form, FormStateInterface $form_sta
   // Process hidden (automatic) subscriptions.
   if ($form_state->getValue('simplenews_hidden')) {
     foreach (explode(',', $form_state->getValue('simplenews_hidden')) as $newsletter_id) {
-      $subscription_manager->subscribe($account->getEmail(), $newsletter_id, FALSE, 'automatically', $account->getPreferredLangcode());
+      $subscription_manager->subscribe($account->getEmail(), $newsletter_id, NULL, 'automatically', $account->getPreferredLangcode());
     }
   }
 

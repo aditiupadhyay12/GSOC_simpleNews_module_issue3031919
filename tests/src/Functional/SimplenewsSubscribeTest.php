@@ -4,6 +4,7 @@ namespace Drupal\Tests\simplenews\Functional;
 
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
+use Drupal\user\UserInterface;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 
@@ -731,17 +732,24 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
    * Tests protection against duplicate subscribers.
    */
   public function testDuplicate() {
-    foreach (['a', 'b', 'c', 'd'] as $i) {
+    foreach (['a', 'b', 'c', 'd', 'e'] as $i) {
       $edit = [
         'name' => "news_$i",
         'id' => $i,
         'access' => 'default',
       ];
+      if ($i == 'e') {
+        $edit['new_account'] = 'on';
+      }
+
       Newsletter::create($edit)->save();
     }
 
     $this->config('simplenews.settings')
       ->set('subscription.skip_verification', TRUE)
+      ->save();
+    $this->config('user.settings')
+      ->set('register', UserInterface::REGISTER_VISITORS)
       ->save();
 
     // - Create 2 anon subscribers with email A and B.
@@ -785,6 +793,21 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertEquals(2, $this->countSubscribers());
     $sub_d = Subscriber::loadByUid($user_d->id());
     $this->assertEquals(['d'], $sub_d->getSubscribedNewsletterIds());
+
+    // - Create anon subscriber with email E.
+    // - Register user with email E and subscribe new account.
+    // - Subscription should be unconfirmed.
+    $this->config('simplenews.settings')
+      ->set('subscription.skip_verification', FALSE)
+      ->save();
+    $this->drupalLogout();
+    $mail_e = $this->randomEmail();
+    $this->subscribe('e', $mail_e);
+    $this->drupalGet('user/register');
+    $this->submitForm(['mail' => $mail_e, 'name' => 'e'], 'Create new account');
+    $this->assertSession()->pageTextContains('You have been subscribed to news_e');
+    $status = Subscriber::loadByMail($mail_e)->getSubscription('e')->status;
+    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED, $status);
   }
 
   /**
