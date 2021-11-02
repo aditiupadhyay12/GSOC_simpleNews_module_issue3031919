@@ -683,26 +683,42 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
   }
 
   /**
-   * Tests access for a registered user to manage subscriptions with a hash.
+   * Tests access to manage subscriptions with a hash.
    */
   public function testHashAuth() {
+    // User subscriber can't use /newsletter/validate.
     $user = $this->drupalCreateUser(['subscribe to newsletters']);
     $mail = $user->getEmail();
     $subscriber = Subscriber::loadByMail($mail, 'create');
     $subscriber->save();
-
     $this->drupalGet('newsletter/subscriptions');
     $this->assertSession()->addressEquals('/newsletter/validate');
 
     $this->submitForm(['mail' => $mail], 'Submit');
-    $this->assertSession()->pageTextContains("If $mail is subscribed, an email will be sent with a link to manage your subscriptions.");
-    $this->assertSession()->addressEquals('');
-    $validate_url = $this->extractValidationLink($this->getMail(0));
+    $this->assertSession()->pageTextContains("Please log in to manage your subscriptions.");
+    $this->assertSession()->addressEquals('user/' . $user->id() . '/simplenews');
 
-    $this->drupalGet($validate_url);
+    // User subscriber can use a hash token.
+    $hash = simplenews_generate_hash($subscriber->getMail(), 'manage');
+    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
     $this->assertSession()->pageTextContains("Subscriptions for $mail");
     $this->submitForm([], 'Update');
     $this->assertText(t('Your newsletter subscriptions have been updated.'));
+
+    // Anon subscriber can use /newsletter/validate.
+    $this->config('simplenews.settings')
+      ->set('subscription.skip_verification', TRUE)
+      ->save();
+    $mail2 = $this->randomEmail();
+    $newsletter_id = $this->getRandomNewsletter();
+    $this->subscribe($newsletter_id, $mail2);
+    $subscriber2 = Subscriber::loadByMail($mail2);
+    $this->drupalGet('/newsletter/validate');
+    $this->submitForm(['mail' => $mail2], 'Submit');
+    $this->assertSession()->pageTextContains("If $mail2 is subscribed, an email will be sent with a link to manage your subscriptions.");
+    $validate_url = $this->extractValidationLink($this->getMail(0));
+    $this->drupalGet($validate_url);
+    $this->assertSession()->pageTextContains("Subscriptions for $mail2");
   }
 
   /**
