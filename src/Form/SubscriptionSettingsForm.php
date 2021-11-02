@@ -38,9 +38,9 @@ class SubscriptionSettingsForm extends ConfigFormBase {
 
     $form['subscription_verification']['simplenews_verification'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Skip email verification (strongly discouraged)'),
+      '#title' => $this->t('Skip email verification (discouraged)'),
       '#default_value' => $config->get('subscription.skip_verification'),
-      '#description' => $this->t('Anonymous users are normally required to validate their email address prior to subscribing to a newsletter or changing their subscription details. Skipping this confirmation results in an immediate subscription of an email address to the newsletter without obtaining prior consent from the person who this email address belongs to. SECURITY NOTICE: With this setting enabled, any anonymous user can subscribe or unsubscribe any email address.'),
+      '#description' => $this->t('Anonymous users are normally required to confirm their email address before their subscription becomes active, which gives proof of consent and ensures that mails don\'t bounce due to a typo. With this setting enabled, the confirmation is skipped which means that an anonymous user can subscribe any email address.'),
     ];
 
     $form['subscription_tidy'] = [
