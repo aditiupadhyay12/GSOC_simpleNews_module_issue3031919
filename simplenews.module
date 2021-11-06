@@ -83,34 +83,12 @@ function simplenews_node_view(array &$build, NodeInterface $node, $display, $vie
     return;
   }
 
-  // Build up content, add as much as there is.
-  $context = [
-    'node' => $node,
-  ];
-
-  // If the current user is a subscriber, extend context.
-  $user = \Drupal::currentUser();
-  if ($subscriber = Subscriber::loadByUid($user->id())) {
-    $context['simplenews_subscriber'] = $subscriber;
+  $config = \Drupal::config('simplenews.settings');
+  if (!$config->get('newsletter.issue_tokens')) {
+    return;
   }
 
-  // Loop over all render array elements.
-  foreach (Element::children($build) as $key) {
-    $element = &$build[$key];
-    // Make sure this is a field.
-    if (!isset($element['#field_type'])) {
-      continue;
-    }
-    // Loop over all field values.
-    foreach (Element::children($element) as $field_key) {
-      $item = &$element[$field_key];
-      // Only fields which result in simple markup elements are supported for
-      // token replacements for now.
-      if (isset($item['#markup'])) {
-        $item['#markup'] = \Drupal::token()->replace($item['#markup'], $context, []);
-      }
-    }
-  }
+  $build['#post_render'][] = [\Drupal::service('simplenews.mail_builder'), 'nodePostRender'];
 }
 
 /**
@@ -288,7 +266,8 @@ function simplenews_form_node_form_alter(&$form, FormStateInterface $form_state,
       }
     }
 
-    if (\Drupal::moduleHandler()->moduleExists('token')) {
+    $config = \Drupal::config('simplenews.settings');
+    if ($config->get('newsletter.issue_tokens') && \Drupal::moduleHandler()->moduleExists('token')) {
       $form['simplenews_token_help'] = [
         '#title' => t('Replacement patterns'),
         '#type' => 'fieldset',

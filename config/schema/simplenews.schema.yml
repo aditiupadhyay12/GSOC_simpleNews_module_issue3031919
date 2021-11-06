@@ -10,6 +10,9 @@ simplenews.settings:
       type: mapping
       label: Newsletter settings
       mapping:
+        issue_tokens:
+          type: boolean
+          label: Show token browser on the node edit page
         format:
           type: string
           label: Default format for new newsletters

@@ -375,3 +375,13 @@ function simplenews_update_830006() {
     $updated_field->save();
   }
 }
+
+/**
+ * Initialize issue_tokens setting.
+ */
+function simplenews_update_830007() {
+  $config = \Drupal::configFactory()->getEditable('simplenews.settings');
+  $config->set('newsletter.issue_tokens', TRUE);
+  $config->save();
+}
+

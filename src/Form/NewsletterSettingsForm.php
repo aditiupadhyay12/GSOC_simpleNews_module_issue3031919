@@ -29,6 +29,18 @@ class NewsletterSettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('simplenews.settings');
+    $form['simplenews_customization'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Customization'),
+      '#collapsible' => FALSE,
+    ];
+    $form['simplenews_customization']['issue_tokens'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Newsletter tokens (caution)'),
+      '#default_value' => $config->get('newsletter.issue_tokens'),
+      '#description' => $this->t('Enable tokens in newsletter issue fields. Show a token browser on the node edit page and replace tokens when viewing a node. Note that visitors (not logged in) might see raw token codes in some cases and that some tokens (especially links) don\'t work inside formatted text fields.'),
+    ];
+
     $form['simplenews_default_options'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Default newsletter options'),
@@ -58,6 +70,7 @@ class NewsletterSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('newsletter.receipt'),
       '#description' => $this->t('Request a Read Receipt from your newsletters. A lot of email programs ignore these so it is not a definitive indication of how many people have read your newsletter.'),
     ];
+
     $form['simplenews_sender_info'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Sender information'),
@@ -88,6 +101,7 @@ class NewsletterSettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config('simplenews.settings')
+      ->set('newsletter.issue_tokens', $form_state->getValue('issue_tokens'))
       ->set('newsletter.format', $form_state->getValue('simplenews_format'))
       ->set('newsletter.priority', $form_state->getValue('simplenews_priority'))
       ->set('newsletter.receipt', $form_state->getValue('simplenews_receipt'))
