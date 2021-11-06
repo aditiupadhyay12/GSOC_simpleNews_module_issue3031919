@@ -223,7 +223,7 @@ class MailEntity implements MailInterface {
 
     // Line breaks are removed from the email subject to prevent injection of
     // malicious data into the email header.
-    $subject = str_replace(["\r", "\n"], '', $subject);
+    $subject = Markup::create(str_replace(["\r", "\n"], '', $subject));
     return $subject;
   }
 
@@ -371,13 +371,11 @@ class MailEntity implements MailInterface {
 
     // Build message body, replace tokens.
     $body = \Drupal::token()->replace($body, $this->getTokenContext(), ['langcode' => $this->getLanguage()]);
-    if ($format == 'plain') {
-      // Convert HTML to text if requested to do so.
-      $body = MailFormatHelper::htmlToText($body, $this->getNewsletter()->hyperlinks);
+    if (($format == 'plain') && $this->getNewsletter()->hyperlinks) {
+      $body = MailFormatHelper::inlineHyperlinks($body);
     }
-    else {
-      $body = Markup::create($body);
-    }
+
+    $body = Markup::create($body);
     $this->cache->set($this, 'final', 'body:' . $format, $body);
     $this->resetContext();
     return $body;

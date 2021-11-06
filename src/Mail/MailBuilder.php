@@ -3,6 +3,7 @@
 namespace Drupal\simplenews\Mail;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Utility\Token;
 use Drupal\simplenews\Subscription\SubscriptionManagerInterface;
 
@@ -68,7 +69,7 @@ class MailBuilder implements MailBuilderInterface {
       if ($this->config->get('mail.textalt')) {
         // Provide a plain text version, both in params][plaintext (Mime Mail)
         // and plain (Swiftmailer).
-        $message['params']['plaintext'] = $mail->getPlainBody();
+        $message['params']['plaintext'] = MailFormatHelper::htmlToText($mail->getPlainBody());
         $message['plain'] = $message['params']['plaintext'];
       }
 
