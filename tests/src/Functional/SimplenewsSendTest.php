@@ -63,13 +63,13 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Verify mails.
     $mails = $this->getMails();
-    $this->assertEquals(5, count($mails), t('All mails were sent.'));
+    $this->assertCount(5, $mails, 'All mails were sent.');
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $node->getTitle(), t('Mail has correct subject'));
       $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }
-    $this->assertEquals(0, count($this->subscribers), t('all subscribers have been received a mail'));
+    $this->assertCount(0, $this->subscribers, 'all subscribers have been received a mail');
 
     // Create another node.
     $node = Node::create([
@@ -89,10 +89,10 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertEqual(\Drupal::service('simplenews.spool_storage')->countMails(), 5);
 
     // Mark them as 'in progress', fake a currently running send process.
-    $this->assertEqual(count(\Drupal::service('simplenews.spool_storage')->getMails(2)), 2);
+    $this->assertCount(2, \Drupal::service('simplenews.spool_storage')->getMails(2));
 
     // Those two should be excluded if we get mails a second time.
-    $this->assertEqual(count(\Drupal::service('simplenews.spool_storage')->getMails()), 3);
+    $this->assertCount(3, \Drupal::service('simplenews.spool_storage')->getMails());
 
     // The count should still include all the mails because they are still
     // in the spool.  This is needed for correct operation of code such as
@@ -139,13 +139,13 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Verify mails.
     $mails = $this->getMails();
-    $this->assertEquals(5, count($mails), t('All mails were sent.'));
+    $this->assertCount(5, $mails, 'All mails were sent.');
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
       $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }
-    $this->assertEquals(0, count($this->subscribers), t('all subscribers have been received a mail'));
+    $this->assertCount(0, $this->subscribers, 'all subscribers have been received a mail');
 
     $this->assertEquals(5, $node->simplenews_issue->sent_count, 'subscriber count is correct');
   }
@@ -220,7 +220,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Verify that no mails have been sent yet.
     $mails = $this->getMails();
-    $this->assertEqual(0, count($mails), t('No mails were sent yet.'));
+    $this->assertCount(0, $mails, 'No mails were sent yet.');
 
     $spooled = \Drupal::database()->query('SELECT COUNT(*) FROM {simplenews_mail_spool} WHERE entity_id = :nid AND entity_type = :type', [':nid' => $node->id(), ':type' => 'node'])->fetchField();
     $this->assertEqual(5, $spooled, t('5 mails have been added to the mail spool'));
@@ -250,13 +250,13 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Verify mails.
     $mails = $this->getMails();
-    $this->assertEqual(5, count($mails), t('All mails were sent.'));
+    $this->assertCount(5, $mails, 'All mails were sent.');
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
       $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }
-    $this->assertEqual(0, count($this->subscribers), t('all subscribers have been received a mail'));
+    $this->assertCount(0, $this->subscribers, 'all subscribers have been received a mail');
     $this->assertEqual(5, $node->simplenews_issue->sent_count);
   }
 
@@ -303,7 +303,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Verify that no mails have been sent yet.
     $mails = $this->getMails();
-    $this->assertEqual(0, count($mails), t('No mails were sent yet.'));
+    $this->assertCount(0, $mails, t('No mails were sent yet.'));
 
     $spooled = \Drupal::database()->query('SELECT COUNT(*) FROM {simplenews_mail_spool} WHERE entity_id = :nid AND entity_type = :type', [':nid' => $node->id(), ':type' => 'node'])->fetchField();
     $this->assertEqual(5, $spooled, t('5 mails have been added to the mail spool'));
@@ -325,13 +325,13 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Verify mails.
     $mails = $this->getMails();
-    $this->assertEqual(5, count($mails), t('All mails were sent.'));
+    $this->assertCount(5, $mails, 'All mails were sent.');
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
       $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }
-    $this->assertEqual(0, count($this->subscribers), t('all subscribers have been received a mail'));
+    $this->assertCount(0, $this->subscribers, 'all subscribers have been received a mail');
   }
 
   /**
@@ -387,13 +387,13 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // @todo test sent subscriber count.
     // Verify mails.
     $mails = $this->getMails();
-    $this->assertEqual(5, count($mails), t('All mails were sent.'));
+    $this->assertCount(5, $mails, 'All mails were sent.');
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
       $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }
-    $this->assertEqual(0, count($this->subscribers), t('all subscribers have been received a mail'));
+    $this->assertCount(0, $this->subscribers, 'all subscribers have been received a mail');
   }
 
   /**
@@ -474,7 +474,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     simplenews_cron();
 
     // Check there is no error message.
-    $this->assertEqual(count(\Drupal::messenger()->messagesByType(MessengerInterface::TYPE_ERROR)), 0, t('No error messages printed'));
+    $this->assertCount(0, \Drupal::messenger()->messagesByType(MessengerInterface::TYPE_ERROR), 'No error messages printed');
 
     // Check the status on the newsletter tab.  The pending mail should be
     // retried.
@@ -552,13 +552,13 @@ class SimplenewsSendTest extends SimplenewsTestBase {
 
     // Verify mails.
     $mails = $this->getMails();
-    $this->assertEquals(5, count($mails), t('All mails were sent.'));
+    $this->assertCount(5, $mails, 'All mails were sent.');
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
       $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }
-    $this->assertEquals(0, count($this->subscribers), t('all subscribers have received a mail'));
+    $this->assertCount(0, $this->subscribers, 'all subscribers have received a mail');
 
     // Update timestamp to simulate pending lock expiration.
     \Drupal::database()->update('simplenews_mail_spool')
@@ -571,7 +571,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     simplenews_cron();
     \Drupal::service('simplenews.spool_storage')->getMails();
     $mails = $this->getMails();
-    $this->assertEquals(5, count($mails), t('No additional mails have been sent.'));
+    $this->assertCount(5, $mails, 'No additional mails have been sent.');
 
     // Now delete.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();

@@ -152,7 +152,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $after = microtime(TRUE);
 
     // Make sure that 99 mails have been sent.
-    $this->assertEqual(99, count($this->getMails()));
+    $this->assertCount(99, $this->getMails());
 
     // Test that tokens are correctly replaced.
     foreach (array_slice($this->getMails(), 0, 3) as $mail) {
@@ -223,7 +223,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that 5 mails have been sent.
-    $this->assertEqual(5, count($this->getMails()));
+    $this->assertCount(5, $this->getMails());
 
     // Test that tokens are correctly replaced.
     foreach (array_slice($this->getMails(), 0, 3) as $mail) {
@@ -303,7 +303,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that 5 mails have been sent.
-    $this->assertEqual(5, count($this->getMails()));
+    $this->assertCount(5, $this->getMails());
 
     // Test that tokens are correctly replaced.
     foreach (array_slice($this->getMails(), 0, 3) as $mail) {
@@ -348,7 +348,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $after = microtime(TRUE);
 
     // Make sure that 100 mails have been sent.
-    $this->assertEqual(100, count($this->getMails()));
+    $this->assertCount(100, $this->getMails());
 
     // Test that tokens are correctly replaced.
     foreach (array_slice($this->getMails(), 0, 3) as $mail) {
@@ -396,7 +396,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that no mails have been sent.
-    $this->assertEqual(0, count($this->getMails()));
+    $this->assertCount(0, $this->getMails());
 
     $spool_row = \Drupal::database()->query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
     $this->assertEqual(SpoolStorageInterface::STATUS_SKIPPED, $spool_row->status);
@@ -428,7 +428,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.mailer')->sendSpool();
 
     // Make sure that no mails have been sent.
-    $this->assertEqual(0, count($this->getMails()));
+    $this->assertCount(0, $this->getMails());
 
     $spool_row = \Drupal::database()->query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
     $this->assertEqual(SpoolStorageInterface::STATUS_SKIPPED, $spool_row->status);
@@ -448,7 +448,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     ]);
     \Drupal::service('simplenews.spool_storage')->addIssue($node);
     \Drupal::service('simplenews.mailer')->sendSpool();
-    $this->assertEqual(0, count($this->getMails()));
+    $this->assertCount(0, $this->getMails());
     $spool_row = \Drupal::database()->select('simplenews_mail_spool', 'ms')
       ->fields('ms', ['status'])
       ->execute()

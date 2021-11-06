@@ -79,11 +79,11 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
       if (in_array($newsletter_id, $enable)) {
         $this->assertTrue($is_subscribed);
-        $this->assertEquals(1, count($subscription_newsletter));
+        $this->assertCount(1, $subscription_newsletter);
       }
       else {
         $this->assertFalse($is_subscribed);
-        $this->assertEquals(0, count($subscription_newsletter));
+        $this->assertCount(0, $subscription_newsletter);
       }
     }
 
@@ -93,7 +93,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
     $this->submitForm([], 'Update');
     $this->assertText(t('Your newsletter subscriptions have been updated.'));
-    $this->assertEquals(1, count($this->getMails()), t('No confirmation mails have been sent.'));
+    $this->assertCount(1, $this->getMails(), 'No confirmation mails have been sent.');
 
     // Unsubscribe from two of the three enabled newsletters.
     $disable = array_rand(array_flip($enable), 2);

@@ -153,7 +153,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     $this->submitForm([], t('Send now'));
     $this->cronRun();
 
-    $this->assertEqual(3, count($this->getMails()));
+    $this->assertCount(3, $this->getMails());
 
     $newsletter = Newsletter::load($newsletter_id);
     foreach ($this->getMails() as $mail) {

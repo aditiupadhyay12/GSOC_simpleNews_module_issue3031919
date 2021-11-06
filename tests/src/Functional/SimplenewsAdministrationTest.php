@@ -236,7 +236,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $displayed_issues = $this->xpath("//div[@class='issues-list']/div/ul/li/a");
 
-    $this->assertEqual(count($displayed_issues), 2, 'Displys two recent issues.');
+    $this->assertCount(2, $displayed_issues, 'Displays two recent issues.');
 
     $this->assertNotContains($generated_names[0], $displayed_issues);
     $this->assertContains($generated_names[1], $displayed_issues);
@@ -360,7 +360,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
         $this->assertEqual($rows[$i]->find('xpath', '/td[2]/a'), NULL);
       }
     }
-    $this->assertEqual(15, count($mail_addresses));
+    $this->assertCount(15, $mail_addresses);
     foreach ($mail_addresses as $mail_address) {
       $mail_address = (string) $mail_address;
       $this->assertTrue(isset($subscribers_flat[$mail_address]));
@@ -387,7 +387,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     for ($i = 0; $i < count($subscribers_flat); $i++) {
       $mail_addresses[] = trim($rows[$i]->find('xpath', '/td[1]')->getText());
     }
-    $this->assertEqual(10, count($mail_addresses));
+    $this->assertCount(10, $mail_addresses);
     foreach ($mail_addresses as $mail_address) {
       $mail_address = (string) $mail_address;
       $this->assertTrue(isset($subscribers_flat[$mail_address]));
@@ -403,7 +403,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalGet('admin/people/simplenews', ['query' => ['mail' => $edit['mail']]]);
 
     $rows = $this->xpath('//tbody/tr');
-    $this->assertEqual(1, count($rows));
+    $this->assertCount(1, $rows);
     $this->assertEqual(current($subscribers['all']), trim($rows[0]->find('xpath', '/td[1]')->getText()));
     // Mysteriously, the username is sometimes a span and sometimes a link.
     // Accept both.
@@ -462,7 +462,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
     $exported_mails = $export_field[0]->getText();
     $exported_mails = explode(', ', $exported_mails);
-    $this->assertEqual(2, count($exported_mails));
+    $this->assertCount(2, $exported_mails);
     $this->assertContains($all_mail, $exported_mails);
     $this->assertContains($first_mail, $exported_mails);
 
@@ -506,7 +506,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
     $exported_mails = $export_field[0]->getText();
     $exported_mails = explode(', ', $exported_mails);
-    $this->assertEqual(2, count($exported_mails));
+    $this->assertCount(2, $exported_mails);
     $this->assertContains($unconfirmed[0], $exported_mails);
     $this->assertContains($unconfirmed[1], $exported_mails);
 
@@ -914,16 +914,16 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // output.
     $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED]]);
     $row = $this->xpath('//tbody/tr');
-    $this->assertEqual(1, count($row));
+    $this->assertCount(1, $row);
     $this->assertEqual($subscribers[0]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
     $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED]]);
     $row = $this->xpath('//tbody/tr');
-    $this->assertEqual(1, count($row));
+    $this->assertCount(1, $row);
     $this->assertEqual($subscribers[1]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
     $this->assertText($newsletters['default']->name . ' (' . t('Unconfirmed') . ')');
     $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED]]);
     $row = $this->xpath('//tbody/tr');
-    $this->assertEqual(1, count($row));
+    $this->assertCount(1, $row);
     $this->assertEqual($subscribers[2]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
     $this->assertText($newsletters['default']->name . ' (' . t('Unsubscribed') . ')');
   }
@@ -986,7 +986,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Check the correct values are present in the view.
     $rows = $this->xpath('//tbody/tr');
     // Check the number of results in the view.
-    $this->assertEqual(2, count($rows));
+    $this->assertCount(2, $rows);
 
     foreach ($rows as $row) {
       if ($row->find('xpath', '/td[2]/a')->getText() == 'Test_issue_2') {
