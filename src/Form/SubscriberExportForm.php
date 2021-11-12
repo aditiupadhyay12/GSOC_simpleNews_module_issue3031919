@@ -6,11 +6,37 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\SubscriberInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * Do a mass subscription for a list of email addresses.
  */
 class SubscriberExportForm extends FormBase {
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * Constructs a \Drupal\simplenews\Form\SubscriberExportForm object.
+   *
+   * @param \Drupal\Core\Entity\Query\EntityTypeManagerInterface $entity_manager
+   *   The entity manager.
+   */
+  public function __construct(EntityTypeManagerInterface $entity_manager) {
+    $this->entityTypeManager = $entity_manager;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static($container->get('entity_type.manager'));
+  }
 
   /**
    * {@inheritdoc}
@@ -42,7 +68,7 @@ class SubscriberExportForm extends FormBase {
     }
 
     // Get emails from the database.
-    $query = \Drupal::entityQuery('simplenews_subscriber')
+    $query = $this->entityTypeManager->getStorage('simplenews_subscriber')->getQuery()
       ->condition('status', $condition_active, 'IN')
       ->condition('subscriptions.status', $condition_subscribed, 'IN')
       ->condition('subscriptions.target_id', (array) $newsletters, 'IN');

@@ -5,11 +5,51 @@ namespace Drupal\simplenews\Form;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\simplenews\RecipientHandler\RecipientHandlerManager;
+use Drupal\Core\Utility\LinkGeneratorInterface;
 
 /**
  * Base form for category edit forms.
  */
 class NewsletterForm extends EntityForm {
+
+  /**
+   * The recipient handler manager.
+   *
+   * @var Drupal\simplenews\RecipientHandler\RecipientHandlerManager
+   */
+  protected $simpleNewsRecipientHandler;
+
+  /**
+   * The link generator service.
+   *
+   * @var Drupal\Core\Utility\LinkGeneratorInterface
+   */
+  protected $linkGenerator;
+
+  /**
+   * Constructs a \Drupal\simplenews\Form\NewsletterForm object.
+   *
+   * @param \Drupal\simplenews\RecipientHandler\RecipientHandlerManager $simpleNewsRecipientHandler
+   *   The recipient handler manager.
+   * @param \Drupal\Core\Utility\LinkGeneratorInterface $link_generator
+   *   The link generator.
+   */
+  public function __construct(RecipientHandlerManager $simpleNewsRecipientHandler, LinkGeneratorInterface $link_generator) {
+    $this->simpleNewsRecipientHandler = $simpleNewsRecipientHandler;
+    $this->linkGenerator = $link_generator;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('plugin.manager.simplenews_recipient_handler'),
+      $container->get('link_generator')
+    );
+  }
 
   /**
    * Overrides Drupal\Core\Entity\EntityForm::form().
@@ -56,7 +96,7 @@ class NewsletterForm extends EntityForm {
     ];
 
     // Allowed recipient handlers.
-    $options = \Drupal::service('plugin.manager.simplenews_recipient_handler')->getOptions();
+    $options = $this->simpleNewsRecipientHandler->getOptions();
     $form['subscription']['allowed_handlers'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Allowed recipient handlers'),
@@ -170,7 +210,7 @@ class NewsletterForm extends EntityForm {
       '#default_value' => $newsletter->subject,
     ];
 
-    if (\Drupal::moduleHandler()->moduleExists('token')) {
+    if ($this->moduleHandler->moduleExists('token')) {
       $form['simplenews_subject']['token_browser'] = [
         '#theme' => 'token_tree_link',
         '#token_types' => [
@@ -213,15 +253,15 @@ class NewsletterForm extends EntityForm {
     $newsletter = $this->entity;
     $status = $newsletter->save();
 
-    $edit_link = \Drupal::linkGenerator()->generate($this->t('Edit'), $this->entity->toUrl());
+    $edit_link = $this->linkGenerator->generate($this->t('Edit'), $this->entity->toUrl());
 
     if ($status == SAVED_UPDATED) {
       $this->messenger()->addMessage($this->t('Newsletter %label has been updated.', ['%label' => $newsletter->label()]));
-      \Drupal::logger('simplenews')->notice('Newsletter %label has been updated.', ['%label' => $newsletter->label(), 'link' => $edit_link]);
+      $this->logger('simplenews')->notice('Newsletter %label has been updated.', ['%label' => $newsletter->label(), 'link' => $edit_link]);
     }
     else {
       $this->messenger()->addMessage($this->t('Newsletter %label has been added.', ['%label' => $newsletter->label()]));
-      \Drupal::logger('simplenews')->notice('Newsletter %label has been added.', ['%label' => $newsletter->label(), 'link' => $edit_link]);
+      $this->logger('simplenews')->notice('Newsletter %label has been added.', ['%label' => $newsletter->label(), 'link' => $edit_link]);
     }
 
     $form_state->setRedirect('simplenews.newsletter_list');

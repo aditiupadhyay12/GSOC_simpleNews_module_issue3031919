@@ -67,9 +67,9 @@ class MailSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Mail spool expiration'),
       '#options' => [
         0 => $this->t('Immediate'),
-        1 => \Drupal::translation()->formatPlural(1, '1 day', '@count days'),
-        7 => \Drupal::translation()->formatPlural(1, '1 week', '@count weeks'),
-        14 => \Drupal::translation()->formatPlural(2, '1 week', '@count weeks'),
+        1 => $this->stringTranslation->formatPlural(1, '1 day', '@count days'),
+        7 => $this->stringTranslation->formatPlural(1, '1 week', '@count weeks'),
+        14 => $this->stringTranslation->formatPlural(2, '1 week', '@count weeks'),
       ],
       '#default_value' => $config->get('mail.spool_expire'),
       '#description' => $this->t('Controls the duration that messages are retained in the spool after processing. Keeping messages in the spool can be useful for statistics or analysing errors.'),

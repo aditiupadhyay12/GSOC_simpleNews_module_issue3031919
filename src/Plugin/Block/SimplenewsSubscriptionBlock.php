@@ -11,6 +11,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\simplenews\Entity\Subscriber;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Component\Uuid\UuidInterface;
 
 /**
  * Provides a subscription block with all available newsletters and email field.
@@ -38,6 +39,20 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
   protected $formBuilder;
 
   /**
+   * The UUID service.
+   *
+   * @var Drupal\Component\Uuid\UuidInterface
+   */
+  protected $uuid;
+
+  /**
+   * The current user service.
+   *
+   * @var Drupal\Core\Session\AccountInterface
+   */
+  protected $currentUser;
+
+  /**
    * Constructs an SimplenewsSubscriptionBlock object.
    *
    * @param array $configuration
@@ -50,11 +65,17 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
    *   The entity type manager.
    * @param \Drupal\Core\Form\FormBuilderInterface $formBuilder
    *   The form builder object.
+   * @param \Drupal\Component\Uuid\UuidInterface $uuid
+   *   The uuid service.
+   * @param \Drupal\Core\Session\AccountInterface $current_user
+   *   The current user service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, FormBuilderInterface $formBuilder) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, FormBuilderInterface $formBuilder, UuidInterface $uuid, AccountInterface $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->formBuilder = $formBuilder;
+    $this->uuid = $uuid;
+    $this->currentUser = $current_user;
   }
 
   /**
@@ -66,7 +87,9 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
-      $container->get('form_builder')
+      $container->get('form_builder'),
+      $container->get('uuid'),
+      $container->get('current_user')
     );
   }
 
@@ -170,7 +193,7 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
     //$this->configuration['link_previous'] = $form_state->getValue('link_previous');
     //$this->configuration['rss_feed'] = $form_state->getValue('rss_feed');
     // @codingStandardsIgnoreEnd
-    $this->configuration['unique_id'] = empty($form_state->getValue('unique_id')) ? \Drupal::service('uuid')->generate() : $form_state->getValue('unique_id');
+    $this->configuration['unique_id'] = empty($form_state->getValue('unique_id')) ? $this->uuid->generate() : $form_state->getValue('unique_id');
   }
 
   /**
@@ -180,7 +203,7 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
     /** @var \Drupal\simplenews\Form\SubscriptionsBlockForm $form_object */
     $form_object = $this->entityTypeManager->getFormObject('simplenews_subscriber', 'block')
       ->setUniqueId($this->configuration['unique_id'])
-      ->setEntity(Subscriber::loadByUid(\Drupal::currentUser()->id(), 'create'))
+      ->setEntity(Subscriber::loadByUid($this->currentUser->id(), 'create'))
       ->setNewsletterIds($this->configuration['newsletters'], $this->configuration['default_newsletters'])
       ->setMessage($this->configuration['message'])
       ->setShowManage($this->configuration['show_manage']);

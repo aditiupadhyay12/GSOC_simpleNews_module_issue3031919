@@ -7,11 +7,39 @@ use Drupal\Core\Url;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\Entity\Newsletter;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\simplenews\Subscription\SubscriptionManagerInterface;
 
 /**
  * Returns responses for confirmation and subscriber routes.
  */
 class ConfirmationController extends ControllerBase {
+
+  /**
+   * The subscription manager.
+   *
+   * @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface
+   */
+  protected $subscriptionManager;
+
+  /**
+   * Constructs a \Drupal\simplenews\Controller\ConfirmationController object.
+   *
+   * @param \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager
+   *   The subscription manager service.
+   */
+  public function __construct(SubscriptionManagerInterface $subscription_manager) {
+    $this->subscriptionManager = $subscription_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('simplenews.subscription_manager')
+    );
+  }
 
   /**
    * Menu callback: confirm a combined confirmation request.
@@ -32,7 +60,7 @@ class ConfirmationController extends ControllerBase {
    * @see simplenews_confirm_removal_form()
    */
   public function confirmCombined($snid, $timestamp, $hash, $immediate = FALSE) {
-    $config = \Drupal::config('simplenews.settings');
+    $config = $this->config('simplenews.settings');
 
     // Prevent search engines from indexing this page.
     $html_head = [
@@ -61,29 +89,26 @@ class ConfirmationController extends ControllerBase {
         $context = [
           'simplenews_subscriber' => $subscriber,
         ];
-        $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', 'subscribe_combined', $context);
+        $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', 'subscribe_combined', $context);
         $build['#attached']['html_head'][] = $html_head;
         return $build;
       }
       // When not called with immediate parameter the user will be directed to
       // the (un)subscribe confirmation page.
       if (!$immediate) {
-        $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmMultiForm', $subscriber);
+        $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmMultiForm', $subscriber);
         $build['#attached']['html_head'][] = $html_head;
         return $build;
       }
       else {
 
-        /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
-        $subscription_manager = \Drupal::service('simplenews.subscription_manager');
-
         // Redirect and display message if no changes are available.
         foreach ($subscriber->getChanges() as $newsletter_id => $action) {
           if ($action == 'subscribe') {
-            $subscription_manager->subscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
+            $this->subscriptionManager->subscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
           }
           elseif ($action == 'unsubscribe') {
-            $subscription_manager->unsubscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
+            $this->subscriptionManager->unsubscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
           }
         }
 
@@ -139,7 +164,7 @@ class ConfirmationController extends ControllerBase {
    * @see simplenews_confirm_removal_form()
    */
   public function confirmSubscription($action, $snid, $newsletter_id, $timestamp, $hash, $immediate = FALSE) {
-    $config = \Drupal::config('simplenews.settings');
+    $config = $this->config('simplenews.settings');
 
     // Prevent search engines from indexing this page.
     $html_head = [
@@ -165,7 +190,7 @@ class ConfirmationController extends ControllerBase {
           'newsletter' => $newsletter,
         ];
         $key = $action == 'add' ? 'subscribe_combined' : 'validate';
-        $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', $key, $context);
+        $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', $key, $context);
         $build['#attached']['html_head'][] = $html_head;
         return $build;
       }
@@ -174,23 +199,20 @@ class ConfirmationController extends ControllerBase {
       // passed on to the confirmation page.
       if (!$immediate) {
         if ($action == 'remove') {
-          $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmRemovalForm', $subscriber->getMail(), $newsletter);
+          $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmRemovalForm', $subscriber->getMail(), $newsletter);
           $build['#attached']['html_head'][] = $html_head;
           return $build;
         }
         elseif ($action == 'add') {
-          $build = \Drupal::formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmAddForm', $subscriber->getMail(), $newsletter);
+          $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmAddForm', $subscriber->getMail(), $newsletter);
           $build['#attached']['html_head'][] = $html_head;
           return $build;
         }
       }
       else {
 
-        /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
-        $subscription_manager = \Drupal::service('simplenews.subscription_manager');
-
         if ($action == 'remove') {
-          $subscription_manager->unsubscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
+          $this->subscriptionManager->unsubscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
           if ($path = $config->get('subscription.confirm_unsubscribe_page')) {
             return $this->redirect(Url::fromUri("internal:$path")->getRouteName());
           }
@@ -198,7 +220,7 @@ class ConfirmationController extends ControllerBase {
           return $this->redirect('<front>');
         }
         elseif ($action == 'add') {
-          $subscription_manager->subscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
+          $this->subscriptionManager->subscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
           if ($path = $config->get('subscription.confirm_subscribe_page')) {
             return $this->redirect(Url::fromUri("internal:$path")->getRouteName());
           }
