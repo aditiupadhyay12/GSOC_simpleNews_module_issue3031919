@@ -38,7 +38,7 @@ class NewsletterSettingsForm extends ConfigFormBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Newsletter tokens (caution)'),
       '#default_value' => $config->get('newsletter.issue_tokens'),
-      '#description' => $this->t('Enable tokens in newsletter issue fields. Show a token browser on the node edit page and replace tokens when viewing a node. Note that visitors (not logged in) might see raw token codes in some cases and that some tokens (especially links) don\'t work inside formatted text fields.'),
+      '#description' => $this->t('Enable tokens in newsletter issue fields. Show a token browser on the node edit page and replace tokens when viewing a node (which may reduce performance). Note that visitors (not logged in) are likely to see raw token codes, so disable this for a blog where old newsletters are public. Some tokens (especially links) don\'t work inside formatted text fields.'),
     ];
 
     $form['simplenews_default_options'] = [

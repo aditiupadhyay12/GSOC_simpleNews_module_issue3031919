@@ -4,16 +4,13 @@ namespace Drupal\simplenews\Mail;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Mail\MailFormatHelper;
-use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Utility\Token;
-use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\Subscription\SubscriptionManagerInterface;
-use Drupal\user\Entity\User;
 
 /**
  * Default mail builder.
  */
-class MailBuilder implements MailBuilderInterface, TrustedCallbackInterface {
+class MailBuilder implements MailBuilderInterface {
 
   /**
    * The token service.
@@ -136,38 +133,6 @@ class MailBuilder implements MailBuilderInterface, TrustedCallbackInterface {
 
     $body = $this->config->get('subscription.validate_body');
     $message['body'][] = simplenews_token_replace_body($body, $context);
-  }
-
-  /**
-   * Provides the post render callback for node entity.
-   *
-   * @param string $markup
-   *   The rendered element.
-   * @param array $build
-   *   The render array for the node.
-   *
-   * @return string
-   *   New markup.
-   */
-  public function nodePostRender($markup, array $build) {
-    $user_id = \Drupal::currentUser()->id();
-    $node = $build['#node'];
-    $subscriber = Subscriber::loadByUid($user_id) ?: Subscriber::create()->fillFromAccount(User::load($user_id));
-
-    $context = [
-      'node' => $node,
-      'newsletter' => $node->simplenews_issue->referencedEntities()[0],
-      'simplenews_subscriber' => $subscriber,
-    ];
-
-    return \Drupal::token()->replace($markup, $context);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function trustedCallbacks() {
-    return ['nodePostRender'];
   }
 
 }

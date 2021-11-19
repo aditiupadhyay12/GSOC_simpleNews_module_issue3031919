@@ -381,7 +381,7 @@ function simplenews_update_830006() {
  */
 function simplenews_update_830007() {
   $config = \Drupal::configFactory()->getEditable('simplenews.settings');
-  $config->set('newsletter.issue_tokens', TRUE);
+  $config->set('newsletter.issue_tokens', FALSE);
   $config->save();
 }
 

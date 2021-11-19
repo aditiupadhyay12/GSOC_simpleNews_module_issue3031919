@@ -23,6 +23,7 @@ use Drupal\migrate\Plugin\MigrationInterface;
 use Drupal\migrate\Row;
 use Drupal\node\NodeInterface;
 use Drupal\node\NodeTypeInterface;
+use Drupal\user\Entity\User;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\user\UserInterface;
@@ -88,7 +89,41 @@ function simplenews_node_view(array &$build, NodeInterface $node, $display, $vie
     return;
   }
 
-  $build['#post_render'][] = [\Drupal::service('simplenews.mail_builder'), 'nodePostRender'];
+  $user_id = \Drupal::currentUser()->id();
+  $subscriber = Subscriber::loadByUid($user_id) ?: Subscriber::create()->fillFromAccount(User::load($user_id));
+
+  $context = [
+    'node' => $node,
+    'newsletter' => $node->simplenews_issue->referencedEntities()[0],
+    'simplenews_subscriber' => $subscriber,
+  ];
+
+  // Loop over all render array elements.
+  $token = \Drupal::token();
+  foreach (Element::children($build) as $key) {
+    $element = &$build[$key];
+    // Make sure this is a field.
+    if (!isset($element['#field_type'])) {
+      continue;
+    }
+    // Loop over all field values.
+    foreach (Element::children($element) as $field_key) {
+      $item = &$element[$field_key];
+
+      // Only text fields are handled for now.
+      switch ($item['#type'] ?? '') {
+        case 'processed_text':
+          // Formatted text.
+          $item['#text'] = $token->replace($item['#text'], $context);
+          break;
+
+        case 'inline_template':
+          // Plain text.
+          $item['#context']['value'] = $token->replace($item['#context']['value'], $context);
+          break;
+      }
+    }
+  }
 }
 
 /**

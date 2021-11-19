@@ -1,7 +1,7 @@
 hash_expiration: 86400
 
 newsletter:
-  issue_tokens: TRUE
+  issue_tokens: FALSE
   format: plain
   priority: 0
   receipt: TRUE
