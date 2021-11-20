@@ -90,8 +90,8 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertEqual($plain_mail->getLanguage(), $mail['langcode']);
     $this->assertTrue($mail['params']['plain']);
 
-    $this->assertFalse(isset($mail['params']['plaintext']));
-    $this->assertFalse(isset($mail['params']['attachments']));
+    $this->assertArrayNotHasKey('plaintext', $mail['params']);
+    $this->assertArrayNotHasKey('attachments', $mail['params']);
 
     $this->assertEqual($plain_mail->getSubject(), $mail['subject']);
     $this->assertStringContainsString('the plain body', $mail['body']);
@@ -115,9 +115,9 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertEqual($plain_mail->getLanguage(), $mail['langcode']);
     $this->assertEqual(NULL, $mail['params']['plain']);
 
-    $this->assertTrue(isset($mail['params']['plaintext']));
+    $this->assertArrayHasKey('plaintext', $mail['params']);
     $this->assertStringContainsString('the plain body', $mail['params']['plaintext']);
-    $this->assertTrue(isset($mail['params']['attachments']));
+    $this->assertArrayHasKey('attachments', $mail['params']);
     $this->assertEqual('example://test.png', $mail['params']['attachments'][0]['uri']);
 
     $this->assertEqual($plain_mail->getSubject(), $mail['subject']);

@@ -289,7 +289,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     if (!isset($offset)) {
       $offset = count($mails) - 1;
     }
-    $this->assertTrue(isset($mails[$offset]), t('Valid mails offset %offset (%count mails sent).', ['%offset' => $offset, '%count' => count($mails)]));
+    $this->assertArrayHasKey($offset, $mails, t('Valid mails offset %offset (%count mails sent).', ['%offset' => $offset, '%count' => count($mails)]));
     return $mails[$offset]['body'];
   }
 

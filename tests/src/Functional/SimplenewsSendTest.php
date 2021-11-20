@@ -66,7 +66,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertCount(5, $mails, 'All mails were sent.');
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $node->getTitle(), t('Mail has correct subject'));
-      $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
+      $this->assertArrayHasKey($mail['to'], $this->subscribers, t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }
     $this->assertCount(0, $this->subscribers, 'all subscribers have been received a mail');
@@ -142,7 +142,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertCount(5, $mails, 'All mails were sent.');
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
-      $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
+      $this->assertArrayHasKey($mail['to'], $this->subscribers, t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }
     $this->assertCount(0, $this->subscribers, 'all subscribers have been received a mail');
@@ -253,7 +253,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertCount(5, $mails, 'All mails were sent.');
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
-      $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
+      $this->assertArrayHasKey($mail['to'], $this->subscribers, t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }
     $this->assertCount(0, $this->subscribers, 'all subscribers have been received a mail');
@@ -328,7 +328,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertCount(5, $mails, 'All mails were sent.');
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
-      $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
+      $this->assertArrayHasKey($mail['to'], $this->subscribers, t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }
     $this->assertCount(0, $this->subscribers, 'all subscribers have been received a mail');
@@ -390,7 +390,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertCount(5, $mails, 'All mails were sent.');
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
-      $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
+      $this->assertArrayHasKey($mail['to'], $this->subscribers, t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }
     $this->assertCount(0, $this->subscribers, 'all subscribers have been received a mail');
@@ -555,7 +555,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->assertCount(5, $mails, 'All mails were sent.');
     foreach ($mails as $mail) {
       $this->assertEqual($mail['subject'], '[Default newsletter] ' . $edit['title[0][value]'], t('Mail has correct subject'));
-      $this->assertTrue(isset($this->subscribers[$mail['to']]), t('Found valid recipient'));
+      $this->assertArrayHasKey($mail['to'], $this->subscribers, t('Found valid recipient'));
       unset($this->subscribers[$mail['to']]);
     }
     $this->assertCount(0, $this->subscribers, 'all subscribers have received a mail');

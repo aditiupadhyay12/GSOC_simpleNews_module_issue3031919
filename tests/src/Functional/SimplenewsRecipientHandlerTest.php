@@ -142,7 +142,7 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
     $mails = $this->getMails();
     $this->assertEqual(count($expected), count($mails), t('All mails were sent.'));
     foreach ($mails as $mail) {
-      $this->assertTrue(isset($expected[$mail['to']]), t('Found valid recipient @recip', ['@recip' => $mail['to']]));
+      $this->assertArrayHasKey($mail['to'], $expected, t('Found valid recipient @recip', ['@recip' => $mail['to']]));
       unset($expected[$mail['to']]);
     }
   }

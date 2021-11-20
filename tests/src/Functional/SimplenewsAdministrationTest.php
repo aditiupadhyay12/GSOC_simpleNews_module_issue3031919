@@ -363,7 +363,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertCount(15, $mail_addresses);
     foreach ($mail_addresses as $mail_address) {
       $mail_address = (string) $mail_address;
-      $this->assertTrue(isset($subscribers_flat[$mail_address]));
+      $this->assertArrayHasKey($mail_address, $subscribers_flat);
       unset($subscribers_flat[$mail_address]);
     }
     // All entries of the array should be removed by now.
@@ -390,7 +390,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertCount(10, $mail_addresses);
     foreach ($mail_addresses as $mail_address) {
       $mail_address = (string) $mail_address;
-      $this->assertTrue(isset($subscribers_flat[$mail_address]));
+      $this->assertArrayHasKey($mail_address, $subscribers_flat);
       unset($subscribers_flat[$mail_address]);
     }
     // All entries of the array should be removed by now.
