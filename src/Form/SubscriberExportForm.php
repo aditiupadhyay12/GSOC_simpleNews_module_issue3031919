@@ -92,9 +92,10 @@ class SubscriberExportForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     // Get sensible default values for the form elements in this form.
-    $default['states'] = isset($_GET['states']) ? $_GET['states'] : ['active' => 'active'];
-    $default['subscribed'] = isset($_GET['subscribed']) ? $_GET['subscribed'] : ['subscribed' => 'subscribed'];
-    $default['newsletters'] = isset($_GET['newsletters']) ? $_GET['newsletters'] : [];
+    $query = $this->getRequest()->query;
+    $default['states'] = $query->get('states') ?: ['active' => 'active'];
+    $default['subscribed'] = $query->get('subscribed') ?: ['subscribed' => 'subscribed'];
+    $default['newsletters'] = $query->get('newsletters') ?: [];
 
     $form['states'] = [
       '#type' => 'checkboxes',
@@ -134,13 +135,13 @@ class SubscriberExportForm extends FormBase {
     // Get export results and display them in a text area. Only get the results
     // if the form is build after redirect, not after submit.
     $input = $form_state->getUserInput();
-    if (isset($_GET['states']) && empty($input)) {
+    if ($query->has('states') && empty($input)) {
       $form['emails'] = [
         '#type' => 'textarea',
         '#title' => $this->t('Export results'),
         '#cols' => 60,
         '#rows' => 5,
-        '#value' => $this->getEmails($_GET['states'], $_GET['subscribed'], $_GET['newsletters']),
+        '#value' => $this->getEmails($query->get('states'), $query->get('subscribed'), $query->get('newsletters')),
       ];
     }
 
