@@ -43,8 +43,8 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
   public function testSiteMail() {
     // Verify that the recipient handler settings are shown.
     $this->drupalGet('node/add/simplenews_issue');
-    $this->assertText(t('Recipients'));
-    $this->assertText(t('How recipients should be selected.'));
+    $this->assertSession()->pageTextContains('Recipients');
+    $this->assertSession()->pageTextContains('How recipients should be selected.');
 
     $edit = [
       'title[0][value]' => $this->randomString(10),
@@ -54,7 +54,7 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
     $this->submitForm($edit, 'Save');
 
     $this->clickLink(t('Newsletter'));
-    $this->assertText(t('Send newsletter issue to 1 subscribers.'));
+    $this->assertSession()->pageTextContains('Send newsletter issue to 1 subscribers.');
     $this->submitForm([], 'Send now');
     $this->checkRecipients(['simpletest@example.com' => 1]);
   }
@@ -78,7 +78,7 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
     $this->submitForm($edit, 'Save');
 
     $this->clickLink(t('Newsletter'));
-    $this->assertText(t('Send newsletter issue to 3 subscribers.'));
+    $this->assertSession()->pageTextContains('Send newsletter issue to 3 subscribers.');
     $this->submitForm([], 'Send now');
     $this->checkRecipients(array_slice($users, 0, 3));
   }
@@ -106,14 +106,14 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
 
     // Edit and set the role.
     $this->clickLink(t('Edit'));
-    $this->assertText(t('Role'));
+    $this->assertSession()->pageTextContains('Role');
     $edit = [
       'simplenews_issue[handler_settings][role]' => $rid,
     ];
     $this->submitForm($edit, 'Save');
 
     $this->clickLink(t('Newsletter'));
-    $this->assertText(t('Send newsletter issue to 2 subscribers.'));
+    $this->assertSession()->pageTextContains('Send newsletter issue to 2 subscribers.');
     $this->submitForm([], 'Send now');
     $this->checkRecipients($recipients);
   }

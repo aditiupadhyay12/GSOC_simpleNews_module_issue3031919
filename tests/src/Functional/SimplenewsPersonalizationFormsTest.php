@@ -55,7 +55,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Assert fields are updated.
     $this->drupalGet("user/$uid");
-    $this->assertText(Html::escape($new_value));
+    $this->assertSession()->pageTextContains($new_value);
 
     // Assert subscription remains unconfirmed.
     $subscriber = $this->getLatestSubscriber();
@@ -82,7 +82,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     // Assert fields are updated.
     $this->resetPassLogin($user);
     $this->drupalGet("user/$uid");
-    $this->assertText(Html::escape($new_value));
+    $this->assertSession()->pageTextContains($new_value);
   }
 
   /**
@@ -171,7 +171,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Attempt subscribe and assert "blocked" message.
     $this->subscribe('default', $email);
-    $this->assertRaw(t('The email address %mail belongs to a blocked user.', ['%mail' => $email]));
+    $this->assertSession()->responseContains("The email address <em class=\"placeholder\">$email</em> belongs to a blocked user.");
   }
 
 }

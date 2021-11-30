@@ -61,12 +61,12 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
     $this->drupalLogin($this->user);
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
     $this->assertField('field_shared[0][value]');
-    $this->assertRaw($this->user->field_shared->value);
+    $this->assertSession()->responseContains($this->user->field_shared->value);
 
     $new_value = $this->randomMachineName();
     $this->submitForm(['field_shared[0][value]' => $new_value], 'Save');
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
-    $this->assertRaw($new_value);
+    $this->assertSession()->responseContains($new_value);
 
     $this->user = User::load($this->user->id());
     $this->assertEqual($this->user->field_shared->value, $new_value);
@@ -79,7 +79,7 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
     $this->submitForm(['field_shared[0][value]' => $unsynced_value], 'Save');
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
-    $this->assertRaw($unsynced_value);
+    $this->assertSession()->responseContains($unsynced_value);
 
     $this->user = User::load($this->user->id());
     $this->assertEqual($this->user->field_shared->value, $new_value);

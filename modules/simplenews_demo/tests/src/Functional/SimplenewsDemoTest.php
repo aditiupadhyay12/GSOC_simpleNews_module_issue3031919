@@ -45,10 +45,10 @@ class SimplenewsDemoTest extends BrowserTestBase {
    */
   public function testInstalled() {
     // Check for the two subscription blocks.
-    $this->assertText('Simplenews multiple subscriptions');
-    $this->assertText('Stay informed - subscribe to our newsletters.');
-    $this->assertText('Simplenews subscription');
-    $this->assertText('Stay informed - subscribe to our newsletter.');
+    $this->assertSession()->pageTextContains('Simplenews multiple subscriptions');
+    $this->assertSession()->pageTextContains('Stay informed - subscribe to our newsletters.');
+    $this->assertSession()->pageTextContains('Simplenews subscription');
+    $this->assertSession()->pageTextContains('Stay informed - subscribe to our newsletter.');
 
     $this->drupalGet('admin/config/services/simplenews');
     $this->clickLink(t('Edit'));
@@ -60,29 +60,29 @@ class SimplenewsDemoTest extends BrowserTestBase {
     $this->assertEquals('simpletest@example.com', (string) $from_address->getValue());
     // Assert demo newsletters.
     $this->drupalGet('admin/config/services/simplenews');
-    $this->assertText(t('Press releases'));
-    $this->assertText(t('Special offers'));
-    $this->assertText(t('Weekly content update'));
+    $this->assertSession()->pageTextContains('Press releases');
+    $this->assertSession()->pageTextContains('Special offers');
+    $this->assertSession()->pageTextContains('Weekly content update');
     // Assert demo newsletters sent.
     $this->drupalGet('admin/content/simplenews');
     // @codingStandardsIgnoreLine
     //$this->assertText('Scheduled weekly content newsletter issue');
-    $this->assertText('Sent press releases');
-    $this->assertText('Unpublished press releases');
-    $this->assertText('Pending special offers');
-    $this->assertText('Stopped special offers');
+    $this->assertSession()->pageTextContains('Sent press releases');
+    $this->assertSession()->pageTextContains('Unpublished press releases');
+    $this->assertSession()->pageTextContains('Pending special offers');
+    $this->assertSession()->pageTextContains('Stopped special offers');
     // @codingStandardsIgnoreLine
     //$this->assertText('Scheduled weekly content newsletter issue - Week ');
-    $this->assertRaw(t('Newsletter issue sent to 2 subscribers, 0 errors.'));
-    $this->assertRaw(t('Newsletter issue is pending, 0 mails sent out of 3, 0 errors.'));
+    $this->assertSession()->responseContains('Newsletter issue sent to 2 subscribers, 0 errors.');
+    $this->assertSession()->responseContains('Newsletter issue is pending, 0 mails sent out of 3, 0 errors.');
     // Weekly newsletter.
     // @codingStandardsIgnoreLine
     //$this->assertRaw(t('Newsletter issue sent to 1 subscribers, 0 errors.'));
     // Assert demo subscribers.
     $this->drupalGet('admin/people/simplenews');
-    $this->assertText('a@example.com');
-    $this->assertText('b@example.com');
-    $this->assertText('demouser1@example.com');
+    $this->assertSession()->pageTextContains('a@example.com');
+    $this->assertSession()->pageTextContains('b@example.com');
+    $this->assertSession()->pageTextContains('demouser1@example.com');
   }
 
 }

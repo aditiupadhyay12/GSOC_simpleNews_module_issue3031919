@@ -63,7 +63,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $this->drupalGet('admin/config/services/simplenews');
     // Check if the help text is displayed.
-    $this->assertText('Newsletter allow you to send periodic e-mails to subscribers.');
+    $this->assertSession()->pageTextContains('Newsletter allow you to send periodic e-mails to subscribers.');
 
     // Create a newsletter for all possible setting combinations.
     $new_account = ['none', 'off', 'on', 'silent'];
@@ -132,17 +132,17 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->submitForm($edit, 'Create new account');
 
     // Verify confirmation messages.
-    $this->assertText(t('Registration successful. You are now logged in.'));
+    $this->assertSession()->pageTextContains('Registration successful. You are now logged in.');
     foreach ($newsletters as $newsletter) {
       // Check confirmation message for all on and non-hidden newsletters and
       // the one that was explicitly selected.
       if (($newsletter->new_account == 'on' && $newsletter->access != 'hidden') || $newsletter->name == 'off-default') {
-        $this->assertText(t('You have been subscribed to @name.', ['@name' => $newsletter->name]));
+        $this->assertSession()->pageTextContains("You have been subscribed to $newsletter->name.");
       }
       else {
         // All other newsletters must not show a message, e.g. those which were
         // subscribed silently.
-        $this->assertNoText(t('You have been subscribed to @name.', ['@name' => $newsletter->name]));
+        $this->assertSession()->pageTextNotContains("You have been subscribed to $newsletter->name.");
       }
     }
 
@@ -268,9 +268,9 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // @codingStandardsIgnoreEnd
     // Check if the help text is displayed.
     $this->drupalGet('admin/help/simplenews');
-    $this->assertText('Simplenews adds elements to the newsletter node add/edit');
+    $this->assertSession()->pageTextContains('Simplenews adds elements to the newsletter node add/edit');
     $this->drupalGet('admin/config/services/simplenews/add');
-    $this->assertText('You can create different newsletters (or subjects)');
+    $this->assertSession()->pageTextContains('You can create different newsletters (or subjects)');
   }
 
   /**
@@ -426,13 +426,13 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // second newsletter. Reload the page to get rid of the confirmation
     // message.
     $this->drupalGet('admin/people/simplenews');
-    $this->assertNoText($first_mail);
-    $this->assertText($all_mail);
+    $this->assertSession()->pageTextNotContains($first_mail);
+    $this->assertSession()->pageTextContains($all_mail);
 
     // Limit to first newsletter, the all mail shouldn't be shown anymore.
     $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_target_id' => $first]]);
-    $this->assertNoText($first_mail);
-    $this->assertNoText($all_mail);
+    $this->assertSession()->pageTextNotContains($first_mail);
+    $this->assertSession()->pageTextNotContains($all_mail);
 
     // Check exporting.
     $this->clickLink(t('Export'));
@@ -554,8 +554,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertFalse($subscription_manager->isSubscribed($tested_subscribers[1], $first), t('Subscriber not resubscribed through mass subscription.'));
     $this->assertTrue($subscription_manager->isSubscribed($tested_subscribers[2], $first), t('Subscriber subscribed through mass subscription.'));
     $substitutes = ['@name' => Newsletter::load($first)->label(), '@mail' => $unsubscribed];
-    $this->assertText(t('The following addresses were skipped because they have previously unsubscribed from @name: @mail.', $substitutes));
-    $this->assertText(t("If you would like to resubscribe them, use the 'Force resubscription' option."));
+    $this->assertSession()->pageTextContains('The following addresses were skipped because they have previously unsubscribed from ' . $substitutes['@name'] . ': ' . $substitutes['@mail'] . '.');
+    $this->assertSession()->pageTextContains("If you would like to resubscribe them, use the 'Force resubscription' option.");
 
     // Try to mass subscribe without specifying newsletters.
     $tested_subscribers[2] = $this->randomEmail();
@@ -566,7 +566,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $this->drupalGet('admin/people/simplenews/import');
     $this->submitForm($edit, 'Subscribe');
-    $this->assertText('Subscribe to field is required.');
+    $this->assertSession()->pageTextContains('Subscribe to field is required.');
 
     // Test mass subscribe with previously unsubscribed users and force
     // resubscription.
@@ -593,7 +593,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $this->drupalGet('admin/people/simplenews/unsubscribe');
     $this->submitForm($edit, 'Unsubscribe');
-    $this->assertText('Unsubscribe from field is required.');
+    $this->assertSession()->pageTextContains('Unsubscribe from field is required.');
 
     // Create two blocks, to ensure that they are updated/deleted when a
     // newsletter is deleted.
@@ -608,7 +608,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->clickLink(t('Delete'));
     $this->submitForm([], 'Delete');
 
-    $this->assertText(t('All subscriptions to newsletter @newsletter have been deleted.', ['@newsletter' => $newsletters[$first]->name]));
+    $this->assertSession()->pageTextContains('All subscriptions to newsletter ' . $newsletters[$first]->name . ' have been deleted.');
 
     // Verify that all related data has been deleted/updated.
     $this->assertNull(Newsletter::load($first));
@@ -621,7 +621,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Verify that all subscriptions of that newsletter have been removed.
     $this->drupalGet('admin/people/simplenews');
     foreach ($subscribers[$first] as $mail) {
-      $this->assertNoText($mail);
+      $this->assertSession()->pageTextNotContains($mail);
     }
 
     $this->clickLink(t('Edit'), 1);
@@ -630,7 +630,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertEqual(1, preg_match('|admin/people/simplenews/edit/(\d+)\?destination|', $this->getUrl(), $matches), 'Subscriber found');
     $subscriber = Subscriber::load($matches[1]);
 
-    $this->assertTitle('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
+    $this->assertSession()->titleEquals('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
     $this->assertFieldChecked('edit-status');
 
     // Disable account.
@@ -644,7 +644,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Re-enable account.
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
-    $this->assertTitle('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
+    $this->assertSession()->titleEquals('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
     $this->assertNoFieldChecked('edit-status');
     $edit = [
       'status' => TRUE,
@@ -656,7 +656,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Remove the newsletter.
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
-    $this->assertTitle('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
+    $this->assertSession()->titleEquals('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscriber = Subscriber::load($subscriber->id());
     $nlids = $subscriber->getSubscribedNewsletterIds();
@@ -678,20 +678,20 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $xss_mail = "<script>alert('XSS');</script>";
     $subscription_manager->subscribe($xss_mail, $this->getRandomNewsletter(), FALSE);
     $this->drupalGet('admin/people/simplenews');
-    $this->assertNoRaw($xss_mail);
-    $this->assertRaw(Html::escape($xss_mail));
+    $this->assertSession()->responseNotContains($xss_mail);
+    $this->assertSession()->responseContains(Html::escape($xss_mail));
 
     $xss_subscriber = Subscriber::loadByMail($xss_mail);
     $this->drupalGet('admin/people/simplenews/edit/' . $xss_subscriber->id());
-    $this->assertNoRaw($xss_mail);
-    $this->assertRaw(Html::escape($xss_mail));
+    $this->assertSession()->responseNotContains($xss_mail);
+    $this->assertSession()->responseContains(Html::escape($xss_mail));
 
     // Create a new user for the next test.
     $new_user = $this->drupalCreateUser(['subscribe to newsletters']);
     // Test for saving the subscription for no newsletter.
     $this->drupalGet('user/' . $new_user->id() . '/simplenews');
     $this->submitForm([], 'Save');
-    $this->assertText('The newsletter subscriptions for user ' . $new_user->getAccountName() . ' have been updated.');
+    $this->assertSession()->pageTextContains('The newsletter subscriptions for user ' . $new_user->getAccountName() . ' have been updated.');
 
     // Editing a subscriber with subscription.
     $edit = [
@@ -701,7 +701,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     ];
     $this->drupalGet('admin/people/simplenews/edit/' . $xss_subscriber->id());
     $this->submitForm($edit, 'Save');
-    $this->assertText('Subscriber edit@example.com has been updated.');
+    $this->assertSession()->pageTextContains('Subscriber edit@example.com has been updated.');
 
     // Create a second newsletter.
     $second_newsletter_name = mb_strtolower($this->randomMachineName());
@@ -729,8 +729,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       }
     }
     $this->assertEqual(1, $counter);
-    $this->assertText(t('The following addresses were added or updated: @email.', ['@email' => 'drupaltest@example.com']));
-    $this->assertText(t('The addresses were subscribed to the following newsletters: @newsletter.', ['@newsletter' => $newsletter_name]));
+    $this->assertSession()->pageTextContains('The following addresses were added or updated: drupaltest@example.com.');
+    $this->assertSession()->pageTextContains("The addresses were subscribed to the following newsletters: $newsletter_name.");
 
     // Check exact subscription statuses.
     $subscriber = Subscriber::loadByMail('drupaltest@example.com');
@@ -770,7 +770,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Verify that the newsletter settings are shown.
     $this->drupalGet('node/add/' . $type);
-    $this->assertText(t('Issue'));
+    $this->assertSession()->pageTextContains('Issue');
 
     // Create an issue.
     $edit = [
@@ -791,13 +791,13 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->submitForm($edit, 'Save');
 
     // Assert that body text is displayed.
-    $this->assertText('Sample body text - Newsletter issue');
+    $this->assertSession()->pageTextContains('Sample body text - Newsletter issue');
 
     $node2 = $this->drupalGetNodeByTitle($edit['title[0][value]']);
 
     // Assert subscriber count.
-    $this->clickLink(t('Newsletter'));
-    $this->assertText(t('Send newsletter issue to 0 subscribers.'));
+    $this->clickLink('Newsletter');
+    $this->assertSession()->pageTextContains('Send newsletter issue to 0 subscribers.');
 
     // Create some subscribers.
     $subscribers = [];
@@ -819,18 +819,18 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Check if the subscribers are listed in the newsletter tab.
     $this->drupalGet('node/1/simplenews');
-    $this->assertText('Send newsletter issue to 3 subscribers.');
+    $this->assertSession()->pageTextContains('Send newsletter issue to 3 subscribers.');
 
     // Send mails.
     $this->assertField('test_address', $admin_user->getEmail());
     // Test newsletter to empty address and check the error message.
     $this->submitForm(['test_address' => ''], 'Send test newsletter issue');
-    $this->assertText(t('Missing test email address.'));
+    $this->assertSession()->pageTextContains('Missing test email address.');
     // Test newsletter to invalid address and check the error message.
     $this->submitForm(['test_address' => 'invalid_address'], 'Send test newsletter issue');
-    $this->assertText(t('Invalid email address "invalid_address"'));
+    $this->assertSession()->pageTextContains('Invalid email address "invalid_address"');
     $this->submitForm(['test_address' => $admin_user->getEmail()], 'Send test newsletter issue');
-    $this->assertText(t('Test newsletter sent to user @name &lt;@email&gt;', ['@name' => $admin_user->getAccountName(), '@email' => $admin_user->getEmail()]));
+    $this->assertSession()->pageTextContains('Test newsletter sent to user ' . $admin_user->getAccountName() . ' <' . $admin_user->getEmail() . '>');
 
     $mails = $this->getMails();
     $this->assertEqual('simplenews_test', $mails[0]['id']);
@@ -849,12 +849,12 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Note: Previously the field got autoremoved. We leave it remaining due to
     // potential data loss.
     $this->drupalGet('node/add/' . $type);
-    $this->assertNoText(t('Replacement patterns'));
-    $this->assertText(t('Issue'));
+    $this->assertSession()->pageTextNotContains('Replacement patterns');
+    $this->assertSession()->pageTextContains('Issue');
 
     // Test the visibility of subscription user component.
     $this->drupalGet('node/' . $node->id());
-    $this->assertNoText('Subscribed to');
+    $this->assertSession()->pageTextNotContains('Subscribed to');
 
     // Delete created nodes.
     $node->delete();
@@ -871,7 +871,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->clickLink(t('Add Newsletter Issue'));
     $this->assertUrl('node/add/simplenews_issue');
     // Check if the help text is displayed.
-    $this->assertText('Add this newsletter issue to a newsletter by selecting a newsletter from the select list.');
+    $this->assertSession()->pageTextContains('Add this newsletter issue to a newsletter by selecting a newsletter from the select list.');
   }
 
   /**
@@ -920,12 +920,12 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $row = $this->xpath('//tbody/tr');
     $this->assertCount(1, $row);
     $this->assertEqual($subscribers[1]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
-    $this->assertText($newsletters['default']->name . ' (' . t('Unconfirmed') . ')');
+    $this->assertSession()->pageTextContains($newsletters['default']->name . ' (' . 'Unconfirmed' . ')');
     $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED]]);
     $row = $this->xpath('//tbody/tr');
     $this->assertCount(1, $row);
     $this->assertEqual($subscribers[2]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
-    $this->assertText($newsletters['default']->name . ' (' . t('Unsubscribed') . ')');
+    $this->assertSession()->pageTextContains($newsletters['default']->name . ' (' . 'Unsubscribed' . ')');
   }
 
   /**
@@ -1007,8 +1007,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     ];
     $this->submitForm($edit, 'Apply to selected items');
     // Check the relevant messages.
-    $this->assertText('Newsletter issue Test_issue_2 will be sent when published.');
-    $this->assertText('Newsletter issue Test_issue_1 pending.');
+    $this->assertSession()->pageTextContains('Newsletter issue Test_issue_2 will be sent when published.');
+    $this->assertSession()->pageTextContains('Newsletter issue Test_issue_1 pending.');
     $rows = $this->xpath('//tbody/tr');
     // Assert the status message of each newsletter.
     foreach ($rows as $row) {
@@ -1028,7 +1028,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     ];
     $this->submitForm($edit, 'Apply to selected items');
     // Check the stop message.
-    $this->assertText('Sending of Test_issue_1 was stopped. 3 pending email(s) were deleted.');
+    $this->assertSession()->pageTextContains('Sending of Test_issue_1 was stopped. 3 pending email(s) were deleted.');
     $rows = $this->xpath('//tbody/tr');
     // Check the send status of each issue.
     foreach ($rows as $row) {
@@ -1103,8 +1103,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Check username is public but email is not shown.
     $this->drupalGet('admin/people/simplenews');
-    $this->assertText($user->getAccountName());
-    $this->assertNoText($user->getEmail());
+    $this->assertSession()->pageTextContains($user->getAccountName());
+    $this->assertSession()->pageTextNotContains($user->getEmail());
 
     // Grant view permission.
     $view_user = $this->drupalCreateUser([
@@ -1114,8 +1114,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Check can see username and email.
     $this->drupalGet('admin/people/simplenews');
-    $this->assertText($user->getAccountName());
-    $this->assertText($user->getEmail());
+    $this->assertSession()->pageTextContains($user->getAccountName());
+    $this->assertSession()->pageTextContains($user->getEmail());
   }
 
 }
