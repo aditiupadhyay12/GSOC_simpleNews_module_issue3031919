@@ -320,7 +320,6 @@ class SpoolStorage implements SpoolStorageInterface {
 
     $handler_settings = $edited_values['handler_settings'] ?? $field->handler_settings;
     $handler_settings['_issue'] = $issue;
-    $handler_settings['_connection'] = $this->connection;
     $handler_settings['_newsletter_ids'] = $newsletter_ids;
     $recipient_handler = $this->recipientHandlerManager->createInstance($handler, $handler_settings);
 

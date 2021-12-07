@@ -45,8 +45,8 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
   public function __construct(array $configuration, $plugin_id, $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->issue = $configuration['_issue'];
-    $this->connection = $configuration['_connection'];
     $this->newsletterIds = $configuration['_newsletter_ids'];
+    $this->connection = \Drupal::database();
   }
 
   /**
