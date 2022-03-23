@@ -36,6 +36,7 @@ use Drupal\user\UserInterface;
  *   base_table = "simplenews_subscriber",
  *   entity_keys = {
  *     "id" = "id",
+ *     "uuid" = "uuid",
  *     "label" = "mail"
  *   },
  *   field_ui_base_route = "simplenews.settings_subscriber",
