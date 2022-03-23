@@ -182,12 +182,12 @@ function hook_simplenews_subscriber_delete(Subscriber $subscriber) {
  *
  * @param \Drupal\simplenews\Entity\Subscriber $subscriber
  *   The subscriber object including all subscriptions of this user.
- * @param string $subscription
- *   The subscription object for this specific subscribe action.
+ * @param string $newsletter_id
+ *   The newsletter ID for this specific subscribe action.
  *
  * @ingroup subscriber
  */
-function hook_simplenews_subscribe_user(Subscriber $subscriber, $subscription) {
+function hook_simplenews_subscribe(Subscriber $subscriber, $newsletter_id) {
 
 }
 
