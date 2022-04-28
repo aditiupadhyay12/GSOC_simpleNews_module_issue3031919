@@ -78,7 +78,7 @@ class ConfirmationController extends ControllerBase {
 
     // Redirect and display message if no changes are available.
     if ($subscriber && !$subscriber->getChanges()) {
-      $this->messenger()->addMessage($this->t('All changes to your subscriptions where already applied. No changes made.'));
+      $this->messenger()->addMessage($this->t('All changes to your subscriptions were already applied. No changes made.'));
       return $this->redirect('<front>');
     }
 
