@@ -21,7 +21,6 @@ use Drupal\simplenews\SkipMailException;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\SubscriberInterface;
 use Drupal\Core\Messenger\MessengerTrait;
-use Drupal\Core\Link;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Language\LanguageManagerInterface;
 
@@ -249,8 +248,8 @@ class Mailer implements MailerInterface {
             // Stop sending if a percentage of max execution time was exceeded.
             $elapsed = $this->getCurrentExecutionTime();
             if ($elapsed > static::SEND_TIME_LIMIT * ini_get('max_execution_time')) {
-              $this->logger->warning('Sending interrupted: PHP maximum execution time almost exceeded. Remaining newsletters will be sent during the next cron run. If this warning occurs regularly you should reduce the !cron_throttle_setting.', [
-                '!cron_throttle_setting' => Link::fromTextAndUrl($this->t('Cron throttle setting'), Url::fromRoute('simplenews.settings_mail')),
+              $this->logger->warning('Sending interrupted: PHP maximum execution time almost exceeded. Remaining newsletters will be sent during the next cron run. If this warning occurs regularly you should reduce the <a href=":cron_throttle_setting">Cron throttle setting</a>.', [
+                ':cron_throttle_setting' => Url::fromRoute('simplenews.settings_mail')->toString(),
               ]);
               break;
             }
