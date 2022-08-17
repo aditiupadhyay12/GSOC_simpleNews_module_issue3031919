@@ -52,7 +52,7 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
   /**
    * {@inheritdoc}
    */
-  public function count() {
+  public function count(): int {
     $cache = &drupal_static(__METHOD__, []);
     $cid = $this->pluginId . ':' . implode(':', $this->newsletterIds);
     if (isset($cache[$cid])) {

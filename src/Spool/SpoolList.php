@@ -71,7 +71,7 @@ class SpoolList implements SpoolListInterface {
   /**
    * {@inheritdoc}
    */
-  public function count() {
+  public function count(): int {
     return count($this->spoolRows);
   }
 
