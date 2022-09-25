@@ -214,7 +214,8 @@ class ConfirmationController extends ControllerBase {
         if ($action == 'remove') {
           $this->subscriptionManager->unsubscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
           if ($path = $config->get('subscription.confirm_unsubscribe_page')) {
-            return $this->redirect(Url::fromUri("internal:$path")->getRouteName());
+            $url = Url::fromUri("internal:$path");
+            return $this->redirect($url->getRouteName(), $url->getRouteParameters());
           }
           $this->messenger()->addMessage($this->t('%user was unsubscribed from the %newsletter mailing list.', ['%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name]));
           return $this->redirect('<front>');
@@ -222,7 +223,8 @@ class ConfirmationController extends ControllerBase {
         elseif ($action == 'add') {
           $this->subscriptionManager->subscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
           if ($path = $config->get('subscription.confirm_subscribe_page')) {
-            return $this->redirect(Url::fromUri("internal:$path")->getRouteName());
+            $url = Url::fromUri("internal:$path");
+            return $this->redirect($url->getRouteName(), $url->getRouteParameters());
           }
           $this->messenger()->addMessage($this->t('%user was added to the %newsletter mailing list.', ['%user' => $subscriber->getMail(), '%newsletter' => $newsletter->name]));
           return $this->redirect('<front>');

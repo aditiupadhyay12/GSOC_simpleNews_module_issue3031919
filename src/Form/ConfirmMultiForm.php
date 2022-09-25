@@ -81,8 +81,14 @@ class ConfirmMultiForm extends ConfirmFormBase {
     $subscriber->setChanges([]);
     $subscriber->save();
 
-    $this->messenger()->addMessage($this->t('Subscription changes confirmed for %user.', ['%user' => $subscriber->getMail()]));
-    $form_state->setRedirect('<front>');
+    $config = $this->config('simplenews.settings');
+    if ($path = $config->get('subscription.confirm_subscribe_page')) {
+      $form_state->setRedirectUrl(Url::fromUri("internal:$path"));
+    }
+    else {
+      $this->messenger()->addMessage($this->t('Subscription changes confirmed for %user.', ['%user' => $subscriber->getMail()]));
+      $form_state->setRedirect('<front>');
+    }
   }
 
 }

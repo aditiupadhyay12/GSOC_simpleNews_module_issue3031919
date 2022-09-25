@@ -468,6 +468,91 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
   }
 
   /**
+   * Test anonymous subscription with redirect page after verification.
+   *
+   * Steps performed:
+   * 0. Preparation
+   * 1. Subscribe anonymous via block.
+   * 2. Follow redirect link.
+   */
+  public function testSubscribeAnonymousRedirect() {
+    // 0. Preparation
+    // Login admin
+    // Set permission for anonymous to subscribe
+    // Enable newsletter block
+    // Logout admin.
+    $admin_user = $this->drupalCreateUser([
+      'administer blocks',
+      'access administration pages',
+      'administer newsletters',
+      'administer permissions',
+      'administer simplenews settings',
+    ]
+    );
+    $this->drupalLogin($admin_user);
+
+    // Create a newsletter.
+    $this->drupalGet('admin/config/services/simplenews');
+    $this->clickLink('Add newsletter');
+    $name = $this->randomMachineName();
+    $edit = [
+      'name' => $name,
+      'id' => strtolower($name),
+      'description' => $this->randomString(20),
+      'access' => 'default',
+    ];
+    $this->submitForm($edit, 'Save');
+
+    $newsletter_id = $edit['id'];
+
+    // Access and change the redirect path on configuration.
+    $redirectPath = '/newsletter/validate';
+
+    $this->drupalGet('admin/config/services/simplenews/settings/subscription');
+    $this->assertSession()->statusCodeEquals(200);
+    $this->submitForm(['simplenews_confirm_subscribe_page' => $redirectPath], 'Save configuration');
+    $this->assertSession()->responseContains('The configuration options have been saved.');
+
+    $this->drupalLogout();
+
+    // Build the block.
+    $block_settings = [
+      'default_newsletters' => [$newsletter_id],
+      'message' => $this->randomMachineName(4),
+    ];
+    $this->setupSubscriptionBlock($block_settings);
+
+    // 1. Subscribe anonymous via block
+    // Subscribe + submit
+    // Assert confirmation message
+    // Assert outgoing email
+    // Confirm using mail link
+    $mail = $this->randomEmail(8);
+    $edit = [
+      'mail[0][value]' => $mail,
+    ];
+    $this->drupalGet('');
+    $this->submitForm($edit, 'Subscribe');
+    $this->assertSession()->pageTextContains('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.');
+
+    // Receive and access link on email.
+    $subscriber = Subscriber::loadByMail($mail);
+    $subscription = $subscriber->getSubscription($newsletter_id);
+    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED, $subscription->status, 'Subscription is unconfirmed');
+    $confirm_url = $this->extractConfirmationLink($this->getMail(0));
+    $this->drupalGet($confirm_url);
+
+    Newsletter::load($newsletter_id);
+    $this->assertSession()->responseContains('Are you sure you want to confirm your subscription for <em class="placeholder">' . simplenews_mask_mail($mail) . '</em>?');
+
+    $this->submitForm([], 'Confirm');
+
+    // 2. Follow redirect link.
+    $this->assertSession()->addressEquals(Url::fromUri('internal:' . $redirectPath));
+
+  }
+
+  /**
    * TestSubscribeAuthenticated.
    *
    * Steps performed:
