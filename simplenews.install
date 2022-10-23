@@ -395,3 +395,13 @@ function simplenews_update_830008() {
   $entity_type->set('entity_keys', $entity_keys);
   \Drupal::entityDefinitionUpdateManager()->updateEntityType($entity_type);
 }
+
+/**
+ * Fix 'uuid' entity key for subscriber.
+ */
+function simplenews_update_830009() {
+  // The code in simplenews_update_830008() should be enough, but we have to
+  // update the field storage too, see https://www.drupal.org/node/2554097.
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $manager->updateFieldStorageDefinition($manager->getFieldStorageDefinition('uuid', 'simplenews_subscriber'));
+}
