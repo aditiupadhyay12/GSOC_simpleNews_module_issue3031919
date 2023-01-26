@@ -462,9 +462,9 @@ function simplenews_user_insert(UserInterface $account) {
  * Set subscriptions to confirmed.
  */
 function simplenews_user_login(UserInterface $account) {
-  // If user.settings:verify_mail is enabled then when a user registers, the
-  // new account is created with unconfirmed subscriptions. Confirm these when
-  // the user first logs in.
+  // If user.settings:skip_verification is FALSE then when a user registers,
+  // the new account is created with unconfirmed subscriptions. Confirm these
+  // when the user first logs in.
   if ($account->getLastAccessedTime() == 0) {
     if ($subscriber = Subscriber::loadByUid($account->id())) {
       // @todo Write this code as part of

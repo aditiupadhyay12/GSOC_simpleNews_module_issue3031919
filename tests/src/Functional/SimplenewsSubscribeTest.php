@@ -283,7 +283,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     // a subscriber.
     $site_config = $this->config('user.settings');
     $site_config->set('register', 'visitors');
-    $site_config->set('verify_mail', FALSE);
     $site_config->save();
 
     $pass = $this->randomMachineName();
