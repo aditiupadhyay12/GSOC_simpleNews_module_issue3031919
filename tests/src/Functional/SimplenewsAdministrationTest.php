@@ -42,6 +42,12 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
    * Test various combinations of newsletter settings.
    */
   public function testNewsletterSettings() {
+
+    // Allow registration of new accounts without approval.
+    $site_config = $this->config('user.settings');
+    $site_config->set('verify_mail', FALSE);
+    $site_config->save();
+
     $admin_user = $this->drupalCreateUser([
       'administer blocks',
       'administer content types',
