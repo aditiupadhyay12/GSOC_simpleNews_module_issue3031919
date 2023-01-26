@@ -17,7 +17,7 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // We install the demo module to get the recipient handlers. It creates

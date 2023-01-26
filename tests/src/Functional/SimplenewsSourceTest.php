@@ -20,7 +20,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Create the filtered_html text format.

@@ -20,7 +20,7 @@ abstract class RecipientHandlerSelectBase extends RecipientHandlerBase {
     $query->addExpression("'$entity_type'", 'entity_type');
     $query->addExpression($this->issue->id(), 'entity_id');
     $query->addExpression(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, 'status');
-    $query->addExpression(REQUEST_TIME, 'timestamp');
+    $query->addExpression(\Drupal::time()->getRequestTime(), 'timestamp');
     $this->connection->insert('simplenews_mail_spool')->from($query)->execute();
 
     return $query->countQuery()->execute()->fetchField();

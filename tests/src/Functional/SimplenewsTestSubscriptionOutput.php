@@ -35,20 +35,20 @@ class SimplenewsTestSubscriptionOutput extends SimplenewsTestBase {
     $this->drupalLogin($admin_user);
     // Tests extra fields for admin user.
     $this->drupalGet('user/' . $admin_user->id());
-    $this->assertLink('Manage subscriptions');
+    $this->assertSession()->linkExists('Manage subscriptions');
     $this->drupalLogout();
     // Tests extra fields for user.
     $this->drupalLogin($user);
     $this->drupalGet('user/' . $admin_user->id());
-    $this->assertNoLink('Manage subscriptions');
+    $this->assertSession()->linkNotExists('Manage subscriptions');
     $this->drupalGet('user/' . $user->id());
-    $this->assertLink('Manage subscriptions');
+    $this->assertSession()->linkExists('Manage subscriptions');
     $this->drupalLogout();
     // Tests extra fields for anonymous users.
     $this->drupalGet('user/' . $admin_user->id());
-    $this->assertNoLink('Manage subscriptions');
+    $this->assertSession()->linkNotExists('Manage subscriptions');
     $this->drupalGet('user/' . $user->id());
-    $this->assertNoLink('Manage subscriptions');
+    $this->assertSession()->linkNotExists('Manage subscriptions');
   }
 
 }

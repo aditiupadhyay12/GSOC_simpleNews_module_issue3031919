@@ -85,7 +85,7 @@ class ConfirmationController extends ControllerBase {
     if ($subscriber && $hash == simplenews_generate_hash($subscriber->getMail(), 'combined' . serialize($subscriber->getChanges()), $timestamp)) {
       // If the hash is valid but timestamp is too old, display form to request
       // a new hash.
-      if ($timestamp < REQUEST_TIME - $config->get('hash_expiration')) {
+      if ($timestamp < \Drupal::time()->getRequestTime() - $config->get('hash_expiration')) {
         $context = [
           'simplenews_subscriber' => $subscriber,
         ];
@@ -184,7 +184,7 @@ class ConfirmationController extends ControllerBase {
 
       // If the hash is valid but timestamp is too old, display form to request
       // a new hash.
-      if ($timestamp < REQUEST_TIME - $config->get('hash_expiration')) {
+      if ($timestamp < \Drupal::time()->getRequestTime() - $config->get('hash_expiration')) {
         $context = [
           'simplenews_subscriber' => $subscriber,
           'newsletter' => $newsletter,

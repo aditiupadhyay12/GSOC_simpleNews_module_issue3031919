@@ -91,7 +91,7 @@ function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $
       $url_arguments = ['absolute' => TRUE, 'langcode' => $language];
 
       foreach ($tokens as $name => $original) {
-        $route_parameters = ['snid' => $subscriber->id(), 'timestamp' => REQUEST_TIME];
+        $route_parameters = ['snid' => $subscriber->id(), 'timestamp' => \Drupal::time()->getRequestTime()];
         switch ($name) {
           case 'subscribe-url':
             $hash = simplenews_generate_hash($subscriber->getMail(), 'add');

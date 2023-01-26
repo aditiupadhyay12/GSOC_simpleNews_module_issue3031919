@@ -41,7 +41,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->drupalPlaceBlock('local_tasks_block');
     $this->drupalPlaceBlock('local_actions_block');
@@ -211,7 +211,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     $path = $uid ? "/user/$uid/simplenews" : '';
     $this->drupalGet($path);
     $this->submitForm($edit, $uid ? t('Save') : t('Subscribe'));
-    $this->assertResponse(200);
+    $this->assertSession()->statusCodeEquals(200);
 
     if (!$uid) {
       $block->delete();
@@ -254,7 +254,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    */
   protected function resetPassLogin(UserInterface $user) {
     $uid = $user->id();
-    $timestamp = REQUEST_TIME;
+    $timestamp = \Drupal::time()->getRequestTime();
     $hash = user_pass_rehash($user, $timestamp);
     $this->drupalGet("/user/reset/$uid/$timestamp/$hash");
     $this->submitForm([], 'Log in');

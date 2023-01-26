@@ -26,7 +26,7 @@ class SimplenewsDemoTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     // Install bartik theme.
     \Drupal::service('theme_installer')->install(['bartik']);

@@ -305,7 +305,7 @@ class Mailer implements MailerInterface {
         $this->logger->notice('%success emails sent, %skipped skipped, %fail failed permanently, %retry failed retrying.', $log_array);
       }
 
-      $this->state->set('simplenews.last_cron', REQUEST_TIME);
+      $this->state->set('simplenews.last_cron', \Drupal::time()->getRequestTime());
       $this->state->set('simplenews.last_sent', $freq[SpoolStorageInterface::STATUS_DONE]);
 
       $this->accountSwitcher->switchBack();

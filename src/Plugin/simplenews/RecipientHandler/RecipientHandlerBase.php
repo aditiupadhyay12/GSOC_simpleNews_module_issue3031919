@@ -135,7 +135,7 @@ abstract class RecipientHandlerBase extends PluginBase implements RecipientHandl
       'entity_type' => $this->issue->getEntityTypeId(),
       'entity_id' => $this->issue->id(),
       'status' => SpoolStorageInterface::STATUS_PENDING,
-      'timestamp' => REQUEST_TIME,
+      'timestamp' => \Drupal::time()->getRequestTime(),
       'newsletter_id' => $this->getNewsletterId(),
     ];
 

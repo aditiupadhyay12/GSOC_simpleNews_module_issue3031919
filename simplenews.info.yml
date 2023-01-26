@@ -2,7 +2,7 @@ name: Simplenews
 description: 'Send newsletters to subscribed email addresses. For uninstall go to Configuration > Web services > Simplenews > Settings and hit "Prepare uninstall".'
 type: module
 package: Mail
-core_version_requirement: ^8.8 || ^9
+core_version_requirement: ^9.3 || ^10
 dependencies:
   - drupal:node
   - drupal:field

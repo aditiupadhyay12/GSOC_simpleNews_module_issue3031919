@@ -29,7 +29,7 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Add a field to both entities.

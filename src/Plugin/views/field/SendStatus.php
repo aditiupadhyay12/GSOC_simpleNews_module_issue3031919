@@ -61,7 +61,7 @@ class SendStatus extends FieldPluginBase {
       SIMPLENEWS_STATUS_SEND_READY => 'images/sn-sent.png',
     ];
     if (isset($images[$status])) {
-      $message['uri'] = drupal_get_path('module', 'simplenews') . '/' . $images[$status];
+      $message['uri'] = \Drupal::service('extension.list.module')->getPath('simplenews') . '/' . $images[$status];
     }
     else {
       $message['uri'] = NULL;

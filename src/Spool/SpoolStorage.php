@@ -154,7 +154,7 @@ class SpoolStorage implements SpoolStorageInterface {
       ->condition('msid', (array) $msids, 'IN')
       ->fields([
         'status' => $status,
-        'timestamp' => REQUEST_TIME,
+        'timestamp' => \Drupal::time()->getRequestTime(),
       ])
       ->execute();
   }
@@ -206,7 +206,7 @@ class SpoolStorage implements SpoolStorageInterface {
    */
   public function clear() {
 
-    $expiration_time = REQUEST_TIME - $this->config->get('mail.spool_expire') * 86400;
+    $expiration_time = \Drupal::time()->getRequestTime() - $this->config->get('mail.spool_expire') * 86400;
     return $this->connection->delete('simplenews_mail_spool')
       ->condition('status', [SpoolStorageInterface::STATUS_DONE, SpoolStorageInterface::STATUS_SKIPPED], 'IN')
       ->condition('timestamp', $expiration_time, '<=')
@@ -289,7 +289,7 @@ class SpoolStorage implements SpoolStorageInterface {
       $spool['status'] = SpoolStorageInterface::STATUS_PENDING;
     }
     if (!isset($spool['timestamp'])) {
-      $spool['timestamp'] = REQUEST_TIME;
+      $spool['timestamp'] = \Drupal::time()->getRequestTime();
     }
     if (isset($spool['data'])) {
       $spool['data'] = serialize($spool['data']);
@@ -370,7 +370,7 @@ class SpoolStorage implements SpoolStorageInterface {
    */
   protected function getExpirationTime() {
     $timeout = $this->config->get('mail.spool_progress_expiration');
-    $expiration_time = REQUEST_TIME - $timeout;
+    $expiration_time = \Drupal::time()->getRequestTime() - $timeout;
     return $expiration_time;
   }
 
