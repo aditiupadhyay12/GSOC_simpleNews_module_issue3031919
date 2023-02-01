@@ -30,7 +30,7 @@ class Newsletter extends DrupalSqlBase {
       'from_address' => $this->t('E-mail author address'),
       'hyperlinks' => $this->t('Indicates if hyperlinks should be kept inline or extracted'),
       'new_account' => $this->t('Indicates how to integrate with the register form'),
-      'access' => $this->t('Controls access to subscribe and unsubscribe'),
+      'opt_inout' => $this->t('Defines the Opt-In/out options'),
       'block' => $this->t('TRUE if a block should be provided for this newsletter'),
       'weight' => $this->t('Weight of the newsletter when displayed in listings'),
     ];
@@ -69,7 +69,7 @@ class Newsletter extends DrupalSqlBase {
     $q = $this->select('simplenews_category', 'c');
     $q->innerJoin('taxonomy_term_data', 't', 't.tid = c.tid');
     $q->fields('c', [
-      'tid', 'format', 'priority', 'receipt', 'from_name', 'email_subject', 'from_address', 'hyperlinks', 'new_account', 'access', 'block',
+      'tid', 'format', 'priority', 'receipt', 'from_name', 'email_subject', 'from_address', 'hyperlinks', 'new_account', 'opt_inout', 'block',
     ]);
     $q->fields('t', ['name', 'description', 'weight']);
     $q->orderBy('c.tid');
