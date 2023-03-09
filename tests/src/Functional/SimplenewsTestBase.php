@@ -24,7 +24,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = ['simplenews', 'simplenews_test', 'block'];
+  protected static $modules = ['simplenews', 'simplenews_test', 'block'];
 
   /**
    * {@inheritdoc}

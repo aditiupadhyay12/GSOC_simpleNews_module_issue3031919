@@ -21,7 +21,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
    *
    * @var array
    */
-  public static $modules = ['help'];
+  protected static $modules = ['help'];
 
   /**
    * {@inheritdoc}
@@ -91,7 +91,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalGet('admin/config/services/simplenews/manage/default');
     $this->submitForm(['subject' => 'Edited subject'], 'Save');
     $this->drupalGet('admin/config/services/simplenews/manage/default');
-    $this->assertFieldByName('subject', 'Edited subject');
+    $this->assertSession()->fieldValueEquals('subject', 'Edited subject');
 
     $newsletters = simplenews_newsletter_get_all();
 
@@ -110,13 +110,13 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
       list($new_account_setting, $access_setting) = explode('-', $newsletter->name);
       if ($newsletter->new_account == 'on' && $newsletter->access != 'hidden') {
-        $this->assertFieldChecked($this->getNewsletterFieldId($newsletter->id()));
+        $this->assertSession()->checkboxChecked($this->getNewsletterFieldId($newsletter->id()));
       }
       elseif ($newsletter->new_account == 'off' && $newsletter->access != 'hidden') {
-        $this->assertNoFieldChecked($this->getNewsletterFieldId($newsletter->id()));
+        $this->assertSession()->checkboxNotChecked($this->getNewsletterFieldId($newsletter->id()));
       }
       else {
-        $this->assertNoField('subscriptions[' . $newsletter->id() . ']', t('Hidden or silent newsletter is not shown.'));
+        $this->assertSession()->fieldNotExists('subscriptions[' . $newsletter->id() . ']');
       }
     }
 
@@ -163,15 +163,15 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       }
       list($new_account_setting, $access_setting) = explode('-', $newsletter->name);
       if ($newsletter->access == 'hidden') {
-        $this->assertNoField('subscriptions[' . $newsletter->id() . ']', t('Hidden newsletter is not shown.'));
+        $this->assertSession()->fieldNotExists('subscriptions[' . $newsletter->id() . ']');
       }
       elseif ($newsletter->new_account == 'on' || $newsletter->name == 'off-default' || $newsletter->new_account == 'silent') {
         // All on, silent and the explicitly selected newsletter should be
         // checked.
-        $this->assertFieldChecked($this->getNewsletterFieldId($newsletter->id()));
+        $this->assertSession()->checkboxChecked($this->getNewsletterFieldId($newsletter->id()));
       }
       else {
-        $this->assertNoFieldChecked($this->getNewsletterFieldId($newsletter->id()));
+        $this->assertSession()->checkboxNotChecked($this->getNewsletterFieldId($newsletter->id()));
       }
     }
 
@@ -181,7 +181,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     ];
     $this->submitForm($edit, 'Save');
     $this->drupalGet('user/' . $user->id() . '/simplenews');
-    $this->assertNoFieldChecked($this->getNewsletterFieldId($off_default_newsletter_id));
+    $this->assertSession()->checkboxNotChecked($this->getNewsletterFieldId($off_default_newsletter_id));
 
     // Get a newsletter which has the block enabled.
     // @codingStandardsIgnoreStart
@@ -199,8 +199,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalLogin($admin_user);
     $subscriber = Subscriber::loadByMail($user->getEmail());
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
-    $this->assertNoField($this->getNewsletterFieldId('on_hidden'));
-    $this->assertNoField('mail');
+    $this->assertSession()->fieldNotExists($this->getNewsletterFieldId('on_hidden'));
+    $this->assertSession()->fieldNotExists('mail');
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
     $this->submitForm([], 'Save');
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
@@ -404,10 +404,10 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     $rows = $this->xpath('//tbody/tr');
     $this->assertCount(1, $rows);
-    $this->assertEqual(current($subscribers['all']), trim($rows[0]->find('xpath', '/td[1]')->getText()));
+    $this->assertEquals(current($subscribers['all']), trim($rows[0]->find('xpath', '/td[1]')->getText()));
     // Mysteriously, the username is sometimes a span and sometimes a link.
     // Accept both.
-    $this->assertEqual($user->label(), trim($rows[0]->find('xpath', '/td[2]/span|/td[2]/a')->getText()));
+    $this->assertEquals($user->label(), trim($rows[0]->find('xpath', '/td[2]/span|/td[2]/a')->getText()));
 
     // Reset the filter.
     $this->drupalGet('admin/people/simplenews');
@@ -437,8 +437,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Check exporting.
     $this->clickLink(t('Export'));
     $this->submitForm(['newsletters[' . $first . ']' => TRUE], 'Export');
-    $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
-    $exported_mails = $export_field[0]->getText();
+    $exported_mails = $this->getSession()->getPage()->findField('emails')->getValue();
     foreach ($subscribers[$first] as $mail) {
       $this->assertStringContainsString($mail, $exported_mails, t('Mail address exported correctly.'));
     }
@@ -459,8 +458,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     ];
     $this->submitForm($edit, 'Export');
 
-    $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
-    $exported_mails = $export_field[0]->getText();
+    $exported_mails = $this->getSession()->getPage()->findField('emails')->getValue();
     $exported_mails = explode(', ', $exported_mails);
     $this->assertCount(2, $exported_mails);
     $this->assertContains($all_mail, $exported_mails);
@@ -488,8 +486,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     ];
     $this->submitForm($edit, 'Export');
 
-    $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
-    $exported_mails = $export_field[0]->getText();
+    $exported_mails = $this->getSession()->getPage()->findField('emails')->getValue();
     $exported_mails = explode(', ', $exported_mails);
     $this->assertContains($unconfirmed[0], $exported_mails);
     $this->assertContains($unconfirmed[1], $exported_mails);
@@ -503,8 +500,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     ];
     $this->submitForm($edit, 'Export');
 
-    $export_field = $this->xpath($this->constructFieldXpath('name', 'emails'));
-    $exported_mails = $export_field[0]->getText();
+    $exported_mails = $this->getSession()->getPage()->findField('emails')->getValue();
     $exported_mails = explode(', ', $exported_mails);
     $this->assertCount(2, $exported_mails);
     $this->assertContains($unconfirmed[0], $exported_mails);
@@ -530,7 +526,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Verify updated subscriptions count.
     drupal_static_reset('Drupal\simplenews\Plugin\simplenews\RecipientHandler\RecipientHandlerBase::count');
     $after_count = $spool_storage->issueCountRecipients($issue);
-    $this->assertEqual($before_count - 1, $after_count, t('Blocked users are not counted in subscription count.'));
+    $this->assertEquals($before_count - 1, $after_count, t('Blocked users are not counted in subscription count.'));
 
     // Test mass subscribe with previously unsubscribed users.
     for ($i = 0; $i < 3; $i++) {
@@ -627,11 +623,11 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->clickLink(t('Edit'), 1);
 
     // Get the subscriber id from the path.
-    $this->assertEqual(1, preg_match('|admin/people/simplenews/edit/(\d+)\?destination|', $this->getUrl(), $matches), 'Subscriber found');
+    $this->assertEquals(1, preg_match('|admin/people/simplenews/edit/(\d+)\?destination|', $this->getUrl(), $matches), 'Subscriber found');
     $subscriber = Subscriber::load($matches[1]);
 
     $this->assertSession()->titleEquals('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
-    $this->assertFieldChecked('edit-status');
+    $this->assertSession()->checkboxChecked('edit-status');
 
     // Disable account.
     $edit = [
@@ -645,7 +641,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Re-enable account.
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
     $this->assertSession()->titleEquals('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
-    $this->assertNoFieldChecked('edit-status');
+    $this->assertSession()->checkboxNotChecked('edit-status');
     $edit = [
       'status' => TRUE,
     ];
@@ -728,7 +724,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
         $counter++;
       }
     }
-    $this->assertEqual(1, $counter);
+    $this->assertEquals(1, $counter);
     $this->assertSession()->pageTextContains('The following addresses were added or updated: drupaltest@example.com.');
     $this->assertSession()->pageTextContains("The addresses were subscribed to the following newsletters: $newsletter_name.");
 
@@ -833,9 +829,9 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertSession()->pageTextContains('Test newsletter sent to user ' . $admin_user->getAccountName() . ' <' . $admin_user->getEmail() . '>');
 
     $mails = $this->getMails();
-    $this->assertEqual('simplenews_test', $mails[0]['id']);
-    $this->assertEqual($admin_user->getEmail(), $mails[0]['to']);
-    $this->assertEqual(t('[Default newsletter] @title', ['@title' => $node->getTitle()]), $mails[0]['subject']);
+    $this->assertEquals('simplenews_test', $mails[0]['id']);
+    $this->assertEquals($admin_user->getEmail(), $mails[0]['to']);
+    $this->assertEquals(t('[Default newsletter] @title', ['@title' => $node->getTitle()]), $mails[0]['subject']);
     $this->assertStringContainsString('User ID: ' . $admin_user->id(), $mails[0]['body']);
 
     // Update the content type, remove the simpletest checkbox.
@@ -869,7 +865,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Check the Add Newsletter Issue button.
     $this->drupalGet('admin/content/simplenews');
     $this->clickLink(t('Add Newsletter Issue'));
-    $this->assertUrl('node/add/simplenews_issue');
+    $this->assertSession()->addressEquals('node/add/simplenews_issue');
     // Check if the help text is displayed.
     $this->assertSession()->pageTextContains('Add this newsletter issue to a newsletter by selecting a newsletter from the select list.');
   }
@@ -880,7 +876,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
   public function testSubscriberStatusFilter() {
     // Make sure subscription overview can't be accessed without permission.
     $this->drupalGet('admin/people/simplenews');
-    $this->assertResponse(403);
+    $this->assertSession()->statusCodeEquals(403);
 
     $admin_user = $this->drupalCreateUser([
       'administer newsletters',
@@ -915,16 +911,16 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED]]);
     $row = $this->xpath('//tbody/tr');
     $this->assertCount(1, $row);
-    $this->assertEqual($subscribers[0]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
+    $this->assertEquals($subscribers[0]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
     $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED]]);
     $row = $this->xpath('//tbody/tr');
     $this->assertCount(1, $row);
-    $this->assertEqual($subscribers[1]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
+    $this->assertEquals($subscribers[1]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
     $this->assertSession()->pageTextContains($newsletters['default']->name . ' (' . 'Unconfirmed' . ')');
     $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED]]);
     $row = $this->xpath('//tbody/tr');
     $this->assertCount(1, $row);
-    $this->assertEqual($subscribers[2]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
+    $this->assertEquals($subscribers[2]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
     $this->assertSession()->pageTextContains($newsletters['default']->name . ' (' . 'Unsubscribed' . ')');
   }
 
@@ -934,7 +930,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
   public function testNewsletterIssuesOverview() {
     // Verify newsletter overview isn't available without permission.
     $this->drupalGet('admin/content/simplenews');
-    $this->assertResponse(403);
+    $this->assertSession()->statusCodeEquals(403);
 
     $admin_user = $this->drupalCreateUser([
       'administer newsletters',
@@ -990,13 +986,13 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     foreach ($rows as $row) {
       if ($row->find('xpath', '/td[2]/a')->getText() == 'Test_issue_2') {
-        $this->assertEqual($name, trim($row->find('xpath', '/td[3]/a')->getText()));
-        $this->assertEqual('Newsletter issue will be sent to 3 subscribers.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
-        $this->assertEqual('✖', trim($row->find('xpath', '/td[4]')->getText()));
-        $this->assertEqual('0/3', trim($row->find('xpath', '/td[6]/span')->getText()));
+        $this->assertEquals($name, trim($row->find('xpath', '/td[3]/a')->getText()));
+        $this->assertEquals('Newsletter issue will be sent to 3 subscribers.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
+        $this->assertEquals('✖', trim($row->find('xpath', '/td[4]')->getText()));
+        $this->assertEquals('0/3', trim($row->find('xpath', '/td[6]/span')->getText()));
       }
       else {
-        $this->assertEqual('✔', trim($row->find('xpath', '/td[4]')->getText()));
+        $this->assertEquals('✔', trim($row->find('xpath', '/td[4]')->getText()));
       }
     }
     // Send newsletter issues using bulk operations.
@@ -1013,11 +1009,11 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Assert the status message of each newsletter.
     foreach ($rows as $row) {
       if ($row->find('xpath', '/td[2]/a')->getText() == 'Test_issue_2') {
-        $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
+        $this->assertEquals('Newsletter issue will be sent to 3 subscribers on publish.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
       }
       else {
-        $this->assertEqual('Newsletter issue is pending, 0 mails sent out of 3, 0 errors.', trim($row->find('xpath', '/td[6]/img')->getAttribute('title')));
-        $this->assertEqual(file_url_transform_relative(file_create_url(drupal_get_path('module', 'simplenews') . '/images/sn-cron.png')), trim($row->find('xpath', '/td[6]/img')->getAttribute('src')));
+        $this->assertEquals('Newsletter issue is pending, 0 mails sent out of 3, 0 errors.', trim($row->find('xpath', '/td[6]/img')->getAttribute('title')));
+        $this->assertEquals(\Drupal::service('file_url_generator')->generateString(\Drupal::service('extension.list.module')->getPath('simplenews') . '/images/sn-cron.png'), trim($row->find('xpath', '/td[6]/img')->getAttribute('src')));
       }
     }
     // Stop sending the pending newsletters.
@@ -1033,10 +1029,10 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Check the send status of each issue.
     foreach ($rows as $row) {
       if ($row->find('xpath', '/td[2]/a')->getText() == 'Test_issue_2') {
-        $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
+        $this->assertEquals('Newsletter issue will be sent to 3 subscribers on publish.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
       }
       else {
-        $this->assertEqual('Newsletter issue will be sent to 3 subscribers.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
+        $this->assertEquals('Newsletter issue will be sent to 3 subscribers.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
       }
     }
 
@@ -1054,11 +1050,11 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Check the send status of each issue.
     foreach ($rows as $row) {
       if ($row->find('xpath', '/td[2]/a')->getText() == 'Test_issue_2') {
-        $this->assertEqual('Newsletter issue will be sent to 3 subscribers on publish.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
+        $this->assertEquals('Newsletter issue will be sent to 3 subscribers on publish.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
       }
       else {
-        $this->assertEqual('Newsletter issue sent to 3 subscribers, 0 errors.', trim($row->find('xpath', '/td[6]/img')->getAttribute('title')));
-        $this->assertEqual(file_url_transform_relative(file_create_url(drupal_get_path('module', 'simplenews') . '/images/sn-sent.png')), trim($row->find('xpath', '/td[6]/img')->getAttribute('src')));
+        $this->assertEquals('Newsletter issue sent to 3 subscribers, 0 errors.', trim($row->find('xpath', '/td[6]/img')->getAttribute('title')));
+        $this->assertEquals(\Drupal::service('file_url_generator')->generateString(\Drupal::service('extension.list.module')->getPath('simplenews') . '/images/sn-sent.png'), trim($row->find('xpath', '/td[6]/img')->getAttribute('src')));
       }
     }
   }
@@ -1092,7 +1088,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Check anonymous user can't access admin page.
     $this->drupalLogout();
     $this->drupalGet('admin/people/simplenews');
-    $this->assertResponse(403);
+    $this->assertSession()->statusCodeEquals(403);
 
     // Turn off the access permission on the view.
     $view = View::load('simplenews_subscribers');
