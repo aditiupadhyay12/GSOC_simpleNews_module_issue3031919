@@ -39,7 +39,8 @@ class RecipientHandlerSubscribersByRole extends RecipientHandlerEntityBase {
       ->condition('status', SubscriberInterface::ACTIVE)
       ->condition('subscriptions', $this->getNewsletterId())
       ->condition('subscriptions.status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED)
-      ->condition('uid.entity.roles', $this->configuration['role']);
+      ->condition('uid.entity.roles', $this->configuration['role'])
+      ->accessCheck(FALSE);
   }
 
 }

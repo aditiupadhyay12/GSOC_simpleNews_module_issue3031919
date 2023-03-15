@@ -64,7 +64,7 @@ class PrepareUninstallForm extends FormBase {
    */
   public static function deleteSubscribers(&$context) {
     $storage = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber');
-    $subscriber_ids = $storage->getQuery()->range(0, 100)->execute();
+    $subscriber_ids = $storage->getQuery()->range(0, 100)->accessCheck(FALSE)->execute();
     if ($subscribers = $storage->loadMultiple($subscriber_ids)) {
       $storage->delete($subscribers);
     }

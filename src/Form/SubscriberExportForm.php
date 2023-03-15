@@ -72,7 +72,7 @@ class SubscriberExportForm extends FormBase {
       ->condition('status', $condition_active, 'IN')
       ->condition('subscriptions.status', $condition_subscribed, 'IN')
       ->condition('subscriptions.target_id', (array) $newsletters, 'IN');
-    $subscriber_ids = $query->execute();
+    $subscriber_ids = $query->accessCheck(FALSE)->execute();
 
     $mails = [];
     foreach ($subscriber_ids as $id) {

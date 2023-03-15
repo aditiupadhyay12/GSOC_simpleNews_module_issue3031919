@@ -21,6 +21,7 @@ class RecipientHandlerNewUsers extends RecipientHandlerEntityBase {
     return \Drupal::entityQuery('user')
       ->exists('mail')
       ->condition('access', 0)
+      ->accessCheck(FALSE)
       ->condition('status', TRUE);
   }
 

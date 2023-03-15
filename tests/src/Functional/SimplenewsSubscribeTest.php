@@ -975,7 +975,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
    * Gets the number of subscribers entities.
    */
   protected function countSubscribers() {
-    return \Drupal::entityQuery('simplenews_subscriber')->count()->execute();
+    return \Drupal::entityQuery('simplenews_subscriber')->accessCheck(FALSE)->count()->execute();
   }
 
   /**
