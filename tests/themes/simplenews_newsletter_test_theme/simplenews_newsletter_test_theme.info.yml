@@ -2,7 +2,7 @@ name: 'Newsletter test theme'
 type: theme
 base theme: stable
 description: 'Theme for testing simplenews newsletter'
-core_version_requirement: ^8.8 || ^9
+core_version_requirement: ^9.3 || ^10
 regions:
   sidebar_first: 'Left sidebar'
   sidebar_second: 'Right sidebar'
