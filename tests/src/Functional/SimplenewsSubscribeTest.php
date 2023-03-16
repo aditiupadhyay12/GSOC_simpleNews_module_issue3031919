@@ -57,7 +57,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $mails = $this->getMails();
     $this->assertEqual($mails[0]['from'], 'simpletest@example.com');
-    $this->assertEqual($mails[0]['headers']['From'], '"Drupal" <simpletest@example.com>');
+    $this->assertEqual($mails[0]['headers']['From'], 'Drupal <simpletest@example.com>');
 
     $confirm_url = $this->extractConfirmationLink($this->getMail(0));
 

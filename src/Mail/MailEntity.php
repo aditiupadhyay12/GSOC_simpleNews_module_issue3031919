@@ -2,13 +2,14 @@
 
 namespace Drupal\simplenews\Mail;
 
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\file\Entity\File;
 use Drupal\simplenews\SubscriberInterface;
 use Drupal\user\Entity\User;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Header\MailboxHeader;
 
 /**
  * Default mail class for entities.
@@ -169,7 +170,10 @@ class MailEntity implements MailInterface {
     if (mb_substr(PHP_OS, 0, 3) == 'WIN') {
       return $this->getFromAddress();
     }
-    return '"' . addslashes(Unicode::mimeHeaderEncode($this->getNewsletter()->from_name)) . '" <' . $this->getFromAddress() . '>';
+
+    $mailbox = new MailboxHeader('From', new Address($this->getFromAddress(), $this->getNewsletter()->from_name));
+
+    return $mailbox->getBodyAsString();
   }
 
   /**

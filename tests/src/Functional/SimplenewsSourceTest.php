@@ -8,6 +8,8 @@ use Drupal\node\Entity\Node;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\Mail\MailTest;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Header\MailboxHeader;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -256,10 +258,9 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       $this->assertEqual($mail['params']['attachments'], $mail['params']['files']);
 
       // Make sure formatted address is properly encoded.
-      $from = '"' . addslashes(Unicode::mimeHeaderEncode($edit_newsletter['from_name'])) . '" <' . $edit_newsletter['from_address'] . '>';
-      $this->assertEqual($from, $mail['reply-to']);
-      // And make sure it won't get encoded twice.
-      $this->assertEqual($from, Unicode::mimeHeaderEncode($mail['reply-to']));
+      $mailbox = new MailboxHeader('From', new Address($edit_newsletter['from_address'], $edit_newsletter['from_name']));
+      $from = $mailbox->getBodyAsString();
+      $this->assertEquals($from, $mail['reply-to']);
 
       // @todo: Improve this check, there are currently two spaces, not sure
       // where they are coming from.

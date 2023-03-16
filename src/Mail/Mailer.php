@@ -2,7 +2,6 @@
 
 namespace Drupal\simplenews\Mail;
 
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -23,6 +22,8 @@ use Drupal\simplenews\SubscriberInterface;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Header\MailboxHeader;
 
 /**
  * Default Mailer.
@@ -434,8 +435,10 @@ class Mailer implements MailerInterface {
     $address = $this->config->get('newsletter.from_address');
     $name = $this->config->get('newsletter.from_name');
 
+    $mailbox = new MailboxHeader('From', new Address($address, $name));
+
     // Windows based PHP systems don't accept formatted email addresses.
-    $formatted_address = (mb_substr(PHP_OS, 0, 3) == 'WIN') ? $address : '"' . addslashes(Unicode::mimeHeaderEncode($name)) . '" <' . $address . '>';
+    $formatted_address = (mb_substr(PHP_OS, 0, 3) == 'WIN') ? $address : $mailbox->getBodyAsString();
 
     return [
       'address' => $address,
