@@ -29,7 +29,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $defaultTheme = 'classy';
+  protected $defaultTheme = 'starterkit_theme';
 
   /**
    * The Simplenews settings config object.
@@ -240,6 +240,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     $uids = \Drupal::entityQuery('user')
       ->sort('created', 'DESC')
       ->range(0, 1)
+      ->accessCheck(FALSE)
       ->execute();
     return array_shift($uids);
   }
@@ -305,7 +306,6 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    */
   protected function assertMailText($needle, $offset = NULL, $exist = TRUE) {
     $body = preg_replace('/\s+/', ' ', $this->getMail($offset));
-    $this->verbose($body);
     $pos = strpos($body, (string) $needle);
     $this->assertEquals($pos !== FALSE, $exist, "$needle found in mail");
   }

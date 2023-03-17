@@ -16,24 +16,18 @@ class SimplenewsDemoTest extends BrowserTestBase {
    *
    * @var string[]
    */
-  public static $modules = [];
+  protected static $modules = ['simplenews_demo'];
 
   /**
    * {@inheritdoc}
    */
-  protected $defaultTheme = 'classy';
+  protected $defaultTheme = 'starterkit_theme';
 
   /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
     parent::setUp();
-    // Install bartik theme.
-    \Drupal::service('theme_installer')->install(['bartik']);
-    $theme_settings = $this->config('system.theme');
-    $theme_settings->set('default', 'bartik')->save();
-    // Install simplenews_demo module.
-    \Drupal::service('module_installer')->install(['simplenews_demo']);
     // Log in with all relevant permissions.
     $this->drupalLogin($this->drupalCreateUser([
       'administer simplenews subscriptions', 'send newsletter', 'administer newsletters', 'administer simplenews settings',

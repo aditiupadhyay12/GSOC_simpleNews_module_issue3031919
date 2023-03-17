@@ -12,7 +12,7 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['simplenews_demo'];
+  protected static $modules = ['simplenews_demo'];
 
   /**
    * {@inheritdoc}
@@ -140,7 +140,7 @@ class SimplenewsRecipientHandlerTest extends SimplenewsTestBase {
   protected function checkRecipients(array $expected) {
     simplenews_cron();
     $mails = $this->getMails();
-    $this->assertEqual(count($expected), count($mails), t('All mails were sent.'));
+    $this->assertEquals(count($expected), count($mails), t('All mails were sent.'));
     foreach ($mails as $mail) {
       $this->assertArrayHasKey($mail['to'], $expected, t('Found valid recipient @recip', ['@recip' => $mail['to']]));
       unset($expected[$mail['to']]);

@@ -83,19 +83,19 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $mail = $mails[0];
 
     // Assert resulting mail.
-    $this->assertEqual('simplenews_node', $mail['id']);
-    $this->assertEqual('simplenews', $mail['module']);
-    $this->assertEqual('node', $mail['key']);
-    $this->assertEqual($plain_mail->getRecipient(), $mail['to']);
-    $this->assertEqual($plain_mail->getFromAddress(), $mail['from']);
-    $this->assertEqual($plain_mail->getFromFormatted(), $mail['reply-to']);
-    $this->assertEqual($plain_mail->getLanguage(), $mail['langcode']);
+    $this->assertEquals('simplenews_node', $mail['id']);
+    $this->assertEquals('simplenews', $mail['module']);
+    $this->assertEquals('node', $mail['key']);
+    $this->assertEquals($plain_mail->getRecipient(), $mail['to']);
+    $this->assertEquals($plain_mail->getFromAddress(), $mail['from']);
+    $this->assertEquals($plain_mail->getFromFormatted(), $mail['reply-to']);
+    $this->assertEquals($plain_mail->getLanguage(), $mail['langcode']);
     $this->assertTrue($mail['params']['plain']);
 
     $this->assertArrayNotHasKey('plaintext', $mail['params']);
     $this->assertArrayNotHasKey('attachments', $mail['params']);
 
-    $this->assertEqual($plain_mail->getSubject(), $mail['subject']);
+    $this->assertEquals($plain_mail->getSubject(), $mail['subject']);
     $this->assertStringContainsString('the plain body', $mail['body']);
 
     // Now send an HTML message.
@@ -108,21 +108,21 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $mail = $mails[1];
 
     // Assert resulting mail.
-    $this->assertEqual('simplenews_node', $mail['id']);
-    $this->assertEqual('simplenews', $mail['module']);
-    $this->assertEqual('node', $mail['key']);
-    $this->assertEqual($plain_mail->getRecipient(), $mail['to']);
-    $this->assertEqual($plain_mail->getFromAddress(), $mail['from']);
-    $this->assertEqual($plain_mail->getFromFormatted(), $mail['reply-to']);
-    $this->assertEqual($plain_mail->getLanguage(), $mail['langcode']);
-    $this->assertEqual(NULL, $mail['params']['plain']);
+    $this->assertEquals('simplenews_node', $mail['id']);
+    $this->assertEquals('simplenews', $mail['module']);
+    $this->assertEquals('node', $mail['key']);
+    $this->assertEquals($plain_mail->getRecipient(), $mail['to']);
+    $this->assertEquals($plain_mail->getFromAddress(), $mail['from']);
+    $this->assertEquals($plain_mail->getFromFormatted(), $mail['reply-to']);
+    $this->assertEquals($plain_mail->getLanguage(), $mail['langcode']);
+    $this->assertEquals(NULL, $mail['params']['plain']);
 
     $this->assertArrayHasKey('plaintext', $mail['params']);
     $this->assertStringContainsString('the plain body', $mail['params']['plaintext']);
     $this->assertArrayHasKey('attachments', $mail['params']);
-    $this->assertEqual('example://test.png', $mail['params']['attachments'][0]['uri']);
+    $this->assertEquals('example://test.png', $mail['params']['attachments'][0]['uri']);
 
-    $this->assertEqual($plain_mail->getSubject(), $mail['subject']);
+    $this->assertEquals($plain_mail->getSubject(), $mail['subject']);
     $this->assertStringContainsString('the body', $mail['body']);
   }
 
@@ -140,7 +140,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     ];
     $this->drupalGet('node/add/simplenews_issue');
     $this->submitForm($edit, 'Save');
-    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEquals(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     // Add node to spool.
@@ -163,7 +163,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       $this->assertStringContainsString('*' . $mail['to'] . '*', $mail['body']);
       $this->assertStringNotContainsString('<strong>', $mail['body']);
       // Make sure the body is only attached once.
-      $this->assertEqual(1, preg_match_all('/Mail token/', $mail['body'], $matches));
+      $this->assertEquals(1, preg_match_all('/Mail token/', $mail['body'], $matches));
 
       $this->assertStringContainsString((string) t('Unsubscribe from this newsletter'), $mail['body']);
       // Make sure the mail has the correct unsubscribe hash.
@@ -171,9 +171,6 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       $this->assertStringContainsString($hash, $mail['body'], 'Correct hash is used');
       $this->assertStringContainsString($hash, $mail['headers']['List-Unsubscribe'], 'Correct hash is used in header');
     }
-
-    // Report time. @todo: Find a way to actually do some assertions here.
-    $this->pass(t('Mails have been sent in @sec seconds with build caching enabled.', ['@sec' => round($after - $before, 3)]));
   }
 
   /**
@@ -216,7 +213,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     ];
     $this->drupalGet('node/add/simplenews_issue');
     $this->submitForm($edit, 'Save');
-    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEquals(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     // Add node to spool.
@@ -231,7 +228,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     foreach (array_slice($this->getMails(), 0, 3) as $mail) {
       // Verify title.
       preg_match('|<h2>(.*)</h2>|', $mail['body'], $matches);
-      $this->assertEqual(Html::decodeEntities($matches[1]), $node->getTitle());
+      $this->assertEquals(Html::decodeEntities($matches[1]), $node->getTitle());
 
       // Verify the format/content type.
       $this->assertEqual($mail['params']['format'], 'text/html');
@@ -243,19 +240,19 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       $this->assertStringContainsString('<strong>' . $mail['to'] . '</strong>', $mail['body']);
 
       // Make sure the body is only attached once.
-      $this->assertEqual(1, preg_match_all('/Mail token/', $mail['body'], $matches));
+      $this->assertEquals(1, preg_match_all('/Mail token/', $mail['body'], $matches));
 
       // Check the plaintext version, both params][plaintext (Mime Mail) and
       // plain (Swiftmailer).
       $this->assertStringContainsString($mail['to'], $mail['params']['plaintext']);
       $this->assertStringNotContainsString('<strong>', $mail['params']['plaintext']);
-      $this->assertEqual($mail['params']['plaintext'], $mail['plain']);
+      $this->assertEquals($mail['params']['plaintext'], $mail['plain']);
       // Make sure the body is only attached once.
-      $this->assertEqual(1, preg_match_all('/Mail token/', $mail['params']['plaintext'], $matches));
+      $this->assertEquals(1, preg_match_all('/Mail token/', $mail['params']['plaintext'], $matches));
 
       // Check the attachments and files arrays.
       $this->assertTrue(is_array($mail['params']['attachments']));
-      $this->assertEqual($mail['params']['attachments'], $mail['params']['files']);
+      $this->assertEquals($mail['params']['attachments'], $mail['params']['files']);
 
       // Make sure formatted address is properly encoded.
       $mailbox = new MailboxHeader('From', new Address($edit_newsletter['from_address'], $edit_newsletter['from_name']));
@@ -295,7 +292,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     ];
     $this->drupalGet('node/add/simplenews_issue');
     $this->submitForm($edit, 'Save');
-    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEquals(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     // Add node to spool.
@@ -338,7 +335,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     ];
     $this->drupalGet('node/add/simplenews_issue');
     $this->submitForm($edit, 'Save');
-    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEquals(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     // Add node to spool.
@@ -359,11 +356,8 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       $this->assertStringContainsString('*' . $mail['to'] . '*', $mail['body']);
       $this->assertStringNotContainsString('<strong>', $mail['body']);
       // Make sure the body is only attached once.
-      $this->assertEqual(1, preg_match_all('/Mail token/', $mail['body'], $matches));
+      $this->assertEquals(1, preg_match_all('/Mail token/', $mail['body'], $matches));
     }
-
-    // Report time. @todo: Find a way to actually do some assertions here.
-    $this->pass(t('Mails have been sent in @sec seconds with caching disabled.', ['@sec' => round($after - $before, 3)]));
   }
 
   /**
@@ -379,7 +373,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     ];
     $this->drupalGet('node/add/simplenews_issue');
     $this->submitForm($edit, 'Save');
-    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEquals(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     // Add node to spool.
@@ -400,7 +394,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertCount(0, $this->getMails());
 
     $spool_row = \Drupal::database()->query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
-    $this->assertEqual(SpoolStorageInterface::STATUS_SKIPPED, $spool_row->status);
+    $this->assertEquals(SpoolStorageInterface::STATUS_SKIPPED, $spool_row->status);
   }
 
   /**
@@ -416,7 +410,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     ];
     $this->drupalGet('node/add/simplenews_issue');
     $this->submitForm($edit, 'Save');
-    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEquals(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     // Add node to spool.
@@ -432,7 +426,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->assertCount(0, $this->getMails());
 
     $spool_row = \Drupal::database()->query('SELECT * FROM {simplenews_mail_spool}')->fetchObject();
-    $this->assertEqual(SpoolStorageInterface::STATUS_SKIPPED, $spool_row->status);
+    $this->assertEquals(SpoolStorageInterface::STATUS_SKIPPED, $spool_row->status);
   }
 
   /**
@@ -454,7 +448,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       ->fields('ms', ['status'])
       ->execute()
       ->fetchAssoc();
-    $this->assertEqual(SpoolStorageInterface::STATUS_SKIPPED, $spool_row['status']);
+    $this->assertEquals(SpoolStorageInterface::STATUS_SKIPPED, $spool_row['status']);
   }
 
 }

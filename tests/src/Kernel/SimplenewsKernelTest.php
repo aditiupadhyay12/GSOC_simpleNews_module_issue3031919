@@ -16,16 +16,16 @@ class SimplenewsKernelTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['simplenews'];
+  protected static $modules = ['simplenews'];
 
   /**
    * Test mail masking function.
    */
   public function testMasking() {
-    $this->assertEqual('t*****@e*****.org', simplenews_mask_mail('test@example.org'));
-    $this->assertEqual('t*****@e*****.org', simplenews_mask_mail('t@example.org'));
-    $this->assertEqual('t*****@t*****.org', simplenews_mask_mail('t@test.example.org'));
-    $this->assertEqual('t*****@e*****', simplenews_mask_mail('t@example'));
+    $this->assertEquals('t*****@e*****.org', simplenews_mask_mail('test@example.org'));
+    $this->assertEquals('t*****@e*****.org', simplenews_mask_mail('t@example.org'));
+    $this->assertEquals('t*****@t*****.org', simplenews_mask_mail('t@test.example.org'));
+    $this->assertEquals('t*****@e*****', simplenews_mask_mail('t@example'));
 
   }
 

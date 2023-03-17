@@ -17,7 +17,7 @@ class SimplenewsMonitoringTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'node', 'system', 'views', 'user', 'field', 'text', 'simplenews', 'monitoring', 'monitoring_test',
   ];
 

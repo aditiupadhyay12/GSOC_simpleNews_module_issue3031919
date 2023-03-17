@@ -20,7 +20,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'locale', 'config_translation', 'content_translation',
   ];
 
@@ -133,7 +133,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     ];
     $this->drupalGet('node/add/simplenews_issue');
     $this->submitForm($english, 'Save');
-    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEquals(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     $this->clickLink(t('Translate'));
@@ -159,15 +159,15 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     foreach ($this->getMails() as $mail) {
 
       if ($mail['to'] == $english_mail) {
-        $this->assertEqual('en', $mail['langcode']);
-        $this->assertEqual('[' . $newsletter->label() . '] ' . $node->getTitle(), $mail['subject']);
+        $this->assertEquals('en', $mail['langcode']);
+        $this->assertEquals('[' . $newsletter->label() . '] ' . $node->getTitle(), $mail['subject']);
         $node_url = $node->toUrl('canonical', ['absolute' => TRUE])->toString();
         $title = $node->getTitle();
       }
       elseif ($mail['to'] == $spanish_mail || $mail['to'] == $spanish_mail2) {
-        $this->assertEqual('es', $mail['langcode']);
+        $this->assertEquals('es', $mail['langcode']);
         // @todo: Verify newsletter translation once supported again.
-        $this->assertEqual('[' . $newsletter->name . '] ' . $translation->label(), $mail['subject']);
+        $this->assertEquals('[' . $newsletter->name . '] ' . $translation->label(), $mail['subject']);
         $node_url = $translation->toUrl('canonical', ['absolute' => TRUE, 'language' => $translation->language()])->toString();
         $title = $translation->getTitle();
       }
@@ -186,7 +186,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     \Drupal::entityTypeManager()->getStorage('node')->resetCache([$node->id()]);
     $node = Node::load($node->id());
     $translation = $node->getTranslation($this->secondaryLanguage);
-    $this->assertEqual(3, $node->simplenews_issue->sent_count, 'subscriber count is correct');
+    $this->assertEquals(3, $node->simplenews_issue->sent_count, 'subscriber count is correct');
     $this->drupalGet('/admin/content/simplenews');
     $this->assertSession()->responseContains('<span title="Newsletter issue sent to 3 subscribers, 0 errors.">3/3</span>');
 

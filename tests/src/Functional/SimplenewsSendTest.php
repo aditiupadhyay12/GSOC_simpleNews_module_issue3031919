@@ -172,12 +172,12 @@ class SimplenewsSendTest extends SimplenewsTestBase {
         'status[value]' => $i != 2,
       ];
       $this->submitForm($edit, 'Save');
-      $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+      $this->assertEquals(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
       $nodes[] = Node::load($matches[1]);
 
       // Verify state.
       $node = current($nodes);
-      $this->assertEqual(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
+      $this->assertEquals(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
     }
   }
 
@@ -198,7 +198,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'simplenews_issue[target_id]' => 'default',
     ];
     $this->submitForm($edit, 'Save');
-    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEquals(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     $this->clickLink(t('Newsletter'));
@@ -208,7 +208,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
     $node = Node::load($node->id());
-    $this->assertEqual(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
+    $this->assertEquals(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
 
     // Send now.
     $this->submitForm([], 'Send now');
@@ -216,14 +216,14 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
     $node = Node::load($node->id());
-    $this->assertEqual(SIMPLENEWS_STATUS_SEND_PENDING, $node->simplenews_issue->status, t('Newsletter sending pending.'));
+    $this->assertEquals(SIMPLENEWS_STATUS_SEND_PENDING, $node->simplenews_issue->status, t('Newsletter sending pending.'));
 
     // Verify that no mails have been sent yet.
     $mails = $this->getMails();
     $this->assertCount(0, $mails, 'No mails were sent yet.');
 
     $spooled = \Drupal::database()->query('SELECT COUNT(*) FROM {simplenews_mail_spool} WHERE entity_id = :nid AND entity_type = :type', [':nid' => $node->id(), ':type' => 'node'])->fetchField();
-    $this->assertEqual(5, $spooled, t('5 mails have been added to the mail spool'));
+    $this->assertEquals(5, $spooled, t('5 mails have been added to the mail spool'));
 
     // Run cron for the first time.
     simplenews_cron();
@@ -231,11 +231,11 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
     $node = Node::load($node->id());
-    $this->assertEqual(SIMPLENEWS_STATUS_SEND_PENDING, $node->simplenews_issue->status, t('Newsletter sending pending.'));
-    $this->assertEqual(3, $node->simplenews_issue->sent_count, 'subscriber count is correct');
+    $this->assertEquals(SIMPLENEWS_STATUS_SEND_PENDING, $node->simplenews_issue->status, t('Newsletter sending pending.'));
+    $this->assertEquals(3, $node->simplenews_issue->sent_count, 'subscriber count is correct');
 
     $spooled = \Drupal::database()->query('SELECT COUNT(*) FROM {simplenews_mail_spool} WHERE entity_id = :nid AND entity_type = :type', [':nid' => $node->id(), ':type' => 'node'])->fetchField();
-    $this->assertEqual(2, $spooled, t('2 mails remaining in spool.'));
+    $this->assertEquals(2, $spooled, t('2 mails remaining in spool.'));
 
     // Run cron for the second time.
     simplenews_cron();
@@ -243,10 +243,10 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
     $node = Node::load($node->id());
-    $this->assertEqual(SIMPLENEWS_STATUS_SEND_READY, $node->simplenews_issue->status, t('Newsletter sending finished.'));
+    $this->assertEquals(SIMPLENEWS_STATUS_SEND_READY, $node->simplenews_issue->status, t('Newsletter sending finished.'));
 
     $spooled = \Drupal::database()->query('SELECT COUNT(*) FROM {simplenews_mail_spool} WHERE entity_id = :nid AND entity_type = :type', [':nid' => $node->id(), ':type' => 'node'])->fetchField();
-    $this->assertEqual(0, $spooled, t('No mails remaining in spool.'));
+    $this->assertEquals(0, $spooled, t('No mails remaining in spool.'));
 
     // Verify mails.
     $mails = $this->getMails();
@@ -257,7 +257,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       unset($this->subscribers[$mail['to']]);
     }
     $this->assertCount(0, $this->subscribers, 'all subscribers have been received a mail');
-    $this->assertEqual(5, $node->simplenews_issue->sent_count);
+    $this->assertEquals(5, $node->simplenews_issue->sent_count);
   }
 
   /**
@@ -281,7 +281,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Then save.
     $this->submitForm([], 'Save');
 
-    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEquals(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     $this->clickLink(t('Newsletter'));
@@ -291,7 +291,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
     $node = Node::load($node->id());
-    $this->assertEqual(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
+    $this->assertEquals(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
 
     // Send now.
     $this->submitForm([], 'Send now');
@@ -299,14 +299,14 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
     $node = Node::load($node->id());
-    $this->assertEqual(SIMPLENEWS_STATUS_SEND_PENDING, $node->simplenews_issue->status, t('Newsletter sending pending.'));
+    $this->assertEquals(SIMPLENEWS_STATUS_SEND_PENDING, $node->simplenews_issue->status, t('Newsletter sending pending.'));
 
     // Verify that no mails have been sent yet.
     $mails = $this->getMails();
     $this->assertCount(0, $mails, t('No mails were sent yet.'));
 
     $spooled = \Drupal::database()->query('SELECT COUNT(*) FROM {simplenews_mail_spool} WHERE entity_id = :nid AND entity_type = :type', [':nid' => $node->id(), ':type' => 'node'])->fetchField();
-    $this->assertEqual(5, $spooled, t('5 mails have been added to the mail spool'));
+    $this->assertEquals(5, $spooled, t('5 mails have been added to the mail spool'));
 
     // Check warning message on node edit form.
     $this->clickLink(t('Edit'));
@@ -318,10 +318,10 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
     $node = Node::load($node->id());
-    $this->assertEqual(SIMPLENEWS_STATUS_SEND_READY, $node->simplenews_issue->status, t('Newsletter sending finished.'));
+    $this->assertEquals(SIMPLENEWS_STATUS_SEND_READY, $node->simplenews_issue->status, t('Newsletter sending finished.'));
 
     $spooled = \Drupal::database()->query('SELECT COUNT(*) FROM {simplenews_mail_spool} WHERE entity_id = :nid AND entity_type = :type', [':nid' => $node->id(), ':type' => 'node'])->fetchField();
-    $this->assertEqual(0, $spooled, t('No mails remaining in spool.'));
+    $this->assertEquals(0, $spooled, t('No mails remaining in spool.'));
 
     // Verify mails.
     $mails = $this->getMails();
@@ -353,7 +353,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
       'status[value]' => FALSE,
     ];
     $this->submitForm($edit, 'Save');
-    $this->assertEqual(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
+    $this->assertEquals(1, preg_match('|node/(\d+)$|', $this->getUrl(), $matches), 'Node created');
     $node = Node::load($matches[1]);
 
     $this->clickLink(t('Newsletter'));
@@ -363,7 +363,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache();
     $node = Node::load($node->id());
-    $this->assertEqual(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
+    $this->assertEquals(SIMPLENEWS_STATUS_SEND_NOT, $node->simplenews_issue->status, t('Newsletter not sent yet.'));
 
     // Send now.
     $this->submitForm([], 'Send on publish');
@@ -371,7 +371,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache([$node->id()]);
     $node = Node::load($node->id());
-    $this->assertEqual(SIMPLENEWS_STATUS_SEND_PUBLISH, $node->simplenews_issue->status, t('Newsletter set up for sending on publish.'));
+    $this->assertEquals(SIMPLENEWS_STATUS_SEND_PUBLISH, $node->simplenews_issue->status, t('Newsletter set up for sending on publish.'));
 
     $this->clickLink(t('Edit'));
     $this->submitForm(['status[value]' => TRUE], 'Save');
@@ -383,7 +383,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Verify state.
     \Drupal::entityTypeManager()->getStorage('node')->resetCache([$node->id()]);
     $node = Node::load($node->id());
-    $this->assertEqual(SIMPLENEWS_STATUS_SEND_READY, $node->simplenews_issue->status, t('Newsletter sending finished'));
+    $this->assertEquals(SIMPLENEWS_STATUS_SEND_READY, $node->simplenews_issue->status, t('Newsletter sending finished'));
     // @todo test sent subscriber count.
     // Verify mails.
     $mails = $this->getMails();
@@ -563,7 +563,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     // Update timestamp to simulate pending lock expiration.
     \Drupal::database()->update('simplenews_mail_spool')
       ->fields([
-        'timestamp' => REQUEST_TIME - $this->config('simplenews.settings')->get('mail.spool_progress_expiration') - 1,
+        'timestamp' => \Drupal::time()->getRequestTime() - $this->config('simplenews.settings')->get('mail.spool_progress_expiration') - 1,
       ])
       ->execute();
 

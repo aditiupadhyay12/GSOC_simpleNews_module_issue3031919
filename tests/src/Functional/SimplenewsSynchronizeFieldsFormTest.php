@@ -17,7 +17,7 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
    *
    * @var array
    */
-  public static $modules = ['field', 'simplenews'];
+  protected static $modules = ['field', 'simplenews'];
 
   /**
    * User.
@@ -60,7 +60,7 @@ class SimplenewsSynchronizeFieldsFormTest extends SimplenewsTestBase {
     // Edit subscriber field and assert user field is changed accordingly.
     $this->drupalLogin($this->user);
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
-    $this->assertField('field_shared[0][value]');
+    $this->assertSession()->fieldExists('field_shared[0][value]');
     $this->assertSession()->responseContains($this->user->field_shared->value);
 
     $new_value = $this->randomMachineName();

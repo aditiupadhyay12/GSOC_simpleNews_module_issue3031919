@@ -233,11 +233,13 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
     $unconfirmed = \Drupal::entityQuery('simplenews_subscriber')
       ->condition('subscriptions.status', SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED)
       ->condition('subscriptions.timestamp', $max_age, '<')
+      ->accessCheck(FALSE)
       ->execute();
 
     // Exclude any subscribers with confirmed subscriptions.
     $confirmed = \Drupal::entityQuery('simplenews_subscriber')
       ->condition('subscriptions.status', SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED, '<>')
+      ->accessCheck(FALSE)
       ->execute();
     $delete = array_diff($unconfirmed, $confirmed);
     $this->subscriberStorage->delete($this->subscriberStorage->loadMultiple($delete));

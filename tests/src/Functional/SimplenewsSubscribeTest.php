@@ -56,8 +56,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertMailText(t('We have received a request to subscribe @user', ['@user' => $mail]));
 
     $mails = $this->getMails();
-    $this->assertEqual($mails[0]['from'], 'simpletest@example.com');
-    $this->assertEqual($mails[0]['headers']['From'], 'Drupal <simpletest@example.com>');
+    $this->assertEquals('simpletest@example.com', $mails[0]['from']);
+    $this->assertEquals('Drupal <simpletest@example.com>', $mails[0]['headers']['From']);
 
     $confirm_url = $this->extractConfirmationLink($this->getMail(0));
 
@@ -90,7 +90,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     // Go to the manage page and submit without changes.
     $subscriber = Subscriber::loadByMail($mail);
     $hash = simplenews_generate_hash($subscriber->getMail(), 'manage');
-    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
+    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . \Drupal::time()->getRequestTime() . '/' . $hash);
     $this->submitForm([], 'Update');
     $this->assertSession()->pageTextContains('Your newsletter subscriptions have been updated.');
     $this->assertCount(1, $this->getMails(), 'No confirmation mails have been sent.');
@@ -104,7 +104,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     foreach ($disable as $newsletter_id) {
       $edit['subscriptions[' . $newsletter_id . ']'] = FALSE;
     }
-    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
+    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . \Drupal::time()->getRequestTime() . '/' . $hash);
     $this->submitForm($edit, t('Update'));
 
     // Verify subscription changes.
@@ -141,7 +141,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->subscribe($enable, $mail);
 
     $subscriber = Subscriber::loadByMail($mail);
-    $expired_timestamp = REQUEST_TIME - 86401;
+    $expired_timestamp = \Drupal::time()->getRequestTime() - 86401;
     $hash = simplenews_generate_hash($subscriber->getMail(), 'combined' . serialize($subscriber->getChanges()), $expired_timestamp);
     $url = 'newsletter/confirm/combined/' . $subscriber->id() . '/' . $expired_timestamp . '/' . $hash;
     $this->drupalGet($url);
@@ -170,7 +170,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       return FALSE;
     }
     $confirm_url = $match[0];
-    $this->pass(t('Confirmation URL found: @url', ['@url' => $confirm_url]));
     return $confirm_url;
   }
 
@@ -185,7 +184,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       return FALSE;
     }
     $validate_url = $match[0];
-    $this->pass(t('Validation URL found: @url', ['@url' => $validate_url]));
     return $validate_url;
   }
 
@@ -277,7 +275,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $this->submitForm([], 'Confirm');
     $this->assertSession()->responseContains('Subscription changes confirmed for <em class="placeholder">' . $mail . '</em>.');
-    $this->assertUrl(new Url('<front>'));
+    $this->assertSession()->addressEquals(new Url('<front>'));
 
     // Test that it is possible to register with a mail address that is already
     // a subscriber.
@@ -344,7 +342,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $subscriber = Subscriber::loadByMail($mail);
 
     $hash = simplenews_generate_hash($subscriber->getMail(), 'manage');
-    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
+    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . \Drupal::time()->getRequestTime() . '/' . $hash);
     $this->assertSession()->pageTextContains('Subscriptions for ' . $mail);
 
     $edit = [
@@ -364,15 +362,15 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     // Attempt to fetch the page using a wrong hash but correct format.
     $hash = simplenews_generate_hash($subscriber->getMail() . 'a', 'manage');
-    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
-    $this->assertResponse(404);
+    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . \Drupal::time()->getRequestTime() . '/' . $hash);
+    $this->assertSession()->statusCodeEquals(404);
 
     // Test expired confirmation links.
     $mail = $this->randomEmail();
     $this->subscribe($newsletter_id, $mail);
 
     $subscriber = Subscriber::loadByMail($mail);
-    $expired_timestamp = REQUEST_TIME - 86401;
+    $expired_timestamp = \Drupal::time()->getRequestTime() - 86401;
     $hash = simplenews_generate_hash($subscriber->getMail(), 'add', $expired_timestamp);
     $url = 'newsletter/confirm/add/' . $subscriber->id() . '/' . $newsletter_id . '/' . $expired_timestamp . '/' . $hash;
     $this->drupalGet($url);
@@ -667,19 +665,19 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     // Check that the user has only access to their own subscriptions page.
     $this->drupalGet('user/' . $subscriber_user->id() . '/simplenews');
-    $this->assertResponse(403);
+    $this->assertSession()->statusCodeEquals(403);
 
     $this->drupalGet('user/' . $subscriber_user2->id() . '/simplenews');
-    $this->assertResponse(200);
+    $this->assertSession()->statusCodeEquals(200);
 
-    $this->assertNoField('mail[0][value]');
+    $this->assertSession()->fieldNotExists('mail[0][value]');
     $this->submitForm([], 'Save');
     $this->assertSession()->pageTextContains('Your newsletter subscriptions have been updated.');
 
     // Nothing should have happened to subscriptions but this does create a
     // subscriber.
     $this->drupalGet('user/' . $subscriber_user2->id() . '/simplenews');
-    $this->assertNoFieldChecked('edit-subscriptions-' . $newsletter_id);
+    $this->assertSession()->checkboxNotChecked('edit-subscriptions-' . $newsletter_id);
     $count++;
     $this->assertEqual($this->countSubscribers(), $count);
 
@@ -692,7 +690,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertEqual($this->countSubscribers(), $count);
 
     $this->drupalGet('user/' . $subscriber_user2->id() . '/simplenews');
-    $this->assertFieldChecked('edit-subscriptions-' . $newsletter_id);
+    $this->assertSession()->checkboxChecked('edit-subscriptions-' . $newsletter_id);
 
     // Unsubscribe.
     $edit = [
@@ -702,7 +700,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertSession()->pageTextContains('Your newsletter subscriptions have been updated.');
 
     $this->drupalGet('user/' . $subscriber_user2->id() . '/simplenews');
-    $this->assertNoFieldChecked('edit-subscriptions-' . $newsletter_id);
+    $this->assertSession()->checkboxNotChecked('edit-subscriptions-' . $newsletter_id);
   }
 
   /**
@@ -713,7 +711,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       'administer blocks',
     ]);
     $this->drupalLogin($admin_user);
-    $this->drupalGet('/admin/structure/block/add/simplenews_subscription_block/classy');
+    $this->drupalGet('/admin/structure/block/add/simplenews_subscription_block/starterkit_theme');
     // Check for Unique ID field.
     $this->assertSession()->pageTextContains('Unique ID');
     $edit = [
@@ -724,7 +722,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->submitForm($edit, 'Save block');
     $this->drupalGet('');
     // Provided Unique ID is used as form_id.
-    $this->assertFieldByXPath("//*[@id=\"simplenews-subscriptions-block-test-simplenews-123\"]", NULL, 'Form ID found and contains expected value.');
+    $this->assertSession()->elementExists('css', '#simplenews-subscriptions-block-test-simplenews-123');
   }
 
   /**
@@ -785,7 +783,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     // User subscriber can use a hash token.
     $hash = simplenews_generate_hash($subscriber->getMail(), 'manage');
-    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . REQUEST_TIME . '/' . $hash);
+    $this->drupalGet('newsletter/subscriptions/' . $subscriber->id() . '/' . \Drupal::time()->getRequestTime() . '/' . $hash);
     $this->assertSession()->pageTextContains("Subscriptions for $mail");
     $this->submitForm([], 'Update');
     $this->assertSession()->pageTextContains('Your newsletter subscriptions have been updated.');

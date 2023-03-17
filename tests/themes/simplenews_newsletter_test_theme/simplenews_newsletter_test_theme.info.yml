@@ -1,6 +1,6 @@
 name: 'Newsletter test theme'
 type: theme
-base theme: stable
+base theme: stable9
 description: 'Theme for testing simplenews newsletter'
 core_version_requirement: ^9.3 || ^10
 regions:

@@ -20,7 +20,7 @@ class SimplenewsSynchronizeFieldsTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['simplenews', 'user', 'field', 'system', 'language'];
+  protected static $modules = ['simplenews', 'user', 'field', 'system', 'language'];
 
   /**
    * {@inheritdoc}

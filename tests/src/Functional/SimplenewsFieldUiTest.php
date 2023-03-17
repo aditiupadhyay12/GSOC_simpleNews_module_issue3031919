@@ -14,7 +14,7 @@ class SimplenewsFieldUiTest extends SimplenewsTestBase {
    *
    * @var array
    */
-  public static $modules = ['field_ui', 'help'];
+  protected static $modules = ['field_ui', 'help'];
 
   /**
    * {@inheritdoc}

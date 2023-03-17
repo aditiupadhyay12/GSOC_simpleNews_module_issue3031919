@@ -93,9 +93,9 @@ class SubscriberExportForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     // Get sensible default values for the form elements in this form.
     $query = $this->getRequest()->query;
-    $default['states'] = $query->get('states') ?: ['active' => 'active'];
-    $default['subscribed'] = $query->get('subscribed') ?: ['subscribed' => 'subscribed'];
-    $default['newsletters'] = $query->get('newsletters') ?: [];
+    $default['states'] = $query->all()['states'] ?? ['active' => 'active'];
+    $default['subscribed'] = $query->all()['subscribed'] ?? ['subscribed' => 'subscribed'];
+    $default['newsletters'] = $query->all()['newsletters'] ?? [];
 
     $form['states'] = [
       '#type' => 'checkboxes',
@@ -141,7 +141,7 @@ class SubscriberExportForm extends FormBase {
         '#title' => $this->t('Export results'),
         '#cols' => 60,
         '#rows' => 5,
-        '#value' => $this->getEmails($query->get('states'), $query->get('subscribed'), $query->get('newsletters')),
+        '#value' => $this->getEmails($default['states'], $default['subscribed'], $default['newsletters']),
       ];
     }
 
