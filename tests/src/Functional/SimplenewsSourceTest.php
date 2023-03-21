@@ -231,9 +231,9 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       $this->assertEquals(Html::decodeEntities($matches[1]), $node->getTitle());
 
       // Verify the format/content type.
-      $this->assertEqual($mail['params']['format'], 'text/html');
-      $this->assertEqual($mail['params']['plain'], NULL);
-      $this->assertEqual($mail['headers']['Content-Type'], 'text/html; charset=UTF-8');
+      $this->assertEquals('text/html', $mail['params']['format']);
+      $this->assertEquals(NULL, $mail['params']['plain']);
+      $this->assertEquals('text/html; charset=UTF-8', $mail['headers']['Content-Type']);
 
       // Make sure that the same mail was used in the body token as it has been
       // sent to.
@@ -264,8 +264,8 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       $this->assertStringContainsString('class="newsletter-footer"', $mail['body']);
 
       // Verify receipt headers.
-      $this->assertEqual($mail['headers']['Disposition-Notification-To'], $edit_newsletter['from_address']);
-      $this->assertEqual($mail['headers']['X-Confirm-Reading-To'], $edit_newsletter['from_address']);
+      $this->assertEquals($edit_newsletter['from_address'], $mail['headers']['X-Confirm-Reading-To']);
+      $this->assertEquals($edit_newsletter['from_address'], $mail['headers']['Disposition-Notification-To']);
     }
   }
 

@@ -128,7 +128,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       $this->fail('Exception not thrown.');
     }
     catch (\Exception $e) {
-      $this->assertEqual($e->getMessage(), 'The subscriber does not exist.');
+      $this->assertEquals('The subscriber does not exist.', $e->getMessage());
     }
 
     // Test expired confirmation links.
@@ -302,8 +302,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $subscriber = Subscriber::loadByMail($mail);
     $account = user_load_by_mail($mail);
-    $this->assertEqual($subscriber->getUserId(), $account->id());
-    $this->assertEqual($account->getDisplayName(), $edit['name']);
+    $this->assertEquals($subscriber->getUserId(), $account->id());
+    $this->assertEquals($edit['name'], $account->getDisplayName());
 
     $this->drupalLogout();
 
@@ -334,7 +334,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertSession()->pageTextContains('You will receive a confirmation e-mail shortly containing further instructions on how to complete your subscription.');
 
     $subscriber = Subscriber::loadByMail($mail);
-    $this->assertNotEqual($subscriber, FALSE, 'New subscriber entity successfully loaded.');
+    $this->assertNotFalse($subscriber, 'New subscriber entity successfully loaded.');
     $subscription = $subscriber->getSubscription($newsletter_id);
     $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
 
@@ -605,14 +605,14 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $single_block = $this->setupSubscriptionBlock($block_settings);
     $subscriber_user = $this->drupalCreateUser(['subscribe to newsletters']);
     $this->drupalLogin($subscriber_user);
-    $this->assertEqual($this->countSubscribers(), 0);
+    $this->assertEquals(0, $this->countSubscribers());
 
     // 1. Subscribe authenticated via block
     // Subscribe + submit
     // Assert confirmation message.
     $this->submitForm([], 'Subscribe');
     $this->assertSession()->pageTextContains('You have been subscribed.');
-    $this->assertEqual($this->countSubscribers(), 1);
+    $this->assertEquals(1, $this->countSubscribers());
 
     // Disable the newsletter block.
     $single_block->delete();
@@ -629,7 +629,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertSession()->addressEquals($url);
     $this->submitForm($edit, 'Save');
     $this->assertSession()->responseContains('Your newsletter subscriptions have been updated.');
-    $this->assertEqual($this->countSubscribers(), 1);
+    $this->assertEquals(1, $this->countSubscribers());
 
     // 4. Unsubscribe authenticated via account page
     // Unsubscribe + submit
@@ -657,7 +657,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->submitForm($edit, 'Save');
     $this->assertSession()->responseContains('Your newsletter subscriptions have been updated.');
     $count = 1;
-    $this->assertEqual($this->countSubscribers(), $count);
+    $this->assertEquals($count, $this->countSubscribers());
 
     // Try to submit multi-signup form without selecting a newsletter.
     $subscriber_user2 = $this->drupalCreateUser(['subscribe to newsletters']);
@@ -679,7 +679,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->drupalGet('user/' . $subscriber_user2->id() . '/simplenews');
     $this->assertSession()->checkboxNotChecked('edit-subscriptions-' . $newsletter_id);
     $count++;
-    $this->assertEqual($this->countSubscribers(), $count);
+    $this->assertEquals($count, $this->countSubscribers());
 
     // Now fill out the form and try again.
     $edit = [
@@ -687,7 +687,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     ];
     $this->submitForm($edit, 'Save');
     $this->assertSession()->pageTextContains('Your newsletter subscriptions have been updated.');
-    $this->assertEqual($this->countSubscribers(), $count);
+    $this->assertEquals($count, $this->countSubscribers());
 
     $this->drupalGet('user/' . $subscriber_user2->id() . '/simplenews');
     $this->assertSession()->checkboxChecked('edit-subscriptions-' . $newsletter_id);

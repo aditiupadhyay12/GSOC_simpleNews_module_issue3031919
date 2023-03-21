@@ -251,7 +251,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     \Drupal::entityTypeManager()->getStorage('simplenews_newsletter')->resetCache();
     $updated_newsletter = Newsletter::load($edit_newsletter->newsletter_id);
-    $this->assertEqual(0, $updated_newsletter->block, t('Block for newsletter disabled'));
+    $this->assertEquals(0, $updated_newsletter->block, t('Block for newsletter disabled'));
 
     $this->drupalGet('admin/structure/block');
     $this->assertNoText($edit_newsletter->name, t('Newsletter block was removed'));
@@ -353,11 +353,11 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       $mail_addresses[] = $email;
       if ($email == $user_mail) {
         // The user to which the mail was assigned should show the user name.
-        $this->assertEqual(trim($rows[$i]->find('xpath', '/td[2]/a')->getText()), $user->getAccountName());
+        $this->assertEquals($user->getAccountName(), trim($rows[$i]->find('xpath', '/td[2]/a')->getText()));
       }
       else {
         // Blank value for user name.
-        $this->assertEqual($rows[$i]->find('xpath', '/td[2]/a'), NULL);
+        $this->assertEquals(NULL, $rows[$i]->find('xpath', '/td[2]/a'));
       }
     }
     $this->assertCount(15, $mail_addresses);
@@ -730,7 +730,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Check exact subscription statuses.
     $subscriber = Subscriber::loadByMail('drupaltest@example.com');
-    $this->assertEqual($subscriber->getSubscription($newsletter_name)->get('status')->getValue(), SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
+    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscriber->getSubscription($newsletter_name)->get('status')->getValue());
     // The second newsletter was not subscribed, so there should be no
     // subscription record at all.
     $this->assertFalse($subscriber->getSubscription($second_newsletter_name));

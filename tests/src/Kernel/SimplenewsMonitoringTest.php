@@ -34,7 +34,7 @@ class SimplenewsMonitoringTest extends KernelTestBase {
 
     // No spool items - status OK.
     $result = $this->runSensor('simplenews_pending');
-    $this->assertEqual($result->getValue(), 0);
+    $this->assertEquals(0, $result->getValue());
 
     // Crate a spool item in state pending.
     \Drupal::service('simplenews.spool_storage')->addMail([
@@ -45,7 +45,7 @@ class SimplenewsMonitoringTest extends KernelTestBase {
     ]);
 
     $result = $this->runSensor('simplenews_pending');
-    $this->assertEqual($result->getValue(), 1);
+    $this->assertEquals(1, $result->getValue());
   }
 
   /**
