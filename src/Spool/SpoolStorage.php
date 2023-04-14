@@ -267,7 +267,7 @@ class SpoolStorage implements SpoolStorageInterface {
    * {@inheritdoc}
    */
   public function deleteIssue(ContentEntityInterface $issue) {
-    if ($issue->simplenews_issue->status != SIMPLENEWS_STATUS_SEND_PENDING) {
+    if (!in_array($issue->simplenews_issue->status, [SIMPLENEWS_STATUS_SEND_PENDING, SIMPLENEWS_STATUS_SEND_PUBLISH])) {
       return;
     }
 

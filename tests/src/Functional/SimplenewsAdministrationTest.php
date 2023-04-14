@@ -1028,12 +1028,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $rows = $this->xpath('//tbody/tr');
     // Check the send status of each issue.
     foreach ($rows as $row) {
-      if ($row->find('xpath', '/td[2]/a')->getText() == 'Test_issue_2') {
-        $this->assertEquals('Newsletter issue will be sent to 3 subscribers on publish.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
-      }
-      else {
-        $this->assertEquals('Newsletter issue will be sent to 3 subscribers.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
-      }
+      $this->assertEquals('Newsletter issue will be sent to 3 subscribers.', trim($row->find('xpath', '/td[6]/span')->getAttribute('title')));
     }
 
     // Send newsletter issues using bulk operations.
