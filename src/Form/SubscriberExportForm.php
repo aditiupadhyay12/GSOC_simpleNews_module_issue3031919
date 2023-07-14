@@ -46,9 +46,19 @@ class SubscriberExportForm extends FormBase {
   }
 
   /**
-   * Implement getEmails($states, $subscribed, $newsletters)
+   * Gets matching emails to export.
+   *
+   * @param string[] $states
+   *   Filter for states.
+   * @param string[] $subscribed
+   *   Filter for subscribed.
+   * @param string[] $newsletters
+   *   Filter for newsletters.
+   *
+   * @return string
+   *   Return comma separated list of emails or empty text message.
    */
-  public function getEmails($states, $subscribed, $newsletters) {
+  protected function getEmails(array $states, array $subscribed, array $newsletters) {
     // Build conditions for active state, subscribed state and newsletter
     // selection.
     if (isset($states['active'])) {
@@ -57,14 +67,14 @@ class SubscriberExportForm extends FormBase {
     if (isset($states['inactive'])) {
       $condition_active[] = SubscriberInterface::INACTIVE;
     }
+    if (isset($states['unconfirmed'])) {
+      $condition_active[] = SubscriberInterface::UNCONFIRMED;
+    }
     if (isset($subscribed['subscribed'])) {
       $condition_subscribed[] = SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED;
     }
     if (isset($subscribed['unsubscribed'])) {
       $condition_subscribed[] = SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED;
-    }
-    if (isset($subscribed['unconfirmed'])) {
-      $condition_subscribed[] = SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED;
     }
 
     // Get emails from the database.
@@ -80,7 +90,6 @@ class SubscriberExportForm extends FormBase {
       $mails[] = $subscriber->getMail();
     }
 
-    // Return comma separated array of emails or empty text.
     if ($mails) {
       return implode(", ", $mails);
     }
@@ -103,6 +112,7 @@ class SubscriberExportForm extends FormBase {
       '#options' => [
         'active' => $this->t('Active users'),
         'inactive' => $this->t('Inactive users'),
+        'unconfirmed' => $this->t('Unconfirmed users'),
       ],
       '#default_value' => $default['states'],
       '#description' => $this->t('Subscriptions matching the selected states will be exported.'),
@@ -114,7 +124,6 @@ class SubscriberExportForm extends FormBase {
       '#title' => $this->t('Subscribed'),
       '#options' => [
         'subscribed' => $this->t('Subscribed to the newsletter'),
-        'unconfirmed' => $this->t('Unconfirmed to the newsletter'),
         'unsubscribed' => $this->t('Unsubscribed from the newsletter'),
       ],
       '#default_value' => $default['subscribed'],

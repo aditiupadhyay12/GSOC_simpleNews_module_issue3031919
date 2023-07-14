@@ -8,6 +8,7 @@
 use Drupal\node\Entity\Node;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\SubscriberInterface;
 use Drupal\user\Entity\User;
 
 /**
@@ -86,7 +87,8 @@ function simplenews_demo_install() {
   $subscription_manager->subscribe('c@example.com', $newsletters['press_releases']->id(), FALSE);
   $subscription_manager->unsubscribe('c@example.com', $newsletters['press_releases']->id(), FALSE);
   // Unconfirmed subscriber.
-  $subscription_manager->subscribe('d@example.com', $newsletters['special_offers']->id(), TRUE);
+  $subscription_manager->subscribe('d@example.com', $newsletters['special_offers']->id(), FALSE);
+  Subscriber::loadByMail('d@example.com')->setStatus(SubscriberInterface::UNCONFIRMED)->save();
 
   // Create an active demo user.
   $demo_user_active = User::create([

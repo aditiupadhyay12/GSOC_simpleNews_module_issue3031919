@@ -7,6 +7,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\node\Entity\Node;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\SubscriberInterface;
 use Drupal\views\Entity\View;
 
 /**
@@ -472,31 +473,17 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $unconfirmed[] = $this->randomEmail();
     $unconfirmed[] = $this->randomEmail();
     foreach ($unconfirmed as $mail) {
-      $subscription_manager->subscribe($mail, $first, TRUE);
+      $subscription_manager->subscribe($mail, $first, FALSE);
+      Subscriber::loadByMail($mail)->setStatus(SubscriberInterface::UNCONFIRMED)->save();
     }
 
-    // Export unconfirmed active and inactive users.
+    // Export unconfirmed users.
     $edit = [
-      'states[active]' => TRUE,
-      'states[inactive]' => TRUE,
-      'subscribed[subscribed]' => FALSE,
-      'subscribed[unconfirmed]' => TRUE,
+      'subscribed[subscribed]' => TRUE,
       'subscribed[unsubscribed]' => FALSE,
-      'newsletters[' . $first . ']' => TRUE,
-    ];
-    $this->submitForm($edit, 'Export');
-
-    $exported_mails = $this->getSession()->getPage()->findField('emails')->getValue();
-    $exported_mails = explode(', ', $exported_mails);
-    $this->assertContains($unconfirmed[0], $exported_mails);
-    $this->assertContains($unconfirmed[1], $exported_mails);
-
-    // Only export unconfirmed mail addresses.
-    $edit = [
-      'subscribed[subscribed]' => FALSE,
-      'subscribed[unconfirmed]' => TRUE,
-      'subscribed[unsubscribed]' => FALSE,
-      'newsletters[' . $first . ']' => TRUE,
+      'states[active]' => FALSE,
+      'states[inactive]' => FALSE,
+      'states[unconfirmed]' => TRUE,
     ];
     $this->submitForm($edit, 'Export');
 
@@ -627,11 +614,12 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $subscriber = Subscriber::load($matches[1]);
 
     $this->assertSession()->titleEquals('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
-    $this->assertSession()->checkboxChecked('edit-status');
+    $select = $this->assertSession()->selectExists('edit-status');
+    $this->assertEquals('Active', $select->find('css', 'option[selected=selected]')->getText());
 
     // Disable account.
     $edit = [
-      'status' => FALSE,
+      'status' => 0,
     ];
     $this->submitForm($edit, 'Save');
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
@@ -641,9 +629,10 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Re-enable account.
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
     $this->assertSession()->titleEquals('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
-    $this->assertSession()->checkboxNotChecked('edit-status');
+    $select = $this->assertSession()->selectExists('edit-status');
+    $this->assertEquals('Inactive', $select->find('css', 'option[selected=selected]')->getText());
     $edit = [
-      'status' => TRUE,
+      'status' => 1,
     ];
     $this->submitForm($edit, 'Save');
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
@@ -692,7 +681,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Editing a subscriber with subscription.
     $edit = [
       'subscriptions[' . $newsletter_name . ']' => TRUE,
-      'status' => TRUE,
+      'status' => 1,
       'mail[0][value]' => 'edit@example.com',
     ];
     $this->drupalGet('admin/people/simplenews/edit/' . $xss_subscriber->id());
@@ -795,22 +784,11 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->clickLink('Newsletter');
     $this->assertSession()->pageTextContains('Send newsletter issue to 0 subscribers.');
 
-    // Create some subscribers.
-    $subscribers = [];
+    // Create some subscribers and subscribe to the default newsletter.
     for ($i = 0; $i < 3; $i++) {
-      $subscribers[] = Subscriber::create(['mail' => $this->randomEmail()]);
-    }
-    foreach ($subscribers as $subscriber) {
-      $subscriber->setStatus(TRUE);
-    }
-
-    // Subscribe to the default newsletter and set subscriber status.
-    $subscribers[0]->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
-    $subscribers[1]->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
-    $subscribers[2]->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
-
-    foreach ($subscribers as $subscriber) {
-      $subscriber->save();
+      $subscriber = Subscriber::create(['mail' => $this->randomEmail()]);
+      $subscriber->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED)->save();
+      $subscribers[] = $subscriber;
     }
 
     // Check if the subscribers are listed in the newsletter tab.
@@ -886,37 +864,30 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     ]);
     $this->drupalLogin($admin_user);
 
-    $subscribers = [];
-    // Create some subscribers.
+    // Create some subscribers and subscribe to the default newsletter.
     for ($i = 0; $i < 3; $i++) {
-      $subscribers[] = Subscriber::create(['mail' => $this->randomEmail()]);
-    }
-    foreach ($subscribers as $subscriber) {
-      $subscriber->setStatus(TRUE);
+      $subscriber = Subscriber::create(['mail' => $this->randomEmail()]);
+      $subscriber->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED)->save();
+      $subscribers[] = $subscriber;
     }
 
-    // Subscribe to the default newsletter and set subscriber status.
-    $subscribers[0]->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
-    $subscribers[1]->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED);
-    $subscribers[2]->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED);
-
-    foreach ($subscribers as $subscriber) {
-      $subscriber->save();
-    }
+    $subscribers[1]->setStatus(SubscriberInterface::UNCONFIRMED)->save();
+    $subscribers[2]->unsubscribe('default')->save();
 
     $newsletters = simplenews_newsletter_get_all();
 
     // Filter out subscribers by their subscription status and assert the
     // output.
-    $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED]]);
+    $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, 'status' => SubscriberInterface::ACTIVE]]);
     $row = $this->xpath('//tbody/tr');
     $this->assertCount(1, $row);
     $this->assertEquals($subscribers[0]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
-    $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED]]);
+    $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, 'status' => SubscriberInterface::UNCONFIRMED]]);
     $row = $this->xpath('//tbody/tr');
     $this->assertCount(1, $row);
     $this->assertEquals($subscribers[1]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
-    $this->assertSession()->pageTextContains($newsletters['default']->name . ' (' . 'Unconfirmed' . ')');
+    $this->assertEquals('Unconfirmed', trim($row[0]->find('xpath', '/td[4]')->getText()));
+    $this->assertSession()->pageTextContains($newsletters['default']->name);
     $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED]]);
     $row = $this->xpath('//tbody/tr');
     $this->assertCount(1, $row);
@@ -1077,7 +1048,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $user = $this->drupalCreateUser();
     $subscriber = Subscriber::create(['mail' => $user->getEmail()]);
     $subscriber->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
-    $subscriber->setStatus(TRUE);
+    $subscriber->setStatus(SubscriberInterface::ACTIVE);
     $subscriber->save();
 
     // Check anonymous user can't access admin page.

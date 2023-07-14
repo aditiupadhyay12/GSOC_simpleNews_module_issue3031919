@@ -269,7 +269,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    */
   protected function getLatestSubscriber() {
     $snids = \Drupal::entityQuery('simplenews_subscriber')
-      ->sort('created', 'DESC')
+      ->sort('id', 'DESC')
       ->range(0, 1)
       ->accessCheck(FALSE)
       ->execute();

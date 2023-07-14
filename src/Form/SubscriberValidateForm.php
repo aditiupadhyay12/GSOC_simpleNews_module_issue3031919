@@ -94,7 +94,7 @@ class SubscriberValidateForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $mail = trim($form_state->getValue('mail'));
 
-    if (($subscriber = Subscriber::loadByMail($mail)) && $subscriber->getStatus()) {
+    if (($subscriber = Subscriber::loadByMail($mail)) && $subscriber->isActive()) {
       if ($userId = $subscriber->getUserId()) {
         $this->messenger()->addStatus($this->t('Please log in to manage your subscriptions.'));
         $form_state->setRedirect('simplenews.newsletter_subscriptions_user', ['user' => $userId]);

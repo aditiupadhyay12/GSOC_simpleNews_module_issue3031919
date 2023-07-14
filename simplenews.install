@@ -11,6 +11,7 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\simplenews\Entity\Newsletter;
+use Drupal\simplenews\SubscriberInterface;
 
 /**
  * Implements hook_schema().
@@ -404,4 +405,48 @@ function simplenews_update_830009() {
   // update the field storage too, see https://www.drupal.org/node/2554097.
   $manager = \Drupal::entityDefinitionUpdateManager();
   $manager->updateFieldStorageDefinition($manager->getFieldStorageDefinition('uuid', 'simplenews_subscriber'));
+}
+
+/**
+ * Update simplewnews_subscriber definition.
+ */
+function simplenews_update_840001() {
+  $definition_manager = \Drupal::entityDefinitionUpdateManager();
+
+  $changes = $definition_manager->getFieldStorageDefinition('changes', 'simplenews_subscriber');
+  $definition_manager->uninstallFieldStorageDefinition($changes);
+
+  $status = BaseFieldDefinition::create('list_tiny_integer')
+    ->setLabel(t('Status'))
+    ->setDescription(t('Status of the subscriber.'))
+    ->setDefaultValue(SubscriberInterface::ACTIVE)
+    ->setRequired(TRUE)
+    ->setSetting('allowed_values', simplenews_subscriber_status_options())
+    ->setTargetEntityTypeId('simplenews_subscriber')
+    ->setName('status')
+    ->setProvider('simplenews');
+  $definition_manager->updateFieldStorageDefinition($status);
+
+  \Drupal::configFactory()->getEditable('simplenews.settings')
+    ->clear('subscription.confirm_combined_body_unchanged')
+    ->save();
+}
+
+/**
+ * Update simplewnews_subscriber entities.
+ */
+function simplenews_update_840002() {
+  // Bypass Entity API for better performance.
+  // Delete unconfirmed subscriptions.
+  $database = \Drupal::database();
+  $database->delete('simplenews_subscriber__subscriptions')
+    ->condition('subscriptions_status', 2)
+    ->execute();
+
+  // Set all subscribers without a subscription to unconfirmed.
+  $has_subscriptions = $database->query('SELECT DISTINCT [entity_id] FROM {simplenews_subscriber__subscriptions}')->fetchCol();
+  $database->update('simplenews_subscriber')
+    ->condition('id', $has_subscriptions, 'NOT IN')
+    ->fields(['status' => SubscriberInterface::UNCONFIRMED])
+    ->execute();
 }

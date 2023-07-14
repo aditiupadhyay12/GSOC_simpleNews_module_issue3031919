@@ -59,7 +59,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Assert subscription remains unconfirmed.
     $subscriber = $this->getLatestSubscriber();
-    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED, $subscriber->subscriptions->get(0)->status);
+    $this->assertFalse($subscriber->isConfirmed());
   }
 
   /**
@@ -122,7 +122,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Assert subscriber is inactive.
     $subscriber = $this->getLatestSubscriber();
-    $this->assertFalse($subscriber->getStatus());
+    $this->assertFalse($subscriber->isActive());
   }
 
   /**

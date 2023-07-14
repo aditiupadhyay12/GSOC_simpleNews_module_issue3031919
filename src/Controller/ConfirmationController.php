@@ -76,13 +76,7 @@ class ConfirmationController extends ControllerBase {
 
     $subscriber = Subscriber::load($snid);
 
-    // Redirect and display message if no changes are available.
-    if ($subscriber && !$subscriber->getChanges()) {
-      $this->messenger()->addMessage($this->t('All changes to your subscriptions were already applied. No changes made.'));
-      return $this->redirect('<front>');
-    }
-
-    if ($subscriber && $hash == simplenews_generate_hash($subscriber->getMail(), 'combined' . serialize($subscriber->getChanges()), $timestamp)) {
+    if ($subscriber && $hash == simplenews_generate_hash($subscriber->getMail(), 'combined', $timestamp)) {
       // If the hash is valid but timestamp is too old, display form to request
       // a new hash.
       if ($timestamp < \Drupal::time()->getRequestTime() - $config->get('hash_expiration')) {
@@ -101,25 +95,12 @@ class ConfirmationController extends ControllerBase {
         return $build;
       }
       else {
-
-        // Redirect and display message if no changes are available.
-        foreach ($subscriber->getChanges() as $newsletter_id => $action) {
-          if ($action == 'subscribe') {
-            $this->subscriptionManager->subscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
-          }
-          elseif ($action == 'unsubscribe') {
-            $this->subscriptionManager->unsubscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
-          }
-        }
-
-        // Clear changes.
-        $subscriber->setChanges([]);
-        $subscriber->save();
-
+        $subscriber->setStatus(SubscriberInterface::ACTIVE)->save();
         $this->messenger()->addMessage($this->t('Subscription changes confirmed for %user.', ['%user' => $subscriber->getMail()]));
         return $this->redirect('<front>');
       }
     }
+
     throw new NotFoundHttpException();
   }
 

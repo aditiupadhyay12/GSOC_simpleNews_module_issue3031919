@@ -61,25 +61,7 @@ class ConfirmMultiForm extends ConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $subscriber = $form_state->getValue('subscriber');
-    foreach ($subscriber->getChanges() as $newsletter_id => $action) {
-
-      if ($action == 'subscribe') {
-        if (!$subscriber->isSubscribed($newsletter_id)) {
-          // Subscribe the user if not already subscribed.
-          $subscriber->subscribe($newsletter_id);
-        }
-      }
-      elseif ($action == 'unsubscribe') {
-        if ($subscriber->isSubscribed($newsletter_id)) {
-          // Subscribe the user if not already subscribed.
-          $subscriber->unsubscribe($newsletter_id);
-        }
-      }
-    }
-
-    // Clear changes.
-    $subscriber->setChanges([]);
-    $subscriber->save();
+    $subscriber->setStatus(SubscriberInterface::ACTIVE)->save();
 
     $config = $this->config('simplenews.settings');
     if ($path = $config->get('subscription.confirm_subscribe_page')) {

@@ -20,9 +20,8 @@ interface SubscriptionManagerInterface {
    *   The email address to subscribe to the newsletter.
    * @param string $newsletter_id
    *   The newsletter ID.
-   * @param bool|null $confirm
-   *   TRUE = send confirmation mail; FALSE = subscribe immediate to the
-   *   newsletter; NULL means the default is used.
+   * @param bool $deprecated
+   *   Must be set to FALSE.
    * @param string $source
    *   Indication for source of subscription. Simplenews uses these sources:
    *    website: via any website form (with or without confirmation email)
@@ -36,7 +35,7 @@ interface SubscriptionManagerInterface {
    *
    * @return $this
    */
-  public function subscribe($mail, $newsletter_id, $confirm = NULL, $source = 'unknown', $preferred_langcode = NULL);
+  public function subscribe($mail, $newsletter_id, $deprecated, $source = 'unknown', $preferred_langcode = NULL);
 
   /**
    * Unsubscribe a user from a mailing list or send a confirmation mail.
@@ -50,9 +49,8 @@ interface SubscriptionManagerInterface {
    *   The email address to unsubscribe from the mailing list.
    * @param string $newsletter_id
    *   The newsletter ID.
-   * @param bool|null $confirm
-   *   If TRUE, send a confirmation mail; if FALSE, unsubscribe immediately.
-   *   NULL means the default is used.
+   * @param bool $deprecated
+   *   Must be set to FALSE.
    * @param string $source
    *   Indicates the unsubscribe source. Simplenews uses these sources:
    *   - website: Via any website form (with or without confirmation email).
@@ -62,7 +60,7 @@ interface SubscriptionManagerInterface {
    *
    * @return $this
    */
-  public function unsubscribe($mail, $newsletter_id, $confirm = NULL, $source = 'unknown');
+  public function unsubscribe($mail, $newsletter_id, $deprecated, $source = 'unknown');
 
   /**
    * Check if the email address is subscribed to the given mailing list.
@@ -82,16 +80,13 @@ interface SubscriptionManagerInterface {
   public function isSubscribed($mail, $newsletter_id);
 
   /**
-   * Send confirmations for previous subscription and unsubscription requests.
-   *
-   * @return int
-   *   The number of confirmations that were sent.
-   */
-  public function sendConfirmations();
-
-  /**
    * Reset static caches.
    */
   public function reset();
+
+  /**
+   * Tidy unconfirmed subscriptions.
+   */
+  public function tidy();
 
 }

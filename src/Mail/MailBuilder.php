@@ -100,22 +100,7 @@ class MailBuilder implements MailBuilderInterface {
 
     $message['subject'] = $this->config->get('subscription.confirm_combined_subject');
     $message['subject'] = simplenews_token_replace_subject($message['subject'], $context);
-
-    $actual_changes = 0;
-
-    foreach ($subscriber->getChanges() as $newsletter_id => $action) {
-      // Count the actual changes.
-      $subscribed = $context['simplenews_subscriber']->isSubscribed($newsletter_id);
-      if ($action == 'subscribe' && !$subscribed || $action == 'unsubscribe' && $subscribed) {
-        $actual_changes++;
-      }
-    }
-
-    // If there are actual changes, use the combined_body key otherwise use the
-    // one without a confirmation link.
-    $body_key = $actual_changes ? 'combined_body' : 'combined_body_unchanged';
-
-    $body = $this->config->get('subscription.confirm_' . $body_key);
+    $body = $this->config->get('subscription.confirm_combined_body');
     $message['body'][] = simplenews_token_replace_body($body, $context);
   }
 

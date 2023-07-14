@@ -52,9 +52,6 @@ simplenews.settings:
         confirm_combined_body:
           type: text
           label: Combined subscribe message
-        confirm_combined_body_unchanged:
-          type: text
-          label: Combined subscribe unchanged message
         confirm_subscribe_page:
           type: string
           label: Confirmation subscribe redirect page

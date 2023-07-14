@@ -26,6 +26,7 @@ use Drupal\node\NodeTypeInterface;
 use Drupal\user\Entity\User;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\SubscriberInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -49,7 +50,6 @@ define('SIMPLENEWS_COMMAND_SEND_PUBLISH', 3);
  * NEWSLETTER SUBSCRIPTION STATUS.
  */
 define('SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED', 1);
-define('SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED', 2);
 define('SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED', 0);
 
 /**
@@ -421,7 +421,7 @@ function simplenews_user_profile_form_submit($form, FormStateInterface $form_sta
     $ids = array_filter($form_state->getValue('subscriptions'));
     if ($ids) {
       foreach (Newsletter::loadMultiple($ids) as $newsletter) {
-        $subscription_manager->subscribe($account->getEmail(), $newsletter->id(), NULL, 'website', $account->getPreferredLangcode());
+        $subscription_manager->subscribe($account->getEmail(), $newsletter->id(), FALSE, 'website', $account->getPreferredLangcode());
         \Drupal::messenger()->addMessage(t('You have been subscribed to %newsletter.', ['%newsletter' => $newsletter->name]));
       }
     }
@@ -429,7 +429,7 @@ function simplenews_user_profile_form_submit($form, FormStateInterface $form_sta
   // Process hidden (automatic) subscriptions.
   if ($form_state->getValue('simplenews_hidden')) {
     foreach (explode(',', $form_state->getValue('simplenews_hidden')) as $newsletter_id) {
-      $subscription_manager->subscribe($account->getEmail(), $newsletter_id, NULL, 'automatically', $account->getPreferredLangcode());
+      $subscription_manager->subscribe($account->getEmail(), $newsletter_id, FALSE, 'automatically', $account->getPreferredLangcode());
     }
   }
 
@@ -510,7 +510,7 @@ function simplenews_user_presave(UserInterface $account) {
  */
 function simplenews_user_delete(UserInterface $account) {
   // Delete subscription when account is removed.
-  if ($subscriber = Subscriber::loadByUid($account->id())) {
+  if ($subscriber = Subscriber::loadByUid($account->id(), FALSE, FALSE)) {
     $subscriber->delete();
   }
 }
@@ -792,13 +792,23 @@ function simplenews_access_options() {
 }
 
 /**
- * Returns the available options for the subscriber status.
+ * Returns the available options for the subscription status.
  */
-function simplenews_subscriber_status_list() {
+function simplenews_subscription_status_options() {
   return [
     SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED => t('Subscribed'),
     SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED => t('Unsubscribed'),
-    SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED => t('Unconfirmed'),
+  ];
+}
+
+/**
+ * Returns the available options for the subscriber status.
+ */
+function simplenews_subscriber_status_options() {
+  return [
+    SubscriberInterface::ACTIVE => t('Active'),
+    SubscriberInterface::INACTIVE => t('Inactive'),
+    SubscriberInterface::UNCONFIRMED => t('Unconfirmed'),
   ];
 }
 
@@ -936,6 +946,14 @@ function simplenews_mask_mail($mail) {
 function simplenews_field_formatter_info_alter(&$info) {
   $info['entity_reference_label']['field_types'][] = 'simplenews_subscription';
   $info['entity_reference_label']['field_types'][] = 'simplenews_issue';
+  $info['list_default']['field_types'][] = 'list_tiny_integer';
+}
+
+/**
+ * Implements hook_field_widget_info_alter().
+ */
+function simplenews_field_widget_info_alter(array &$info) {
+  $info['options_select']['field_types'][] = 'list_tiny_integer';
 }
 
 /**

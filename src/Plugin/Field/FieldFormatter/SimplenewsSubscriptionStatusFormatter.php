@@ -30,11 +30,6 @@ class SimplenewsSubscriptionStatusFormatter extends EntityReferenceFormatterBase
       // Do not explicitly display the status for confirmed subscriptions.
       $output = $label;
 
-      // Add status label for the unconfirmed subscriptions.
-      if ($items[$delta]->status == SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED) {
-        $output = $this->t('@label (Unconfirmed)', ['@label' => $label]);
-      }
-
       // Add status label for the unsubscribed subscriptions.
       if ($items[$delta]->status == SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED) {
         $output = $this->t('@label (Unsubscribed)', ['@label' => $label]);

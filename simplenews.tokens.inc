@@ -121,7 +121,7 @@ function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $
             break;
 
           case 'combined-url':
-            $hash = simplenews_generate_hash($subscriber->getMail(), 'combined' . serialize($subscriber->getChanges()));
+            $hash = simplenews_generate_hash($subscriber->getMail(), 'combined');
             $bubbleable_metadata->setCacheMaxAge(0);
             $route_parameters += ['hash' => $hash];
             $replacements[$original] = Url::fromRoute('simplenews.newsletter_confirm_combined', $route_parameters, $url_arguments)->toString();

@@ -83,17 +83,21 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
   public function submitExtra(array $form, FormStateInterface $form_state) {
     // We first subscribe, then unsubscribe. This prevents deletion of
     // subscriptions when unsubscribed from the newsletter.
-    /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
-    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
-    foreach ($this->extractNewsletterIds($form_state, TRUE) as $newsletter_id) {
-      $subscription_manager->subscribe($this->entity->getMail(), $newsletter_id, FALSE, 'website');
-    }
+    $subscriber = $this->entity;
 
-    if (!$this->entity->isNew()) {
-      foreach ($this->extractNewsletterIds($form_state, FALSE) as $newsletter_id) {
-        $subscription_manager->unsubscribe($this->entity->getMail(), $newsletter_id, FALSE, 'website');
+    foreach ($this->extractNewsletterIds($form_state, TRUE) as $newsletter_id) {
+      if (!$subscriber->isSubscribed($newsletter_id)) {
+        $subscriber->subscribe($newsletter_id, NULL, 'website');
       }
     }
+
+    foreach ($this->extractNewsletterIds($form_state, FALSE) as $newsletter_id) {
+      if ($subscriber->isSubscribed($newsletter_id)) {
+        $subscriber->unsubscribe($newsletter_id, 'website');
+      }
+    }
+
+    $subscriber->save();
     $this->messenger()->addMessage($this->getSubmitMessage($form_state, FALSE));
   }
 

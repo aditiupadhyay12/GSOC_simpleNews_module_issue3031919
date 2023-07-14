@@ -11,7 +11,6 @@ description: ''
 tag: ''
 base_table: simplenews_subscriber
 base_field: id
-core: 8.x
 display:
   default:
     display_plugin: default
@@ -239,7 +238,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          label: Active
+          label: Status
           exclude: false
           alter:
             alter_text: false
@@ -280,13 +279,22 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
-          type: boolean
-          type_custom_true: ''
-          type_custom_false: ''
-          not: false
+          type: list_default
           entity_type: simplenews_subscriber
           entity_field: status
-          plugin_id: boolean
+          plugin_id: field
+          click_sort_column: value
+          settings: {  }
+          group_column: value
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
         created:
           id: created
           table: simplenews_subscriber
@@ -410,6 +418,8 @@ display:
             description: ''
             use_operator: false
             operator: mail_op
+            operator_limit_selection: false
+            operator_list: {  }
             identifier: mail
             required: false
             remember: false
@@ -450,6 +460,8 @@ display:
             description: ''
             use_operator: false
             operator: subscriptions_target_id_op
+            operator_limit_selection: false
+            operator_list: {  }
             identifier: subscriptions_target_id
             required: false
             remember: false
@@ -479,16 +491,18 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          operator: '='
-          value: '1'
+          operator: in
+          value: {  }
           group: 1
           exposed: true
           expose:
             operator_id: ''
-            label: Active
+            label: Status
             description: ''
             use_operator: false
             operator: status_op
+            operator_limit_selection: false
+            operator_list: {  }
             identifier: status
             required: false
             remember: false
@@ -511,7 +525,7 @@ display:
             group_items: {  }
           entity_type: simplenews_subscriber
           entity_field: status
-          plugin_id: boolean
+          plugin_id: in_operator
         subscriptions_status:
           id: subscriptions_status
           table: simplenews_subscriber__subscriptions
@@ -526,10 +540,12 @@ display:
           exposed: true
           expose:
             operator_id: subscriptions_status_op
-            label: Status
+            label: Subscribed
             description: ''
             use_operator: false
             operator: subscriptions_status_op
+            operator_limit_selection: false
+            operator_list: {  }
             identifier: subscriptions_status
             required: false
             remember: false
@@ -574,12 +590,14 @@ display:
       arguments: {  }
       display_extenders: {  }
     cache_metadata:
+      max-age: -1
       contexts:
         - 'languages:language_content'
         - 'languages:language_interface'
         - url
         - url.query_args
         - user.permissions
+      tags: {  }
       cacheable: false
   page_1:
     display_plugin: page
@@ -590,10 +608,12 @@ display:
       display_extenders: {  }
       path: admin/people/simplenews
     cache_metadata:
+      max-age: -1
       contexts:
         - 'languages:language_content'
         - 'languages:language_interface'
         - url
         - url.query_args
         - user.permissions
+      tags: {  }
       cacheable: false

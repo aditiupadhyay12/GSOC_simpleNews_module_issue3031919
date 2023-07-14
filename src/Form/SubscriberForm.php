@@ -29,19 +29,6 @@ class SubscriberForm extends SubscriptionsFormBase {
       $form['#title'] = $this->t('Edit subscriber @mail', ['@mail' => $mail]);
     }
 
-    $form['activated'] = [
-      '#title' => $this->t('Status'),
-      '#type' => 'fieldset',
-      '#description' => $this->t('Whether the subscription is active or blocked.'),
-      '#weight' => 15,
-    ];
-    $form['activated']['status'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Active'),
-      '#default_value' => $subscriber->getStatus(),
-      '#disabled' => !$subscriber->get('status')->access('edit'),
-    ];
-
     $language_manager = \Drupal::languageManager();
     if ($language_manager->isMultilingual()) {
       $languages = $language_manager->getLanguages();
