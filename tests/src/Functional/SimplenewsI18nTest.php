@@ -166,7 +166,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       }
       elseif ($mail['to'] == $spanish_mail || $mail['to'] == $spanish_mail2) {
         $this->assertEquals('es', $mail['langcode']);
-        // @todo: Verify newsletter translation once supported again.
+        // @todo Verify newsletter translation once supported again.
         $this->assertEquals('[' . $newsletter->name . '] ' . $translation->label(), $mail['subject']);
         $node_url = $translation->toUrl('canonical', ['absolute' => TRUE, 'language' => $translation->language()])->toString();
         $title = $translation->getTitle();

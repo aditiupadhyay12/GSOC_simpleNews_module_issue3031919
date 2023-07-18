@@ -85,7 +85,7 @@ function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $
       }
       /** @var \Drupal\simplenews\Entity\Subscriber $subscriber */
       $subscriber = $data['simplenews_subscriber'];
-      $newsletter = isset($data['newsletter']) ? $data['newsletter'] : NULL;
+      $newsletter = $data['newsletter'] ?? NULL;
       $language = $subscriber->getLangcode();
 
       $url_arguments = ['absolute' => TRUE, 'langcode' => $language];

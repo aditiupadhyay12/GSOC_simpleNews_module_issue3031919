@@ -100,7 +100,7 @@ class IssueWidget extends OptionsSelectWidget implements ContainerFactoryPluginI
     // otherwise fall back to the defaults.
     $button = $form_state->getTriggeringElement();
     $values = $button ? $form_state->getValue($button['#array_parents'][0]) : NULL;
-    list($handler, $options) = $this->spoolStorage->getRecipientHandler($items->getEntity(), $values, TRUE);
+    [$handler, $options] = $this->spoolStorage->getRecipientHandler($items->getEntity(), $values, TRUE);
     $element['handler'] = [
       '#prefix' => '<div id="recipient-handler">',
       '#suffix' => '</div>',

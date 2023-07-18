@@ -913,7 +913,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $user_e = user_load_by_mail($mail_e);
     $sub_user_e = Subscriber::loadByUid($user_e->id(), FALSE, FALSE);
     // @todo Uncomment as part of https://www.drupal.org/project/simplenews/issues/3035367
-    //$this->assertFalse($sub_user_e->isConfirmed());
+    // $this->assertFalse($sub_user_e->isConfirmed());
     $sub_e = Subscriber::loadByMail($mail_e);
     $this->assertTrue($sub_e->isConfirmed());
   }

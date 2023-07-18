@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\simplenews\Functional;
 
-use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Html;
 use Drupal\node\Entity\Node;
 use Drupal\simplenews\Entity\Subscriber;
@@ -196,7 +195,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       'format' => 'html',
       // Use umlaut to provoke mime encoding.
       'from_name' => 'Drupäl',
-      // @todo: This shouldn't be necessary, default value is missing. Probably
+      // @todo This shouldn't be necessary, default value is missing. Probably
       // should not be required.
       'from_address' => $this->randomEmail(),
       // Request a confirmation receipt.
@@ -259,7 +258,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       $from = $mailbox->getBodyAsString();
       $this->assertEquals($from, $mail['reply-to']);
 
-      // @todo: Improve this check, there are currently two spaces, not sure
+      // @todo Improve this check, there are currently two spaces, not sure
       // where they are coming from.
       $this->assertStringContainsString('class="newsletter-footer"', $mail['body']);
 
@@ -280,7 +279,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     $this->clickLink(t('Edit'));
     $edit = [
       'access' => 'hidden',
-      // @todo: This shouldn't be necessary.
+      // @todo This shouldn't be necessary.
       'from_address' => $this->randomEmail(),
     ];
     $this->submitForm($edit, 'Save');

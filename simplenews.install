@@ -305,7 +305,7 @@ function simplenews_update_830003() {
   $config->save();
 
   $newsletter_types = \Drupal::service('entity_type.manager')->getStorage('simplenews_newsletter')->loadMultiple();
-  foreach($newsletter_types as $type) {
+  foreach ($newsletter_types as $type) {
     $type->set('access', $type->get('opt_inout') != 'hidden' ? 'default' : 'hidden');
     $type->set('opt_inout', NULL);
     $type->save();

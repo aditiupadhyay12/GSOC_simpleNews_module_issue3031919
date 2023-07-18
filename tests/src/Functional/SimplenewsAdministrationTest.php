@@ -109,7 +109,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
         $off_default_newsletter_id = $newsletter->id();
       }
 
-      list($new_account_setting, $access_setting) = explode('-', $newsletter->name);
+      [$new_account_setting, $access_setting] = explode('-', $newsletter->name);
       if ($newsletter->new_account == 'on' && $newsletter->access != 'hidden') {
         $this->assertSession()->checkboxChecked($this->getNewsletterFieldId($newsletter->id()));
       }
@@ -162,7 +162,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       if (strpos($newsletter->name, '-') === FALSE) {
         continue;
       }
-      list($new_account_setting, $access_setting) = explode('-', $newsletter->name);
+      [$new_account_setting, $access_setting] = explode('-', $newsletter->name);
       if ($newsletter->access == 'hidden') {
         $this->assertSession()->fieldNotExists('subscriptions[' . $newsletter->id() . ']');
       }
@@ -834,9 +834,9 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $node->delete();
     $node2->delete();
 
-    // @todo: Test node update/delete.
+    // @todo Test node update/delete.
     // Delete content type.
-    // @todo: Add assertions.
+    // @todo Add assertions.
     $this->drupalGet('admin/structure/types/manage/' . $type . '/delete');
     $this->submitForm([], 'Delete');
 

@@ -64,7 +64,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * The generated addresses are stored in a class variable. Each generated
    * adress is checked against this store to prevent duplicates.
    *
-   * @todo: Make this function redundant by modification of Simplenews.
+   * @todo Make this function redundant by modification of Simplenews.
    * Email addresses are case sensitive, simplenews system should handle with
    * this correctly.
    */
@@ -132,7 +132,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     $this->clickLink(t('Mass subscribe'));
     $edit = [
       'emails' => implode(',', $this->subscribers),
-      // @todo: Don't hardcode the default newsletter_id.
+      // @todo Don't hardcode the default newsletter_id.
       'newsletters[' . $newsletter_id . ']' => TRUE,
     ];
     $this->submitForm($edit, 'Subscribe');

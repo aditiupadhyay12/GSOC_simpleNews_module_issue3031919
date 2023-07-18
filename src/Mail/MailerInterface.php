@@ -41,7 +41,7 @@ interface MailerInterface {
    * @return int
    *   Returns the amount of sent mails.
    *
-   * @todo: Redesign API to allow language counter in multilingual sends.
+   * @todo Redesign API to allow language counter in multilingual sends.
    */
   public function sendSpool($limit = SpoolStorageInterface::UNLIMITED, array $conditions = []);
 
