@@ -37,6 +37,7 @@ use Drupal\user\UserInterface;
  *   entity_keys = {
  *     "id" = "id",
  *     "uuid" = "uuid",
+ *     "langcode" = "langcode",
  *     "label" = "mail"
  *   },
  *   field_ui_base_route = "simplenews.settings_subscriber",
@@ -398,16 +399,8 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
-    $fields['id'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Subscriber ID'))
-      ->setDescription(t('Primary key: Unique subscriber ID.'))
-      ->setReadOnly(TRUE)
-      ->setSetting('unsigned', TRUE);
-
-    $fields['uuid'] = BaseFieldDefinition::create('uuid')
-      ->setLabel(t('UUID'))
-      ->setDescription(t('The subscriber UUID.'))
-      ->setReadOnly(TRUE);
+    // Fields id, uuid, langcode are set by the parent.
+    $fields = parent::baseFieldDefinitions($entity_type);
 
     $fields['status'] = BaseFieldDefinition::create('list_tiny_integer')
       ->setLabel(t('Status'))
@@ -439,13 +432,10 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default');
 
-    $fields['langcode'] = BaseFieldDefinition::create('language')
-      ->setLabel(t('Language'))
-      ->setDescription(t("The subscriber's preferred language."));
-
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
-      ->setDescription(t('The time that the subscriber was created.'));
+      ->setDescription(t('The time that the subscriber was created.'))
+      ->setDisplayConfigurable('form', TRUE);
 
     $fields['subscriptions'] = BaseFieldDefinition::create('simplenews_subscription')
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)

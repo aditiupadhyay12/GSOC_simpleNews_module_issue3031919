@@ -48,8 +48,10 @@ class SubscriberAccessControlHandler extends EntityAccessControlHandler {
    * {@inheritdoc}
    */
   protected function checkFieldAccess($operation, FieldDefinitionInterface $field_definition, AccountInterface $account, FieldItemListInterface $items = NULL) {
+    $field = $field_definition->getName();
+
     // Protect access to viewing the mail field.
-    if (($field_definition->getName() == 'mail') && ($operation == 'view')) {
+    if (($field == 'mail') && ($operation == 'view')) {
       // Allow based on permissions.
       if ($account->hasPermission('administer simplenews subscriptions') || $account->hasPermission('view simplenews subscriptions')) {
         return AccessResult::allowed()->cachePerPermissions();
@@ -65,23 +67,27 @@ class SubscriberAccessControlHandler extends EntityAccessControlHandler {
     }
 
     if ($operation == 'edit') {
-      switch ($field_definition->getName()) {
+      switch ($field) {
         case 'uid':
           // No edit access even for admins.
           return AccessResult::forbidden();
 
-        case 'status':
-        case 'created':
-          // Only admin can edit.
-          return AccessResult::allowedIfHasPermission($account, 'administer simplenews subscriptions');
-
         case 'mail':
         case 'langcode':
+        case 'status':
           // No edit access if 'uid' is set.
           if ($items && ($entity = $items->getEntity()) && $entity->getUserId()) {
             return AccessResult::forbidden();
           }
           break;
+      }
+
+      // Start a new switch to allow reuse of cases.
+      switch ($field) {
+        case 'created':
+        case 'status':
+          // Only admin can edit.
+          return AccessResult::allowedIfHasPermission($account, 'administer simplenews subscriptions');
       }
     }
 
