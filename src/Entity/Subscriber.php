@@ -37,7 +37,6 @@ use Drupal\user\UserInterface;
  *   entity_keys = {
  *     "id" = "id",
  *     "uuid" = "uuid",
- *     "langcode" = "langcode",
  *     "label" = "mail"
  *   },
  *   field_ui_base_route = "simplenews.settings_subscriber",
@@ -431,6 +430,14 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
       ->addConstraint('UniqueField', [])
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default');
+
+    $fields['langcode'] = BaseFieldDefinition::create('language')
+      ->setLabel(t('Language'))
+      ->setDescription(t("The subscriber's preferred language."))
+      ->setDisplayOptions('form', [
+        'type' => 'language_select',
+        'weight' => 2,
+      ]);
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
