@@ -900,22 +900,43 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     // - Create anon subscriber with email E.
     // - Register user with email E and subscribe new account.
-    // - Subscription should be unconfirmed.
+    // - Subscription for user should be unconfirmed.
+    // - Log-in.
+    // - Subscription for user should be confirmed and combined with the first.
+    $sub_mgr = \Drupal::service('simplenews.subscription_manager');
+    $this->drupalLogout();
+    $mail_e = $this->randomEmail();
+    $this->subscribe('d', $mail_e);
+    $sub_e = Subscriber::loadByMail($mail_e);
+    $this->assertTrue($sub_e->isConfirmed());
+    $this->assertEquals(['d'], $sub_e->getSubscribedNewsletterIds());
+    $this->assertEquals(3, $this->countSubscribers());
+    $this->assertTrue($sub_mgr->isSubscribed($mail_e, 'd'));
+
     $this->config('simplenews.settings')
       ->set('subscription.skip_verification', FALSE)
       ->save();
-    $this->drupalLogout();
-    $mail_e = $this->randomEmail();
-    $this->subscribe('e', $mail_e);
     $this->drupalGet('user/register');
     $this->submitForm(['mail' => $mail_e, 'name' => 'e'], 'Create new account');
     $this->assertSession()->pageTextContains('You have been subscribed to news_e');
     $user_e = user_load_by_mail($mail_e);
     $sub_user_e = Subscriber::loadByUid($user_e->id(), FALSE, FALSE);
-    // @todo Uncomment as part of https://www.drupal.org/project/simplenews/issues/3035367
-    // $this->assertFalse($sub_user_e->isConfirmed());
-    $sub_e = Subscriber::loadByMail($mail_e);
-    $this->assertTrue($sub_e->isConfirmed());
+    $this->assertFalse($sub_user_e->isConfirmed());
+    $this->assertFalse($sub_mgr->isSubscribed($mail_e, 'e'));
+    $this->assertEquals(['e'], $sub_user_e->getSubscribedNewsletterIds());
+    $this->assertEquals(4, $this->countSubscribers());
+
+    $resetUrl = user_pass_reset_url($user_e);
+    $this->drupalGet($resetUrl);
+    $this->submitForm([], 'Log in');
+    \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
+    $sub_mgr->reset();
+    $sub_user_e = Subscriber::loadByUid($user_e->id());
+    $this->assertTrue($sub_user_e->isConfirmed());
+    $this->assertEquals(3, $this->countSubscribers());
+    $this->assertTrue($sub_mgr->isSubscribed($mail_e, 'd'));
+    $this->assertTrue($sub_mgr->isSubscribed($mail_e, 'e'));
+    $this->assertEquals(['d', 'e'], $sub_user_e->getSubscribedNewsletterIds());
   }
 
   /**

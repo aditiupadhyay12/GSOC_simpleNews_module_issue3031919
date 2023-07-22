@@ -52,12 +52,16 @@ interface SubscriberInterface extends ContentEntityInterface {
   /**
    * Sets the status of the subscriber.
    *
+   * Warning: This function may return a different subscriber. Activating an
+   * unconfirmed subscriber can cause it to be merged into another subscriber
+   * and deleted.
+   *
    * @param int $status
    *   The subscriber's status: INACTIVE, ACTIVE or UNCONFIRMED.
    *
    * @return $this
    */
-  public function setStatus($status);
+  public function setStatus(int $status);
 
   /**
    * Returns the subscribers email address.

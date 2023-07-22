@@ -1048,8 +1048,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $user = $this->drupalCreateUser();
     $subscriber = Subscriber::create(['mail' => $user->getEmail()]);
     $subscriber->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
-    $subscriber->setStatus(SubscriberInterface::ACTIVE);
-    $subscriber->save();
+    $subscriber->setStatus(SubscriberInterface::ACTIVE)->save();
 
     // Check anonymous user can't access admin page.
     $this->drupalLogout();

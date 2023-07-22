@@ -51,6 +51,18 @@ use Drupal\user\UserInterface;
 class Subscriber extends ContentEntityBase implements SubscriberInterface {
 
   /**
+   * Subscriber created during user registration.
+   *
+   * Written in simplenews_user_profile_form_submit() and read in
+   * simplenews_user_insert(). Unfortunately we have to use a static variable
+   * because there is way to link the user and subscriber: the user doesn't yet
+   * have an id, nor any field to link to a subscriber.
+   *
+   * @var \Drupal\simplenews\Entity\Subscriber;
+   */
+  public static $userRegSubscriber;
+
+  /**
    * Whether currently copying field values to corresponding User.
    *
    * @var bool
@@ -95,7 +107,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function setStatus($status) {
+  public function setStatus(int $status) {
     if (!in_array($status, [self::INACTIVE, self::ACTIVE, self::UNCONFIRMED])) {
       throw new \LogicException('Status must be INACTIVE, ACTIVE, or UNCONFIRMED');
     }
@@ -116,11 +128,10 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
       }
       $existing->save();
       $this->delete();
-    }
-    else {
-      $this->set('status', $status);
+      return $existing;
     }
 
+    $this->set('status', $status);
     return $this;
   }
 

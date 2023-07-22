@@ -95,8 +95,8 @@ class ConfirmationController extends ControllerBase {
         return $build;
       }
       else {
-        $subscriber->setStatus(SubscriberInterface::ACTIVE)->save();
         $this->messenger()->addMessage($this->t('Subscription changes confirmed for %user.', ['%user' => $subscriber->getMail()]));
+        $subscriber->setStatus(SubscriberInterface::ACTIVE)->save();
         return $this->redirect('<front>');
       }
     }

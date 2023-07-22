@@ -61,7 +61,6 @@ class ConfirmMultiForm extends ConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $subscriber = $form_state->getValue('subscriber');
-    $subscriber->setStatus(SubscriberInterface::ACTIVE)->save();
 
     $config = $this->config('simplenews.settings');
     if ($path = $config->get('subscription.confirm_subscribe_page')) {
@@ -71,6 +70,8 @@ class ConfirmMultiForm extends ConfirmFormBase {
       $this->messenger()->addMessage($this->t('Subscription changes confirmed for %user.', ['%user' => $subscriber->getMail()]));
       $form_state->setRedirect('<front>');
     }
+
+    $subscriber->setStatus(SubscriberInterface::ACTIVE)->save();
   }
 
 }
