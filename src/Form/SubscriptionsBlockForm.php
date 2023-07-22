@@ -2,6 +2,7 @@
 
 namespace Drupal\simplenews\Form;
 
+use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\simplenews\Entity\Subscriber;
@@ -169,6 +170,7 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
     if (!$this->newsletterIds && !$this->defaultNewsletterIds) {
       $actions['submit']['#attributes']['disabled'] = TRUE;
     }
+    $actions['submit']['#submit'][] = '::submitExtra';
 
     if ($this->showManage) {
       $user = \Drupal::currentUser();
@@ -215,7 +217,7 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitExtra(array $form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $subscriber = $this->entity;
 
     // Subscribe the selected newsletters and any defaults that are hidden.
@@ -227,9 +229,21 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
       }
     }
 
+    ContentEntityForm::submitForm($form, $form_state);
+  }
+
+  /**
+   * Extra submit callback.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state object.
+   * {@inheritdoc}
+   */
+  public function submitExtra(array $form, FormStateInterface $form_state) {
     // Send confirmations if needed.
-    $subscriber->save();
-    $sent = $subscriber->sendConfirmation();
+    $sent = $this->entity->sendConfirmation();
     $this->messenger()->addMessage($this->getSubmitMessage($form_state, $sent));
   }
 

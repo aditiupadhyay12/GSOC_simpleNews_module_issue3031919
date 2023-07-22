@@ -71,15 +71,22 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     $uid = $this->registerUser($email, ['field_shared[0][value]' => $this->randomString(10)]);
     $user = User::load($uid);
 
-    // Subscribe anonymous with verification disabled.
-    $this->config('simplenews.settings')
-      ->set('subscription.skip_verification', TRUE)
-      ->save();
+    // Subscribe anonymous, not yet confirmed.
     $new_value = $this->randomString(20);
     $this->subscribe('default', $email, ['field_shared[0][value]' => $new_value]);
 
-    // Assert fields are updated.
+    // Assert fields are not updated.
     $this->resetPassLogin($user);
+    $this->drupalGet("user/$uid");
+    $this->assertSession()->pageTextNotContains($new_value);
+
+    // Confirm.
+    $mails = $this->getMails();
+    $confirm_url = $this->extractConfirmationLink($this->getMail());
+    $this->drupalGet($confirm_url);
+    $this->submitForm([], 'Confirm');
+
+    // Assert fields are updated.
     $this->drupalGet("user/$uid");
     $this->assertSession()->pageTextContains($new_value);
   }

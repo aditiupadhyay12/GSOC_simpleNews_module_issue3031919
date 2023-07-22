@@ -49,9 +49,6 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
    */
   protected function actions(array $form, FormStateInterface $form_state) {
     $actions = parent::actions($form, $form_state);
-
-    $actions['submit']['#submit'][] = '::submitExtra';
-
     if (!$this->allowDelete) {
       unset($actions['delete']);
     }
@@ -73,14 +70,9 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
   }
 
   /**
-   * Submit callback that (un)subscribes to newsletters based on selection.
-   *
-   * @param array $form
-   *   The form structure.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state object.
+   * {@inheritdoc}
    */
-  public function submitExtra(array $form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     // We first subscribe, then unsubscribe. This prevents deletion of
     // subscriptions when unsubscribed from the newsletter.
     $subscriber = $this->entity;
@@ -97,7 +89,7 @@ abstract class SubscriptionsFormBase extends ContentEntityForm {
       }
     }
 
-    $subscriber->save();
+    parent::submitForm($form, $form_state);
     $this->messenger()->addMessage($this->getSubmitMessage($form_state, FALSE));
   }
 

@@ -161,20 +161,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
   }
 
   /**
-   * Extract a confirmation link from a mail body.
-   */
-  protected function extractConfirmationLink($body) {
-    $pattern = '@newsletter/confirm/.+/.+/.+/.{20,}@';
-    $found = preg_match($pattern, $body, $match);
-    if (!$found) {
-      $this->fail(t('No confirmation URL found in "@body".', ['@body' => $body]));
-      return FALSE;
-    }
-    $confirm_url = $match[0];
-    return $confirm_url;
-  }
-
-  /**
    * Extract a validation link from a mail body.
    */
   protected function extractValidationLink($body) {

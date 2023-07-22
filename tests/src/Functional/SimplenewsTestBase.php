@@ -310,4 +310,18 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     $this->assertEquals($pos !== FALSE, $exist, "$needle found in mail");
   }
 
+  /**
+   * Extract a confirmation link from a mail body.
+   */
+  protected function extractConfirmationLink($body) {
+    $pattern = '@newsletter/confirm/.+/.+/.+/.{20,}@';
+    $found = preg_match($pattern, $body, $match);
+    if (!$found) {
+      $this->fail(t('No confirmation URL found in "@body".', ['@body' => $body]));
+      return FALSE;
+    }
+    $confirm_url = $match[0];
+    return $confirm_url;
+  }
+
 }
