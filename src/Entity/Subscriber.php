@@ -20,6 +20,7 @@ use Drupal\user\UserInterface;
  *   label = @Translation("Simplenews subscriber"),
  *   handlers = {
  *     "storage" = "Drupal\simplenews\Subscription\SubscriptionStorage",
+ *     "storage_schema" = "Drupal\simplenews\Subscription\SubscriptionStorageSchema",
  *     "access" = "Drupal\simplenews\SubscriberAccessControlHandler",
  *     "form" = {
  *       "add" = "Drupal\simplenews\Form\SubscriberForm",

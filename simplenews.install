@@ -12,6 +12,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\SubscriberInterface;
+use Drupal\simplenews\Subscription\SubscriptionStorageSchema;
 
 /**
  * Implements hook_schema().
@@ -408,7 +409,7 @@ function simplenews_update_830009() {
 }
 
 /**
- * Update simplewnews_subscriber definition.
+ * Update simplenews_subscriber definition.
  */
 function simplenews_update_840001() {
   $definition_manager = \Drupal::entityDefinitionUpdateManager();
@@ -433,7 +434,7 @@ function simplenews_update_840001() {
 }
 
 /**
- * Update simplewnews_subscriber entities.
+ * Update simplenews_subscriber entities.
  */
 function simplenews_update_840002() {
   // Bypass Entity API for better performance.
@@ -449,4 +450,17 @@ function simplenews_update_840002() {
     ->condition('id', $has_subscriptions, 'NOT IN')
     ->fields(['status' => SubscriberInterface::UNCONFIRMED])
     ->execute();
+}
+
+/**
+ * Add new indexes for simplenews_subscriber.
+ */
+function simplenews_update_840003() {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+
+  // Set the storage schema.
+  $entity_type = $entity_type_manager->getDefinition('simplenews_subscriber')
+    ->setHandlerClass('storage_schema', SubscriptionStorageSchema::class);
+  $definition_update_manager->updateEntityType($entity_type);
 }
