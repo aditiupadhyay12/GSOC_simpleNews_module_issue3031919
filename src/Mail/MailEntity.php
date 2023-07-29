@@ -60,6 +60,13 @@ class MailEntity implements MailInterface {
   protected $cache;
 
   /**
+   * User ID used for account switcher.
+   *
+   * @var int
+   */
+  protected $uid;
+
+  /**
    * Constructs a MailEntity object.
    */
   public function __construct(ContentEntityInterface $issue, SubscriberInterface $subscriber, MailCacheInterface $mail_cache) {

@@ -39,6 +39,13 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
   protected $config;
 
   /**
+   * Array of email addresses of test subscribers.
+   *
+   * @var string[]
+   */
+  protected $subscribers;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
@@ -62,7 +69,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * Generates a random email address.
    *
    * The generated addresses are stored in a class variable. Each generated
-   * adress is checked against this store to prevent duplicates.
+   * address is checked against this store to prevent duplicates.
    *
    * @todo Make this function redundant by modification of Simplenews.
    * Email addresses are case sensitive, simplenews system should handle with
