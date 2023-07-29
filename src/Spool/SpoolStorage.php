@@ -4,7 +4,6 @@ namespace Drupal\simplenews\Spool;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Database\Query\Condition;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
@@ -97,11 +96,11 @@ class SpoolStorage implements SpoolStorageInterface {
     // Special case for the status condition, the in progress actually only
     // includes spool items whose locking time has expired. So this needs to
     // build an OR condition for them.
-    $status_or = new Condition('OR');
+    $status_or = $this->connection->condition('OR');
     $statuses = is_array($conditions['status']) ? $conditions['status'] : [$conditions['status']];
     foreach ($statuses as $status) {
       if ($status == SpoolStorageInterface::STATUS_IN_PROGRESS) {
-        $status_or->condition((new Condition('AND'))
+        $status_or->condition($this->connection->condition('AND')
           ->condition('status', $status)
           ->condition('s.timestamp', $this->getExpirationTime(), '<')
         );
@@ -183,7 +182,7 @@ class SpoolStorage implements SpoolStorageInterface {
         if (!is_array($value)) {
           $value = [$value];
         }
-        $status_or = new Condition('OR');
+        $status_or = $this->connection->condition('OR');
         foreach ($value as $status) {
           $status_or->condition('status', $status);
         }
