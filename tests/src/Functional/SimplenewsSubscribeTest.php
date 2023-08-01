@@ -322,8 +322,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $subscriber = Subscriber::loadByMail($mail);
     $this->assertNotFalse($subscriber, 'New subscriber entity successfully loaded.');
-    $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
+    $this->assertTrue($subscriber->isSubscribed($newsletter_id));
 
     // Visit the newsletter/subscriptions page with the hash.
     $subscriber = Subscriber::loadByMail($mail);
@@ -344,8 +343,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $subscriber = Subscriber::loadByMail($mail);
 
     $this->assertTrue($subscriber->isSubscribed($newsletter_id));
-    $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
 
     // Attempt to fetch the page using a wrong hash but correct format.
     $hash = simplenews_generate_hash($subscriber->getMail() . 'a', 'manage');
@@ -379,8 +376,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $subscriber = Subscriber::loadByMail($mail);
 
     $this->assertTrue($subscriber->isSubscribed($newsletter_id));
-    $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
   }
 
   /**
@@ -449,9 +444,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $subscriber = $this->getLatestSubscriber();
     $this->assertEquals($mail, $subscriber->getMail());
-    $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
-
+    $this->assertTrue($subscriber->isSubscribed($newsletter_id));
   }
 
   /**
@@ -631,8 +624,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertSession()->responseContains('Your newsletter subscriptions have been updated.');
 
     $subscriber = Subscriber::loadByMail($subscriber_user->getEmail());
-    $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED, $subscription->status, t('Subscription is unsubscribed'));
+    $this->assertTrue($subscriber->isUnsubscribed($newsletter_id), t('Subscriber is unsubscribed'));
 
     // 5. Subscribe authenticated via account page
     // Subscribe + submit
@@ -733,8 +725,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertSession()->pageTextContains('Subscriber ' . $mail . ' has been added.');
 
     $subscriber = Subscriber::loadByMail($mail);
-    $subscription = $subscriber->getSubscription($newsletter_id);
-    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscription->status);
+    $this->assertTrue($subscriber->isSubscribed($newsletter_id));
 
     // Check that an unsubscribe link works without any permissions.
     $this->drupalLogout();

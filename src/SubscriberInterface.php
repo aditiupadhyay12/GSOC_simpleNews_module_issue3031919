@@ -159,7 +159,7 @@ interface SubscriberInterface extends ContentEntityInterface {
   public function isUnsubscribed($newsletter_id);
 
   /**
-   * Returns the subscription to a given newsletter..
+   * Returns the subscription to a given newsletter.
    *
    * @param string $newsletter_id
    *   The ID of a newsletter.

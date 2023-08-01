@@ -160,20 +160,19 @@ class ConfirmationController extends ControllerBase {
       // passed on to the confirmation page.
       if (!$immediate) {
         if ($action == 'remove') {
-          $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmRemovalForm', $subscriber->getMail(), $newsletter);
+          $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmRemovalForm', $subscriber, $newsletter);
           $build['#attached']['html_head'][] = $html_head;
           return $build;
         }
         elseif ($action == 'add') {
-          $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmAddForm', $subscriber->getMail(), $newsletter);
+          $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmAddForm', $subscriber, $newsletter);
           $build['#attached']['html_head'][] = $html_head;
           return $build;
         }
       }
       else {
-
         if ($action == 'remove') {
-          $this->subscriptionManager->unsubscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
+          $subscriber->unsubscribe($newsletter_id, 'website');
           if ($path = $config->get('subscription.confirm_unsubscribe_page')) {
             $url = Url::fromUri("internal:$path");
             return $this->redirect($url->getRouteName(), $url->getRouteParameters());
@@ -182,7 +181,7 @@ class ConfirmationController extends ControllerBase {
           return $this->redirect('<front>');
         }
         elseif ($action == 'add') {
-          $this->subscriptionManager->subscribe($subscriber->getMail(), $newsletter_id, FALSE, 'website');
+          $subscriber->subscribe($newsletter_id, NULL, 'website');
           if ($path = $config->get('subscription.confirm_subscribe_page')) {
             $url = Url::fromUri("internal:$path");
             return $this->redirect($url->getRouteName(), $url->getRouteParameters());

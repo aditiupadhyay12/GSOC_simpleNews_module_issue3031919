@@ -239,7 +239,6 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
    *   The form structure.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state object.
-   * {@inheritdoc}
    */
   public function submitExtra(array $form, FormStateInterface $form_state) {
     // Send confirmations if needed.

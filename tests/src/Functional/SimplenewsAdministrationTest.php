@@ -719,7 +719,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Check exact subscription statuses.
     $subscriber = Subscriber::loadByMail('drupaltest@example.com');
-    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $subscriber->getSubscription($newsletter_name)->get('status')->getValue());
+    $this->assertTrue($subscriber->isSubscribed($newsletter_name));
     // The second newsletter was not subscribed, so there should be no
     // subscription record at all.
     $this->assertFalse($subscriber->getSubscription($second_newsletter_name));

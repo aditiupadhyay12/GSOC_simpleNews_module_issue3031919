@@ -81,7 +81,7 @@ class SubscriberExportForm extends FormBase {
     $query = $this->entityTypeManager->getStorage('simplenews_subscriber')->getQuery()
       ->condition('status', $condition_active, 'IN')
       ->condition('subscriptions.status', $condition_subscribed, 'IN')
-      ->condition('subscriptions.target_id', (array) $newsletters, 'IN');
+      ->condition('subscriptions.target_id', $newsletters, 'IN');
     $subscriber_ids = $query->accessCheck(FALSE)->execute();
 
     $mails = [];

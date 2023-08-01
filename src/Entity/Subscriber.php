@@ -237,7 +237,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
    * {@inheritdoc}
    */
   public function isSubscribed($newsletter_id) {
-    foreach ($this->subscriptions as $item) {
+    foreach ($this->get('subscriptions') as $item) {
       if ($item->target_id == $newsletter_id) {
         return $item->status == SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED;
       }
@@ -249,7 +249,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
    * {@inheritdoc}
    */
   public function isUnsubscribed($newsletter_id) {
-    foreach ($this->subscriptions as $item) {
+    foreach ($this->get('subscriptions') as $item) {
       if ($item->target_id == $newsletter_id) {
         return $item->status == SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED;
       }
@@ -261,7 +261,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
    * {@inheritdoc}
    */
   public function getSubscription($newsletter_id) {
-    foreach ($this->subscriptions as $item) {
+    foreach ($this->get('subscriptions') as $item) {
       if ($item->target_id == $newsletter_id) {
         return $item;
       }
@@ -274,7 +274,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
    */
   public function getSubscribedNewsletterIds() {
     $ids = [];
-    foreach ($this->subscriptions as $item) {
+    foreach ($this->get('subscriptions') as $item) {
       if ($item->status == SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED) {
         $ids[] = $item->target_id;
       }
@@ -323,7 +323,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
       ];
       $this->subscriptions->appendItem($data);
     }
-    // Clear eventually existing mail spool rows for this subscriber.
+    // Clear any existing mail spool rows for this subscriber.
     \Drupal::service('simplenews.spool_storage')->deleteMails(['snid' => $this->id(), 'newsletter_id' => $newsletter_id]);
 
     \Drupal::moduleHandler()->invokeAll('simplenews_unsubscribe', [$this, $newsletter_id]);
