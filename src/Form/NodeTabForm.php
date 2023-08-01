@@ -94,32 +94,33 @@ class NodeTabForm extends FormBase {
 
     // We will need the node.
     $form_state->set('node', $node);
+    $unsent = ($status == SIMPLENEWS_STATUS_SEND_NOT);
 
-    // Show newsletter sending options if newsletter has not been send yet.
-    // If send a notification is shown.
-    if ($status == SIMPLENEWS_STATUS_SEND_NOT) {
+    // Send test or extra copy.
+    $form['test'] = [
+      '#type' => 'details',
+      '#open' => TRUE,
+      '#title' => $unsent ? $this->t('Test') : $this->t('Extra copy'),
+    ];
+    $form['test']['test_address'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Email addresses'),
+      '#description' => $this->t('A comma-separated list of email addresses.'),
+      '#default_value' => $this->currentUser->getEmail(),
+      '#size' => 60,
+      '#maxlength' => 128,
+    ];
 
-      $form['test'] = [
-        '#type' => 'details',
-        '#open' => TRUE,
-        '#title' => $this->t('Test'),
-      ];
-      $form['test']['test_address'] = [
-        '#type' => 'textfield',
-        '#title' => $this->t('Test email addresses'),
-        '#description' => $this->t('A comma-separated list of email addresses to be used as test addresses.'),
-        '#default_value' => $this->currentUser->getEmail(),
-        '#size' => 60,
-        '#maxlength' => 128,
-      ];
+    $form['test']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $unsent ? $this->t('Send test newsletter issue') : $this->t('Send extra newsletter issue'),
+      '#name' => 'send_test',
+      '#submit' => ['::submitTestMail'],
+      '#validate' => ['::validateTestAddress'],
+    ];
 
-      $form['test']['submit'] = [
-        '#type' => 'submit',
-        '#value' => $this->t('Send test newsletter issue'),
-        '#name' => 'send_test',
-        '#submit' => ['::submitTestMail'],
-        '#validate' => ['::validateTestAddress'],
-      ];
+    // Show newsletter sending options if newsletter has not yet been sent.
+    if ($unsent) {
       $form['send'] = [
         '#type' => 'details',
         '#open' => TRUE,
@@ -195,7 +196,7 @@ class NodeTabForm extends FormBase {
       $form_state->set('test_addresses', $mails);
     }
     else {
-      $form_state->setErrorByName('test_address', $this->t('Missing test email address.'));
+      $form_state->setErrorByName('test_address', $this->t('Missing email address.'));
     }
   }
 

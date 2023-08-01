@@ -799,7 +799,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertSession()->fieldExists('test_address');
     // Test newsletter to empty address and check the error message.
     $this->submitForm(['test_address' => ''], 'Send test newsletter issue');
-    $this->assertSession()->pageTextContains('Missing test email address.');
+    $this->assertSession()->pageTextContains('Missing email address.');
     // Test newsletter to invalid address and check the error message.
     $this->submitForm(['test_address' => 'invalid_address'], 'Send test newsletter issue');
     $this->assertSession()->pageTextContains('Invalid email address "invalid_address"');

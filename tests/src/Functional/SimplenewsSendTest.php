@@ -492,6 +492,15 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     simplenews_cron();
     $this->drupalGet('node/1/simplenews');
     $this->assertSession()->pageTextContains('Newsletter issue sent to 2 subscribers, 3 errors.');
+
+    // Send extra copy.
+    $to = $this->randomEmail(8);
+    $this->submitForm(['test_address' => $to], 'Send extra newsletter issue');
+    $this->assertSession()->pageTextContains("Test newsletter sent to anonymous $to");
+    $mails = $this->getMails();
+    $mail = end($mails);
+    $this->assertEquals('simplenews_test', $mail['id']);
+    $this->assertEquals($to, $mail['to']);
   }
 
   /**
