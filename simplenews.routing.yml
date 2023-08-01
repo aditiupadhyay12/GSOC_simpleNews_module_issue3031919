@@ -162,45 +162,44 @@ simplenews.newsletter_subscriptions_user:
       user:
         type: entity:user
 
-# The next 4 confirmation routes have no access check because the access is
-# verified by the hash. It's not good UX to force a user to login in order to
-# unsubscribe.
-simplenews.newsletter_confirm_combined:
-  path: '/newsletter/confirm/combined/{snid}/{timestamp}/{hash}'
+# The next 4 routes have no access check because the access is verified by the
+# hash. It's not good UX to force a user to login in order to unsubscribe.
+simplenews.newsletter_confirm:
+  path: '/newsletter/confirm/{snid}/{timestamp}/{hash}'
   defaults:
-    _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmCombined'
-    _title: 'Confirm newsletter subscriptions'
+    _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmSubscribe'
+    _title: 'Confirm subscribe'
   requirements:
     _access: 'TRUE'
   options:
     no_cache: TRUE
 
-simplenews.newsletter_confirm_subscription:
-  path: '/newsletter/confirm/{action}/{snid}/{newsletter_id}/{timestamp}/{hash}'
+simplenews.newsletter_subscription:
+  path: '/newsletter/{action}/{snid}/{newsletter_id}/{timestamp}/{hash}'
   defaults:
-    _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmSubscription'
-    _title: 'Confirm newsletter subscriptions'
+    _controller: '\Drupal\simplenews\Controller\ConfirmationController::handleSubscription'
+    _title: 'Newsletter subscription'
   requirements:
     _access: 'TRUE'
   options:
     no_cache: TRUE
 
-simplenews.newsletter_confirm_combined_immediate:
-  path: '/newsletter/confirm/combined/{snid}/{timestamp}/{hash}/ok'
+simplenews.newsletter_confirm_immediate:
+  path: '/newsletter/confirm/{snid}/{timestamp}/{hash}/ok'
   defaults:
-    _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmCombined'
-    _title: 'Confirm newsletter subscriptions'
+    _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmSubscribe'
+    _title: 'Confirm subscribe'
     immediate: true
   requirements:
     _access: 'TRUE'
   options:
     no_cache: TRUE
 
-simplenews.newsletter_confirm_subscription_immediate:
-  path: '/newsletter/confirm/{action}/{snid}/{newsletter_id}/{timestamp}/{hash}/ok'
+simplenews.newsletter_subscription_immediate:
+  path: '/newsletter/{action}/{snid}/{newsletter_id}/{timestamp}/{hash}/ok'
   defaults:
-    _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmSubscription'
-    _title: 'Confirm newsletter subscriptions'
+    _controller: '\Drupal\simplenews\Controller\ConfirmationController::handleSubscription'
+    _title: 'Newsletter subscription'
     immediate: true
   requirements:
     _access: 'TRUE'

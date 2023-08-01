@@ -464,3 +464,24 @@ function simplenews_update_840003() {
     ->setHandlerClass('storage_schema', SubscriptionStorageSchema::class);
   $definition_update_manager->updateEntityType($entity_type);
 }
+
+/**
+ * Update subscription settings.
+ */
+function simplenews_update_840004() {
+  $config = \Drupal::configFactory()->getEditable('simplenews.settings');
+
+  if ($subject = $config->get('subscription.confirm_combined_subject')) {
+    $config->clear('subscription.confirm_combined_subject');
+    $config->set('subscription.confirm_subject', $subject);
+  }
+
+  if ($body = $config->get('subscription.confirm_combined_body')) {
+    $body = preg_replace('/\[simplenews-subscriber:combined-url\]/', '[simplenews-subscriber:confirm-url', $body);
+    $config->clear('subscription.confirm_combined_body');
+    $config->set('subscription.confirm_body', $body);
+  }
+
+  $config->save();
+}
+

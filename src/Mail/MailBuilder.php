@@ -90,7 +90,7 @@ class MailBuilder implements MailBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function buildCombinedMail(array &$message, array $params) {
+  public function buildSubscribeMail(array &$message, array $params) {
     $context = $params['context'];
     $subscriber = $context['simplenews_subscriber'];
     $langcode = $message['langcode'];
@@ -98,9 +98,9 @@ class MailBuilder implements MailBuilderInterface {
     // Use formatted from address "name" <mail_address>.
     $message['headers']['From'] = $params['from']['formatted'];
 
-    $message['subject'] = $this->config->get('subscription.confirm_combined_subject');
+    $message['subject'] = $this->config->get('subscription.confirm_subject');
     $message['subject'] = simplenews_token_replace_subject($message['subject'], $context);
-    $body = $this->config->get('subscription.confirm_combined_body');
+    $body = $this->config->get('subscription.confirm_body');
     $message['body'][] = simplenews_token_replace_body($body, $context);
   }
 

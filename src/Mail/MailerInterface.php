@@ -67,18 +67,12 @@ interface MailerInterface {
   public function sendTest(ContentEntityInterface $issue, array $test_addresses);
 
   /**
-   * Send collected confirmations.
-   *
-   * Depending on the settings, always sends a combined confirmation,
-   * only when there are multiple changes for a subscriber or never.
+   * Send subscribe confirmation mail if needed.
    *
    * @return bool
-   *   TRUE if any confirmation mails have been sent.
-   *
-   * @todo This function currently does not return information about which
-   *       subscriber received a confirmation.
+   *   TRUE if a confirmation mail has been sent.
    */
-  public function sendCombinedConfirmation(SubscriberInterface $subscriber);
+  public function sendSubscribeConfirmation(SubscriberInterface $subscriber);
 
   /**
    * Update newsletter sent status.

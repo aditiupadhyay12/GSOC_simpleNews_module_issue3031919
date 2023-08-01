@@ -400,7 +400,7 @@ class Mailer implements MailerInterface {
   /**
    * {@inheritdoc}
    */
-  public function sendCombinedConfirmation(SubscriberInterface $subscriber) {
+  public function sendSubscribeConfirmation(SubscriberInterface $subscriber) {
     $params['from'] = $this->getFrom();
     $params['context']['simplenews_subscriber'] = $subscriber;
     $key = 'subscribe_combined';

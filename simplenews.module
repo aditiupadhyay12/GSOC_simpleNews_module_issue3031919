@@ -590,7 +590,7 @@ function simplenews_mail($key, &$message, $params) {
       break;
 
     case 'subscribe_combined':
-      $builder->buildCombinedMail($message, $params);
+      $builder->buildSubscribeMail($message, $params);
       break;
 
     case 'validate':

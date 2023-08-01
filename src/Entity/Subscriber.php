@@ -373,7 +373,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   public function sendConfirmation() {
     $send = !$this->isConfirmed() && !static::skipConfirmation();
     if ($send) {
-      \Drupal::service('simplenews.mailer')->sendCombinedConfirmation($this);
+      \Drupal::service('simplenews.mailer')->sendSubscribeConfirmation($this);
     }
     return $send;
   }

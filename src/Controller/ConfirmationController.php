@@ -42,10 +42,10 @@ class ConfirmationController extends ControllerBase {
   }
 
   /**
-   * Menu callback: confirm a combined confirmation request.
+   * Menu callback: confirm a subscribe request.
    *
    * This function is called by clicking the confirm link in the confirmation
-   * email. It handles both subscription addition and subscription removal.
+   * email. It acts on an existing unconfirmed subscriber to make it confirmed.
    *
    * @param int $snid
    *   The subscriber id.
@@ -59,7 +59,7 @@ class ConfirmationController extends ControllerBase {
    * @see simplenews_confirm_add_form()
    * @see simplenews_confirm_removal_form()
    */
-  public function confirmCombined($snid, $timestamp, $hash, $immediate = FALSE) {
+  public function confirmSubscribe($snid, $timestamp, $hash, $immediate = FALSE) {
     $config = $this->config('simplenews.settings');
 
     // Prevent search engines from indexing this page.
@@ -76,14 +76,14 @@ class ConfirmationController extends ControllerBase {
 
     $subscriber = Subscriber::load($snid);
 
-    if ($subscriber && $hash == simplenews_generate_hash($subscriber->getMail(), 'combined', $timestamp)) {
+    if ($subscriber && $hash == simplenews_generate_hash($subscriber->getMail(), 'confirm', $timestamp)) {
       // If the hash is valid but timestamp is too old, display form to request
       // a new hash.
       if ($timestamp < \Drupal::time()->getRequestTime() - $config->get('hash_expiration')) {
         $context = [
           'simplenews_subscriber' => $subscriber,
         ];
-        $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', 'subscribe_combined', $context);
+        $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', 'confirm', $context);
         $build['#attached']['html_head'][] = $html_head;
         return $build;
       }
@@ -105,28 +105,12 @@ class ConfirmationController extends ControllerBase {
   }
 
   /**
-   * Menu callback: confirm the user's (un)subscription request.
+   * Menu callback: handle (un)subscription request.
    *
-   * This function is called by clicking the confirm link in the confirmation
-   * email or the unsubscribe link in the footer of the newsletter. It handles
-   * both subscription addition and subscription removal.
-   *
-   * Calling URLs are:
-   * newsletter/confirm/add
-   * newsletter/confirm/add/$HASH
-   * newsletter/confirm/remove
-   * newsletter/confirm/remove/$HASH
-   *
-   * @see simplenews_confirm_add_form()
-   * @see simplenews_confirm_removal_form()
-   */
-
-  /**
-   * Menu callback: confirm the user's (un)subscription request.
-   *
-   * This function is called by clicking the confirm link in the confirmation
-   * email or the unsubscribe link in the footer of the newsletter. It handles
-   * both subscription addition and subscription removal.
+   * This function is called by clicking a link from a subscribe token
+   * (subscribe-url or unsubscribe-url). It acts on an existing confirmed
+   * subscriber to add or remove a single newsletter subscription. The most
+   * common case is the unsubscribe link in the footer of the newsletter.
    *
    * @param string $action
    *   Either add or remove.
@@ -140,11 +124,8 @@ class ConfirmationController extends ControllerBase {
    *   The confirmation hash.
    * @param bool $immediate
    *   Perform the action immediately if TRUE.
-   *
-   * @see simplenews_confirm_add_form()
-   * @see simplenews_confirm_removal_form()
    */
-  public function confirmSubscription($action, $snid, $newsletter_id, $timestamp, $hash, $immediate = FALSE) {
+  public function handleSubscription($action, $snid, $newsletter_id, $timestamp, $hash, $immediate = FALSE) {
     $config = $this->config('simplenews.settings');
 
     // Prevent search engines from indexing this page.
@@ -170,8 +151,7 @@ class ConfirmationController extends ControllerBase {
           'simplenews_subscriber' => $subscriber,
           'newsletter' => $newsletter,
         ];
-        $key = $action == 'add' ? 'subscribe_combined' : 'validate';
-        $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', $key, $context);
+        $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\RequestHashForm', 'validate', $context);
         $build['#attached']['html_head'][] = $html_head;
         return $build;
       }

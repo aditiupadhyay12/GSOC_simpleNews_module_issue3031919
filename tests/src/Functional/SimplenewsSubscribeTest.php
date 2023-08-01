@@ -143,8 +143,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $subscriber = $this->getLatestSubscriber();
     $this->assertEquals($mail, $subscriber->getMail());
     $expired_timestamp = \Drupal::time()->getRequestTime() - 86401;
-    $hash = simplenews_generate_hash($subscriber->getMail(), 'combined', $expired_timestamp);
-    $url = 'newsletter/confirm/combined/' . $subscriber->id() . '/' . $expired_timestamp . '/' . $hash;
+    $hash = simplenews_generate_hash($subscriber->getMail(), 'confirm', $expired_timestamp);
+    $url = 'newsletter/confirm/' . $subscriber->id() . '/' . $expired_timestamp . '/' . $hash;
     $this->drupalGet($url);
     $this->assertSession()->pageTextContains('This link has expired.');
     $this->submitForm([], 'Request new confirmation mail');
@@ -359,8 +359,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $subscriber = $this->getLatestSubscriber();
     $this->assertEquals($mail, $subscriber->getMail());
     $expired_timestamp = \Drupal::time()->getRequestTime() - 86401;
-    $hash = simplenews_generate_hash($subscriber->getMail(), 'add', $expired_timestamp);
-    $url = 'newsletter/confirm/add/' . $subscriber->id() . '/' . $newsletter_id . '/' . $expired_timestamp . '/' . $hash;
+    $hash = simplenews_generate_hash($subscriber->getMail(), 'confirm', $expired_timestamp);
+    $url = 'newsletter/confirm/' . $subscriber->id() . '/' . $expired_timestamp . '/' . $hash;
     $this->drupalGet($url);
     $this->assertSession()->pageTextContains('This link has expired.');
     $this->submitForm([], 'Request new confirmation mail');
@@ -798,8 +798,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
    */
   public function testFormatting() {
     $this->config('simplenews.settings')
-      ->set('subscription.confirm_combined_subject', 'Please <join> us & enjoy')
-      ->set('subscription.confirm_combined_body', "Hello & welcome,\n\nclick to join us <[simplenews-subscriber:combined-url]>")
+      ->set('subscription.confirm_subject', 'Please <join> us & enjoy')
+      ->set('subscription.confirm_body', "Hello & welcome,\n\nclick to join us <[simplenews-subscriber:confirm-url]>")
       ->save();
 
     $newsletter_id = $this->getRandomNewsletter();
