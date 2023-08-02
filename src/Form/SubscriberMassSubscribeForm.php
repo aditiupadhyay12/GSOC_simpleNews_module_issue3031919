@@ -101,29 +101,11 @@ class SubscriberMassSubscribeForm extends FormBase {
       '#description' => $this->t('If checked, previously unsubscribed e-mail addresses will be resubscribed. Consider that this might be against the will of your users.'),
     ];
 
-    // Include language selection when the site is multilingual.
-    // Default value is the empty string which will result in receiving emails
-    // in the site's default language.
-    if ($this->languageManager->isMultilingual()) {
-      $options[''] = $this->t('Site default language');
-      $languages = $this->languageManager->getLanguages();
-      foreach ($languages as $langcode => $language) {
-        $options[$langcode] = $language->getName();
-      }
-      $form['language'] = [
-        '#type' => 'radios',
-        '#title' => $this->t('Anonymous user preferred language'),
-        '#default_value' => '',
-        '#options' => $options,
-        '#description' => $this->t('New subscriptions will be subscribed with the selected preferred language. The language of existing subscribers is unchanged.'),
-      ];
-    }
-    else {
-      $form['language'] = [
-        '#type' => 'value',
-        '#value' => '',
-      ];
-    }
+    $form['language'] = [
+      '#type' => 'language_select',
+      '#title' => $this->t('Preferred language'),
+      '#description' => $this->t('New subscriptions will be subscribed with the selected preferred language. The language of existing subscribers is unchanged.'),
+    ];
 
     $form['submit'] = [
       '#type' => 'submit',
