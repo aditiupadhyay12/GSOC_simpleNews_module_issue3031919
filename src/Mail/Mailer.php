@@ -347,7 +347,7 @@ class Mailer implements MailerInterface {
       }
 
       // By default, failures are left in PENDING state to retry.
-      $result = $message['result'] ? SpoolStorageInterface::STATUS_DONE : SpoolStorageInterface::STATUS_PENDING;
+      $result = ($message['result'] === FALSE) ? SpoolStorageInterface::STATUS_PENDING : SpoolStorageInterface::STATUS_DONE;
       $this->moduleHandler->alter('simplenews_mail_result', $result, $message);
     }
     catch (SkipMailException $e) {
