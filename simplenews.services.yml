@@ -16,7 +16,7 @@ services:
     arguments: ['@token', '@config.factory', '@simplenews.subscription_manager']
   simplenews.subscription_manager:
     class: Drupal\simplenews\Subscription\SubscriptionManager
-    arguments: ['@language_manager', '@config.factory', '@logger.channel.simplenews', '@entity_type.manager']
+    arguments: ['@language_manager', '@config.factory', '@entity_type.manager']
   simplenews.mail_cache:
     class: Drupal\simplenews\Mail\MailCacheBuild
   simplenews.migration_subscriber:

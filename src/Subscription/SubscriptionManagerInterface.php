@@ -8,13 +8,7 @@ namespace Drupal\simplenews\Subscription;
 interface SubscriptionManagerInterface {
 
   /**
-   * Subscribe a user to a newsletter or send a confirmation mail.
-   *
-   * The $confirm parameter determines the action:
-   *   FALSE = The user is subscribed
-   *   TRUE  = User receives an email to verify the address and complete the
-   * subscription A new subscription account is created when the user is
-   * subscribed to the first newsletter.
+   * Subscribe a user to a newsletter.
    *
    * @param string $mail
    *   The email address to subscribe to the newsletter.
@@ -38,12 +32,7 @@ interface SubscriptionManagerInterface {
   public function subscribe($mail, $newsletter_id, $deprecated, $source = 'unknown', $preferred_langcode = NULL);
 
   /**
-   * Unsubscribe a user from a mailing list or send a confirmation mail.
-   *
-   * The $confirm parameter determines the action:
-   *   FALSE = The user is unsubscribed
-   *   TRUE  = User receives an email to verify the address and complete the
-   *   subscription cancellation.
+   * Unsubscribe a user from a newsletter.
    *
    * @param string $mail
    *   The email address to unsubscribe from the mailing list.

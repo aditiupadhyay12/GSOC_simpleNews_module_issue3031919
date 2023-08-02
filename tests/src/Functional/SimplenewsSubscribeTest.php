@@ -121,16 +121,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       }
     }
 
-    // Unsubscribe with no confirmed email.
-    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
-    try {
-      $subscription_manager->unsubscribe('new@email.com', $newsletter_id, FALSE);
-      $this->fail('Exception not thrown.');
-    }
-    catch (\Exception $e) {
-      $this->assertEquals('The subscriber does not exist.', $e->getMessage());
-    }
-
     // Test expired confirmation links.
     $enable = array_rand($newsletters, 3);
 

@@ -8,7 +8,6 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\SubscriberInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Default subscription manager.
@@ -37,13 +36,6 @@ class SubscriptionManager implements SubscriptionManagerInterface {
   protected $config;
 
   /**
-   * The logger interface.
-   *
-   * @var \Psr\Log\LoggerInterface
-   */
-  protected $logger;
-
-  /**
    * The subscriber storage.
    *
    * @var \Drupal\Core\Entity\EntityStorageInterface
@@ -57,15 +49,12 @@ class SubscriptionManager implements SubscriptionManagerInterface {
    *   The language manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
-   * @param \Psr\Log\LoggerInterface $logger
-   *   The simplenews logger channel.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
    */
-  public function __construct(LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory, LoggerInterface $logger, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
     $this->languageManager = $language_manager;
     $this->config = $config_factory->get('simplenews.settings');
-    $this->logger = $logger;
     $this->subscriberStorage = $entity_type_manager->getStorage('simplenews_subscriber');
   }
 
@@ -98,17 +87,7 @@ class SubscriptionManager implements SubscriptionManagerInterface {
     }
 
     $subscriber = Subscriber::loadByMail($mail);
-    if (!$subscriber) {
-      throw new \Exception('The subscriber does not exist.');
-    }
-    // The unlikely case that a user is unsubscribed from a non existing mailing
-    // list is logged.
-    if (!$newsletter = Newsletter::load($newsletter_id)) {
-      $this->logger->error('Attempt to unsubscribe from non existing mailing list ID %id', ['%id' => $newsletter_id]);
-      return $this;
-    }
-
-    if ($subscriber->isSubscribed($newsletter_id)) {
+    if ($subscriber && $subscriber->isSubscribed($newsletter_id)) {
       // Unsubscribe the user from the mailing list.
       $subscriber->unsubscribe($newsletter_id, $source);
       $subscriber->save();
