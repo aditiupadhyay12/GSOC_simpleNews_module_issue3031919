@@ -73,20 +73,6 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function getMessage() {
-    return $this->get('message')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setMessage($message) {
-    $this->set('message', $message);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getStatus() {
     return $this->get('status')->value;
   }
@@ -146,7 +132,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function setMail($mail) {
+  public function setMail(string $mail) {
     $this->set('mail', $mail);
     return $this;
   }
@@ -184,7 +170,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function setLangcode($langcode) {
+  public function setLangcode(string $langcode) {
     $this->set('langcode', $langcode);
     return $this;
   }
@@ -236,7 +222,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function isSubscribed($newsletter_id) {
+  public function isSubscribed(string $newsletter_id) {
     foreach ($this->get('subscriptions') as $item) {
       if ($item->target_id == $newsletter_id) {
         return $item->status == SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED;
@@ -248,7 +234,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function isUnsubscribed($newsletter_id) {
+  public function isUnsubscribed(string $newsletter_id) {
     foreach ($this->get('subscriptions') as $item) {
       if ($item->target_id == $newsletter_id) {
         return $item->status == SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED;
@@ -260,7 +246,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function getSubscription($newsletter_id) {
+  public function getSubscription(string $newsletter_id) {
     foreach ($this->get('subscriptions') as $item) {
       if ($item->target_id == $newsletter_id) {
         return $item;
@@ -285,7 +271,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function subscribe($newsletter_id, $deprecated = NULL, $source = 'unknown', $timestamp = REQUEST_TIME) {
+  public function subscribe(string $newsletter_id, int $deprecated = NULL, string $source = 'unknown', int $timestamp = REQUEST_TIME) {
     if (!is_null($deprecated) && $deprecated != SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED) {
       throw new \LogicException('Second parameter must be NULL or SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED');
     }
@@ -310,7 +296,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public function unsubscribe($newsletter_id, $source = 'unknown', $timestamp = REQUEST_TIME) {
+  public function unsubscribe(string $newsletter_id, string $source = 'unknown', int $timestamp = REQUEST_TIME) {
     if ($subscription = $this->getSubscription($newsletter_id)) {
       $subscription->status = SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED;
     }
@@ -474,7 +460,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public static function loadByMail($mail, $create = FALSE, $default_langcode = NULL, $check_trust = FALSE) {
+  public static function loadByMail(string $mail, ?bool $create = FALSE, ?string $default_langcode = NULL, ?bool $check_trust = FALSE) {
     $subscriber = FALSE;
 
     // Trusted if currently logged in, or if confirmations are disabled.
@@ -505,7 +491,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public static function loadByUid($uid, $create = FALSE, $confirmed = TRUE) {
+  public static function loadByUid(int $uid, ?bool $create = FALSE, ?bool $confirmed = TRUE) {
     $subscriber = FALSE;
     if ($uid) {
       $storage = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber');

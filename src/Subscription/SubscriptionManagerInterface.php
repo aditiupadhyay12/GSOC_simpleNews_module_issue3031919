@@ -29,7 +29,7 @@ interface SubscriptionManagerInterface {
    *
    * @return $this
    */
-  public function subscribe($mail, $newsletter_id, $deprecated, $source = 'unknown', $preferred_langcode = NULL);
+  public function subscribe(string $mail, string $newsletter_id, bool $deprecated, ?string $source = 'unknown', ?string $preferred_langcode = NULL);
 
   /**
    * Unsubscribe a user from a newsletter.
@@ -49,7 +49,7 @@ interface SubscriptionManagerInterface {
    *
    * @return $this
    */
-  public function unsubscribe($mail, $newsletter_id, $deprecated, $source = 'unknown');
+  public function unsubscribe(string $mail, string $newsletter_id, bool $deprecated, ?string $source = 'unknown');
 
   /**
    * Check if the email address is subscribed to the given mailing list.
@@ -66,7 +66,7 @@ interface SubscriptionManagerInterface {
    *
    * @todo Caching should be done in simplenews_load_user_by_mail().
    */
-  public function isSubscribed($mail, $newsletter_id);
+  public function isSubscribed(string $mail, string $newsletter_id);
 
   /**
    * Reset static caches.

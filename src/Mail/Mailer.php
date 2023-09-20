@@ -372,7 +372,7 @@ class Mailer implements MailerInterface {
     foreach ($test_addresses as $mail) {
       $mail = trim($mail);
       if (!empty($mail)) {
-        $subscriber = Subscriber::loadByMail($mail, 'create', $this->languageManager->getCurrentLanguage());
+        $subscriber = Subscriber::loadByMail($mail, 'create', $this->languageManager->getCurrentLanguage()->getId());
 
         if ($account = $subscriber->getUser()) {
           $recipients['user'][] = $account->getDisplayName() . ' <' . $mail . '>';

@@ -79,7 +79,7 @@ interface SubscriberInterface extends ContentEntityInterface {
    *
    * @return $this
    */
-  public function setMail($mail);
+  public function setMail(string $mail);
 
   /**
    * Returns corresponding user ID.
@@ -114,7 +114,7 @@ interface SubscriberInterface extends ContentEntityInterface {
    *
    * @return $this
    */
-  public function setLangcode($langcode);
+  public function setLangcode(string $langcode);
 
   /**
    * Fill values from a user account.
@@ -145,7 +145,7 @@ interface SubscriberInterface extends ContentEntityInterface {
    * @return bool
    *   Returns TRUE if the subscriber has the subscription, otherwise FALSE.
    */
-  public function isSubscribed($newsletter_id);
+  public function isSubscribed(string $newsletter_id);
 
   /**
    * Check if the subscriber has an inactive subscription to a given newsletter.
@@ -156,7 +156,7 @@ interface SubscriberInterface extends ContentEntityInterface {
    * @return bool
    *   TRUE if the subscriber has the inactive subscription, otherwise FALSE.
    */
-  public function isUnsubscribed($newsletter_id);
+  public function isUnsubscribed(string $newsletter_id);
 
   /**
    * Returns the subscription to a given newsletter.
@@ -167,7 +167,7 @@ interface SubscriberInterface extends ContentEntityInterface {
    * @return \Drupal\simplenews\Plugin\Field\FieldType\SubscriptionItem
    *   The subscription item if the subscriber is subscribed, otherwise FALSE.
    */
-  public function getSubscription($newsletter_id);
+  public function getSubscription(string $newsletter_id);
 
   /**
    * Get the ids of all subscribed newsletters.
@@ -191,7 +191,7 @@ interface SubscriberInterface extends ContentEntityInterface {
    *
    * @return $this
    */
-  public function subscribe($newsletter_id, $deprecated = NULL, $source = 'unknown', $timestamp = REQUEST_TIME);
+  public function subscribe(string $newsletter_id, int $deprecated = NULL, string $source = 'unknown', int $timestamp = REQUEST_TIME);
 
   /**
    * Delete a subscription to a certain newsletter of the subscriber.
@@ -205,7 +205,7 @@ interface SubscriberInterface extends ContentEntityInterface {
    *
    * @return $this
    */
-  public function unsubscribe($newsletter_id, $source = 'unknown', $timestamp = REQUEST_TIME);
+  public function unsubscribe(string $newsletter_id, string $source = 'unknown', int $timestamp = REQUEST_TIME);
 
   /**
    * Send a confirmation email if required.
@@ -232,7 +232,7 @@ interface SubscriberInterface extends ContentEntityInterface {
    * @return \Drupal\simplenews\SubscriberInterface
    *   Newsletter subscriber entity, FALSE if subscriber does not exist.
    */
-  public static function loadByMail($mail, $create = FALSE, $default_langcode = NULL, $check_trust = FALSE);
+  public static function loadByMail(string $mail, ?bool $create = FALSE, ?string $default_langcode = NULL, ?bool $check_trust = FALSE);
 
   /**
    * Load a simplenews newsletter subscriber object by uid.
@@ -249,6 +249,6 @@ interface SubscriberInterface extends ContentEntityInterface {
    * @return \Drupal\simplenews\SubscriberInterface
    *   Newsletter subscriber entity, FALSE if subscriber does not exist.
    */
-  public static function loadByUid($uid, $create = FALSE, $confirmed = TRUE);
+  public static function loadByUid(int $uid, ?bool $create = FALSE, ?bool $confirmed = TRUE);
 
 }

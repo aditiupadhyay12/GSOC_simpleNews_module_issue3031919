@@ -61,13 +61,13 @@ class SubscriptionManager implements SubscriptionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function subscribe($mail, $newsletter_id, $deprecated, $source = 'unknown', $preferred_langcode = NULL) {
+  public function subscribe(string $mail, string $newsletter_id, bool $deprecated, ?string $source = 'unknown', ?string $preferred_langcode = NULL) {
     if ($deprecated !== FALSE) {
       throw new \LogicException('Third parameter must be FALSE');
     }
 
     // Get/create subscriber entity.
-    $preferred_langcode = $preferred_langcode ?? $this->languageManager->getCurrentLanguage();
+    $preferred_langcode = $preferred_langcode ?? $this->languageManager->getCurrentLanguage()->getId();
     $subscriber = Subscriber::loadByMail($mail, 'create', $preferred_langcode);
 
     if (!$subscriber->isSubscribed($newsletter_id)) {
@@ -81,7 +81,7 @@ class SubscriptionManager implements SubscriptionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function unsubscribe($mail, $newsletter_id, $deprecated, $source = 'unknown') {
+  public function unsubscribe(string $mail, string $newsletter_id, bool $deprecated, ?string $source = 'unknown') {
     if ($deprecated !== FALSE) {
       throw new \LogicException('Third parameter must be FALSE');
     }
@@ -98,7 +98,7 @@ class SubscriptionManager implements SubscriptionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function isSubscribed($mail, $newsletter_id) {
+  public function isSubscribed(string $mail, string $newsletter_id) {
     if (!isset($this->subscribedCache[$mail][$newsletter_id])) {
       $subscriber = Subscriber::loadByMail($mail);
       // Check that a subscriber was found, it is active and subscribed to the
