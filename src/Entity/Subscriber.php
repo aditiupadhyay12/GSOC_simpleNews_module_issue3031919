@@ -452,7 +452,8 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
         'weight' => '0',
         'settings' => [],
         'third_party_settings' => [],
-      ]);
+      ])
+      ->setDisplayConfigurable('form', TRUE);
 
     return $fields;
   }

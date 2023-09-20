@@ -16,12 +16,11 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  langcode:
-    type: language_select
-    weight: 2
+  subscriptions:
+    type: simplenews_subscription_select
+    weight: 0
     region: content
-    settings:
-      include_locked: true
+    settings: {  }
     third_party_settings: {  }
 hidden:
   created: true
