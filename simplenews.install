@@ -183,7 +183,7 @@ function simplenews_update_8203() {
   $configurations_to_delete = ['field.field.simplenews_subscriber.simplenews_subscriber.subscriptions', 'field.storage.simplenews_subscriber.subscriptions'];
 
   $config_factory = \Drupal::configFactory();
-  $dependents = \Drupal::service('config.manager')->findConfigEntityDependents('config', $configurations_to_delete);
+  $dependents = \Drupal::service('config.manager')->findConfigEntityDependencies('config', $configurations_to_delete);
 
   foreach ($dependents as $config_name => $config_entity) {
     $config_entity = $config_factory->getEditable($config_name);
