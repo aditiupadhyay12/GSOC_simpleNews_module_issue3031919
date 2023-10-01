@@ -4,6 +4,7 @@ namespace Drupal\simplenews\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
+use Drupal\simplenews\SubscriberInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\Entity\Newsletter;

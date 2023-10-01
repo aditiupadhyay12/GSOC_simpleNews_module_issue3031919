@@ -142,10 +142,19 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->assertMailText(t('We have received a request to subscribe @user', ['@user' => $mail]));
     $this->drupalGet($confirm_url);
     $this->assertSession()->responseContains('Are you sure you want to confirm your subscription for <em class="placeholder">' . simplenews_mask_mail($mail) . '</em>?');
-
-    $this->drupalGet($confirm_url);
     $this->submitForm([], 'Confirm');
     $this->assertSession()->responseContains('Subscription changes confirmed for <em class="placeholder">' . $mail . '</em>.');
+  }
+
+  /**
+   * Test immediate confirmation.
+   */
+  public function testConfirmImmediate() {
+    $email = $this->randomEmail(8);
+    $this->subscribe('default', $email);
+    $confirm_url = $this->extractConfirmationLink($this->getMail());
+    $this->drupalGet("$confirm_url/ok");
+    $this->assertSession()->responseContains('Subscription changes confirmed for <em class="placeholder">' . $email . '</em>.');
   }
 
   /**
