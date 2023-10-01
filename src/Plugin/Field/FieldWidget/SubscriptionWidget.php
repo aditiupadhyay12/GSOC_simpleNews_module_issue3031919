@@ -3,9 +3,9 @@
 namespace Drupal\simplenews\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\OptionsButtonsWidget;
-use Drupal\Core\Form\OptGroup;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\simplenews\SubscriptionWidgetInterface;
 
 /**
@@ -15,7 +15,7 @@ use Drupal\simplenews\SubscriptionWidgetInterface;
  *   id = "simplenews_subscription_select",
  *   label = @Translation("Select list"),
  *   field_types = {
- *     "simplenews_subscription"
+ *     "entity_reference"
  *   },
  *   multiple_values = TRUE
  * )
@@ -59,29 +59,18 @@ class SubscriptionWidget extends OptionsButtonsWidget implements SubscriptionWid
   /**
    * {@inheritdoc}
    */
-  protected function getSelectedOptions(FieldItemListInterface $items, $delta = 0) {
-    // Copy parent behavior but also check the status property.
-    $flat_options = OptGroup::flattenOptions($this->getOptions($items->getEntity()));
-    $selected_options = [];
-    foreach ($items as $item) {
-      $value = $item->{$this->column};
-      // Keep the value if it actually is in the list of options (needs to be
-      // checked against the flat list).
-      if ($item->status == SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED && isset($flat_options[$value])) {
-        $selected_options[] = $value;
-      }
-    }
-    return $selected_options;
+  public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
+    // Preserve hidden options.
+    $original = $form_state->getformObject()->getEntity()->getSubscribedNewsletterIds();
+    $hidden = array_diff($original, $this->getAvailableNewsletterIds());
+    return array_merge($values, $hidden);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function extractNewsletterIds(array $form_state_value, $selected = TRUE) {
-    $selected_ids = array_map(function ($item) {
-      return $item['target_id'];
-    }, $form_state_value);
-    return $selected ? $selected_ids : array_diff($this->getAvailableNewsletterIds(), $selected_ids);
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    return (($field_definition->getTargetEntityTypeId() == 'simplenews_subscriber') && $field_definition->getName() == 'subscriptions');
   }
 
 }

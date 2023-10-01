@@ -2,6 +2,8 @@
 
 namespace Drupal\simplenews\Subscription;
 
+use Drupal\simplenews\SubscriberInterface;
+
 /**
  * Subscription management; subscribe, unsubscribe and get subscription status.
  */
@@ -14,14 +16,6 @@ interface SubscriptionManagerInterface {
    *   The email address to subscribe to the newsletter.
    * @param string $newsletter_id
    *   The newsletter ID.
-   * @param bool $deprecated
-   *   Must be set to FALSE.
-   * @param string $source
-   *   Indication for source of subscription. Simplenews uses these sources:
-   *    website: via any website form (with or without confirmation email)
-   *    mass subscribe: mass admin UI
-   *    mass unsubscribe: mass admin UI
-   *    action: Drupal actions.
    * @param string $preferred_langcode
    *   The language code (i.e. 'en', 'nl') of the user preferred language.
    *   Use '' for the site default language.
@@ -29,7 +23,7 @@ interface SubscriptionManagerInterface {
    *
    * @return $this
    */
-  public function subscribe(string $mail, string $newsletter_id, bool $deprecated, ?string $source = 'unknown', ?string $preferred_langcode = NULL);
+  public function subscribe(string $mail, string $newsletter_id, ?string $preferred_langcode = NULL);
 
   /**
    * Unsubscribe a user from a newsletter.
@@ -38,18 +32,10 @@ interface SubscriptionManagerInterface {
    *   The email address to unsubscribe from the mailing list.
    * @param string $newsletter_id
    *   The newsletter ID.
-   * @param bool $deprecated
-   *   Must be set to FALSE.
-   * @param string $source
-   *   Indicates the unsubscribe source. Simplenews uses these sources:
-   *   - website: Via any website form (with or without confirmation email).
-   *   - mass subscribe: Mass admin UI.
-   *   - mass unsubscribe: Mass admin UI.
-   *   - action: Drupal actions.
    *
    * @return $this
    */
-  public function unsubscribe(string $mail, string $newsletter_id, bool $deprecated, ?string $source = 'unknown');
+  public function unsubscribe(string $mail, string $newsletter_id);
 
   /**
    * Check if the email address is subscribed to the given mailing list.
@@ -69,9 +55,25 @@ interface SubscriptionManagerInterface {
   public function isSubscribed(string $mail, string $newsletter_id);
 
   /**
-   * Reset static caches.
+   * Checks is a subscriber has ever subscribed to a newsletter.
+   *
+   * @param string $mail
+   *   The email address of the subscriber.
+   * @param string $newsletter_id
+   *   The newsletter ID.
+   *
+   * @return bool
+   *   TRUE if the subscriber has ever subscribed.
    */
-  public function reset();
+  public function hasSubscribed(string $mail, string $newsletter_id);
+
+  /**
+   * Tracks history for a subscriber that has just been saved.
+   *
+   * @param \Drupal\simplenews\SubscriberInterface $subscriber
+   *   The subscriber.
+   */
+  public function trackHistory(SubscriberInterface $subscriber);
 
   /**
    * Tidy unconfirmed subscriptions.

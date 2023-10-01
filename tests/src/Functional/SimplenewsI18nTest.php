@@ -113,9 +113,9 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
     $subscription_manager = \Drupal::service('simplenews.subscription_manager');
 
-    $subscription_manager->subscribe($english_mail, $newsletter_id, FALSE, 'english', 'en');
-    $subscription_manager->subscribe($spanish_mail, $newsletter_id, FALSE, 'spanish', 'es');
-    $subscription_manager->subscribe($spanish_mail2, $newsletter_id, FALSE, 'spanish', 'es');
+    $subscription_manager->subscribe($english_mail, $newsletter_id, 'en');
+    $subscription_manager->subscribe($spanish_mail, $newsletter_id, 'es');
+    $subscription_manager->subscribe($spanish_mail2, $newsletter_id, 'es');
 
     // Enable translation for newsletters.
     $edit = [

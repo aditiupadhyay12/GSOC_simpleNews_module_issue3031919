@@ -172,7 +172,7 @@ class ConfirmationController extends ControllerBase {
       }
       else {
         if ($action == 'remove') {
-          $subscriber->unsubscribe($newsletter_id, 'website');
+          $subscriber->unsubscribe($newsletter_id)->save();
           if ($path = $config->get('subscription.confirm_unsubscribe_page')) {
             $url = Url::fromUri("internal:$path");
             return $this->redirect($url->getRouteName(), $url->getRouteParameters());
@@ -181,7 +181,7 @@ class ConfirmationController extends ControllerBase {
           return $this->redirect('<front>');
         }
         elseif ($action == 'add') {
-          $subscriber->subscribe($newsletter_id, NULL, 'website');
+          $subscriber->subscribe($newsletter_id)->save();
           if ($path = $config->get('subscription.confirm_subscribe_page')) {
             $url = Url::fromUri("internal:$path");
             return $this->redirect($url->getRouteName(), $url->getRouteParameters());

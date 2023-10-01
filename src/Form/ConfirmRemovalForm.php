@@ -74,7 +74,7 @@ class ConfirmRemovalForm extends ConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $subscriber = $form_state->getValue('subscriber');
     $newsletter = $form_state->getValue('newsletter');
-    $subscriber->unsubscribe($newsletter->id(), 'website')->save();
+    $subscriber->unsubscribe($newsletter->id())->save();
 
     $config = \Drupal::config('simplenews.settings');
     if ($path = $config->get('subscription.confirm_unsubscribe_page')) {

@@ -29,6 +29,7 @@ class SimplenewsSynchronizeFieldsTest extends KernelTestBase {
     parent::setUp();
     $this->installEntitySchema('user');
     $this->installEntitySchema('simplenews_subscriber');
+    $this->installEntitySchema('simplenews_subscriber_history');
     $this->installSchema('system', ['sequences', 'sessions']);
     $this->config('system.mail')->set('interface.default', 'test_mail_collector')->save();
     $this->config('simplenews.settings')

@@ -38,7 +38,6 @@ class RecipientHandlerSubscribersByRole extends RecipientHandlerEntityBase {
     return \Drupal::entityQuery('simplenews_subscriber')
       ->condition('status', SubscriberInterface::ACTIVE)
       ->condition('subscriptions', $this->getNewsletterId())
-      ->condition('subscriptions.status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED)
       ->condition('uid.entity.roles', $this->configuration['role'])
       ->accessCheck(FALSE);
   }

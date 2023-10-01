@@ -50,15 +50,13 @@ class SubscriberExportForm extends FormBase {
    *
    * @param string[] $states
    *   Filter for states.
-   * @param string[] $subscribed
-   *   Filter for subscribed.
    * @param string[] $newsletters
    *   Filter for newsletters.
    *
    * @return string
    *   Return comma separated list of emails or empty text message.
    */
-  protected function getEmails(array $states, array $subscribed, array $newsletters) {
+  protected function getEmails(array $states, array $newsletters) {
     // Build conditions for active state, subscribed state and newsletter
     // selection.
     if (isset($states['active'])) {
@@ -70,17 +68,10 @@ class SubscriberExportForm extends FormBase {
     if (isset($states['unconfirmed'])) {
       $condition_active[] = SubscriberInterface::UNCONFIRMED;
     }
-    if (isset($subscribed['subscribed'])) {
-      $condition_subscribed[] = SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED;
-    }
-    if (isset($subscribed['unsubscribed'])) {
-      $condition_subscribed[] = SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED;
-    }
 
     // Get emails from the database.
     $query = $this->entityTypeManager->getStorage('simplenews_subscriber')->getQuery()
       ->condition('status', $condition_active, 'IN')
-      ->condition('subscriptions.status', $condition_subscribed, 'IN')
       ->condition('subscriptions.target_id', $newsletters, 'IN');
     $subscriber_ids = $query->accessCheck(FALSE)->execute();
 
@@ -103,7 +94,6 @@ class SubscriberExportForm extends FormBase {
     // Get sensible default values for the form elements in this form.
     $query = $this->getRequest()->query;
     $default['states'] = $query->all()['states'] ?? ['active' => 'active'];
-    $default['subscribed'] = $query->all()['subscribed'] ?? ['subscribed' => 'subscribed'];
     $default['newsletters'] = $query->all()['newsletters'] ?? [];
 
     $form['states'] = [
@@ -116,18 +106,6 @@ class SubscriberExportForm extends FormBase {
       ],
       '#default_value' => $default['states'],
       '#description' => $this->t('Subscriptions matching the selected states will be exported.'),
-      '#required' => TRUE,
-    ];
-
-    $form['subscribed'] = [
-      '#type' => 'checkboxes',
-      '#title' => $this->t('Subscribed'),
-      '#options' => [
-        'subscribed' => $this->t('Subscribed to the newsletter'),
-        'unsubscribed' => $this->t('Unsubscribed from the newsletter'),
-      ],
-      '#default_value' => $default['subscribed'],
-      '#description' => $this->t('Subscriptions matching the selected subscription states will be exported.'),
       '#required' => TRUE,
     ];
 
@@ -150,7 +128,7 @@ class SubscriberExportForm extends FormBase {
         '#title' => $this->t('Export results'),
         '#cols' => 60,
         '#rows' => 5,
-        '#value' => $this->getEmails($default['states'], $default['subscribed'], $default['newsletters']),
+        '#value' => $this->getEmails($default['states'], $default['newsletters']),
       ];
     }
 
@@ -169,7 +147,6 @@ class SubscriberExportForm extends FormBase {
 
     // Get data for query string and redirect back to the current page.
     $options['query']['states'] = array_filter($form_values['states']);
-    $options['query']['subscribed'] = array_filter($form_values['subscribed']);
     $options['query']['newsletters'] = array_keys(array_filter($form_values['newsletters']));
     $form_state->setRedirect('simplenews.subscriber_export', [], $options);
   }

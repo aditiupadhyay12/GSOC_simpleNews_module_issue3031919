@@ -68,7 +68,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
     $subscription_manager = \Drupal::service('simplenews.subscription_manager');
-    $subscription_manager->reset();
     $subscriber_storage = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber');
     $subscriber_storage->resetCache();
 
@@ -109,7 +108,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     // Verify subscription changes.
     $subscriber_storage->resetCache();
-    $subscription_manager->reset();
     $still_enabled = array_diff($enable, $disable);
     foreach ($newsletters as $newsletter_id => $newsletter) {
       $is_subscribed = $subscription_manager->isSubscribed($mail, $newsletter_id);
@@ -897,7 +895,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->drupalGet($resetUrl);
     $this->submitForm([], 'Log in');
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
-    $sub_mgr->reset();
     $sub_user_e = Subscriber::loadByUid($user_e->id());
     $this->assertTrue($sub_user_e->isConfirmed());
     $this->assertEquals(3, $this->countSubscribers());

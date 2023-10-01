@@ -2,9 +2,12 @@
 
 namespace Drupal\simplenews\Subscription;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\SubscriberInterface;
@@ -13,13 +16,6 @@ use Drupal\simplenews\SubscriberInterface;
  * Default subscription manager.
  */
 class SubscriptionManager implements SubscriptionManagerInterface {
-
-  /**
-   * Subscribed cache.
-   *
-   * @var array
-   */
-  protected $subscribedCache = [];
 
   /**
    * The language manager.
@@ -36,11 +32,39 @@ class SubscriptionManager implements SubscriptionManagerInterface {
   protected $config;
 
   /**
+   * The route match.
+   *
+   * @var \Drupal\Core\Routing\RouteMatchInterface
+   */
+  protected $routeMatch;
+
+  /**
+   * The time service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
+  /**
+   * The current user service.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $currentUser;
+
+  /**
    * The subscriber storage.
    *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $subscriberStorage;
+
+  /**
+   * The subscriber history storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $historyStorage;
 
   /**
    * Constructs a SubscriptionManager.
@@ -51,46 +75,49 @@ class SubscriptionManager implements SubscriptionManagerInterface {
    *   The config factory.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
+   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   *   The route match.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time service.
+   * @param \Drupal\Core\Session\AccountInterface $current_user
+   *   The current user.
    */
-  public function __construct(LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, RouteMatchInterface $route_match, TimeInterface $time, AccountInterface $current_user) {
     $this->languageManager = $language_manager;
     $this->config = $config_factory->get('simplenews.settings');
+    $this->routeMatch = $route_match;
+    $this->time = $time;
+    $this->currentUser = $current_user;
     $this->subscriberStorage = $entity_type_manager->getStorage('simplenews_subscriber');
+    $this->historyStorage = $entity_type_manager->getStorage('simplenews_subscriber_history');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function subscribe(string $mail, string $newsletter_id, bool $deprecated, ?string $source = 'unknown', ?string $preferred_langcode = NULL) {
-    if ($deprecated !== FALSE) {
-      throw new \LogicException('Third parameter must be FALSE');
+  public function subscribe(string $mail, string $newsletter_id, ?string $preferred_langcode = NULL) {
+    if (func_num_args() > 3) {
+      throw new \LogicException('Only 3 arguments are supported');
     }
 
     // Get/create subscriber entity.
     $preferred_langcode = $preferred_langcode ?? $this->languageManager->getCurrentLanguage()->getId();
     $subscriber = Subscriber::loadByMail($mail, 'create', $preferred_langcode);
-
-    if (!$subscriber->isSubscribed($newsletter_id)) {
-      // Subscribe the user if not already subscribed.
-      $subscriber->subscribe($newsletter_id, NULL, $source);
-      $subscriber->save();
-    }
+    $subscriber->subscribe($newsletter_id)->save();
     return $this;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function unsubscribe(string $mail, string $newsletter_id, bool $deprecated, ?string $source = 'unknown') {
-    if ($deprecated !== FALSE) {
-      throw new \LogicException('Third parameter must be FALSE');
+  public function unsubscribe(string $mail, string $newsletter_id) {
+    if (func_num_args() > 2) {
+      throw new \LogicException('Only 2 arguments are supported');
     }
 
-    $subscriber = Subscriber::loadByMail($mail);
-    if ($subscriber && $subscriber->isSubscribed($newsletter_id)) {
+    if ($subscriber = Subscriber::loadByMail($mail)) {
       // Unsubscribe the user from the mailing list.
-      $subscriber->unsubscribe($newsletter_id, $source);
-      $subscriber->save();
+      $subscriber->unsubscribe($newsletter_id)->save();
     }
     return $this;
   }
@@ -99,20 +126,52 @@ class SubscriptionManager implements SubscriptionManagerInterface {
    * {@inheritdoc}
    */
   public function isSubscribed(string $mail, string $newsletter_id) {
-    if (!isset($this->subscribedCache[$mail][$newsletter_id])) {
-      $subscriber = Subscriber::loadByMail($mail);
-      // Check that a subscriber was found, it is active and subscribed to the
-      // requested newsletter_id.
-      $this->subscribedCache[$mail][$newsletter_id] = $subscriber && $subscriber->isActive() && $subscriber->isSubscribed($newsletter_id);
-    }
-    return $this->subscribedCache[$mail][$newsletter_id];
+    $subscriber = Subscriber::loadByMail($mail);
+    // Check that a subscriber was found, it is active and subscribed to the
+    // requested newsletter_id.
+    return $subscriber && $subscriber->isActive() && $subscriber->isSubscribed($newsletter_id);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function reset() {
-    $this->subscribedCache = [];
+  public function hasSubscribed(string $mail, string $newsletter_id) {
+    $found = $this->historyStorage->getQuery()
+      ->condition('mail', $mail)
+      ->condition('subscriptions.target_id', $newsletter_id, 'IN')
+      ->accessCheck(FALSE)
+      ->range(0, 1)
+      ->count()
+      ->execute();
+
+    return $found > 0;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function trackHistory(SubscriberInterface $subscriber) {
+    if (!$subscriber->isConfirmed()) {
+      // Ignore: not confirmed.
+      return;
+    }
+
+    if (isset($subscriber->original) && $subscriber->original->isConfirmed()) {
+      if (($subscriber->get('mail')->getValue() == $subscriber->original->get('mail')->getValue()) && ($subscriber->get('subscriptions')->getValue() == $subscriber->original->get('subscriptions')->getValue())) {
+        // Ignore: no changes.
+        return;
+      }
+    }
+
+    $values = [
+      'mail' => $subscriber->getMail(),
+      'timestamp' => $this->time->getRequestTime(),
+      'uid' => $this->currentUser->id(),
+      'source' => 'route:' . $this->routeMatch->getRouteName(),
+      'subscriptions' => $subscriber->getSubscribedNewsletterIds(),
+    ];
+
+    $this->historyStorage->create($values)->save();
   }
 
   /**
@@ -128,7 +187,7 @@ class SubscriptionManager implements SubscriptionManagerInterface {
     $max_age = strtotime("-$days days");
     $unconfirmed = \Drupal::entityQuery('simplenews_subscriber')
       ->condition('status', SubscriberInterface::UNCONFIRMED)
-      ->condition('subscriptions.timestamp', $max_age, '<')
+      ->condition('created', $max_age, '<')
       ->accessCheck(FALSE)
       ->execute();
 

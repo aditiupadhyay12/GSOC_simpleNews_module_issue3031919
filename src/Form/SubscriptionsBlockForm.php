@@ -2,7 +2,6 @@
 
 namespace Drupal\simplenews\Form;
 
-use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\simplenews\Entity\Subscriber;
@@ -130,19 +129,19 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-    $this->getSubscriptionWidget($form_state)->setAvailableNewsletterIds($this->newsletterIds);
+    $this->getFormDisplay($form_state)->getRenderer('subscriptions')->setAvailableNewsletterIds($this->newsletterIds);
+    $hidden_default_ids = array_diff($this->defaultNewsletterIds, $this->getNewsletterIds());
 
-    if (!$form_state->getUserInput()) {
-      // Set defaults.
-      foreach ($this->defaultNewsletterIds as $newsletter_id) {
-        $this->entity->subscribe($newsletter_id, SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, 'website');
-      }
+    // Set the defaults. If the form has been submitted, only set the hidden
+    // defaults, as the user may have unchecked the visible ones.
+    $defaults_to_set = $form_state->getUserInput() ? $hidden_default_ids : $this->defaultNewsletterIds;
+    foreach ($defaults_to_set as $newsletter_id) {
+      $this->entity->subscribe($newsletter_id);
     }
 
     $form = parent::form($form, $form_state);
     $form['subscriptions']['widget']['#title'] = $this->t('Manage your newsletter subscriptions');
     $form['subscriptions']['widget']['#description'] = $this->t('Select the newsletter(s) to which you want to subscribe.');
-    $hidden_default_ids = array_diff($this->defaultNewsletterIds, $this->getNewsletterIds());
     $form['subscriptions']['widget']['#required'] = empty($hidden_default_ids);
     $form['subscriptions']['widget']['#access'] = !empty($this->newsletterIds);
 
@@ -170,7 +169,6 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
     if (!$this->newsletterIds && !$this->defaultNewsletterIds) {
       $actions['submit']['#attributes']['disabled'] = TRUE;
     }
-    $actions['submit']['#submit'][] = '::submitExtra';
 
     if ($this->showManage) {
       $user = \Drupal::currentUser();
@@ -216,29 +214,6 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
 
   /**
    * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $subscriber = $this->entity;
-
-    // Subscribe the selected newsletters and any defaults that are hidden.
-    $selected_ids = $this->extractNewsletterIds($form_state, TRUE);
-    $hidden_default_ids = array_diff($this->defaultNewsletterIds, $this->getNewsletterIds());
-    foreach (array_unique(array_merge($selected_ids, $hidden_default_ids)) as $newsletter_id) {
-      if (!$subscriber->isSubscribed($newsletter_id)) {
-        $subscriber->subscribe($newsletter_id, NULL, 'website');
-      }
-    }
-
-    ContentEntityForm::submitForm($form, $form_state);
-  }
-
-  /**
-   * Extra submit callback.
-   *
-   * @param array $form
-   *   The form structure.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state object.
    */
   public function submitExtra(array $form, FormStateInterface $form_state) {
     // Send confirmations if needed.

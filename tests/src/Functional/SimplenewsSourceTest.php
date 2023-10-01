@@ -146,7 +146,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.spool_storage')->addIssue($node);
     // Unsubscribe one of the recipients to make sure that they don't receive
     // the mail.
-    \Drupal::service('simplenews.subscription_manager')->unsubscribe(array_shift($this->subscribers), $this->getRandomNewsletter(), FALSE, 'test');
+    \Drupal::service('simplenews.subscription_manager')->unsubscribe(array_shift($this->subscribers), $this->getRandomNewsletter());
 
     $before = microtime(TRUE);
     \Drupal::service('simplenews.mailer')->sendSpool();

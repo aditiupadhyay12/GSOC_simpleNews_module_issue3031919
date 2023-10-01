@@ -426,7 +426,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // The all mail is still displayed because it's still subscribed to the
     // second newsletter. Reload the page to get rid of the confirmation
     // message.
-    $this->drupalGet('admin/people/simplenews');
+    $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_target_id' => $newsletter_name]]);
     $this->assertSession()->pageTextNotContains($first_mail);
     $this->assertSession()->pageTextContains($all_mail);
 
@@ -451,20 +451,6 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       }
     }
 
-    // Only export unsubscribed mail addresses.
-    $edit = [
-      'subscribed[subscribed]' => FALSE,
-      'subscribed[unsubscribed]' => TRUE,
-      'newsletters[' . $first . ']' => TRUE,
-    ];
-    $this->submitForm($edit, 'Export');
-
-    $exported_mails = $this->getSession()->getPage()->findField('emails')->getValue();
-    $exported_mails = explode(', ', $exported_mails);
-    $this->assertCount(2, $exported_mails);
-    $this->assertContains($all_mail, $exported_mails);
-    $this->assertContains($first_mail, $exported_mails);
-
     /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
     $subscription_manager = \Drupal::service('simplenews.subscription_manager');
 
@@ -479,8 +465,6 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Export unconfirmed users.
     $edit = [
-      'subscribed[subscribed]' => TRUE,
-      'subscribed[unsubscribed]' => FALSE,
       'states[active]' => FALSE,
       'states[inactive]' => FALSE,
       'states[unconfirmed]' => TRUE,
@@ -519,10 +503,10 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     for ($i = 0; $i < 3; $i++) {
       $tested_subscribers[] = $this->randomEmail();
     }
-    $subscription_manager->subscribe($tested_subscribers[0], $first, FALSE);
-    $subscription_manager->subscribe($tested_subscribers[1], $first, FALSE);
-    $subscription_manager->unsubscribe($tested_subscribers[0], $first, FALSE);
-    $subscription_manager->unsubscribe($tested_subscribers[1], $first, FALSE);
+    $subscription_manager->subscribe($tested_subscribers[0], $first);
+    $subscription_manager->subscribe($tested_subscribers[1], $first);
+    $subscription_manager->unsubscribe($tested_subscribers[0], $first);
+    $subscription_manager->unsubscribe($tested_subscribers[1], $first);
     $unsubscribed = implode(', ', array_slice($tested_subscribers, 0, 2));
     $edit = [
       'emails' => implode(', ', $tested_subscribers),
@@ -532,7 +516,6 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalGet('admin/people/simplenews/import');
     $this->submitForm($edit, 'Subscribe');
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
-    $subscription_manager->reset();
     $this->assertFalse($subscription_manager->isSubscribed($tested_subscribers[0], $first), t('Subscriber not resubscribed through mass subscription.'));
     $this->assertFalse($subscription_manager->isSubscribed($tested_subscribers[1], $first), t('Subscriber not resubscribed through mass subscription.'));
     $this->assertTrue($subscription_manager->isSubscribed($tested_subscribers[2], $first), t('Subscriber subscribed through mass subscription.'));
@@ -562,7 +545,6 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->drupalGet('admin/people/simplenews/import');
     $this->submitForm($edit, 'Subscribe');
 
-    $subscription_manager->reset();
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
     $this->assertTrue($subscription_manager->isSubscribed($tested_subscribers[0], $first, t('Subscriber resubscribed trough mass subscription.')));
     $this->assertTrue($subscription_manager->isSubscribed($tested_subscribers[1], $first, t('Subscriber resubscribed trough mass subscription.')));
@@ -603,10 +585,10 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Verify that all subscriptions of that newsletter have been removed.
     $this->drupalGet('admin/people/simplenews');
-    foreach ($subscribers[$first] as $mail) {
-      $this->assertSession()->pageTextNotContains($mail);
-    }
+    $this->assertSession()->pageTextNotContains($first);
 
+    // Get a subscriber with a subscription.
+    $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_target_id' => $newsletter_name]]);
     $this->clickLink(t('Edit'), 1);
 
     // Get the subscriber id from the path.
@@ -623,8 +605,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     ];
     $this->submitForm($edit, 'Save');
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
-    $subscription_manager->reset();
-    $this->assertFalse($subscription_manager->isSubscribed($subscriber->getMail(), $this->getRandomNewsletter()), t('Subscriber is not active'));
+    $this->assertFalse($subscription_manager->isSubscribed($subscriber->getMail(), $newsletter_name), t('Subscriber is not active'));
 
     // Re-enable account.
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
@@ -636,23 +617,16 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     ];
     $this->submitForm($edit, 'Save');
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
-    $subscription_manager->reset();
-    $this->assertTrue($subscription_manager->isSubscribed($subscriber->getMail(), $this->getRandomNewsletter()), t('Subscriber is active again.'));
+    $this->assertTrue($subscription_manager->isSubscribed($subscriber->getMail(), $newsletter_name), t('Subscriber is active again.'));
 
-    // Remove the newsletter.
+    // Remove the subscription.
     $this->drupalGet('admin/people/simplenews/edit/' . $subscriber->id());
     $this->assertSession()->titleEquals('Edit subscriber ' . $subscriber->getMail() . ' | Drupal');
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
-    $subscriber = Subscriber::load($subscriber->id());
-    $nlids = $subscriber->getSubscribedNewsletterIds();
-    // If the subscriber still has subscribed to newsletter, try to unsubscribe.
-    $newsletter_id = reset($nlids);
-    $edit['subscriptions[' . $newsletter_id . ']'] = FALSE;
+    $edit['subscriptions[' . $newsletter_name . ']'] = FALSE;
     $this->submitForm($edit, 'Save');
     \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->resetCache();
-    $subscription_manager->reset();
-    $nlids = $subscriber->getSubscribedNewsletterIds();
-    $this->assertFalse($subscription_manager->isSubscribed($subscriber->getMail(), reset($nlids)), t('Subscriber not subscribed anymore.'));
+    $this->assertFalse($subscription_manager->isSubscribed($subscriber->getMail(), $newsletter_name), t('Subscriber not subscribed anymore.'));
 
     /*
      * @todo Test Admin subscriber edit preferred $subscription->language
@@ -717,12 +691,10 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertSession()->pageTextContains('The following addresses were added or updated: drupaltest@example.com.');
     $this->assertSession()->pageTextContains("The addresses were subscribed to the following newsletters: $newsletter_name.");
 
-    // Check exact subscription statuses.
+    // Check subscription status.
     $subscriber = Subscriber::loadByMail('drupaltest@example.com');
     $this->assertTrue($subscriber->isSubscribed($newsletter_name));
-    // The second newsletter was not subscribed, so there should be no
-    // subscription record at all.
-    $this->assertFalse($subscriber->getSubscription($second_newsletter_name));
+    $this->assertFalse($subscriber->isSubscribed($second_newsletter_name));
   }
 
   /**
@@ -787,7 +759,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Create some subscribers and subscribe to the default newsletter.
     for ($i = 0; $i < 3; $i++) {
       $subscriber = Subscriber::create(['mail' => $this->randomEmail()]);
-      $subscriber->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED)->save();
+      $subscriber->subscribe('default')->save();
       $subscribers[] = $subscriber;
     }
 
@@ -867,7 +839,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Create some subscribers and subscribe to the default newsletter.
     for ($i = 0; $i < 3; $i++) {
       $subscriber = Subscriber::create(['mail' => $this->randomEmail()]);
-      $subscriber->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED)->save();
+      $subscriber->subscribe('default')->save();
       $subscribers[] = $subscriber;
     }
 
@@ -878,21 +850,16 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
 
     // Filter out subscribers by their subscription status and assert the
     // output.
-    $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, 'status' => SubscriberInterface::ACTIVE]]);
+    $this->drupalGet('admin/people/simplenews', ['query' => ['status' => SubscriberInterface::ACTIVE, 'subscriptions_target_id' => 'default']]);
     $row = $this->xpath('//tbody/tr');
     $this->assertCount(1, $row);
     $this->assertEquals($subscribers[0]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
-    $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, 'status' => SubscriberInterface::UNCONFIRMED]]);
+    $this->drupalGet('admin/people/simplenews', ['query' => ['status' => SubscriberInterface::UNCONFIRMED, 'subscriptions_target_id' => 'default']]);
     $row = $this->xpath('//tbody/tr');
     $this->assertCount(1, $row);
     $this->assertEquals($subscribers[1]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
     $this->assertEquals('Unconfirmed', trim($row[0]->find('xpath', '/td[4]')->getText()));
     $this->assertSession()->pageTextContains($newsletters['default']->name);
-    $this->drupalGet('admin/people/simplenews', ['query' => ['subscriptions_status' => SIMPLENEWS_SUBSCRIPTION_STATUS_UNSUBSCRIBED]]);
-    $row = $this->xpath('//tbody/tr');
-    $this->assertCount(1, $row);
-    $this->assertEquals($subscribers[2]->getMail(), trim($row[0]->find('xpath', '/td')->getText()));
-    $this->assertSession()->pageTextContains($newsletters['default']->name . ' (' . 'Unsubscribed' . ')');
   }
 
   /**
@@ -1047,7 +1014,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Create a user and subscribe them.
     $user = $this->drupalCreateUser();
     $subscriber = Subscriber::create(['mail' => $user->getEmail()]);
-    $subscriber->subscribe('default', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
+    $subscriber->subscribe('default');
     $subscriber->setStatus(SubscriberInterface::ACTIVE)->save();
 
     // Check anonymous user can't access admin page.

@@ -101,7 +101,7 @@ class SubscriberMassUnsubscribeForm extends FormBase {
       $email = trim($email);
       if ($this->emailValidator->isValid($email)) {
         foreach ($checked_lists as $newsletter_id) {
-          $this->subscriptionManager->unsubscribe($email, $newsletter_id, FALSE, 'mass unsubscribe');
+          $this->subscriptionManager->unsubscribe($email, $newsletter_id);
           $removed[] = $email;
         }
       }

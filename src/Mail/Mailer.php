@@ -269,7 +269,6 @@ class Mailer implements MailerInterface {
         if (isset(static::TRACK_RESULTS[$row->result])) {
           $item = &$results_table[$row->entity_type][$row->entity_id][$row->result];
           $item = ($item ?? 0) + 1;
-          ;
         }
       }
 

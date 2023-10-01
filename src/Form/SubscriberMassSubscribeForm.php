@@ -141,13 +141,12 @@ class SubscriberMassSubscribeForm extends FormBase {
           // unsubscribed.
           $is_unsubscribed = $subscriber->isUnsubscribed($newsletter->id());
           if (!$is_unsubscribed || $form_state->getValue('resubscribe') == TRUE) {
-            $subscriber->subscribe($newsletter->id(), NULL, 'mass subscribe');
+            $subscriber->subscribe($newsletter->id())->save();
             $added[] = $email;
           }
           else {
             $unsubscribed[$newsletter->label()][] = $email;
           }
-          $subscriber->save();
         }
       }
       else {

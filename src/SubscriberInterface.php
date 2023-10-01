@@ -29,7 +29,7 @@ interface SubscriberInterface extends ContentEntityInterface {
    * Returns the subscriber's status.
    *
    * @return int
-   *   The subscribers status: INACTIVE, ACTIVE or UNCONFIRMED.
+   *   The subscriber's status: INACTIVE, ACTIVE or UNCONFIRMED.
    */
   public function getStatus();
 
@@ -37,7 +37,7 @@ interface SubscriberInterface extends ContentEntityInterface {
    * Checks if the subscriber is active.
    *
    * @return bool
-   *   TRUE if the subscribers status is ACTIVE.
+   *   TRUE if the subscriber's status is ACTIVE.
    */
   public function isActive();
 
@@ -64,7 +64,7 @@ interface SubscriberInterface extends ContentEntityInterface {
   public function setStatus(int $status);
 
   /**
-   * Returns the subscribers email address.
+   * Returns the subscriber's email address.
    *
    * @return string
    *   The subscribers email address.
@@ -72,7 +72,7 @@ interface SubscriberInterface extends ContentEntityInterface {
   public function getMail();
 
   /**
-   * Sets the subscribers email address.
+   * Sets the subscriber's email address.
    *
    * @param string $mail
    *   The subscribers email address.
@@ -110,7 +110,7 @@ interface SubscriberInterface extends ContentEntityInterface {
    * Sets the lang code.
    *
    * @param string $langcode
-   *   The subscribers lang code.
+   *   The subscriber's lang code.
    *
    * @return $this
    */
@@ -121,10 +121,12 @@ interface SubscriberInterface extends ContentEntityInterface {
    *
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The account to fill from.
+   * @param bool
+   *   TRUE to copy shared and base fields, FALSE to copy only base fields.
    *
    * @return $this
    */
-  public function fillFromAccount(AccountInterface $account);
+  public function fillFromAccount(AccountInterface $account, bool $shared_fields = TRUE);
 
   /**
    * Copy values to a user account.
@@ -159,17 +161,6 @@ interface SubscriberInterface extends ContentEntityInterface {
   public function isUnsubscribed(string $newsletter_id);
 
   /**
-   * Returns the subscription to a given newsletter.
-   *
-   * @param string $newsletter_id
-   *   The ID of a newsletter.
-   *
-   * @return \Drupal\simplenews\Plugin\Field\FieldType\SubscriptionItem
-   *   The subscription item if the subscriber is subscribed, otherwise FALSE.
-   */
-  public function getSubscription(string $newsletter_id);
-
-  /**
    * Get the ids of all subscribed newsletters.
    *
    * @return array
@@ -182,30 +173,20 @@ interface SubscriberInterface extends ContentEntityInterface {
    *
    * @param string $newsletter_id
    *   The ID of a newsletter.
-   * @param int $deprecated
-   *   (optional) Must be SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED or NULL.
-   * @param string $source
-   *   (optional) The source where the subscription comes from.
-   * @param int $timestamp
-   *   (optional) The timestamp of when the subscription was added.
    *
    * @return $this
    */
-  public function subscribe(string $newsletter_id, int $deprecated = NULL, string $source = 'unknown', int $timestamp = REQUEST_TIME);
+  public function subscribe(string $newsletter_id);
 
   /**
    * Delete a subscription to a certain newsletter of the subscriber.
    *
    * @param string $newsletter_id
    *   The ID of a newsletter.
-   * @param string $source
-   *   The source where the subscription comes from.
-   * @param int $timestamp
-   *   The timestamp of when the subscription was added.
    *
    * @return $this
    */
-  public function unsubscribe(string $newsletter_id, string $source = 'unknown', int $timestamp = REQUEST_TIME);
+  public function unsubscribe(string $newsletter_id);
 
   /**
    * Send a confirmation email if required.
