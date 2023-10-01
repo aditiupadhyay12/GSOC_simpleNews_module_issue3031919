@@ -675,3 +675,49 @@ function simplenews_update_840008() {
     $entity_definitions_installed->set($key, $definitions);
   }
 }
+
+/**
+ * Update subscriber views.
+ */
+function simplenews_update_840009() {
+  $config_factory = \Drupal::configFactory();
+  foreach ($config_factory->listAll('views.view.') as $view_config_name) {
+    $view = $config_factory->getEditable($view_config_name);
+    $displays = $view->get('display');
+
+    foreach ($displays as $display_name => $display) {
+      if (!empty($display['display_options']['fields'])) {
+        foreach ($display['display_options']['fields'] as $name => $field) {
+          if (($field['field'] == 'subscriptions_target_id') && ($field['table'] == 'simplenews_subscriber__subscriptions')) {
+            $field['type'] = 'entity_reference_label';
+            $field['settings'] = ['link' => false];
+            $view->set("display.$display_name.display_options.fields.$name", $field);
+          }
+          elseif (($field['field'] == 'status') && ($field['table'] == 'simplenews_subscriber')) {
+            $field['type'] = 'list_default';
+            $field['label'] = 'Status';
+            $field['plugin_id'] = 'field';
+            $view->set("display.$display_name.display_options.fields.$name", $field);
+          }
+        }
+      }
+
+      if (!empty($display['display_options']['filters'])) {
+        foreach ($display['display_options']['filters'] as $name => $filter) {
+          if (($filter['field'] == 'subscriptions_status') && ($filter['table'] == 'simplenews_subscriber__subscriptions')) {
+            // Remove the filter.
+            $view->clear("display.$display_name.display_options.filters.$name");
+          }
+          elseif (($filter['field'] == 'status') && ($filter['table'] == 'simplenews_subscriber')) {
+            $filter['expose']['label'] = 'Status';
+            $filter['plugin_id'] = 'in_operator';
+            $filter['operator'] = 'in';
+            $filter['value'] = [1 => '1'];
+            $view->set("display.$display_name.display_options.filters.$name", $filter);
+          }
+        }
+      }
+    }
+    $view->save(TRUE);
+  }
+}
