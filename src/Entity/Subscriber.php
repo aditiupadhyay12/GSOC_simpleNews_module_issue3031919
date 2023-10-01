@@ -374,7 +374,7 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
-    // Fields id, uuid, langcode are set by the parent.
+    // Fields id, uuid are set by the parent.
     $fields = parent::baseFieldDefinitions($entity_type);
 
     $fields['status'] = BaseFieldDefinition::create('list_tiny_integer')
