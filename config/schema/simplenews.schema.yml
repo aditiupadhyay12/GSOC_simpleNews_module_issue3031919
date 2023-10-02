@@ -135,6 +135,9 @@ simplenews.newsletter.*:
     access:
       type: string
       label: 'Controls access to subscribe and unsubscribe.'
+    reason:
+      type: text
+      label: 'Reason why the subscriber is receiving this newsletter.'
     weight:
       type: integer
       label: 'Weight of this newsletter (used for sorting).'

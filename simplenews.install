@@ -721,3 +721,15 @@ function simplenews_update_840009() {
     $view->save(TRUE);
   }
 }
+
+/**
+ * Initialise newsletter reason field.
+ */
+function simplenews_update_840010() {
+  foreach (Newsletter::loadMultiple() as $newsletter) {
+    if (empty($newsletter->reason)) {
+      $newsletter->reason = '';
+      $newsletter->save();
+    }
+  }
+}

@@ -126,6 +126,13 @@ class NewsletterForm extends EntityForm {
       '#description' => $this->t("Default: Any user with 'Subscribe to newsletters' permission can subscribe and unsubscribe.<br />Hidden: Subscription is mandatory or controlled programmatically."),
     ];
 
+    $form['subscription']['reason'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Reason'),
+      '#default_value' => $newsletter->reason,
+      '#description' => $this->t("Reason why the subscriber is receiving this newsletter, normally shown in the email footer. This is particularly important for hidden newsletters."),
+    ];
+
     $form['email'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Email settings'),
