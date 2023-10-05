@@ -94,7 +94,7 @@ function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $
         $route_parameters = ['snid' => $subscriber->id(), 'timestamp' => \Drupal::time()->getRequestTime()];
         switch ($name) {
           case 'subscribe-url':
-            if (!$newsletter) {
+            if (!$newsletter || !$subscriber->id()) {
               break;
             }
             $hash = simplenews_generate_hash($subscriber->getMail(), 'add');
@@ -108,12 +108,7 @@ function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $
             break;
 
           case 'unsubscribe-url':
-            if (!$newsletter) {
-              break;
-            }
-            if (!$subscriber->id()) {
-              // Temporary test subscriber.
-              $replacements[$original] = t('No unsubscribe link for test subscribers.');
+            if (!$newsletter || !$subscriber->id()) {
               break;
             }
             $hash = simplenews_generate_hash($subscriber->getMail(), 'remove');

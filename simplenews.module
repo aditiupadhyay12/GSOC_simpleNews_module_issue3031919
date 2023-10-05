@@ -862,8 +862,10 @@ function template_preprocess_simplenews_newsletter_body(&$variables) {
   $variables['unsubscribe_text'] = t('Unsubscribe from this newsletter', [], ['langcode' => $variables['language']]);
   $variables['test_message'] = t('This is a test version of the newsletter.', [], ['langcode' => $variables['language']]);
 
-  // Do not display the unsubscribe link by default for hidden categories.
-  $variables['opt_out_hidden'] = !$variables['newsletter']->isAccessible();
+  // Do not display the unsubscribe link for hidden categories or temporary
+  // subscribers for test/extra.
+  $temp_subscriber = ($variables['key'] != 'node') && !$elements['#simplenews_subscriber']->id();
+  $variables['opt_out_hidden'] = !$variables['newsletter']->isAccessible() || $temp_subscriber;
 }
 
 /**

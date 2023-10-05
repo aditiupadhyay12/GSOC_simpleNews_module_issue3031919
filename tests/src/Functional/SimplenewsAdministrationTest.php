@@ -783,6 +783,8 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     $this->assertEquals($admin_user->getEmail(), $mails[0]['to']);
     $this->assertEquals(t('[Default newsletter] @title', ['@title' => $node->getTitle()]), $mails[0]['subject']);
     $this->assertStringContainsString('User ID: ' . $admin_user->id(), $mails[0]['body']);
+    $this->assertStringNotContainsString('Unsubscribe from this newsletter', $mails[0]['body']);
+    $this->assertStringNotContainsString('[simplenews-subscriber:unsubscribe-link]', $mails[0]['body']);
 
     // Update the content type, remove the simpletest checkbox.
     $edit = [
