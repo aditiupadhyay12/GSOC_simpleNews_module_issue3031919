@@ -63,8 +63,10 @@ interface MailerInterface {
    *   The newsletter issue to be sent.
    * @param array $test_addresses
    *   List of addresses to send the newsletter to.
+   * @param string $key
+   *   (optional) Key to use for sending the mail. Defaults to 'test'.
    */
-  public function sendTest(ContentEntityInterface $issue, array $test_addresses);
+  public function sendTest(ContentEntityInterface $issue, array $test_addresses, string $key = 'test');
 
   /**
    * Send subscribe confirmation mail if needed.

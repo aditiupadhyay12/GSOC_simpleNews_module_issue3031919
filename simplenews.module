@@ -584,6 +584,7 @@ function simplenews_mail($key, &$message, $params) {
   switch ($key) {
     case 'node':
     case 'test':
+    case 'extra':
       $builder->buildNewsletterMail($message, $params['simplenews_mail']);
       break;
 
@@ -848,6 +849,7 @@ function template_preprocess_simplenews_newsletter_body(&$variables) {
   $variables['key'] = $elements['#key'];
   $variables['newsletter'] = $elements['#newsletter'];
   $variables['simplenews_subscriber'] = $elements['#simplenews_subscriber'];
+  $variables['reason'] = $elements['#newsletter']->reason;
 
   $variables['build'] = [];
   foreach (Element::children($elements) as $key) {
@@ -859,13 +861,21 @@ function template_preprocess_simplenews_newsletter_body(&$variables) {
     $variables['build'][$key] = $elements[$key];
   }
 
-  $variables['unsubscribe_text'] = t('Unsubscribe from this newsletter', [], ['langcode' => $variables['language']]);
-  $variables['test_message'] = t('This is a test version of the newsletter.', [], ['langcode' => $variables['language']]);
+  if ($variables['key'] == 'extra') {
+    $variables['reason'] = t('This email is a one-off message sent by an administrator.', [], ['langcode' => $variables['language']]);
+  }
+  elseif ($variables['key'] == 'test') {
+    $variables['test_message'] = t('This is a test version of the newsletter.', [], ['langcode' => $variables['language']]);
+  }
 
-  // Do not display the unsubscribe link for hidden categories or temporary
-  // subscribers for test/extra.
+  // Display the unsubscribe link if accessible and not a temporary subscriber.
   $temp_subscriber = ($variables['key'] != 'node') && !$elements['#simplenews_subscriber']->id();
-  $variables['opt_out_hidden'] = !$variables['newsletter']->isAccessible() || $temp_subscriber;
+  if ($variables['newsletter']->isAccessible() && !$temp_subscriber) {
+    $variables['unsubscribe_text'] = t('Unsubscribe from this newsletter', [], ['langcode' => $variables['language']]);
+  }
+  else {
+    $variables['opt_out_hidden'] = TRUE;
+  }
 }
 
 /**

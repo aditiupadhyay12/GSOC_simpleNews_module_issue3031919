@@ -493,14 +493,59 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     $this->drupalGet('node/1/simplenews');
     $this->assertSession()->pageTextContains('Newsletter issue sent to 2 subscribers, 3 errors.');
 
-    // Send extra copy.
+  }
+
+  /**
+   * Tests subscribed reason.
+   */
+  public function testReason() {
+    $newsletter = $this->getRandomNewsletter();
+    $reason = $this->randomString(50);
+    $this->drupalGet("/admin/config/services/simplenews/manage/$newsletter");
+    $this->submitForm(['reason' => $reason], 'Save');
+
+    // Create issue.
+    $issue = Node::create([
+      'type' => 'simplenews_issue',
+      'title' => $this->randomString(10),
+      'simplenews_issue' => ['target_id' => $newsletter],
+    ]);
+    $issue->save();
+
+    // Send test
     $to = $this->randomEmail(8);
-    $this->submitForm(['test_address' => $to], 'Send extra newsletter issue');
+    $this->drupalGet('node/1/simplenews');
+    $this->submitForm(['test_address' => $to], 'Send test newsletter issue');
     $this->assertSession()->pageTextContains("Test newsletter sent to anonymous $to");
     $mails = $this->getMails();
     $mail = end($mails);
     $this->assertEquals('simplenews_test', $mail['id']);
     $this->assertEquals($to, $mail['to']);
+    $this->assertStringContainsString($reason, $mail['body']);
+    $this->assertStringContainsString('This is a test version of the newsletter.', $mail['body']);
+    $this->assertStringNotContainsString('This email is a one-off message sent by an administrator.', $mail['body']);
+
+    // Send for real.
+    \Drupal::service('simplenews.spool_storage')->addIssue($issue);
+    simplenews_cron();
+    $mails = $this->getMails();
+    $mail = end($mails);
+    $this->assertEquals('simplenews_node', $mail['id']);
+    $this->assertStringContainsString($reason, $mail['body']);
+    $this->assertStringNotContainsString('This is a test version of the newsletter.', $mail['body']);
+    $this->assertStringNotContainsString('This email is a one-off message sent by an administrator.', $mail['body']);
+
+    // Send extra copy.
+    $this->drupalGet('node/1/simplenews');
+    $this->submitForm(['test_address' => $to], 'Send extra newsletter issue');
+    $this->assertSession()->pageTextContains("Test newsletter sent to anonymous $to");
+    $mails = $this->getMails();
+    $mail = end($mails);
+    $this->assertEquals('simplenews_extra', $mail['id']);
+    $this->assertEquals($to, $mail['to']);
+    $this->assertStringNotContainsString($reason, $mail['body']);
+    $this->assertStringNotContainsString('This is a test version of the newsletter.', $mail['body']);
+    $this->assertStringContainsString('This email is a one-off message sent by an administrator.', $mail['body']);
   }
 
   /**

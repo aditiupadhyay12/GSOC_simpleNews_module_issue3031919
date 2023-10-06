@@ -209,7 +209,9 @@ class NodeTabForm extends FormBase {
    *   Form state.
    */
   public function submitTestMail(array &$form, FormStateInterface $form_state) {
-    $this->mailer->sendTest($form_state->get('node'), $form_state->get('test_addresses'));
+    $node = $form_state->get('node');
+    $key = ($node->simplenews_issue->status == SIMPLENEWS_STATUS_SEND_NOT) ? 'test' : 'extra';
+    $this->mailer->sendTest($node, $form_state->get('test_addresses'), $key);
   }
 
   /**

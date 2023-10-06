@@ -359,7 +359,7 @@ class Mailer implements MailerInterface {
   /**
    * {@inheritdoc}
    */
-  public function sendTest(ContentEntityInterface $issue, array $test_addresses) {
+  public function sendTest(ContentEntityInterface $issue, array $test_addresses, string $key = 'test') {
     // Force the current user to anonymous to ensure consistent permissions.
     $this->accountSwitcher->switchTo(new AnonymousUserSession());
 
@@ -380,7 +380,7 @@ class Mailer implements MailerInterface {
           $recipients['anonymous'][] = $mail;
         }
         $mail = new MailEntity($issue, $subscriber, $this->mailCache);
-        $mail->setKey('test');
+        $mail->setKey($key);
         $this->sendMail($mail);
       }
     }
