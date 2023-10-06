@@ -27,11 +27,11 @@ function simplenews_token_info() {
   // Tokens for simplenews subscriber.
   $subscriber['subscribe-url'] = [
     'name' => t('Subscription URL'),
-    'description' => t('The URL of the page where the subscription is confirmed.'),
+    'description' => t('The URL of the page to add a subscription. For immediate addition, put "/ok" after the token.'),
   ];
   $subscriber['unsubscribe-url'] = [
     'name' => t('Unsubscribe URL'),
-    'description' => t('The URL of the page where the cancellation of the subscription is confirmed.'),
+    'description' => t('The URL of the page to remove a subscription. For immediate removal, put "/ok" after the token.'),
   ];
   $subscriber['manage-url'] = [
     'name' => t('Manage URL'),
@@ -39,7 +39,7 @@ function simplenews_token_info() {
   ];
   $subscriber['confirm-url'] = [
     'name' => t('Subscribe confirmation URL'),
-    'description' => t('The URL of the page where subscribers can confirm their subscription changes.'),
+    'description' => t('The URL of the page where subscribers can confirm their subscription changes. For immediate confirmation, put "/ok" after the token.'),
   ];
   $subscriber['mail'] = [
     'name' => t('Subscriber email'),
