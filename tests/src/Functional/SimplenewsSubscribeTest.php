@@ -49,6 +49,9 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $this->drupalLogout();
 
+    // Track hook results.
+    $this->trackHookResults();
+
     $enable = array_rand($newsletters, 3);
     $mail = $this->randomEmail(8);
     $this->subscribe($enable, $mail);
@@ -63,6 +66,8 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
 
     $this->drupalGet($confirm_url);
     $this->assertSession()->responseContains('Are you sure you want to confirm your subscription for <em class="placeholder">' . simplenews_mask_mail($mail) . '</em>?');
+    $this->assertNoHookResult();
+
     $this->submitForm([], 'Confirm');
     $this->assertSession()->responseContains('Subscription changes confirmed for <em class="placeholder">' . $mail . '</em>.');
 
@@ -79,12 +84,14 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       if (in_array($newsletter_id, $enable)) {
         $this->assertTrue($is_subscribed);
         $this->assertCount(1, $subscription_newsletter);
+        $this->assertHookResult('add', $mail, $newsletter_id);
       }
       else {
         $this->assertFalse($is_subscribed);
         $this->assertCount(0, $subscription_newsletter);
       }
     }
+    $this->assertNoHookResult();
 
     // Go to the manage page and submit without changes.
     $subscriber = Subscriber::loadByMail($mail);
@@ -93,6 +100,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->submitForm([], 'Update');
     $this->assertSession()->pageTextContains('Your newsletter subscriptions have been updated.');
     $this->assertCount(1, $this->getMails(), 'No confirmation mails have been sent.');
+    $this->assertNoHookResult();
 
     // Unsubscribe from two of the three enabled newsletters.
     $disable = array_rand(array_flip($enable), 2);
@@ -118,6 +126,11 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
         $this->assertFalse($is_subscribed);
       }
     }
+
+    foreach ($disable as $newsletter_id) {
+      $this->assertHookResult('remove', $mail, $newsletter_id);
+    }
+    $this->assertNoHookResult();
 
     // Test expired confirmation links.
     $enable = array_rand($newsletters, 3);
@@ -150,11 +163,14 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
    * Test immediate confirmation.
    */
   public function testConfirmImmediate() {
+    $this->trackHookResults();
     $email = $this->randomEmail(8);
     $this->subscribe('default', $email);
     $confirm_url = $this->extractConfirmationLink($this->getMail());
     $this->drupalGet("$confirm_url/ok");
     $this->assertSession()->responseContains('Subscription changes confirmed for <em class="placeholder">' . $email . '</em>.');
+    $this->assertHookResult('add', $email, 'default');
+    $this->assertNoHookResult();
   }
 
   /**
@@ -985,6 +1001,38 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
   protected function resetSubscribers() {
     $storage = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber');
     $storage->delete($storage->loadMultiple());
+  }
+
+  /**
+   * Enables tracking of (un)subscribe hooks.
+   */
+  protected function trackHookResults() {
+    \Drupal::state()->set('simplenews.test_hook_results', []);
+  }
+
+  /**
+   * Checks that an (un)subscribe hook has been called.
+   *
+   * @param string $op
+   *   The operation: add or remove.
+   * @param string $email
+   *   The subscriber email address.
+   * @param string $newsletter_id
+   *   The newsletter ID for this specific subscribe action.
+   */
+  protected function assertHookResult(string $op, string $email, string $newsletter_id) {
+    $results = \Drupal::state()->get('simplenews.test_hook_results');
+    $key = array_search([$op, $email, $newsletter_id], $results);
+    $this->assertNotFalse($key, "Hook $op called for $email on newsletter $newsletter_id");
+    unset($results[$key]);
+    \Drupal::state()->set('simplenews.test_hook_results', $results);
+  }
+
+  /**
+   * Checks that there were no extra calls to (un)subscribe hooks.
+   */
+  protected function assertNoHookResult() {
+    $this->assertEmpty(\Drupal::state()->get('simplenews.test_hook_results'));
   }
 
 }

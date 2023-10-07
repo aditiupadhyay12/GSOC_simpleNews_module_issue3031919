@@ -268,7 +268,6 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
       $this->get('subscriptions')->appendItem(['target_id' => $newsletter_id]);
     }
 
-    \Drupal::moduleHandler()->invokeAll('simplenews_subscribe', [$this, $newsletter_id]);
     return $this;
   }
 
@@ -287,7 +286,6 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
     // Clear any existing mail spool rows for this subscriber.
     \Drupal::service('simplenews.spool_storage')->deleteMails(['snid' => $this->id(), 'newsletter_id' => $newsletter_id]);
 
-    \Drupal::moduleHandler()->invokeAll('simplenews_unsubscribe', [$this, $newsletter_id]);
     return $this;
   }
 
@@ -300,6 +298,26 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
     // Copy values for shared fields to existing user.
     if ($this->isConfirmed() && $user = $this->getUser()) {
       $this->copyToAccount($user);
+    }
+
+    if ($this->isConfirmed()) {
+      // Call hooks.
+      $module_handler = \Drupal::moduleHandler();
+      $current = $this->getSubscribedNewsletterIds();
+      if (isset($this->original) && $this->original->isConfirmed()) {
+        $original = $this->original->getSubscribedNewsletterIds();
+      }
+      else {
+        $original = [];
+      }
+
+      foreach (array_diff($current, $original) as $newsletter_id) {
+        $module_handler->invokeAll('simplenews_subscribe', [$this, $newsletter_id]);
+      }
+
+      foreach (array_diff($original, $current) as $newsletter_id) {
+        $module_handler->invokeAll('simplenews_unsubscribe', [$this, $newsletter_id]);
+      }
     }
 
     // Track history.

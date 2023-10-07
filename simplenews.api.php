@@ -5,8 +5,7 @@
  * Hooks provided by the Simplenews module.
  */
 
-use Drupal\simplenews\Entity\Newsletter;
-use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\NewsletterInterface;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\SubscriberInterface;
 
@@ -106,102 +105,30 @@ function hook_simplenews_subscription_operations() {
 }
 
 /**
- * Act after a newsletter category has been saved.
- *
- * @param \Drupal\simplenews\Entity\Newsletter $newsletter
- *   The newsletter object.
- *
- * @ingroup newsletter
- */
-function hook_simplenews_newsletter_update(Newsletter $newsletter) {
-
-}
-
-/**
- * Act after a newsletter category has been deleted.
- *
- * @param \Drupal\simplenews\Entity\Newsletter $newsletter
- *   The newsletter object.
- *
- * @ingroup newsletter
- */
-function hook_simplenews_newsletter_delete(Newsletter $newsletter) {
-
-}
-
-/**
- * Act after a newsletter category has been inserted.
- *
- * @param \Drupal\simplenews\Entity\Newsletter $newsletter
- *   The newsletter object.
- *
- * @ingroup newsletter
- */
-function hook_simplenews_newsletter_insert(Newsletter $newsletter) {
-
-}
-
-/**
- * Act after a subscriber is updated.
- *
- * @param \Drupal\simplenews\Entity\Subscriber $subscriber
- *   The subscriber object including all subscriptions of this user.
- *
- * @ingroup subscriber
- */
-function hook_simplenews_subscriber_update(Subscriber $subscriber) {
-
-}
-
-/**
- * Act after a new subscriber has been created.
- *
- * @param \Drupal\simplenews\Entity\Subscriber $subscriber
- *   The subscriber object including all subscriptions of this user.
- *
- * @ingroup subscriber
- */
-function hook_simplenews_subscriber_insert(Subscriber $subscriber) {
-
-}
-
-/**
- * Act after a subscriber has been deleted.
- *
- * @param \Drupal\simplenews\Entity\Subscriber $subscriber
- *   The subscriber object including all subscriptions of this user.
- *
- * @ingroup subscriber
- */
-function hook_simplenews_subscriber_delete(Subscriber $subscriber) {
-
-}
-
-/**
  * Invoked if a subscriber is subscribed to a newsletter.
  *
- * @param \Drupal\simplenews\Entity\Subscriber $subscriber
+ * @param \Drupal\simplenews\SubscriberInterface $subscriber
  *   The subscriber object including all subscriptions of this user.
  * @param string $newsletter_id
  *   The newsletter ID for this specific subscribe action.
  *
  * @ingroup subscriber
  */
-function hook_simplenews_subscribe(Subscriber $subscriber, $newsletter_id) {
+function hook_simplenews_subscribe(SubscriberInterface $subscriber, string $newsletter_id) {
 
 }
 
 /**
  * Invoked if a subscriber is unsubscribed from a newsletter.
  *
- * @param \Drupal\simplenews\Entity\Subscriber $subscriber
+ * @param \Drupal\simplenews\SubscriberInterface $subscriber
  *   The subscriber object including all subscriptions of this user.
- * @param string $subscription
- *   The subscription object for this specific unsubscribe action.
+ * @param string $newsletter_id
+ *   The newsletter ID for this specific subscribe action.
  *
  * @ingroup subscriber
  */
-function hook_simplenews_unsubscribe(Subscriber $subscriber, $subscription) {
+function hook_simplenews_unsubscribe(SubscriberInterface $subscriber, string $newsletter_id) {
 
 }
 
