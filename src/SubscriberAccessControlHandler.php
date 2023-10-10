@@ -85,6 +85,7 @@ class SubscriberAccessControlHandler extends EntityAccessControlHandler {
       // Start a new switch to allow reuse of cases.
       switch ($field) {
         case 'created':
+        case 'langcode':
         case 'status':
           // Only admin can edit.
           return AccessResult::allowedIfHasPermission($account, 'administer simplenews subscriptions');
