@@ -106,7 +106,7 @@ class ConfirmationController extends ControllerBase {
   }
 
   /**
-   * Menu callback: handle (un)subscription request.
+   * Menu callback: handle add/remove subscription request.
    *
    * This function is called by clicking a link from a subscribe token
    * (subscribe-url or unsubscribe-url). It acts on an existing confirmed
@@ -156,20 +156,13 @@ class ConfirmationController extends ControllerBase {
         $build['#attached']['html_head'][] = $html_head;
         return $build;
       }
-      // When called with additional arguments the user will be directed to the
-      // (un)subscribe confirmation page. The additional arguments will be
-      // passed on to the confirmation page.
+
+      // Build the (un)subscribe confirmation form.
       if (!$immediate) {
-        if ($action == 'remove') {
-          $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmRemovalForm', $subscriber, $newsletter);
-          $build['#attached']['html_head'][] = $html_head;
-          return $build;
-        }
-        elseif ($action == 'add') {
-          $build = $this->formBuilder()->getForm('\Drupal\simplenews\Form\ConfirmAddForm', $subscriber, $newsletter);
-          $build['#attached']['html_head'][] = $html_head;
-          return $build;
-        }
+        $form = ($action == 'remove') ? '\Drupal\simplenews\Form\ConfirmRemovalForm' : '\Drupal\simplenews\Form\ConfirmAddForm';
+        $build = $this->formBuilder()->getForm($form, $subscriber, $newsletter);
+        $build['#attached']['html_head'][] = $html_head;
+        return $build;
       }
       else {
         if ($action == 'remove') {
@@ -193,24 +186,6 @@ class ConfirmationController extends ControllerBase {
       }
     }
     throw new NotFoundHttpException();
-  }
-
-  /**
-   * Redirects subscribers to the appropriate page.
-   *
-   * Redirect to the 'Newsletters' tab for authenticated users or the 'Access
-   * your subscriptions' page otherwise.
-   *
-   * @return \Symfony\Component\HttpFoundation\RedirectResponse
-   *   Returns a redirect to the correct page.
-   */
-  public function subscriptionsPage() {
-    $user = $this->currentUser();
-
-    if ($user->isAuthenticated()) {
-      return $this->redirect('simplenews.newsletter_subscriptions_user', ['user' => $user->id()]);
-    }
-    return $this->redirect('simplenews.newsletter_validate');
   }
 
 }

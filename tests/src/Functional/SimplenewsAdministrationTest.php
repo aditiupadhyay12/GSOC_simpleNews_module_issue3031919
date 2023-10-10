@@ -154,10 +154,9 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
     // Set the password so that the login works.
     $user->passRaw = $edit['pass[pass1]'];
 
-    // Verify newsletter subscription page, redirecting to newsletters tab.
+    // Verify newsletters tab.
     $this->drupalLogin($user);
-    $this->drupalGet('newsletter/subscriptions');
-    $this->assertSession()->addressEquals('user/' . $user->id() . '/simplenews');
+    $this->drupalGet('user/' . $user->id() . '/simplenews');
     foreach ($newsletters as $newsletter) {
       if (strpos($newsletter->name, '-') === FALSE) {
         continue;

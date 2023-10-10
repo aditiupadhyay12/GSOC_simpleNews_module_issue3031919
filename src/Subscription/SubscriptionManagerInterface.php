@@ -23,7 +23,7 @@ interface SubscriptionManagerInterface {
    *
    * @return $this
    */
-  public function subscribe(string $mail, string $newsletter_id, ?string $preferred_langcode = NULL);
+  public function subscribe(string $mail, string $newsletter_id, string $preferred_langcode = NULL);
 
   /**
    * Unsubscribe a user from a newsletter.
@@ -79,5 +79,16 @@ interface SubscriptionManagerInterface {
    * Tidy unconfirmed subscriptions.
    */
   public function tidy();
+
+  /**
+   * Gets an appropriate URL for showing subscriber subscriptions.
+   *
+   * Returns the 'Newsletters' tab for authenticated users or the 'Access
+   * your subscriptions' page otherwise.
+   *
+   * @return \Drupal\Core\Url
+   *   URL for the correct page.
+   */
+  public function getsubscriptionsUrl();
 
 }

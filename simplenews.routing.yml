@@ -126,30 +126,6 @@ simplenews.subscriber_export:
   requirements:
     _permission: 'administer simplenews subscriptions'
 
-simplenews.newsletter_validate:
-  path: '/newsletter/validate'
-  defaults:
-    _form: '\Drupal\simplenews\Form\SubscriberValidateForm'
-    _title: 'Access your subscriptions'
-  requirements:
-    _permission: 'subscribe to newsletters'
-
-simplenews.newsletter_subscriptions:
-  path: '/newsletter/subscriptions'
-  defaults:
-    _controller: '\Drupal\simplenews\Controller\ConfirmationController::subscriptionsPage'
-    _title: 'Confirm newsletter subscriptions'
-  requirements:
-    _permission: 'subscribe to newsletters'
-
-simplenews.newsletter_subscriptions_arguments:
-  path: '/newsletter/subscriptions/{snid}/{timestamp}/{hash}'
-  defaults:
-    _entity_form: 'simplenews_subscriber.page'
-    _title: 'Your newsletter subscriptions'
-  requirements:
-    _permission: 'subscribe to newsletters'
-
 simplenews.newsletter_subscriptions_user:
   path: '/user/{user}/simplenews'
   defaults:
@@ -162,50 +138,6 @@ simplenews.newsletter_subscriptions_user:
       user:
         type: entity:user
 
-# The next 4 routes have no access check because the access is verified by the
-# hash. It's not good UX to force a user to login in order to unsubscribe.
-simplenews.newsletter_confirm:
-  path: '/newsletter/confirm/{snid}/{timestamp}/{hash}'
-  defaults:
-    _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmSubscribe'
-    _title: 'Confirm subscribe'
-  requirements:
-    _access: 'TRUE'
-  options:
-    no_cache: TRUE
-
-simplenews.newsletter_subscription:
-  path: '/newsletter/{action}/{snid}/{newsletter_id}/{timestamp}/{hash}'
-  defaults:
-    _controller: '\Drupal\simplenews\Controller\ConfirmationController::handleSubscription'
-    _title: 'Newsletter subscription'
-  requirements:
-    _access: 'TRUE'
-  options:
-    no_cache: TRUE
-
-simplenews.newsletter_confirm_immediate:
-  path: '/newsletter/confirm/{snid}/{timestamp}/{hash}/ok'
-  defaults:
-    _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmSubscribe'
-    _title: 'Confirm subscribe'
-    immediate: true
-  requirements:
-    _access: 'TRUE'
-  options:
-    no_cache: TRUE
-
-simplenews.newsletter_subscription_immediate:
-  path: '/newsletter/{action}/{snid}/{newsletter_id}/{timestamp}/{hash}/ok'
-  defaults:
-    _controller: '\Drupal\simplenews\Controller\ConfirmationController::handleSubscription'
-    _title: 'Newsletter subscription'
-    immediate: true
-  requirements:
-    _access: 'TRUE'
-  options:
-    no_cache: TRUE
-
 simplenews.node_tab:
   path: '/node/{node}/simplenews'
   defaults:
@@ -215,4 +147,91 @@ simplenews.node_tab:
     _custom_access: 'Drupal\simplenews\Form\NodeTabForm::checkAccess'
   options:
     _admin_route: true
+    no_cache: TRUE
+
+simplenews.subscriptions_validate:
+  path: '/simplenews/validate'
+  defaults:
+    _form: '\Drupal\simplenews\Form\SubscriberValidateForm'
+    _title: 'Access your subscriptions'
+  requirements:
+    _permission: 'subscribe to newsletters'
+
+# The remaining routes have no access check because the access is verified by the
+# hash. It's not good UX to force a user to login in order to unsubscribe.
+simplenews.subscriptions_manage:
+  path: '/simplenews/manage/{snid}/{timestamp}/{hash}'
+  defaults:
+    _entity_form: 'simplenews_subscriber.page'
+    _title: 'Your newsletter subscriptions'
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+simplenews.subscriptions_confirm:
+  path: '/simplenews/confirm/{snid}/{timestamp}/{hash}'
+  defaults:
+    _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmSubscribe'
+    _title: 'Confirm subscribe'
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+simplenews.subscriptions_remove:
+  path: '/simplenews/remove/{snid}/{newsletter_id}/{timestamp}/{hash}'
+  defaults:
+    _controller: '\Drupal\simplenews\Controller\ConfirmationController::handleSubscription'
+    _title: 'Remove newsletter subscription'
+    action: 'remove'
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+simplenews.subscriptions_add:
+  path: '/simplenews/add/{snid}/{newsletter_id}/{timestamp}/{hash}'
+  defaults:
+    _controller: '\Drupal\simplenews\Controller\ConfirmationController::handleSubscription'
+    _title: 'Add newsletter subscription'
+    action: 'add'
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+simplenews.subscriptions_confirm_immediate:
+  path: '/simplenews/confirm/{snid}/{timestamp}/{hash}/ok'
+  defaults:
+    _controller: '\Drupal\simplenews\Controller\ConfirmationController::confirmSubscribe'
+    _title: 'Confirm subscribe'
+    immediate: true
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+simplenews.subscriptions_remove_immediate:
+  path: '/simplenews/remove/{snid}/{newsletter_id}/{timestamp}/{hash}/ok'
+  defaults:
+    _controller: '\Drupal\simplenews\Controller\ConfirmationController::handleSubscription'
+    _title: 'Remove newsletter subscription'
+    immediate: true
+    action: 'remove'
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+simplenews.subscriptions_add_immediate:
+  path: '/simplenews/add/{snid}/{newsletter_id}/{timestamp}/{hash}/ok'
+  defaults:
+    _controller: '\Drupal\simplenews\Controller\ConfirmationController::handleSubscription'
+    _title: 'Add newsletter subscription'
+    immediate: true
+    action: 'add'
+  requirements:
+    _access: 'TRUE'
+  options:
     no_cache: TRUE

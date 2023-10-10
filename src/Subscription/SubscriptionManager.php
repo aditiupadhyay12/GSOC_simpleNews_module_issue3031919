@@ -8,7 +8,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\simplenews\Entity\Newsletter;
+use Drupal\Core\Url;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\SubscriberInterface;
 
@@ -95,7 +95,7 @@ class SubscriptionManager implements SubscriptionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function subscribe(string $mail, string $newsletter_id, ?string $preferred_langcode = NULL) {
+  public function subscribe(string $mail, string $newsletter_id, string $preferred_langcode = NULL) {
     if (func_num_args() > 3) {
       throw new \LogicException('Only 3 arguments are supported');
     }
@@ -192,6 +192,17 @@ class SubscriptionManager implements SubscriptionManagerInterface {
       ->execute();
 
     $this->subscriberStorage->delete($this->subscriberStorage->loadMultiple($unconfirmed));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getsubscriptionsUrl() {
+    $user = $this->currentUser;
+    if ($user->isAuthenticated()) {
+      return Url::fromRoute('simplenews.newsletter_subscriptions_user', ['user' => $user->id()]);
+    }
+    return Url::fromRoute('simplenews.subscriptions_validate');
   }
 
 }

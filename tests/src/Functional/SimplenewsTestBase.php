@@ -321,7 +321,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * Extract a confirmation link from a mail body.
    */
   protected function extractConfirmationLink($body) {
-    $pattern = '@newsletter/.+/.+/.+/.{20,}@';
+    $pattern = '@simplenews/.+/.+/.+/.{20,}@';
     $found = preg_match($pattern, $body, $match);
     if (!$found) {
       $this->fail(t('No confirmation URL found in "@body".', ['@body' => $body]));

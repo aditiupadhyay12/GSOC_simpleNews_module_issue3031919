@@ -26,6 +26,7 @@ use Drupal\node\NodeTypeInterface;
 use Drupal\user\Entity\User;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\NewsletterInterface;
 use Drupal\simplenews\SubscriberInterface;
 use Drupal\user\UserInterface;
 
@@ -745,11 +746,48 @@ function simplenews_help($route_name, RouteMatchInterface $route_match) {
 }
 
 /**
- * Generates the hash key used for subscribe/unsubscribe link.
+ * Generates the hash key used for a subscriber link.
+ *
+ * @param string $mail
+ *   The email address.
+ * @param string $action
+ *   The action: confirm, manage, add or remove
+ * @param int $timestamp
+ *   The timestamp of the request.
+ *
+ * @return string
+ *   The hash key.
  */
-function simplenews_generate_hash($mail, $action = '', $timestamp = REQUEST_TIME) {
+function simplenews_generate_hash(string $mail, string $action, int $timestamp = REQUEST_TIME) {
   $data = $mail . \Drupal::service('private_key')->get() . $action . $timestamp;
   return Crypt::hashBase64($data);
+}
+
+/**
+ * Generates a subscriber URL.
+ *
+ * @param \Drupal\simplenews\SubscriberInterface $subscriber
+ *   The subscriber object including all subscriptions of this user.
+ * @param string $action
+ *   The action: confirm, manage, add or remove
+ * @param \Drupal\simplenews\NewsletterInterface $newsletter
+ *   (optional) The newsletter, for add/remove actions only.
+ *
+ * @return string
+ *   The URL string.
+ */
+function simplenews_generate_url(SubscriberInterface $subscriber, string $action, NewsletterInterface $newsletter = NULL) {
+  $url_arguments = ['absolute' => TRUE, 'langcode' => $subscriber->getLangcode()];
+  $route_parameters = [
+    'snid' => $subscriber->id(),
+    'timestamp' => \Drupal::time()->getRequestTime(),
+    'hash' => simplenews_generate_hash($subscriber->getMail(), $action),
+  ];
+  if ($newsletter) {
+    $route_parameters['newsletter_id'] = $newsletter->id();
+  }
+
+  return Url::fromRoute("simplenews.subscriptions_$action", $route_parameters, $url_arguments)->toString();
 }
 
 /**

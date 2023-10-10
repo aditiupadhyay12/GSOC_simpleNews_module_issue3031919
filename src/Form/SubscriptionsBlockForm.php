@@ -3,7 +3,6 @@
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\SubscriberInterface;
 
@@ -171,8 +170,7 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
     }
 
     if ($this->showManage) {
-      $user = \Drupal::currentUser();
-      $link = $user->isAuthenticated() ? Url::fromRoute('simplenews.newsletter_subscriptions_user', ['user' => $user->id()]) : Url::fromRoute('simplenews.newsletter_validate');
+      $link = \Drupal::service('simplenews.subscription_manager')->getsubscriptionsUrl();
       $actions['manage'] = [
         '#title' => $this->t('Manage existing'),
         '#type' => 'link',

@@ -45,7 +45,7 @@ class ConfirmAddForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('simplenews.newsletter_subscriptions');
+    return \Drupal::service('simplenews.subscription_manager')->getsubscriptionsUrl();
   }
 
   /**

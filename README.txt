@@ -189,30 +189,10 @@ INSTALLATION
     to 'hidden'. Note that manual recipient handling is separate from manual
     subscription handling — these are two separate concepts!
 
- 13. TIPS
-    A subscription page is available at: /newsletter/subscriptions
-
-    The Elysia Cron module (http://drupal.org/project/elysia_cron) can be used
-    to start the simplenews cron hook more often than others, so that newsletter
-    are sent faster without decreasing site performance due to long-running cron
-    hooks.
-
-    If your unsubscribe URL looks like:
-      http://newsletter/confirm/remove/8acd182182615t632
-    instead of:
-      http://www.example.com/newsletter/confirm/remove/8acd182182615t632
-    You should change the base URL in the settings.php file from
-      #  $base_url = 'http://www.example.com';  // NO trailing slash!
-    to
-      $base_url = 'http://www.example.com';  // NO trailing slash!
-
 
 RELATED MODULES
 ------------
 
- * Elysia Cron
-   Allows fine grained control over cron tasks.
-   http://http://drupal.org/project/elysia_cron
  * Mailsystem
    Extends drupal core mailystem wirh Administrative UI and Developers API.
    http://drupal.org/project/mailsystem
