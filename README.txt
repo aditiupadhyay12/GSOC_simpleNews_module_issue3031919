@@ -152,7 +152,7 @@ INSTALLATION
     'Send mail' options at:
       Administer > Configuration > Web Services > Newsletters > Settings > Send mail.
 
-11. (UN)SUBSCRIBE CONFIRMATION
+11. UNSUBSCRIBE CONFIRMATION
 
     By default the unsubscribe link will direct the user to a confirmation page.
     Upon confirmation the user is directed to the home page, where a message
@@ -162,10 +162,9 @@ INSTALLATION
 
     To skip the confirmation page you can add parameters to the subscription
     URL.
-      Example: [simplenews-subscribe-url]/ok
+      Example: [simplenews-subscriber:unsubscribe-url]/ok
     When an alternative destination page has been defined the extra parameters
     will be added to the destination URL.
-      Example: [simplenews-subscriber:subscribe-url]/ok
       Destination: node/123
       Destination URL: node/123/ok
 

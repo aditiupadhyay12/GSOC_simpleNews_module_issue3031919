@@ -24,10 +24,6 @@ function simplenews_token_info() {
   ];
 
   // Tokens for simplenews subscriber.
-  $subscriber['subscribe-url'] = [
-    'name' => t('Subscription URL'),
-    'description' => t('The URL of the page to add a subscription. For immediate addition, put "/ok" after the token.'),
-  ];
   $subscriber['unsubscribe-url'] = [
     'name' => t('Unsubscribe URL'),
     'description' => t('The URL of the page to remove a subscription. For immediate removal, put "/ok" after the token.'),
@@ -88,14 +84,6 @@ function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $
 
       foreach ($tokens as $name => $original) {
         switch ($name) {
-          case 'subscribe-url':
-            if (!$newsletter || !$subscriber->id()) {
-              break;
-            }
-            $bubbleable_metadata->setCacheMaxAge(0);
-            $replacements[$original] = simplenews_generate_url($subscriber, 'add', $newsletter);
-            break;
-
           case 'unsubscribe-url':
             if (!$newsletter || !$subscriber->id()) {
               break;
