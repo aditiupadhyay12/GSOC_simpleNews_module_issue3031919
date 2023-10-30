@@ -482,7 +482,7 @@ function simplenews_update_840004() {
   }
 
   if ($body = $config->get('subscription.confirm_combined_body')) {
-    $body = preg_replace('/\[simplenews-subscriber:combined-url\]/', '[simplenews-subscriber:confirm-url', $body);
+    $body = preg_replace('/\[simplenews-subscriber:combined-url\]/', '[simplenews-subscriber:confirm-url]', $body);
     $config->clear('subscription.confirm_combined_body');
     $config->set('subscription.confirm_body', $body);
   }
