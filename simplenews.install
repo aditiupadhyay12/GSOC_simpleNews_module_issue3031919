@@ -449,10 +449,12 @@ function simplenews_update_840002() {
 
   // Set all subscribers without a subscription to unconfirmed.
   $has_subscriptions = $database->query('SELECT DISTINCT [entity_id] FROM {simplenews_subscriber__subscriptions}')->fetchCol();
-  $database->update('simplenews_subscriber')
-    ->condition('id', $has_subscriptions, 'NOT IN')
-    ->fields(['status' => SubscriberInterface::UNCONFIRMED])
-    ->execute();
+  if (!empty($has_subscriptions)) {
+    $database->update('simplenews_subscriber')
+      ->condition('id', $has_subscriptions, 'NOT IN')
+      ->fields(['status' => SubscriberInterface::UNCONFIRMED])
+      ->execute();
+  }
 }
 
 /**
