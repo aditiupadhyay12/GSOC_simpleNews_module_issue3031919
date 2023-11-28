@@ -174,20 +174,6 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
   }
 
   /**
-   * Extract a validation link from a mail body.
-   */
-  protected function extractValidationLink($body) {
-    $pattern = '@simplenews/manage/.+/.+/.{20,}@';
-    $found = preg_match($pattern, $body, $match);
-    if (!$found) {
-      $this->fail(t('No validation URL found in "@body".', ['@body' => $body]));
-      return FALSE;
-    }
-    $validate_url = $match[0];
-    return $validate_url;
-  }
-
-  /**
    * TestSubscribeAnonymous.
    *
    * Steps performed:
@@ -749,7 +735,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     \Drupal::service('simplenews.spool_storage')->addIssue($node);
     \Drupal::service('simplenews.mailer')->sendSpool();
 
-    $unsubscribe_url = $this->extractConfirmationLink($this->getMail(0));
+    $unsubscribe_url = $this->extractConfirmationLink($this->getMail(0), 'remove');
     $this->drupalGet($unsubscribe_url);
     $this->assertSession()->pageTextContains('Confirm remove subscription');
     $this->submitForm([], 'Unsubscribe');
@@ -788,7 +774,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $this->drupalGet('/simplenews/validate');
     $this->submitForm(['mail' => $mail2], 'Submit');
     $this->assertSession()->pageTextContains("If $mail2 is subscribed, an email will be sent with a link to manage your subscriptions.");
-    $validate_url = $this->extractValidationLink($this->getMail(0));
+    $validate_url = $this->extractConfirmationLink($this->getMail(0), 'manage');
     $this->drupalGet($validate_url);
     $this->assertSession()->pageTextContains("Subscriptions for $mail2");
   }
