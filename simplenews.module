@@ -726,7 +726,7 @@ function simplenews_help($route_name, RouteMatchInterface $route_match) {
     case 'simplenews.settings_newsletter':
       $help = '<ul>';
       $help .= '<li>' . t('These settings are default to all newsletters. Newsletter specific settings can be found at the <a href=":page">newsletter\'s settings page</a>.', [':page' => Url::fromRoute('simplenews.newsletter_list')->toString()]) . "</li>\n";
-      $help .= '<li>' . t('Install <a href=":swift_mail_url">Swift Mailer</a> to send HTML emails or emails with attachments (both plain text and HTML).', [':swift_mail_url' => 'https://www.drupal.org/project/swiftmailer']) . "</li>\n";
+      $help .= '<li>' . t('Install <a href=":dsm_url">Drupal Symfony Mailer</a> to send HTML emails or emails with attachments (both plain text and HTML).', [':dsm_url' => 'https://www.drupal.org/project/symfony_mailer']) . "</li>\n";
       $help .= '</ul>';
       return $help;
 

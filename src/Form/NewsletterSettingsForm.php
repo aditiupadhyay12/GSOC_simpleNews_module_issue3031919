@@ -47,8 +47,8 @@ class NewsletterSettingsForm extends ConfigFormBase {
       '#collapsible' => FALSE,
       '#description' => $this->t('These options will be the defaults for new newsletters, but can be overridden in the newsletter editing form.'),
     ];
-    $links = [':swiftmailer_url' => 'http://drupal.org/project/swiftmailer'];
-    $description = $this->t('Default newsletter format. Install <a href=":swiftmailer_url">Swift Mailer</a> module to send newsletters in HTML format.', $links);
+    $links = [':dsm_url' => 'http://drupal.org/project/symfony_mailer'];
+    $description = $this->t('Default newsletter format. Install <a href=":dsm_url">Drupal Symfony Mailer</a> module to send newsletters in HTML format.', $links);
     $form['simplenews_default_options']['simplenews_format'] = [
       '#type' => 'select',
       '#title' => $this->t('Format'),

@@ -60,21 +60,21 @@ class MailBuilder implements MailBuilderInterface {
 
     if ($mail->getFormat() == 'html') {
       // Set the necessary headers to detect this as an HTML mail. Set both the
-      // Content-Type header, and the format (Swiftmailer) and plain (Mime Mail)
-      // params.
+      // Content-Type header, and the format (Drupal Symfony Mailer Lite) and
+      // plain (Mime Mail) params.
       $message['headers']['Content-Type'] = 'text/html; charset=UTF-8';
       $message['params']['format'] = 'text/html';
       $message['params']['plain'] = NULL;
 
       if ($this->config->get('mail.textalt')) {
         // Provide a plain text version, both in params][plaintext (Mime Mail)
-        // and plain (Swiftmailer).
+        // and plain (Drupal Symfony Mailer).
         $message['params']['plaintext'] = MailFormatHelper::htmlToText($mail->getPlainBody());
         $message['plain'] = $message['params']['plaintext'];
       }
 
-      // Add attachments, again, both for the attachments key (Mime Mail) and
-      // files (Swiftmailer).
+      // Add attachments, again, both for attachments (all known modules) and
+      // files (back-compatibility).
       $message['params']['attachments'] = $mail->getAttachments();
       $message['params']['files'] = $message['params']['attachments'];
     }

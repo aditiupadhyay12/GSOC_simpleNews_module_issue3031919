@@ -242,7 +242,7 @@ class SimplenewsSourceTest extends SimplenewsTestBase {
       $this->assertEquals(1, preg_match_all('/Mail token/', $mail['body'], $matches));
 
       // Check the plaintext version, both params][plaintext (Mime Mail) and
-      // plain (Swiftmailer).
+      // plain (Drupal Symfony Mailer).
       $this->assertStringContainsString($mail['to'], $mail['params']['plaintext']);
       $this->assertStringNotContainsString('<strong>', $mail['params']['plaintext']);
       $this->assertEquals($mail['params']['plaintext'], $mail['plain']);
