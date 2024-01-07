@@ -157,6 +157,14 @@ simplenews.subscriptions_validate:
   requirements:
     _permission: 'subscribe to newsletters'
 
+simplenews.subscriptions:
+  path: '/simplenews/subscriptions'
+  defaults:
+    _controller: '\Drupal\simplenews\Controller\ConfirmationController::subscriptionsPage'
+    _title: 'Subscriptions'
+  requirements:
+    _permission: 'subscribe to newsletters'
+
 # The remaining routes have no access check because the access is verified by the
 # hash. It's not good UX to force a user to login in order to unsubscribe.
 simplenews.subscriptions_manage:

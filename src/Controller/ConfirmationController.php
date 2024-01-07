@@ -188,4 +188,22 @@ class ConfirmationController extends ControllerBase {
     throw new NotFoundHttpException();
   }
 
+  /**
+   * Redirects subscribers to the appropriate page.
+   *
+   * Redirect to the 'Newsletters' tab for authenticated users or the 'Access
+   * your subscriptions' page otherwise.
+   *
+   * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   *   Returns a redirect to the correct page.
+   */
+  public function subscriptionsPage() {
+    $user = $this->currentUser();
+
+    if ($user->isAuthenticated()) {
+      return $this->redirect('simplenews.newsletter_subscriptions_user', ['user' => $user->id()]);
+    }
+    return $this->redirect('simplenews.subscriptions_validate');
+  }
+
 }

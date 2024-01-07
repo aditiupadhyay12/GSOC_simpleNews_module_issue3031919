@@ -751,7 +751,9 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
     $mail = $user->getEmail();
     $subscriber = Subscriber::loadByMail($mail, 'create');
     $subscriber->save();
-    $this->drupalGet('/simplenews/validate');
+    $this->drupalGet('simplenews/subscriptions');
+    $this->assertSession()->addressEquals('/simplenews/validate');
+
     $this->submitForm(['mail' => $mail], 'Submit');
     $this->assertSession()->pageTextContains("Please log in to manage your subscriptions.");
     $this->assertSession()->addressEquals('user/' . $user->id() . '/simplenews');
