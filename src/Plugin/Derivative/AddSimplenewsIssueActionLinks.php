@@ -3,8 +3,8 @@
 namespace Drupal\simplenews\Plugin\Derivative;
 
 use Drupal\Component\Plugin\Derivative\DeriverBase;
-use Drupal\node\Entity\NodeType;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\node\Entity\NodeType;
 
 /**
  * Provides dynamic link actions for simplenews content types.

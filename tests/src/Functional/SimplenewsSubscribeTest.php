@@ -4,9 +4,9 @@ namespace Drupal\Tests\simplenews\Functional;
 
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
-use Drupal\user\UserInterface;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\user\UserInterface;
 
 /**
  * Un/subscription of anonymous and authenticated users.

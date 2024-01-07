@@ -2,12 +2,12 @@
 
 namespace Drupal\simplenews\Form;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\SubscriberInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * Do a mass subscription for a list of email addresses.

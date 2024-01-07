@@ -2,8 +2,8 @@
 
 namespace Drupal\simplenews_demo\Plugin\simplenews\RecipientHandler;
 
-use Drupal\simplenews\SubscriberInterface;
 use Drupal\simplenews\Plugin\simplenews\RecipientHandler\RecipientHandlerEntityBase;
+use Drupal\simplenews\SubscriberInterface;
 
 /**
  * This handler sends to all subscribers with the specified role.

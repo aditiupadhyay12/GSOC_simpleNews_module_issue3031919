@@ -10,7 +10,6 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
@@ -24,7 +23,6 @@ use Drupal\migrate\Plugin\MigrationInterface;
 use Drupal\migrate\Row;
 use Drupal\node\NodeInterface;
 use Drupal\node\NodeTypeInterface;
-use Drupal\user\Entity\User;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\NewsletterInterface;
@@ -768,7 +766,7 @@ function simplenews_help($route_name, RouteMatchInterface $route_match) {
  * @param string $mail
  *   The email address.
  * @param string $action
- *   The action: confirm, manage, add or remove
+ *   The action: confirm, manage, add or remove.
  * @param int $timestamp
  *   The timestamp of the request.
  *
@@ -786,7 +784,7 @@ function simplenews_generate_hash(string $mail, string $action, int $timestamp =
  * @param \Drupal\simplenews\SubscriberInterface $subscriber
  *   The subscriber object including all subscriptions of this user.
  * @param string $action
- *   The action: confirm, manage, add or remove
+ *   The action: confirm, manage, add or remove.
  * @param \Drupal\simplenews\NewsletterInterface $newsletter
  *   (optional) The newsletter, for add/remove actions only.
  *

@@ -8,8 +8,8 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeInterface;
-use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\Mail\MailerInterface;
+use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

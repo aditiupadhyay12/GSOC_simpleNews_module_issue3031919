@@ -5,7 +5,6 @@
  * Hooks provided by the Simplenews module.
  */
 
-use Drupal\simplenews\NewsletterInterface;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
 use Drupal\simplenews\SubscriberInterface;
 

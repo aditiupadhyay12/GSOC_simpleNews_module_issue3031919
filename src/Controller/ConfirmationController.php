@@ -4,12 +4,12 @@ namespace Drupal\simplenews\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
-use Drupal\simplenews\SubscriberInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Drupal\simplenews\Entity\Subscriber;
 use Drupal\simplenews\Entity\Newsletter;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\SubscriberInterface;
 use Drupal\simplenews\Subscription\SubscriptionManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Returns responses for confirmation and subscriber routes.

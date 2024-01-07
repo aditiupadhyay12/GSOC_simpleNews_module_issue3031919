@@ -2,9 +2,9 @@
 
 namespace Drupal\simplenews\Plugin\views\field;
 
+use Drupal\user\Entity\User;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
-use Drupal\user\Entity\User;
 
 /**
  * Field handler to display username as a link.

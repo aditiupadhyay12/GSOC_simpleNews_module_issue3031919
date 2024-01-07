@@ -2,10 +2,10 @@
 
 namespace Drupal\simplenews\Plugin\Field\FieldType;
 
-use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
-use Drupal\Core\TypedData\MapDataDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\TypedData\DataDefinition;
+use Drupal\Core\TypedData\MapDataDefinition;
 
 /**
  * Defines the 'issue' entity field type (extended entity_reference).

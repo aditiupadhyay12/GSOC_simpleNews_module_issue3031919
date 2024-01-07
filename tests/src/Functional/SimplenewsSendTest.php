@@ -2,11 +2,11 @@
 
 namespace Drupal\Tests\simplenews\Functional;
 
-use Drupal\node\Entity\Node;
-use Drupal\user\Entity\User;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\node\Entity\Node;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Spool\SpoolStorageInterface;
+use Drupal\user\Entity\User;
 
 /**
  * Test cases for creating and sending newsletters.
@@ -512,7 +512,7 @@ class SimplenewsSendTest extends SimplenewsTestBase {
     ]);
     $issue->save();
 
-    // Send test
+    // Send test.
     $to = $this->randomEmail(8);
     $this->drupalGet('node/1/simplenews');
     $this->submitForm(['test_address' => $to], 'Send test newsletter issue');

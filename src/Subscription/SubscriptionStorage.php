@@ -2,9 +2,9 @@
 
 namespace Drupal\simplenews\Subscription;
 
+use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\simplenews\SubscriberInterface;
-use Drupal\Core\Database\Database;
 
 /**
  * Default subscription storage.

@@ -5,9 +5,9 @@ namespace Drupal\simplenews\Form;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\simplenews\RecipientHandler\RecipientHandlerManager;
 use Drupal\Core\Utility\LinkGeneratorInterface;
+use Drupal\simplenews\RecipientHandler\RecipientHandlerManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base form for category edit forms.

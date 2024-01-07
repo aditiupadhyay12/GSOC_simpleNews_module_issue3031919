@@ -2,6 +2,7 @@
 
 namespace Drupal\simplenews\Plugin\Block;
 
+use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -11,7 +12,6 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\simplenews\Entity\Subscriber;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Component\Uuid\UuidInterface;
 
 /**
  * Provides a subscription block with all available newsletters and email field.

@@ -5,8 +5,8 @@
  * Install, update and uninstall functions for the simplenews module.
  */
 
-use Drupal\Core\Entity\ContentEntityType;
 use Drupal\Core\Database\Database;
+use Drupal\Core\Entity\ContentEntityType;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -620,7 +620,7 @@ function simplenews_update_840006(&$sandbox) {
   }
 
   $sandbox['#finished'] = min(0.99, $sandbox['current'] / $sandbox['total']);
-  \Drupal::messenger()->addMessage($sandbox['#finished']*100 . '% complete.');
+  \Drupal::messenger()->addMessage($sandbox['#finished'] * 100 . '% complete.');
 }
 
 /**
@@ -692,7 +692,7 @@ function simplenews_update_840009() {
         foreach ($display['display_options']['fields'] as $name => $field) {
           if (($field['field'] == 'subscriptions_target_id') && ($field['table'] == 'simplenews_subscriber__subscriptions')) {
             $field['type'] = 'entity_reference_label';
-            $field['settings'] = ['link' => false];
+            $field['settings'] = ['link' => FALSE];
             $view->set("display.$display_name.display_options.fields.$name", $field);
           }
           elseif (($field['field'] == 'status') && ($field['table'] == 'simplenews_subscriber')) {
