@@ -10,6 +10,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
@@ -296,6 +297,13 @@ function simplenews_form_node_form_alter(&$form, FormStateInterface $form_state,
       }
     }
 
+    // Adds link to send page above a newsletter.
+    $admin_or_send_rights = (\Drupal::currentUser()->hasPermission('administer newsletters') || \Drupal::currentUser()->hasPermission('send newsletter'));
+    if ($admin_or_send_rights && ($node->simplenews_issue->status == SIMPLENEWS_STATUS_SEND_NOT)) {
+      // Adding custom callback to customize status message.
+      $form['actions']['submit']['#submit'][] = 'simplenews_form_node_submit';
+    }
+
     $config = \Drupal::config('simplenews.settings');
     if ($config->get('newsletter.issue_tokens') && \Drupal::moduleHandler()->moduleExists('token')) {
       $form['simplenews_token_help'] = [
@@ -314,6 +322,15 @@ function simplenews_form_node_form_alter(&$form, FormStateInterface $form_state,
       ];
     }
   }
+}
+
+/**
+ * Custom callback to customize status message.
+ */
+function simplenews_form_node_submit(array $form, FormStateInterface $form_state) {
+  $node_id = $form_state->getFormObject()->getEntity()->id();
+  $newsletter_url = Url::fromRoute('simplenews.node_tab', ['node' => $node_id]);
+  \Drupal::messenger()->addStatus(t('Send the newsletter via the <a href=":newsletter_url">Newsletter</a> tab.', [':newsletter_url' => $newsletter_url->toString()]));
 }
 
 /**
