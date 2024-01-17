@@ -104,7 +104,7 @@ interface MailInterface {
    * Returns the mail key to be used for mails.
    *
    * @return string
-   *   The mail key, either test or node.
+   *   The mail key, either test, extra or node.
    */
   public function getKey();
 
@@ -112,7 +112,7 @@ interface MailInterface {
    * Set the mail key.
    *
    * @param string $key
-   *   The mail key, either 'test' or 'node'.
+   *   The mail key, either test, extra or node.
    */
   public function setKey($key);
 
