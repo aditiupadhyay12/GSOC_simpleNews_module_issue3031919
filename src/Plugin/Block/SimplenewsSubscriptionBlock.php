@@ -184,6 +184,18 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
   /**
    * {@inheritdoc}
    */
+  public function blockValidate($form, FormStateInterface $form_state) {
+    $visible = array_filter($form_state->getValue('newsletters'));
+    $default = array_filter($form_state->getValue('default_newsletters'));
+    if (!$visible && !$default) {
+      $form_state->setErrorByName('newsletters', $this->t('You must set at least one visible or default newsletter.'));
+      $form_state->setErrorByName('default_newsletters');
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function blockSubmit($form, FormStateInterface $form_state) {
     $this->configuration['show_manage'] = $form_state->getValue('show_manage');
     $this->configuration['newsletters'] = array_filter($form_state->getValue('newsletters'));
