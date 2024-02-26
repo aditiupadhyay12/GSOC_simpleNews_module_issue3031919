@@ -113,7 +113,7 @@ class NewsletterForm extends EntityForm {
       '#title' => $this->t('Subscribe new account'),
       '#options' => $options,
       '#default_value' => $newsletter->new_account,
-      '#description' => $this->t('None: This newsletter is not listed on the user registration page.<br />Default on: This newsletter is listed on the user registion page and is selected by default.<br />Default off: This newsletter is listed on the user registion page and is not selected by default.<br />Silent: A new user is automatically subscribed to this newsletter. The newsletter is not listed on the user registration page.'),
+      '#description' => $this->t('None: This newsletter is not listed on the user registration page.<br />Default on: This newsletter is listed on the user registration page and is selected by default.<br />Default off: This newsletter is listed on the user registration page and is not selected by default.<br />Silent: A new user is automatically subscribed to this newsletter. The newsletter is not listed on the user registration page.'),
     ];
 
     // Type of (un)subsribe confirmation.
