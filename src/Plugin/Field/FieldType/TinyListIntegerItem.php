@@ -15,7 +15,6 @@ use Drupal\options\Plugin\Field\FieldType\ListIntegerItem;
  *   id = "list_tiny_integer",
  *   label = @Translation("List (tiny integer)"),
  *   description = @Translation("This field stores integer values from a list of allowed 'byte value => label' pairs"),
- *   category = @Translation("Number"),
  *   no_ui = TRUE,
  *   default_widget = "options_select",
  *   default_formatter = "list_default",
