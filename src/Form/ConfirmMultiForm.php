@@ -46,7 +46,7 @@ class ConfirmMultiForm extends ConfirmFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, SubscriberInterface $subscriber = NULL) {
     $form = parent::buildForm($form, $form_state);
     $form['question'] = [
-      '#markup' => '<p>' . $this->t('Are you sure you want to confirm your subscription for %user?', ['%user' => simplenews_mask_mail($subscriber->getMail())]) . "<p>\n",
+      '#markup' => '<p>' . $this->t('Are you sure you want to confirm your subscription for %user?', ['%user' => simplenews_mask_mail($subscriber->getMail())]) . "</p>\n",
     ];
 
     $form['subscriber'] = [
