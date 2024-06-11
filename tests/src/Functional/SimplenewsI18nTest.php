@@ -122,7 +122,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       'language_configuration[content_translation]' => TRUE,
     ];
     $this->drupalGet('admin/structure/types/manage/simplenews_issue');
-    $this->submitForm($edit, 'Save content type');
+    $this->submitForm($edit, 'Save');
 
     // Create a Newsletter including a translation.
     $newsletter_id = $this->getRandomNewsletter();
@@ -150,7 +150,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
 
     // Send newsletter.
     $this->clickLink(t('Newsletter'));
-    $this->submitForm([], t('Send now'));
+    $this->submitForm([], 'Send now');
     $this->cronRun();
 
     $this->assertCount(3, $this->getMails());

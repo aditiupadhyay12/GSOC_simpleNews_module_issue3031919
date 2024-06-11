@@ -54,6 +54,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'administer content types',
       'administer nodes',
       'access administration pages',
+      'access help pages',
       'administer permissions',
       'administer newsletters',
       'administer simplenews subscriptions',
@@ -723,7 +724,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'type' => $type,
       'simplenews_content_type' => TRUE,
     ];
-    $this->submitForm($edit, 'Save content type');
+    $this->submitForm($edit, 'Save');
 
     // Verify that the newsletter settings are shown.
     $this->drupalGet('node/add/' . $type);
@@ -791,7 +792,7 @@ class SimplenewsAdministrationTest extends SimplenewsTestBase {
       'simplenews_content_type' => FALSE,
     ];
     $this->drupalGet('admin/structure/types/manage/' . $type);
-    $this->submitForm($edit, 'Save content type');
+    $this->submitForm($edit, 'Save');
 
     // Verify that the newsletter settings are still shown.
     // Note: Previously the field got autoremoved. We leave it remaining due to

@@ -168,7 +168,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     // Block account.
     $this->drupalLogin($this->admin);
     $this->drupalGet("user/$uid/edit");
-    $this->submitForm(['status' => 0], 'Save');
+    $this->submitForm(['status' => '0'], 'Save');
     $this->drupalLogout();
 
     // Attempt subscribe and assert "blocked" message.

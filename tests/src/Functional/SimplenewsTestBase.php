@@ -29,7 +29,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $defaultTheme = 'starterkit_theme';
+  protected $defaultTheme = 'stark';
 
   /**
    * The Simplenews settings config object.
@@ -217,7 +217,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     }
     $path = $uid ? "/user/$uid/simplenews" : '';
     $this->drupalGet($path);
-    $this->submitForm($edit, $uid ? t('Save') : t('Subscribe'));
+    $this->submitForm($edit, $uid ? 'Save' : 'Subscribe');
     $this->assertSession()->statusCodeEquals(200);
 
     if (!$uid) {
@@ -321,7 +321,8 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * Extract a confirmation link from a mail body.
    */
   protected function extractConfirmationLink($body, $action = 'confirm') {
-    $pattern = "@simplenews/$action/.+/.+/.{20,}@";
+    // Find url that does not contain ellipsis.
+    $pattern = "@simplenews/$action/.+/.+/(?:(?!…).)*$@m";
     $found = preg_match($pattern, $body, $match);
     if (!$found) {
       $this->fail(t('No confirmation URL found in "@body".', ['@body' => $body]));

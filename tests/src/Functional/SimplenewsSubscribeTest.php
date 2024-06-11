@@ -112,7 +112,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       $edit['subscriptions[' . $newsletter_id . ']'] = FALSE;
     }
     $this->drupalGet('simplenews/manage/' . $subscriber->id() . '/' . \Drupal::time()->getRequestTime() . '/' . $hash);
-    $this->submitForm($edit, t('Update'));
+    $this->submitForm($edit, 'Update');
 
     // Verify subscription changes.
     $subscriber_storage->resetCache();
@@ -689,7 +689,7 @@ class SimplenewsSubscribeTest extends SimplenewsTestBase {
       'administer blocks',
     ]);
     $this->drupalLogin($admin_user);
-    $this->drupalGet('/admin/structure/block/add/simplenews_subscription_block/starterkit_theme');
+    $this->drupalGet('/admin/structure/block/add/simplenews_subscription_block/stark');
     // Check for Unique ID field.
     $this->assertSession()->pageTextContains('Unique ID');
     $edit = [
