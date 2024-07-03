@@ -41,14 +41,15 @@ class SubscriberViewsData extends EntityViewsData {
       ],
     ];
 
-    $data['simplenews_subscriber__subscriptions']['subscriptions_status']['filter'] = [
+    $data['simplenews_subscriber']['status']['filter'] = [
       'id' => 'in_operator',
-      'options callback' => 'simplenews_subscriber_status_list',
+      'options callback' => 'simplenews_subscriber_status_options',
     ];
 
     $data['simplenews_subscriber__subscriptions']['subscriptions_target_id']['filter'] = [
       'id' => 'in_operator',
       'options callback' => 'simplenews_newsletter_list',
+      'allow empty' => TRUE,
     ];
 
     return $data;

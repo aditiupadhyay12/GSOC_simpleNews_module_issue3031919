@@ -26,7 +26,6 @@ class RecipientHandlerAll extends RecipientHandlerSelectBase {
     $select->addField('s', 'id', 'snid');
     $select->addField('t', 'subscriptions_target_id', 'newsletter_id');
     $select->condition('t.subscriptions_target_id', $this->getNewsletterId());
-    $select->condition('t.subscriptions_status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
     $select->condition('s.status', SubscriberInterface::ACTIVE);
 
     return $select;

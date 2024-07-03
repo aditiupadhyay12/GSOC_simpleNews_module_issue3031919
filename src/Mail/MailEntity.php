@@ -60,6 +60,13 @@ class MailEntity implements MailInterface {
   protected $cache;
 
   /**
+   * User ID used for account switcher.
+   *
+   * @var int
+   */
+  protected $uid;
+
+  /**
    * Constructs a MailEntity object.
    */
   public function __construct(ContentEntityInterface $issue, SubscriberInterface $subscriber, MailCacheInterface $mail_cache) {
@@ -292,7 +299,7 @@ class MailEntity implements MailInterface {
     // Supported view modes: 'email_plain', 'email_html'.
     $build = \Drupal::entityTypeManager()->getViewBuilder($this->getIssue()->getEntityTypeId())->view($this->getIssue(), 'email_' . $format, $this->getLanguage());
     $build['#entity_type'] = $this->getIssue()->getEntityTypeId();
-    // @todo: Consider using render caching.
+    // @todo Consider using render caching.
     unset($build['#cache']);
 
     // We need to prevent the standard theming hooks, but we do want to allow
@@ -392,7 +399,7 @@ class MailEntity implements MailInterface {
     $build = $this->build();
     $fids = [];
     foreach ($this->getIssue()->getFieldDefinitions() as $field_name => $field_definition) {
-      // @todo: Find a better way to support more field types.
+      // @todo Find a better way to support more field types.
       // Only add fields of type file which are enabled for the current view
       // mode as attachments.
       if ($field_definition->getType() == 'file' && isset($build[$field_name])) {

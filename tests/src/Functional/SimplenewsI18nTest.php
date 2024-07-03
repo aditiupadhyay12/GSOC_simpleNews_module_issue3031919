@@ -113,16 +113,16 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
     /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
     $subscription_manager = \Drupal::service('simplenews.subscription_manager');
 
-    $subscription_manager->subscribe($english_mail, $newsletter_id, FALSE, 'english', 'en');
-    $subscription_manager->subscribe($spanish_mail, $newsletter_id, FALSE, 'spanish', 'es');
-    $subscription_manager->subscribe($spanish_mail2, $newsletter_id, FALSE, 'spanish', 'es');
+    $subscription_manager->subscribe($english_mail, $newsletter_id, 'en');
+    $subscription_manager->subscribe($spanish_mail, $newsletter_id, 'es');
+    $subscription_manager->subscribe($spanish_mail2, $newsletter_id, 'es');
 
     // Enable translation for newsletters.
     $edit = [
       'language_configuration[content_translation]' => TRUE,
     ];
     $this->drupalGet('admin/structure/types/manage/simplenews_issue');
-    $this->submitForm($edit, 'Save content type');
+    $this->submitForm($edit, 'Save');
 
     // Create a Newsletter including a translation.
     $newsletter_id = $this->getRandomNewsletter();
@@ -150,7 +150,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
 
     // Send newsletter.
     $this->clickLink(t('Newsletter'));
-    $this->submitForm([], t('Send now'));
+    $this->submitForm([], 'Send now');
     $this->cronRun();
 
     $this->assertCount(3, $this->getMails());
@@ -166,7 +166,7 @@ class SimplenewsI18nTest extends SimplenewsTestBase {
       }
       elseif ($mail['to'] == $spanish_mail || $mail['to'] == $spanish_mail2) {
         $this->assertEquals('es', $mail['langcode']);
-        // @todo: Verify newsletter translation once supported again.
+        // @todo Verify newsletter translation once supported again.
         $this->assertEquals('[' . $newsletter->name . '] ' . $translation->label(), $mail['subject']);
         $node_url = $translation->toUrl('canonical', ['absolute' => TRUE, 'language' => $translation->language()])->toString();
         $title = $translation->getTitle();

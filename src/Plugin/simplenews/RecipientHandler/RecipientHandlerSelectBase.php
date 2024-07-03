@@ -2,6 +2,8 @@
 
 namespace Drupal\simplenews\Plugin\simplenews\RecipientHandler;
 
+use Drupal\simplenews\Spool\SpoolStorageInterface;
+
 /**
  * Base for Recipient Handlers that access the database directly using Select.
  *
@@ -19,7 +21,7 @@ abstract class RecipientHandlerSelectBase extends RecipientHandlerBase {
     $query = $this->buildRecipientQuery();
     $query->addExpression("'$entity_type'", 'entity_type');
     $query->addExpression($this->issue->id(), 'entity_id');
-    $query->addExpression(SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, 'status');
+    $query->addExpression(SpoolStorageInterface::STATUS_PENDING, 'status');
     $query->addExpression(\Drupal::time()->getRequestTime(), 'timestamp');
     $this->connection->insert('simplenews_mail_spool')->from($query)->execute();
 

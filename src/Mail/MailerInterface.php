@@ -41,7 +41,7 @@ interface MailerInterface {
    * @return int
    *   Returns the amount of sent mails.
    *
-   * @todo: Redesign API to allow language counter in multilingual sends.
+   * @todo Redesign API to allow language counter in multilingual sends.
    */
   public function sendSpool($limit = SpoolStorageInterface::UNLIMITED, array $conditions = []);
 
@@ -63,22 +63,18 @@ interface MailerInterface {
    *   The newsletter issue to be sent.
    * @param array $test_addresses
    *   List of addresses to send the newsletter to.
+   * @param string $key
+   *   (optional) Key to use for sending the mail. Defaults to 'test'.
    */
-  public function sendTest(ContentEntityInterface $issue, array $test_addresses);
+  public function sendTest(ContentEntityInterface $issue, array $test_addresses, string $key = 'test');
 
   /**
-   * Send collected confirmations.
-   *
-   * Depending on the settings, always sends a combined confirmation,
-   * only when there are multiple changes for a subscriber or never.
+   * Send subscribe confirmation mail if needed.
    *
    * @return bool
-   *   TRUE if any confirmation mails have been sent.
-   *
-   * @todo This function currently does not return information about which
-   *       subscriber received a confirmation.
+   *   TRUE if a confirmation mail has been sent.
    */
-  public function sendCombinedConfirmation(SubscriberInterface $subscriber);
+  public function sendSubscribeConfirmation(SubscriberInterface $subscriber);
 
   /**
    * Update newsletter sent status.

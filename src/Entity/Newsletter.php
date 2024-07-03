@@ -41,6 +41,7 @@ use Drupal\simplenews\NewsletterInterface;
  *     "allowed_handlers",
  *     "new_account",
  *     "access",
+ *     "reason",
  *     "weight",
  *   },
  *   links = {
@@ -143,6 +144,13 @@ class Newsletter extends ConfigEntityBase implements NewsletterInterface {
    * @var string
    */
   public $access = SIMPLENEWS_ACCESS_DEFAULT;
+
+  /**
+   * Reason for receiving the newsletter.
+   *
+   * @var string
+   */
+  public $reason = '';
 
   /**
    * Weight of this newsletter (used for sorting).

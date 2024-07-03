@@ -36,7 +36,7 @@ class MailFormatHelper {
       if (empty($regexp)) {
         $regexp = '@^' . preg_quote($base_path, '@') . '@';
       }
-      list(, $url, $label) = $match;
+      [, $url, $label] = $match;
       $url = strpos($url, '://') ? $url : preg_replace($regexp, $base_url . '/', $url);
 
       // If the link is formed by Drupal's URL filter, we only return the URL.

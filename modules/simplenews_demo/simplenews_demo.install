@@ -8,6 +8,7 @@
 use Drupal\node\Entity\Node;
 use Drupal\simplenews\Entity\Newsletter;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\SubscriberInterface;
 use Drupal\user\Entity\User;
 
 /**
@@ -67,7 +68,7 @@ function simplenews_demo_install() {
 
   // Create some subscribers.
   // Subscriber subscribed to only one newsletter.
-  $subscription_manager->subscribe('a@example.com', $newsletters['special_offers']->id(), FALSE);
+  $subscription_manager->subscribe('a@example.com', $newsletters['special_offers']->id());
   $subscriber = Subscriber::loadByMail('a@example.com');
   // Add field data for subscriber.
   $subscriber->set('field_first_name', 'Subscriber A first name');
@@ -75,18 +76,19 @@ function simplenews_demo_install() {
   $subscriber->set('field_city', 'Subscriber A city');
   $subscriber->save();
   // Subscriber subscribed to all newsletters.
-  $subscription_manager->subscribe('b@example.com', $newsletters['special_offers']->id(), FALSE);
-  $subscription_manager->subscribe('b@example.com', $newsletters['press_releases']->id(), FALSE);
-  $subscription_manager->subscribe('b@example.com', $newsletters['weekly_content_update']->id(), FALSE);
+  $subscription_manager->subscribe('b@example.com', $newsletters['special_offers']->id());
+  $subscription_manager->subscribe('b@example.com', $newsletters['press_releases']->id());
+  $subscription_manager->subscribe('b@example.com', $newsletters['weekly_content_update']->id());
   // Add field data to subscriber.
   $subscriber = Subscriber::loadByMail('a@example.com');
   $subscriber->set('field_first_name', 'Subscriber B first name');
   $subscriber->save();
   // Unsubscribed subscriber.
-  $subscription_manager->subscribe('c@example.com', $newsletters['press_releases']->id(), FALSE);
-  $subscription_manager->unsubscribe('c@example.com', $newsletters['press_releases']->id(), FALSE);
+  $subscription_manager->subscribe('c@example.com', $newsletters['press_releases']->id());
+  $subscription_manager->unsubscribe('c@example.com', $newsletters['press_releases']->id());
   // Unconfirmed subscriber.
-  $subscription_manager->subscribe('d@example.com', $newsletters['special_offers']->id(), TRUE);
+  $subscription_manager->subscribe('d@example.com', $newsletters['special_offers']->id());
+  Subscriber::loadByMail('d@example.com')->setStatus(SubscriberInterface::UNCONFIRMED)->save();
 
   // Create an active demo user.
   $demo_user_active = User::create([
@@ -112,8 +114,8 @@ function simplenews_demo_install() {
   );
   $subscriber_inactive->save();
   // Subscribe user to both newsletters.
-  $subscription_manager->subscribe($demo_user_active->getEmail(), $newsletters['press_releases']->id(), FALSE);
-  $subscription_manager->subscribe($demo_user_active->getEmail(), $newsletters['special_offers']->id(), FALSE);
+  $subscription_manager->subscribe($demo_user_active->getEmail(), $newsletters['press_releases']->id());
+  $subscription_manager->subscribe($demo_user_active->getEmail(), $newsletters['special_offers']->id());
 
   // Create an issue for scheduled sending.
   // Disabled because of issue #3062330.

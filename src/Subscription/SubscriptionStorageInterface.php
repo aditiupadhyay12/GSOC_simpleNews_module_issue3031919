@@ -29,7 +29,7 @@ interface SubscriptionStorageInterface {
    *
    * @return array
    *   An array keyed by the mail address, containing another array with the
-   *   keys mail, uid, language, snid and status.
+   *   fields mail, uid, language and id.
    *
    * @ingroup subscription
    */

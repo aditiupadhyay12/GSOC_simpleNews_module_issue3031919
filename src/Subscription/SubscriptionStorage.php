@@ -2,9 +2,9 @@
 
 namespace Drupal\simplenews\Subscription;
 
+use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\simplenews\SubscriberInterface;
-use Drupal\Core\Database\Database;
 
 /**
  * Default subscription storage.
@@ -36,10 +36,8 @@ class SubscriptionStorage extends SqlContentEntityStorage implements Subscriptio
     $query = $this->database->select('simplenews_subscriber', 'sn');
     $query->innerJoin('simplenews_subscriber__subscriptions', 'ss', 'ss.entity_id = sn.id');
     $query->fields('sn', ['mail', 'uid', 'langcode', 'id'])
-      ->fields('ss', ['subscriptions_status'])
       ->condition('sn.status', SubscriberInterface::ACTIVE)
-      ->condition('subscriptions_target_id', $newsletter_id)
-      ->condition('ss.subscriptions_status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED);
+      ->condition('ss.subscriptions_target_id', $newsletter_id);
     return $query->execute()->fetchAllAssoc('mail');
   }
 

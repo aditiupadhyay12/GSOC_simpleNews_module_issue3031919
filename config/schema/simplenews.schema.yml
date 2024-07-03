@@ -46,15 +46,12 @@ simplenews.settings:
         tidy_unconfirmed:
           type: integer
           label: Tidy unconfirmed subscriptions after a number of days
-        confirm_combined_subject:
+        confirm_subject:
           type: label
-          label: Combined subscribe subject
-        confirm_combined_body:
+          label: Subscribe confirmation subject
+        confirm_body:
           type: text
-          label: Combined subscribe message
-        confirm_combined_body_unchanged:
-          type: text
-          label: Combined subscribe unchanged message
+          label: Subscribe confirmation message
         confirm_subscribe_page:
           type: string
           label: Confirmation subscribe redirect page
@@ -138,6 +135,9 @@ simplenews.newsletter.*:
     access:
       type: string
       label: 'Controls access to subscribe and unsubscribe.'
+    reason:
+      type: text
+      label: 'Reason why the subscriber is receiving this newsletter.'
     weight:
       type: integer
       label: 'Weight of this newsletter (used for sorting).'

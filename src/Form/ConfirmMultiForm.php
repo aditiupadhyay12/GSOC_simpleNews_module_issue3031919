@@ -37,7 +37,7 @@ class ConfirmMultiForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('simplenews.newsletter_subscriptions');
+    return \Drupal::service('simplenews.subscription_manager')->getsubscriptionsUrl();
   }
 
   /**
@@ -46,7 +46,7 @@ class ConfirmMultiForm extends ConfirmFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, SubscriberInterface $subscriber = NULL) {
     $form = parent::buildForm($form, $form_state);
     $form['question'] = [
-      '#markup' => '<p>' . $this->t('Are you sure you want to confirm your subscription for %user?', ['%user' => simplenews_mask_mail($subscriber->getMail())]) . "<p>\n",
+      '#markup' => '<p>' . $this->t('Are you sure you want to confirm your subscription for %user?', ['%user' => simplenews_mask_mail($subscriber->getMail())]) . "</p>\n",
     ];
 
     $form['subscriber'] = [
@@ -61,25 +61,6 @@ class ConfirmMultiForm extends ConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $subscriber = $form_state->getValue('subscriber');
-    foreach ($subscriber->getChanges() as $newsletter_id => $action) {
-
-      if ($action == 'subscribe') {
-        if (!$subscriber->isSubscribed($newsletter_id)) {
-          // Subscribe the user if not already subscribed.
-          $subscriber->subscribe($newsletter_id);
-        }
-      }
-      elseif ($action == 'unsubscribe') {
-        if ($subscriber->isSubscribed($newsletter_id)) {
-          // Subscribe the user if not already subscribed.
-          $subscriber->unsubscribe($newsletter_id);
-        }
-      }
-    }
-
-    // Clear changes.
-    $subscriber->setChanges([]);
-    $subscriber->save();
 
     $config = $this->config('simplenews.settings');
     if ($path = $config->get('subscription.confirm_subscribe_page')) {
@@ -89,6 +70,8 @@ class ConfirmMultiForm extends ConfirmFormBase {
       $this->messenger()->addMessage($this->t('Subscription changes confirmed for %user.', ['%user' => $subscriber->getMail()]));
       $form_state->setRedirect('<front>');
     }
+
+    $subscriber->setStatus(SubscriberInterface::ACTIVE)->save();
   }
 
 }

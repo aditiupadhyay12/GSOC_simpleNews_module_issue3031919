@@ -7,6 +7,7 @@
 
 use Drupal\simplenews\AbortSendingException;
 use Drupal\simplenews\SkipMailException;
+use Drupal\simplenews\SubscriberInterface;
 
 /**
  * Implements hook_mail_alter().
@@ -35,5 +36,27 @@ function simplenews_test_simplenews_mail_result_alter(&$result, array $message) 
     if ($result == -1) {
       throw new AbortSendingException('Testing abort sending');
     }
+  }
+}
+
+/**
+ * Implements hook_simplenews_subscribe().
+ */
+function simplenews_test_simplenews_subscribe(SubscriberInterface $subscriber, string $newsletter_id) {
+  $results = \Drupal::state()->get('simplenews.test_hook_results');
+  if (!is_null($results)) {
+    $results[] = ['add', $subscriber->getMail(), $newsletter_id];
+    \Drupal::state()->set('simplenews.test_hook_results', $results);
+  }
+}
+
+/**
+ * Implements hook_simplenews_unsubscribe().
+ */
+function simplenews_test_simplenews_unsubscribe(SubscriberInterface $subscriber, string $newsletter_id) {
+  $results = \Drupal::state()->get('simplenews.test_hook_results');
+  if (!is_null($results)) {
+    $results[] = ['remove', $subscriber->getMail(), $newsletter_id];
+    \Drupal::state()->set('simplenews.test_hook_results', $results);
   }
 }

@@ -43,7 +43,10 @@ class PrepareUninstallForm extends FormBase {
       'title' => $this->t('Deleting subscribers'),
       'operations' => [
         [
-          [__CLASS__, 'deleteSubscribers'], [],
+          [__CLASS__, 'deleteEntities'], ['simplenews_subscriber'],
+        ],
+        [
+          [__CLASS__, 'deleteEntities'], ['simplenews_subscriber_history'],
         ],
         [
           [__CLASS__, 'removeFields'], [],
@@ -60,15 +63,20 @@ class PrepareUninstallForm extends FormBase {
   }
 
   /**
-   * Deletes Simplenews subscribers.
+   * Deletes entities of the specified type.
+   *
+   * @param string $type
+   *   Entity type.
+   * @param array|\ArrayAccess $context
+   *   An array of contextual key/values.
    */
-  public static function deleteSubscribers(&$context) {
-    $storage = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber');
-    $subscriber_ids = $storage->getQuery()->range(0, 100)->accessCheck(FALSE)->execute();
-    if ($subscribers = $storage->loadMultiple($subscriber_ids)) {
-      $storage->delete($subscribers);
+  public static function deleteEntities($type, &$context) {
+    $storage = \Drupal::entityTypeManager()->getStorage($type);
+    $ids = $storage->getQuery()->range(0, 100)->accessCheck(FALSE)->execute();
+    if ($entities = $storage->loadMultiple($ids)) {
+      $storage->delete($entities);
     }
-    $context['finished'] = (int) count($subscriber_ids) < 100;
+    $context['finished'] = (int) count($ids) < 100;
   }
 
   /**

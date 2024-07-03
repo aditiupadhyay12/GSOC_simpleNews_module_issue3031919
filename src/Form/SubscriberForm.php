@@ -30,6 +30,7 @@ class SubscriberForm extends SubscriptionsFormBase {
       $form['#title'] = $this->t('Edit subscriber @mail', ['@mail' => $mail]);
     }
 
+<<<<<<< HEAD
     // Add activation status fieldset.
     $form['activated'] = [
       '#type' => 'fieldset',
@@ -79,6 +80,13 @@ class SubscriberForm extends SubscriptionsFormBase {
           '#required' => TRUE,
         ];
       }
+=======
+    if ($user = $subscriber->getUser()) {
+      $form['user'] = [
+        '#markup' => $this->t('This Subscription is linked to user @user. Edit the user to change the subscriber language, email and status.', ['@user' => $user->toLink(NULL, 'edit-form')->toString()]),
+        '#weight' => -1,
+      ];
+>>>>>>> f268e5bf5b2c4ef1eed8d21dd22739a582eee72c
     }
 
     // Add email field for anonymous users.

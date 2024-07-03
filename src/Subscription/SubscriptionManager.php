@@ -2,50 +2,20 @@
 
 namespace Drupal\simplenews\Subscription;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\DestructableInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
-use Psr\Log\LoggerInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Utility\Token;
-use Drupal\simplenews\Entity\Newsletter;
+use Drupal\Core\Url;
 use Drupal\simplenews\Entity\Subscriber;
-use Drupal\simplenews\Mail\MailerInterface;
-use Drupal\simplenews\NewsletterInterface;
 use Drupal\simplenews\SubscriberInterface;
 
 /**
  * Default subscription manager.
  */
-class SubscriptionManager implements SubscriptionManagerInterface, DestructableInterface {
-
-  /**
-   * Whether confirmations should be combined.
-   *
-   * @var bool
-   */
-  protected $combineConfirmations = FALSE;
-
-  /**
-   * Combined confirmations.
-   *
-   * @var array
-   */
-  protected $confirmations = [];
-
-  /**
-   * Subscribed cache.
-   *
-   * @var array
-   */
-  protected $subscribedCache = [];
-
-  /**
-   * The mailer.
-   *
-   * @var \Drupal\simplenews\Mail\MailerInterface
-   */
-  protected $mailer;
+class SubscriptionManager implements SubscriptionManagerInterface {
 
   /**
    * The language manager.
@@ -62,21 +32,21 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   protected $config;
 
   /**
-   * The token.
+   * The route match.
    *
-   * @var \Drupal\Core\Utility\Token
+   * @var \Drupal\Core\Routing\RouteMatchInterface
    */
-  protected $token;
+  protected $routeMatch;
 
   /**
-   * The logger interface.
+   * The time service.
    *
-   * @var \Psr\Log\LoggerInterface
+   * @var \Drupal\Component\Datetime\TimeInterface
    */
-  protected $logger;
+  protected $time;
 
   /**
-   * The current user.
+   * The current user service.
    *
    * @var \Drupal\Core\Session\AccountInterface
    */
@@ -90,91 +60,64 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   protected $subscriberStorage;
 
   /**
+   * The subscriber history storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $historyStorage;
+
+  /**
    * Constructs a SubscriptionManager.
    *
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    *   The language manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
-   * @param \Drupal\simplenews\Mail\MailerInterface $mailer
-   *   The simplenews manager.
-   * @param \Drupal\Core\Utility\Token $token
-   *   The token service.
-   * @param \Psr\Log\LoggerInterface $logger
-   *   The simplenews logger channel.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager service.
+   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   *   The route match.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time service.
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
    */
-  public function __construct(LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory, MailerInterface $mailer, Token $token, LoggerInterface $logger, AccountInterface $current_user) {
+  public function __construct(LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, RouteMatchInterface $route_match, TimeInterface $time, AccountInterface $current_user) {
     $this->languageManager = $language_manager;
     $this->config = $config_factory->get('simplenews.settings');
-    $this->mailer = $mailer;
-    $this->token = $token;
-    $this->logger = $logger;
+    $this->routeMatch = $route_match;
+    $this->time = $time;
     $this->currentUser = $current_user;
-    $this->subscriberStorage = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber');
+    $this->subscriberStorage = $entity_type_manager->getStorage('simplenews_subscriber');
+    $this->historyStorage = $entity_type_manager->getStorage('simplenews_subscriber_history');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function subscribe($mail, $newsletter_id, $confirm = NULL, $source = 'unknown', $preferred_langcode = NULL) {
+  public function subscribe(string $mail, string $newsletter_id, string $preferred_langcode = NULL) {
+    if (func_num_args() > 3) {
+      throw new \LogicException('Only 3 arguments are supported');
+    }
+
     // Get/create subscriber entity.
-    $preferred_langcode = $preferred_langcode ?? $this->languageManager->getCurrentLanguage();
+    $preferred_langcode = $preferred_langcode ?? $this->languageManager->getCurrentLanguage()->getId();
     $subscriber = Subscriber::loadByMail($mail, 'create', $preferred_langcode);
-    $newsletter = Newsletter::load($newsletter_id);
-
-    // If confirmation is not explicitly specified, use the default
-    // configuration.
-    if ($confirm === NULL) {
-      $confirm = $this->requiresConfirmation($subscriber->getUserId());
-    }
-
-    if ($confirm) {
-      // Create an unconfirmed subscription object if it doesn't exist yet.
-      if (!$subscriber->isSubscribed($newsletter_id)) {
-        $subscriber->subscribe($newsletter_id, SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED, $source);
-        $subscriber->save();
-      }
-
-      $this->addConfirmation('subscribe', $subscriber, $newsletter);
-    }
-    elseif (!$subscriber->isSubscribed($newsletter_id)) {
-      // Subscribe the user if not already subscribed.
-      $subscriber->subscribe($newsletter_id, SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, $source);
-      $subscriber->save();
-    }
+    $subscriber->subscribe($newsletter_id)->save();
     return $this;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function unsubscribe($mail, $newsletter_id, $confirm = NULL, $source = 'unknown') {
-    $subscriber = Subscriber::loadByMail($mail);
-    if (!$subscriber) {
-      throw new \Exception('The subscriber does not exist.');
-    }
-    // The unlikely case that a user is unsubscribed from a non existing mailing
-    // list is logged.
-    if (!$newsletter = Newsletter::load($newsletter_id)) {
-      $this->logger->error('Attempt to unsubscribe from non existing mailing list ID %id', ['%id' => $newsletter_id]);
-      return $this;
+  public function unsubscribe(string $mail, string $newsletter_id) {
+    if (func_num_args() > 2) {
+      throw new \LogicException('Only 2 arguments are supported');
     }
 
-    // If confirmation is not explicitly specified, use the default
-    // configuration.
-    if ($confirm === NULL) {
-      $confirm = $this->requiresConfirmation($subscriber->getUserId());
-    }
-
-    if ($confirm) {
-      $this->addConfirmation('unsubscribe', $subscriber, $newsletter);
-    }
-    elseif ($subscriber->isSubscribed($newsletter_id)) {
+    if ($subscriber = Subscriber::loadByMail($mail)) {
       // Unsubscribe the user from the mailing list.
-      $subscriber->unsubscribe($newsletter_id, $source);
-      $subscriber->save();
+      $subscriber->unsubscribe($newsletter_id)->save();
     }
     return $this;
   }
@@ -182,41 +125,53 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
   /**
    * {@inheritdoc}
    */
-  public function isSubscribed($mail, $newsletter_id) {
-    if (!isset($this->subscribedCache[$mail][$newsletter_id])) {
-      $subscriber = Subscriber::loadByMail($mail);
-      // Check that a subscriber was found, it is active and subscribed to the
-      // requested newsletter_id.
-      $this->subscribedCache[$mail][$newsletter_id] = $subscriber && $subscriber->getStatus() && $subscriber->isSubscribed($newsletter_id);
-    }
-    return $this->subscribedCache[$mail][$newsletter_id];
+  public function isSubscribed(string $mail, string $newsletter_id) {
+    $subscriber = Subscriber::loadByMail($mail);
+    // Check that a subscriber was found, it is active and subscribed to the
+    // requested newsletter_id.
+    return $subscriber && $subscriber->isActive() && $subscriber->isSubscribed($newsletter_id);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function sendConfirmations() {
-    foreach ($this->confirmations as $mail => $changes) {
-      $subscriber = Subscriber::loadByMail($mail, 'create', $this->languageManager->getCurrentLanguage());
-      $subscriber->setChanges($changes);
+  public function hasSubscribed(string $mail, string $newsletter_id) {
+    $found = $this->historyStorage->getQuery()
+      ->condition('mail', $mail)
+      ->condition('subscriptions.target_id', $newsletter_id, 'IN')
+      ->accessCheck(FALSE)
+      ->range(0, 1)
+      ->count()
+      ->execute();
 
-      $this->mailer->sendCombinedConfirmation($subscriber);
+    return $found > 0;
+  }
 
-      // Save changes in the subscriber if there is a real subscriber object.
-      if ($subscriber->id()) {
-        $subscriber->save();
+  /**
+   * {@inheritdoc}
+   */
+  public function trackHistory(SubscriberInterface $subscriber) {
+    if (!$subscriber->isConfirmed()) {
+      // Ignore: not confirmed.
+      return;
+    }
+
+    if (isset($subscriber->original) && $subscriber->original->isConfirmed()) {
+      if (($subscriber->get('mail')->getValue() == $subscriber->original->get('mail')->getValue()) && ($subscriber->get('subscriptions')->getValue() == $subscriber->original->get('subscriptions')->getValue())) {
+        // Ignore: no changes.
+        return;
       }
     }
-    $sent = !empty($this->confirmations);
-    $this->confirmations = [];
-    return $sent;
-  }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function reset() {
-    $this->subscribedCache = [];
+    $values = [
+      'mail' => $subscriber->getMail(),
+      'timestamp' => $this->time->getRequestTime(),
+      'uid' => $this->currentUser->id(),
+      'source' => 'route:' . $this->routeMatch->getRouteName(),
+      'subscriptions' => $subscriber->getSubscribedNewsletterIds(),
+    ];
+
+    $this->historyStorage->create($values)->save();
   }
 
   /**
@@ -228,65 +183,26 @@ class SubscriptionManager implements SubscriptionManagerInterface, DestructableI
       return;
     }
 
-    // Query subscribers with unconfirmed subscriptions due to be tidied.
+    // Query unconfirmed subscribers.
     $max_age = strtotime("-$days days");
     $unconfirmed = \Drupal::entityQuery('simplenews_subscriber')
-      ->condition('subscriptions.status', SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED)
-      ->condition('subscriptions.timestamp', $max_age, '<')
+      ->condition('status', SubscriberInterface::UNCONFIRMED)
+      ->condition('created', $max_age, '<')
       ->accessCheck(FALSE)
       ->execute();
 
-    // Exclude any subscribers with confirmed subscriptions.
-    $confirmed = \Drupal::entityQuery('simplenews_subscriber')
-      ->condition('subscriptions.status', SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED, '<>')
-      ->accessCheck(FALSE)
-      ->execute();
-    $delete = array_diff($unconfirmed, $confirmed);
-    $this->subscriberStorage->delete($this->subscriberStorage->loadMultiple($delete));
+    $this->subscriberStorage->delete($this->subscriberStorage->loadMultiple($unconfirmed));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function destruct() {
-    // Ensure that confirmations are always sent even if API calls did not do it
-    // explicitly. It is still possible to do so, e.g. to be able to know if
-    // confirmations were sent or not.
-    $this->sendConfirmations();
-  }
-
-  /**
-   * Add a mail confirmation or fetch them.
-   *
-   * @param string $action
-   *   The confirmation type, either subscribe or unsubscribe.
-   * @param \Drupal\simplenews\SubscriberInterface $subscriber
-   *   The subscriber object.
-   * @param \Drupal\simplenews\NewsletterInterface $newsletter
-   *   The newsletter object.
-   */
-  protected function addConfirmation($action, SubscriberInterface $subscriber, NewsletterInterface $newsletter) {
-    $this->confirmations[$subscriber->getMail()][$newsletter->id()] = $action;
-  }
-
-  /**
-   * Checks whether confirmation is required for this user.
-   *
-   * @param int $uid
-   *   The user ID that belongs to the email.
-   *
-   * @return bool
-   *   TRUE if confirmation is required, FALSE if not.
-   */
-  protected function requiresConfirmation($uid) {
-    // If user is currently logged in, don't send confirmation.
-    // Other addresses receive a confirmation if configured.
-    if ($this->currentUser->id() && $uid && $this->currentUser->id() == $uid) {
-      return FALSE;
+  public function getsubscriptionsUrl() {
+    $user = $this->currentUser;
+    if ($user->isAuthenticated()) {
+      return Url::fromRoute('simplenews.newsletter_subscriptions_user', ['user' => $user->id()]);
     }
-    else {
-      return !$this->config->get('subscription.skip_verification');
-    }
+    return Url::fromRoute('simplenews.subscriptions_validate');
   }
 
 }

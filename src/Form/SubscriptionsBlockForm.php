@@ -3,8 +3,8 @@
 namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\SubscriberInterface;
 
 /**
  * Add subscriptions for authenticated user or new subscriber.
@@ -128,19 +128,19 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-    $this->getSubscriptionWidget($form_state)->setAvailableNewsletterIds($this->newsletterIds);
+    $this->getFormDisplay($form_state)->getRenderer('subscriptions')->setAvailableNewsletterIds($this->newsletterIds);
+    $hidden_default_ids = array_diff($this->defaultNewsletterIds, $this->getNewsletterIds());
 
-    if (!$form_state->getUserInput()) {
-      // Set defaults.
-      foreach ($this->defaultNewsletterIds as $newsletter_id) {
-        $this->entity->subscribe($newsletter_id, SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED, 'website');
-      }
+    // Set the defaults. If the form has been submitted, only set the hidden
+    // defaults, as the user may have unchecked the visible ones.
+    $defaults_to_set = $form_state->getUserInput() ? $hidden_default_ids : $this->defaultNewsletterIds;
+    foreach ($defaults_to_set as $newsletter_id) {
+      $this->entity->subscribe($newsletter_id);
     }
 
     $form = parent::form($form, $form_state);
     $form['subscriptions']['widget']['#title'] = $this->t('Manage your newsletter subscriptions');
     $form['subscriptions']['widget']['#description'] = $this->t('Select the newsletter(s) to which you want to subscribe.');
-    $hidden_default_ids = array_diff($this->defaultNewsletterIds, $this->getNewsletterIds());
     $form['subscriptions']['widget']['#required'] = empty($hidden_default_ids);
     $form['subscriptions']['widget']['#access'] = !empty($this->newsletterIds);
 
@@ -170,8 +170,7 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
     }
 
     if ($this->showManage) {
-      $user = \Drupal::currentUser();
-      $link = $user->isAuthenticated() ? Url::fromRoute('simplenews.newsletter_subscriptions_user', ['user' => $user->id()]) : Url::fromRoute('simplenews.newsletter_validate');
+      $link = \Drupal::service('simplenews.subscription_manager')->getsubscriptionsUrl();
       $actions['manage'] = [
         '#title' => $this->t('Manage existing'),
         '#type' => 'link',
@@ -187,7 +186,7 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $mail = $form_state->getValue(['mail', 0, 'value']);
-    if ($this->entity->isNew() && $subscriber = Subscriber::loadByMail($mail)) {
+    if ($this->entity->isNew() && $subscriber = Subscriber::loadByMail($mail, NULL, NULL, 'check_trust')) {
       $this->setEntity($subscriber);
     }
 
@@ -202,25 +201,21 @@ class SubscriptionsBlockForm extends SubscriptionsFormBase {
   }
 
   /**
-   * Submit callback that subscribes to selected newsletters.
-   *
-   * @param array $form
-   *   The form structure.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state object.
+   * {@inheritdoc}
+   */
+  protected function prepareEntity() {
+    if (!Subscriber::skipConfirmation()) {
+      // Set new (anonymous) subscribers to unconfirmed.
+      $this->entity->setStatus(SubscriberInterface::UNCONFIRMED);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function submitExtra(array $form, FormStateInterface $form_state) {
-    /** @var \Drupal\simplenews\Subscription\SubscriptionManagerInterface $subscription_manager */
-    $subscription_manager = \Drupal::service('simplenews.subscription_manager');
-
-    // Subscribe the selected newsletters and any defaults that are hidden.
-    $selected_ids = $this->extractNewsletterIds($form_state, TRUE);
-    $hidden_default_ids = array_diff($this->defaultNewsletterIds, $this->getNewsletterIds());
-
-    foreach (array_unique(array_merge($selected_ids, $hidden_default_ids)) as $newsletter_id) {
-      $subscription_manager->subscribe($this->entity->getMail(), $newsletter_id, NULL, 'website');
-    }
-    $sent = $subscription_manager->sendConfirmations();
+    // Send confirmations if needed.
+    $sent = $this->entity->sendConfirmation();
     $this->messenger()->addMessage($this->getSubmitMessage($form_state, $sent));
   }
 

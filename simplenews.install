@@ -6,11 +6,16 @@
  */
 
 use Drupal\Core\Database\Database;
+use Drupal\Core\Entity\ContentEntityType;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\simplenews\Entity\Newsletter;
+use Drupal\simplenews\Entity\Subscriber;
+use Drupal\simplenews\Entity\SubscriberHistory;
+use Drupal\simplenews\SubscriberInterface;
+use Drupal\simplenews\Subscription\SubscriptionStorageSchema;
 
 /**
  * Implements hook_schema().
@@ -181,7 +186,7 @@ function simplenews_update_8203() {
   $configurations_to_delete = ['field.field.simplenews_subscriber.simplenews_subscriber.subscriptions', 'field.storage.simplenews_subscriber.subscriptions'];
 
   $config_factory = \Drupal::configFactory();
-  $dependents = \Drupal::service('config.manager')->findConfigEntityDependents('config', $configurations_to_delete);
+  $dependents = \Drupal::service('config.manager')->findConfigEntityDependencies('config', $configurations_to_delete);
 
   foreach ($dependents as $config_name => $config_entity) {
     $config_entity = $config_factory->getEditable($config_name);
@@ -304,7 +309,7 @@ function simplenews_update_830003() {
   $config->save();
 
   $newsletter_types = \Drupal::service('entity_type.manager')->getStorage('simplenews_newsletter')->loadMultiple();
-  foreach($newsletter_types as $type) {
+  foreach ($newsletter_types as $type) {
     $type->set('access', $type->get('opt_inout') != 'hidden' ? 'default' : 'hidden');
     $type->set('opt_inout', NULL);
     $type->save();
@@ -404,4 +409,329 @@ function simplenews_update_830009() {
   // update the field storage too, see https://www.drupal.org/node/2554097.
   $manager = \Drupal::entityDefinitionUpdateManager();
   $manager->updateFieldStorageDefinition($manager->getFieldStorageDefinition('uuid', 'simplenews_subscriber'));
+}
+
+/**
+ * Update simplenews_subscriber definition.
+ */
+function simplenews_update_840001() {
+  $definition_manager = \Drupal::entityDefinitionUpdateManager();
+
+  $changes = $definition_manager->getFieldStorageDefinition('changes', 'simplenews_subscriber');
+  $definition_manager->uninstallFieldStorageDefinition($changes);
+
+  $status = BaseFieldDefinition::create('list_tiny_integer')
+    ->setLabel(t('Status'))
+    ->setDescription(t('Status of the subscriber.'))
+    ->setDefaultValue(SubscriberInterface::ACTIVE)
+    ->setRequired(TRUE)
+    ->setSetting('allowed_values', simplenews_subscriber_status_options())
+    ->setTargetEntityTypeId('simplenews_subscriber')
+    ->setName('status')
+    ->setProvider('simplenews');
+  $definition_manager->updateFieldStorageDefinition($status);
+
+  \Drupal::configFactory()->getEditable('simplenews.settings')
+    ->clear('subscription.confirm_combined_body_unchanged')
+    ->save();
+}
+
+/**
+ * Update simplenews_subscriber entities.
+ */
+function simplenews_update_840002() {
+  // Bypass Entity API for better performance.
+  // Delete unconfirmed subscriptions.
+  $database = \Drupal::database();
+  $database->delete('simplenews_subscriber__subscriptions')
+    ->condition('subscriptions_status', 2)
+    ->execute();
+
+  // Set all subscribers without a subscription to unconfirmed.
+  $no_subscriptions = $database->query('SELECT id FROM {simplenews_subscriber} s LEFT JOIN {simplenews_subscriber__subscriptions} ss ON ss.entity_id = s.id WHERE ss.entity_id IS NULL')->fetchCol();
+  if (!empty($no_subscriptions)) {
+    $database->update('simplenews_subscriber')
+      ->condition('id', $no_subscriptions, 'IN')
+      ->fields(['status' => SubscriberInterface::UNCONFIRMED])
+      ->execute();
+  }
+}
+
+/**
+ * Add new indexes for simplenews_subscriber.
+ */
+function simplenews_update_840003() {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+
+  // Set the storage schema.
+  $entity_type = $entity_type_manager->getDefinition('simplenews_subscriber')
+    ->setHandlerClass('storage_schema', SubscriptionStorageSchema::class);
+  $definition_update_manager->updateEntityType($entity_type);
+}
+
+/**
+ * Update subscription settings.
+ */
+function simplenews_update_840004() {
+  $config = \Drupal::configFactory()->getEditable('simplenews.settings');
+
+  if ($subject = $config->get('subscription.confirm_combined_subject')) {
+    $config->clear('subscription.confirm_combined_subject');
+    $config->set('subscription.confirm_subject', $subject);
+  }
+
+  if ($body = $config->get('subscription.confirm_combined_body')) {
+    $body = preg_replace('/\[simplenews-subscriber:combined-url\]/', '[simplenews-subscriber:confirm-url]', $body);
+    $config->clear('subscription.confirm_combined_body');
+    $config->set('subscription.confirm_body', $body);
+  }
+
+  $config->save();
+}
+
+/**
+ * Install subscriber history entity type.
+ */
+function simplenews_update_840005() {
+  $changeList = \Drupal::entityDefinitionUpdateManager()->getChangeList();
+
+  if (!array_key_exists('simplenews_subscriber_history', $changeList)) {
+    return 'Skipped. The simplenews_subscriber_history entity type is already installed.';
+  }
+
+  $entity_type = new ContentEntityType([
+    'id' => 'simplenews_subscriber_history',
+    'label' => t('Simplenews subscriber history'),
+    'base_table' => 'simplenews_subscriber_history',
+    'entity_keys' => ['id' => 'id'],
+  ]);
+  $entity_type->setClass(SubscriberHistory::class);
+
+  $fields['id'] = BaseFieldDefinition::create('integer')
+    ->setLabel(t('ID'))
+    ->setReadOnly(TRUE)
+    ->setSetting('unsigned', TRUE);
+
+  $fields['mail'] = BaseFieldDefinition::create('email')
+    ->setLabel(t('Email'))
+    ->setRequired(TRUE);
+
+  $fields['timestamp'] = BaseFieldDefinition::create('timestamp')
+    ->setLabel(t('Timestamp'))
+    ->setRequired(TRUE);
+
+  $fields['uid'] = BaseFieldDefinition::create('entity_reference')
+    ->setLabel(t('Author'))
+    ->setDescription(t('The user who made the change.'))
+    ->setRequired(TRUE)
+    ->setSetting('target_type', 'user');
+
+  $fields['source'] = BaseFieldDefinition::create('string')
+    ->setLabel(t('Source'))
+    ->setDescription(t('How the change was made.'))
+    ->setRequired(TRUE);
+
+  $fields['subscriptions'] = BaseFieldDefinition::create('entity_reference')
+    ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+    ->setLabel(t('Subscriptions'))
+    ->setRequired(TRUE)
+    ->setSetting('target_type', 'simplenews_newsletter');
+
+  \Drupal::entityDefinitionUpdateManager()->installFieldableEntityType($entity_type, $fields);
+}
+
+/**
+ * Migrate subscriber history to new format.
+ */
+function simplenews_update_840006(&$sandbox) {
+  if (!isset($sandbox['total'])) {
+    $ids = \Drupal::entityQuery('simplenews_subscriber')->accessCheck(FALSE)->execute();
+    $sandbox['total'] = count($ids);
+    $sandbox['current'] = 0;
+  }
+
+  $ids = \Drupal::entityQuery('simplenews_subscriber')
+    ->range($sandbox['current'], 50)
+    ->accessCheck(FALSE)
+    ->execute();
+  if (empty($ids)) {
+    $sandbox['#finished'] = 1;
+    return;
+  }
+
+  $now = \Drupal::time()->getCurrentTime();
+  foreach ($ids as $id) {
+    $subscriber = Subscriber::load($id);
+
+    // Get the subscriptions sorted by increasing time. We can't use the
+    // field API because it misses out the properties from the old table that
+    // have been deleted in the new table.
+    $subscriptions = \Drupal::database()->select('simplenews_subscriber__subscriptions', 's')
+      ->condition('entity_id', $id)
+      ->fields('s', ['delta', 'subscriptions_target_id', 'subscriptions_status', 'subscriptions_timestamp', 'subscriptions_source'])
+      ->orderBy('subscriptions_timestamp')
+      ->execute()
+      ->fetchAll(\PDO::FETCH_ASSOC);
+
+    $previous = NULL;
+    $history = $final = [];
+    foreach ($subscriptions as $item) {
+      // Even for an unsubscribed record, the time and source apply to the
+      // original subscription. Create a subscription here, then unsubscribe
+      // at the end.
+      $history[$item['delta']] = $item['subscriptions_target_id'];
+      if ($item['subscriptions_status'] == 1) {
+        $final[$item['delta']] = $item['subscriptions_target_id'];
+      }
+
+      $values = [
+        'mail' => $subscriber->getMail(),
+        'timestamp' => $item['subscriptions_timestamp'],
+        'uid' => 0,
+        'source' => 'migrated:' . $item['subscriptions_source'],
+        'subscriptions' => $history,
+      ];
+
+      if ($previous && $values['timestamp'] == $previous->getTimestamp() && $values['source'] == $previous->getSource()) {
+        // Update the identical record from last time.
+        $previous->set('subscriptions', $history)->save();
+      }
+      else {
+        // Create a new record.
+        $previous = SubscriberHistory::create($values);
+        $previous->save();
+      }
+    }
+
+    if ($history != $final) {
+      // Unsubscribe. We don't know the actual times so create a single record.
+      $values = [
+        'mail' => $subscriber->getMail(),
+        'timestamp' => $now,
+        'uid' => 0,
+        'source' => 'migrated:unsubscribe',
+        'subscriptions' => $final,
+      ];
+      SubscriberHistory::create($values)->save();
+    }
+
+    $sandbox['current']++;
+  }
+
+  $sandbox['#finished'] = min(0.99, $sandbox['current'] / $sandbox['total']);
+  \Drupal::messenger()->addMessage($sandbox['#finished'] * 100 . '% complete.');
+}
+
+/**
+ * Delete unsubscribed subscriptions.
+ */
+function simplenews_update_840007() {
+  $database = \Drupal::database();
+  $database->delete('simplenews_subscriber__subscriptions')
+    ->condition('subscriptions_status', 0)
+    ->execute();
+}
+
+/**
+ * Update subscriber subscriptions field.
+ */
+function simplenews_update_840008() {
+  $field_storage_definition = \Drupal::entityDefinitionUpdateManager()->getFieldStorageDefinition('subscriptions', 'simplenews_subscriber');
+  $schema = \Drupal::database()->schema();
+  $table_mapping = \Drupal::entityTypeManager()->getStorage('simplenews_subscriber')->getTableMapping();
+  $table = $table_mapping->getDedicatedDataTableName($field_storage_definition);
+
+  // Load the installed field schema so that it can be updated.
+  $entity_storage_schema_sql = \Drupal::keyValue('entity.storage_schema.sql');
+  $schema_key = 'simplenews_subscriber.field_schema_data.subscriptions';
+  $field_schema_data = $entity_storage_schema_sql->get($schema_key);
+
+  // Loop over each removed column.
+  foreach (['status', 'timestamp', 'source'] as $column_id) {
+    // Remove the column.
+    $column = $table_mapping->getFieldColumnName($field_storage_definition, $column_id);
+    $schema->dropField($table, $column);
+
+    // Remove the column from the installed field schema.
+    if (!empty($field_schema_data)) {
+      unset($field_schema_data[$table]['fields'][$column]);
+    }
+  }
+
+  // Save changes to the installed field schema.
+  if (!empty($field_schema_data)) {
+    $entity_storage_schema_sql->set($schema_key, $field_schema_data);
+  }
+
+  $entity_definitions_installed = \Drupal::keyValue('entity.definitions.installed');
+  $key = 'simplenews_subscriber.field_storage_definitions';
+  if ($definitions = $entity_definitions_installed->get($key)) {
+    $definitions['subscriptions'] = BaseFieldDefinition::create('entity_reference')
+      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+      ->setSetting('target_type', 'simplenews_newsletter')
+      ->setName('subscriptions')
+      ->setTargetEntityTypeId('simplenews_subscriber')
+      ->setProvider('simplenews')
+      ->setTargetBundle(NULL);
+    $entity_definitions_installed->set($key, $definitions);
+  }
+}
+
+/**
+ * Update subscriber views.
+ */
+function simplenews_update_840009() {
+  $config_factory = \Drupal::configFactory();
+  foreach ($config_factory->listAll('views.view.') as $view_config_name) {
+    $view = $config_factory->getEditable($view_config_name);
+    $displays = $view->get('display');
+
+    foreach ($displays as $display_name => $display) {
+      if (!empty($display['display_options']['fields'])) {
+        foreach ($display['display_options']['fields'] as $name => $field) {
+          if (($field['field'] == 'subscriptions_target_id') && ($field['table'] == 'simplenews_subscriber__subscriptions')) {
+            $field['type'] = 'entity_reference_label';
+            $field['settings'] = ['link' => FALSE];
+            $view->set("display.$display_name.display_options.fields.$name", $field);
+          }
+          elseif (($field['field'] == 'status') && ($field['table'] == 'simplenews_subscriber')) {
+            $field['type'] = 'list_default';
+            $field['label'] = 'Status';
+            $field['plugin_id'] = 'field';
+            $view->set("display.$display_name.display_options.fields.$name", $field);
+          }
+        }
+      }
+
+      if (!empty($display['display_options']['filters'])) {
+        foreach ($display['display_options']['filters'] as $name => $filter) {
+          if (($filter['field'] == 'subscriptions_status') && ($filter['table'] == 'simplenews_subscriber__subscriptions')) {
+            // Remove the filter.
+            $view->clear("display.$display_name.display_options.filters.$name");
+          }
+          elseif (($filter['field'] == 'status') && ($filter['table'] == 'simplenews_subscriber')) {
+            $filter['expose']['label'] = 'Status';
+            $filter['plugin_id'] = 'in_operator';
+            $filter['operator'] = 'in';
+            $filter['value'] = [1 => '1'];
+            $view->set("display.$display_name.display_options.filters.$name", $filter);
+          }
+        }
+      }
+    }
+    $view->save(TRUE);
+  }
+}
+
+/**
+ * Initialise newsletter reason field.
+ */
+function simplenews_update_840010() {
+  foreach (Newsletter::loadMultiple() as $newsletter) {
+    if (empty($newsletter->reason)) {
+      $newsletter->reason = '';
+      $newsletter->save();
+    }
+  }
 }

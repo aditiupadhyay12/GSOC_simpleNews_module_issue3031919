@@ -60,21 +60,21 @@ class MailBuilder implements MailBuilderInterface {
 
     if ($mail->getFormat() == 'html') {
       // Set the necessary headers to detect this as an HTML mail. Set both the
-      // Content-Type header, and the format (Swiftmailer) and plain (Mime Mail)
-      // params.
+      // Content-Type header, and the format (Drupal Symfony Mailer Lite) and
+      // plain (Mime Mail) params.
       $message['headers']['Content-Type'] = 'text/html; charset=UTF-8';
       $message['params']['format'] = 'text/html';
       $message['params']['plain'] = NULL;
 
       if ($this->config->get('mail.textalt')) {
         // Provide a plain text version, both in params][plaintext (Mime Mail)
-        // and plain (Swiftmailer).
+        // and plain (Drupal Symfony Mailer).
         $message['params']['plaintext'] = MailFormatHelper::htmlToText($mail->getPlainBody());
         $message['plain'] = $message['params']['plaintext'];
       }
 
-      // Add attachments, again, both for the attachments key (Mime Mail) and
-      // files (Swiftmailer).
+      // Add attachments, again, both for attachments (all known modules) and
+      // files (back-compatibility).
       $message['params']['attachments'] = $mail->getAttachments();
       $message['params']['files'] = $message['params']['attachments'];
     }
@@ -90,7 +90,7 @@ class MailBuilder implements MailBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function buildCombinedMail(array &$message, array $params) {
+  public function buildSubscribeMail(array &$message, array $params) {
     $context = $params['context'];
     $subscriber = $context['simplenews_subscriber'];
     $langcode = $message['langcode'];
@@ -98,24 +98,9 @@ class MailBuilder implements MailBuilderInterface {
     // Use formatted from address "name" <mail_address>.
     $message['headers']['From'] = $params['from']['formatted'];
 
-    $message['subject'] = $this->config->get('subscription.confirm_combined_subject');
+    $message['subject'] = $this->config->get('subscription.confirm_subject');
     $message['subject'] = simplenews_token_replace_subject($message['subject'], $context);
-
-    $actual_changes = 0;
-
-    foreach ($subscriber->getChanges() as $newsletter_id => $action) {
-      // Count the actual changes.
-      $subscribed = $context['simplenews_subscriber']->isSubscribed($newsletter_id);
-      if ($action == 'subscribe' && !$subscribed || $action == 'unsubscribe' && $subscribed) {
-        $actual_changes++;
-      }
-    }
-
-    // If there are actual changes, use the combined_body key otherwise use the
-    // one without a confirmation link.
-    $body_key = $actual_changes ? 'combined_body' : 'combined_body_unchanged';
-
-    $body = $this->config->get('subscription.confirm_' . $body_key);
+    $body = $this->config->get('subscription.confirm_body');
     $message['body'][] = simplenews_token_replace_body($body, $context);
   }
 

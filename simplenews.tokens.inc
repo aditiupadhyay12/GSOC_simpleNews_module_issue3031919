@@ -7,7 +7,6 @@
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Render\BubbleableMetadata;
-use Drupal\Core\Url;
 
 /**
  * Implements hook_token_info().
@@ -25,21 +24,17 @@ function simplenews_token_info() {
   ];
 
   // Tokens for simplenews subscriber.
-  $subscriber['subscribe-url'] = [
-    'name' => t('Subscription URL'),
-    'description' => t('The URL of the page where the subscription is confirmed.'),
-  ];
   $subscriber['unsubscribe-url'] = [
     'name' => t('Unsubscribe URL'),
-    'description' => t('The URL of the page where the cancellation of the subscription is confirmed.'),
+    'description' => t('The URL of the page to remove a subscription. For immediate removal, put "/ok" after the token.'),
   ];
   $subscriber['manage-url'] = [
     'name' => t('Manage URL'),
     'description' => t('The URL of the page where the subscribers can manage their newsletter subscriptions.'),
   ];
-  $subscriber['combined-url'] = [
-    'name' => t('Combined confirmation URL'),
-    'description' => t('The URL of the page where subscribers can confirm their subscription changes.'),
+  $subscriber['confirm-url'] = [
+    'name' => t('Subscribe confirmation URL'),
+    'description' => t('The URL of the page where subscribers can confirm their subscription changes. For immediate confirmation, put "/ok" after the token.'),
   ];
   $subscriber['mail'] = [
     'name' => t('Subscriber email'),
@@ -85,53 +80,28 @@ function simplenews_tokens($type, $tokens, $data, $options, BubbleableMetadata $
       }
       /** @var \Drupal\simplenews\Entity\Subscriber $subscriber */
       $subscriber = $data['simplenews_subscriber'];
-      $newsletter = isset($data['newsletter']) ? $data['newsletter'] : NULL;
-      $language = $subscriber->getLangcode();
-
-      $url_arguments = ['absolute' => TRUE, 'langcode' => $language];
+      $newsletter = $data['newsletter'] ?? NULL;
 
       foreach ($tokens as $name => $original) {
-        $route_parameters = ['snid' => $subscriber->id(), 'timestamp' => \Drupal::time()->getRequestTime()];
         switch ($name) {
-          case 'subscribe-url':
-            $hash = simplenews_generate_hash($subscriber->getMail(), 'add');
-            $bubbleable_metadata->setCacheMaxAge(0);
-            $route_parameters += [
-              'action' => 'add',
-              'newsletter_id' => $newsletter->id(),
-              'hash' => $hash,
-            ];
-            $replacements[$original] = Url::fromRoute('simplenews.newsletter_confirm_subscription', $route_parameters, $url_arguments)->toString();
-            break;
-
           case 'unsubscribe-url':
-            if (!$subscriber->id()) {
-              // Temporary test subscriber.
-              $replacements[$original] = t('No unsubscribe link for test subscribers.');
+            if (!$newsletter || !$subscriber->id()) {
               break;
             }
-            $hash = simplenews_generate_hash($subscriber->getMail(), 'remove');
             $bubbleable_metadata->setCacheMaxAge(0);
-            $route_parameters += [
-              'action' => 'remove',
-              'newsletter_id' => $newsletter->id(),
-              'hash' => $hash,
-            ];
-            $replacements[$original] = Url::fromRoute('simplenews.newsletter_confirm_subscription', $route_parameters, $url_arguments)->toString();
+            $replacements[$original] = simplenews_generate_url($subscriber, 'remove', $newsletter);
             break;
 
           case 'combined-url':
-            $hash = simplenews_generate_hash($subscriber->getMail(), 'combined' . serialize($subscriber->getChanges()));
+            @trigger_error("Token 'combined-url' is deprecated in simplenews:4.0.0 and is removed from symfony_mailer:5.0.0. Instead you should use 'confirm-url'. See https://www.drupal.org/node/3356308", E_USER_DEPRECATED);
+          case 'confirm-url':
             $bubbleable_metadata->setCacheMaxAge(0);
-            $route_parameters += ['hash' => $hash];
-            $replacements[$original] = Url::fromRoute('simplenews.newsletter_confirm_combined', $route_parameters, $url_arguments)->toString();
+            $replacements[$original] = simplenews_generate_url($subscriber, 'confirm');
             break;
 
           case 'manage-url':
-            $hash = simplenews_generate_hash($subscriber->getMail(), 'manage');
             $bubbleable_metadata->setCacheMaxAge(0);
-            $route_parameters += ['hash' => $hash];
-            $replacements[$original] = Url::fromRoute('simplenews.newsletter_subscriptions_arguments', $route_parameters, $url_arguments)->toString();
+            $replacements[$original] = simplenews_generate_url($subscriber, 'manage');
             break;
 
           case 'mail':

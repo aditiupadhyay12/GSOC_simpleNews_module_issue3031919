@@ -2,8 +2,8 @@
 
 namespace Drupal\simplenews_demo\Plugin\simplenews\RecipientHandler;
 
-use Drupal\simplenews\SubscriberInterface;
 use Drupal\simplenews\Plugin\simplenews\RecipientHandler\RecipientHandlerEntityBase;
+use Drupal\simplenews\SubscriberInterface;
 
 /**
  * This handler sends to all subscribers with the specified role.
@@ -38,7 +38,6 @@ class RecipientHandlerSubscribersByRole extends RecipientHandlerEntityBase {
     return \Drupal::entityQuery('simplenews_subscriber')
       ->condition('status', SubscriberInterface::ACTIVE)
       ->condition('subscriptions', $this->getNewsletterId())
-      ->condition('subscriptions.status', SIMPLENEWS_SUBSCRIPTION_STATUS_SUBSCRIBED)
       ->condition('uid.entity.roles', $this->configuration['role'])
       ->accessCheck(FALSE);
   }

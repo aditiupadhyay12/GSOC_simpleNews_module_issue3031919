@@ -41,7 +41,7 @@ class MailSettingsForm extends ConfigFormBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Generate plain-text alternative'),
       '#default_value' => $config->get('mail.textalt'),
-      '#description' => $this->t('Generate plain-text alternative for HTML mails (less recommended). If you are using the recommended Swift Mailer module then disable this option and allow that module to generate them. If you enable this option then you need to configure both "Email: HTML" and "Email: Plain" view modes.'),
+      '#description' => $this->t('Generate plain-text alternative for HTML mails (less recommended). If you are using the recommended <a href=":recommended">Drupal Symfony Mailer</a> module then disable this option and allow that module to generate them. If you enable this option then you need to configure both "Email: HTML" and "Email: Plain" view modes.', [':recommended' => 'https://www.drupal.org/project/symfony_mailer']),
     ];
 
     $throttle_val = [

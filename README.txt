@@ -152,7 +152,7 @@ INSTALLATION
     'Send mail' options at:
       Administer > Configuration > Web Services > Newsletters > Settings > Send mail.
 
-11. (UN)SUBSCRIBE CONFIRMATION
+11. UNSUBSCRIBE CONFIRMATION
 
     By default the unsubscribe link will direct the user to a confirmation page.
     Upon confirmation the user is directed to the home page, where a message
@@ -162,10 +162,9 @@ INSTALLATION
 
     To skip the confirmation page you can add parameters to the subscription
     URL.
-      Example: [simplenews-subscribe-url]/ok
+      Example: [simplenews-subscriber:unsubscribe-url]/ok
     When an alternative destination page has been defined the extra parameters
     will be added to the destination URL.
-      Example: [simplenews-subscriber:subscribe-url]/ok
       Destination: node/123
       Destination URL: node/123/ok
 
@@ -189,30 +188,10 @@ INSTALLATION
     to 'hidden'. Note that manual recipient handling is separate from manual
     subscription handling — these are two separate concepts!
 
- 13. TIPS
-    A subscription page is available at: /newsletter/subscriptions
-
-    The Elysia Cron module (http://drupal.org/project/elysia_cron) can be used
-    to start the simplenews cron hook more often than others, so that newsletter
-    are sent faster without decreasing site performance due to long-running cron
-    hooks.
-
-    If your unsubscribe URL looks like:
-      http://newsletter/confirm/remove/8acd182182615t632
-    instead of:
-      http://www.example.com/newsletter/confirm/remove/8acd182182615t632
-    You should change the base URL in the settings.php file from
-      #  $base_url = 'http://www.example.com';  // NO trailing slash!
-    to
-      $base_url = 'http://www.example.com';  // NO trailing slash!
-
 
 RELATED MODULES
 ------------
 
- * Elysia Cron
-   Allows fine grained control over cron tasks.
-   http://http://drupal.org/project/elysia_cron
  * Mailsystem
    Extends drupal core mailystem wirh Administrative UI and Developers API.
    http://drupal.org/project/mailsystem

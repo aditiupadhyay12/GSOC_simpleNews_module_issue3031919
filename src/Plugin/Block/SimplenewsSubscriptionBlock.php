@@ -2,6 +2,7 @@
 
 namespace Drupal\simplenews\Plugin\Block;
 
+use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -11,7 +12,6 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\simplenews\Entity\Subscriber;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Component\Uuid\UuidInterface;
 
 /**
  * Provides a subscription block with all available newsletters and email field.
@@ -179,6 +179,18 @@ class SimplenewsSubscriptionBlock extends BlockBase implements ContainerFactoryP
     }*/
     // @codingStandardsIgnoreEnd
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function blockValidate($form, FormStateInterface $form_state) {
+    $visible = array_filter($form_state->getValue('newsletters'));
+    $default = array_filter($form_state->getValue('default_newsletters'));
+    if (!$visible && !$default) {
+      $form_state->setErrorByName('newsletters', $this->t('You must set at least one visible or default newsletter.'));
+      $form_state->setErrorByName('default_newsletters');
+    }
   }
 
   /**

@@ -2,10 +2,10 @@
 
 namespace Drupal\simplenews\Form;
 
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
  * Configure simplenews subscription settings.
@@ -105,25 +105,17 @@ class SubscriptionSettingsForm extends ConfigFormBase {
       ];
     }
 
-    $form['subscription_mail']['simplenews_confirm_combined_subject'] = [
+    $form['subscription_mail']['simplenews_confirm_subject'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Subject text for combined confirmation mail'),
-      '#default_value' => $config->get('subscription.confirm_combined_subject'),
+      '#title' => $this->t('Subject text for subscribe confirmation mail'),
+      '#default_value' => $config->get('subscription.confirm_subject'),
     ];
 
-    $form['subscription_mail']['simplenews_confirm_combined_body'] = [
+    $form['subscription_mail']['simplenews_confirm_body'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('Body text for combined confirmation mail'),
-      '#default_value' => $config->get('subscription.confirm_combined_body'),
+      '#title' => $this->t('Body text for subscribe confirmation mail'),
+      '#default_value' => $config->get('subscription.confirm_body'),
       '#rows' => 5,
-    ];
-
-    $form['subscription_mail']['simplenews_confirm_combined_body_unchanged'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Body text for unchanged combined confirmation mail'),
-      '#default_value' => $config->get('subscription.confirm_combined_body_unchanged'),
-      '#rows' => 5,
-      '#description' => $this->t('This body is used when there are no change requests which have no effect, e.g trying to subscribe when already being subscribed to a newsletter.'),
     ];
 
     $form['subscription_mail']['simplenews_validate_subject'] = [
@@ -166,9 +158,8 @@ class SubscriptionSettingsForm extends ConfigFormBase {
     $this->config('simplenews.settings')
       ->set('subscription.skip_verification', $form_state->getValue('simplenews_verification'))
       ->set('subscription.tidy_unconfirmed', $form_state->getValue('simplenews_tidy_unconfirmed'))
-      ->set('subscription.confirm_combined_subject', $form_state->getValue('simplenews_confirm_combined_subject'))
-      ->set('subscription.confirm_combined_body', $form_state->getValue('simplenews_confirm_combined_body'))
-      ->set('subscription.confirm_combined_body_unchanged', $form_state->getValue('simplenews_confirm_combined_body_unchanged'))
+      ->set('subscription.confirm_subject', $form_state->getValue('simplenews_confirm_subject'))
+      ->set('subscription.confirm_body', $form_state->getValue('simplenews_confirm_body'))
       ->set('subscription.validate_subject', $form_state->getValue('simplenews_validate_subject'))
       ->set('subscription.validate_body', $form_state->getValue('simplenews_validate_body'))
       ->set('subscription.confirm_subscribe_page', $form_state->getValue('simplenews_confirm_subscribe_page'))

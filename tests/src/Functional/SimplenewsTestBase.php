@@ -29,7 +29,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $defaultTheme = 'starterkit_theme';
+  protected $defaultTheme = 'stark';
 
   /**
    * The Simplenews settings config object.
@@ -37,6 +37,13 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * @var \Drupal\Core\Config\Config
    */
   protected $config;
+
+  /**
+   * Array of email addresses of test subscribers.
+   *
+   * @var string[]
+   */
+  protected $subscribers;
 
   /**
    * {@inheritdoc}
@@ -62,9 +69,9 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    * Generates a random email address.
    *
    * The generated addresses are stored in a class variable. Each generated
-   * adress is checked against this store to prevent duplicates.
+   * address is checked against this store to prevent duplicates.
    *
-   * @todo: Make this function redundant by modification of Simplenews.
+   * @todo Make this function redundant by modification of Simplenews.
    * Email addresses are case sensitive, simplenews system should handle with
    * this correctly.
    */
@@ -132,7 +139,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     $this->clickLink(t('Mass subscribe'));
     $edit = [
       'emails' => implode(',', $this->subscribers),
-      // @todo: Don't hardcode the default newsletter_id.
+      // @todo Don't hardcode the default newsletter_id.
       'newsletters[' . $newsletter_id . ']' => TRUE,
     ];
     $this->submitForm($edit, 'Subscribe');
@@ -210,7 +217,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     }
     $path = $uid ? "/user/$uid/simplenews" : '';
     $this->drupalGet($path);
-    $this->submitForm($edit, $uid ? t('Save') : t('Subscribe'));
+    $this->submitForm($edit, $uid ? 'Save' : 'Subscribe');
     $this->assertSession()->statusCodeEquals(200);
 
     if (!$uid) {
@@ -269,7 +276,7 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
    */
   protected function getLatestSubscriber() {
     $snids = \Drupal::entityQuery('simplenews_subscriber')
-      ->sort('created', 'DESC')
+      ->sort('id', 'DESC')
       ->range(0, 1)
       ->accessCheck(FALSE)
       ->execute();
@@ -308,6 +315,21 @@ abstract class SimplenewsTestBase extends BrowserTestBase {
     $body = preg_replace('/\s+/', ' ', $this->getMail($offset));
     $pos = strpos($body, (string) $needle);
     $this->assertEquals($pos !== FALSE, $exist, "$needle found in mail");
+  }
+
+  /**
+   * Extract a confirmation link from a mail body.
+   */
+  protected function extractConfirmationLink($body, $action = 'confirm') {
+    // Find url that does not contain ellipsis.
+    $pattern = "@simplenews/$action/.+/.+/(?:(?!…).)*$@m";
+    $found = preg_match($pattern, $body, $match);
+    if (!$found) {
+      $this->fail(t('No confirmation URL found in "@body".', ['@body' => $body]));
+      return FALSE;
+    }
+    $confirm_url = $match[0];
+    return $confirm_url;
   }
 
 }

@@ -4,7 +4,6 @@ namespace Drupal\simplenews\Form;
 
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 
 /**
  * Requests a new confirmation if the link has expired.
@@ -43,7 +42,7 @@ class RequestHashForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('simplenews.newsletter_subscriptions');
+    return \Drupal::service('simplenews.subscription_manager')->getsubscriptionsUrl();
   }
 
   /**

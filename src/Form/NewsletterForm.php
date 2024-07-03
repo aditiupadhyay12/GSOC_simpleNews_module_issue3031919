@@ -5,9 +5,9 @@ namespace Drupal\simplenews\Form;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\simplenews\RecipientHandler\RecipientHandlerManager;
 use Drupal\Core\Utility\LinkGeneratorInterface;
+use Drupal\simplenews\RecipientHandler\RecipientHandlerManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base form for category edit forms.
@@ -113,7 +113,7 @@ class NewsletterForm extends EntityForm {
       '#title' => $this->t('Subscribe new account'),
       '#options' => $options,
       '#default_value' => $newsletter->new_account,
-      '#description' => $this->t('None: This newsletter is not listed on the user registration page.<br />Default on: This newsletter is listed on the user registion page and is selected by default.<br />Default off: This newsletter is listed on the user registion page and is not selected by default.<br />Silent: A new user is automatically subscribed to this newsletter. The newsletter is not listed on the user registration page.'),
+      '#description' => $this->t('None: This newsletter is not listed on the user registration page.<br />Default on: This newsletter is listed on the user registration page and is selected by default.<br />Default off: This newsletter is listed on the user registration page and is not selected by default.<br />Silent: A new user is automatically subscribed to this newsletter. The newsletter is not listed on the user registration page.'),
     ];
 
     // Type of (un)subsribe confirmation.
@@ -124,6 +124,13 @@ class NewsletterForm extends EntityForm {
       '#options' => $options,
       '#default_value' => $newsletter->access,
       '#description' => $this->t("Default: Any user with 'Subscribe to newsletters' permission can subscribe and unsubscribe.<br />Hidden: Subscription is mandatory or controlled programmatically."),
+    ];
+
+    $form['subscription']['reason'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Reason'),
+      '#default_value' => $newsletter->reason,
+      '#description' => $this->t("Reason why the subscriber is receiving this newsletter, normally shown in the email footer. This is particularly important for hidden newsletters."),
     ];
 
     $form['email'] = [

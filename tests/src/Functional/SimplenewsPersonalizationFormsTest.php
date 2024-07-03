@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\simplenews\Functional;
 
-use Drupal\Component\Utility\Html;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 
@@ -59,7 +58,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Assert subscription remains unconfirmed.
     $subscriber = $this->getLatestSubscriber();
-    $this->assertEquals(SIMPLENEWS_SUBSCRIPTION_STATUS_UNCONFIRMED, $subscriber->subscriptions->get(0)->status);
+    $this->assertFalse($subscriber->isConfirmed());
   }
 
   /**
@@ -72,15 +71,22 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     $uid = $this->registerUser($email, ['field_shared[0][value]' => $this->randomString(10)]);
     $user = User::load($uid);
 
-    // Subscribe anonymous with verification disabled.
-    $this->config('simplenews.settings')
-      ->set('subscription.skip_verification', TRUE)
-      ->save();
+    // Subscribe anonymous, not yet confirmed.
     $new_value = $this->randomString(20);
     $this->subscribe('default', $email, ['field_shared[0][value]' => $new_value]);
 
-    // Assert fields are updated.
+    // Assert fields are not updated.
     $this->resetPassLogin($user);
+    $this->drupalGet("user/$uid");
+    $this->assertSession()->pageTextNotContains($new_value);
+
+    // Confirm.
+    $mails = $this->getMails();
+    $confirm_url = $this->extractConfirmationLink($this->getMail());
+    $this->drupalGet($confirm_url);
+    $this->submitForm([], 'Confirm');
+
+    // Assert fields are updated.
     $this->drupalGet("user/$uid");
     $this->assertSession()->pageTextContains($new_value);
   }
@@ -122,13 +128,16 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
 
     // Assert subscriber is inactive.
     $subscriber = $this->getLatestSubscriber();
-    $this->assertFalse($subscriber->getStatus());
+    $this->assertFalse($subscriber->isActive());
   }
 
   /**
    * Delete account, subscriptions deleted.
    */
   public function testDeleteAccount() {
+    $this->config('simplenews.settings')
+      ->set('subscription.skip_verification', TRUE)
+      ->save();
     $email = $this->randomEmail();
 
     // Register account.
@@ -140,14 +149,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     // Delete account.
     $this->drupalLogin($this->admin);
     $this->drupalGet("user/$uid/cancel");
-    // @todo Remove version_compare() condition when Drupal 9.3.0 becomes the
-    // lowest-supported version of core.
-    if (version_compare(\Drupal::VERSION, '9.3', '>=')) {
-      $this->submitForm(['user_cancel_method' => 'user_cancel_reassign'], 'Confirm');
-    }
-    else {
-      $this->submitForm(['user_cancel_method' => 'user_cancel_reassign'], 'Cancel account');
-    }
+    $this->submitForm(['user_cancel_method' => 'user_cancel_reassign'], 'Confirm');
 
     // Assert subscriptions are deleted.
     $subscriber = $this->getLatestSubscriber();
@@ -166,7 +168,7 @@ class SimplenewsPersonalizationFormsTest extends SimplenewsTestBase {
     // Block account.
     $this->drupalLogin($this->admin);
     $this->drupalGet("user/$uid/edit");
-    $this->submitForm(['status' => 0], 'Save');
+    $this->submitForm(['status' => '0'], 'Save');
     $this->drupalLogout();
 
     // Attempt subscribe and assert "blocked" message.
