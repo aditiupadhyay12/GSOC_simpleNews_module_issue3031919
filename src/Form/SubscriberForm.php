@@ -25,49 +25,77 @@ class SubscriberForm extends SubscriptionsFormBase {
     /** @var \Drupal\simplenews\SubscriberInterface $subscriber */
     $subscriber = $this->entity;
 
+    // Adjust form title dynamically based on subscriber's email.
     if ($mail = $subscriber->getMail()) {
       $form['#title'] = $this->t('Edit subscriber @mail', ['@mail' => $mail]);
     }
 
+    // Add activation status fieldset.
     $form['activated'] = [
-      '#title' => $this->t('Status'),
       '#type' => 'fieldset',
+      '#title' => $this->t('Status'),
       '#description' => $this->t('Whether the subscription is active or blocked.'),
       '#weight' => 15,
     ];
+
+    // Add active checkbox.
     $form['activated']['status'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Active'),
       '#default_value' => $subscriber->getStatus(),
-      '#disabled' => !$subscriber->get('status')->access('edit'),
+      '#disabled' => !$subscriber->get('status')->access('edit'), // Disable if user cannot edit status.
     ];
 
+    // If multilingual, add preferred language fieldset.
     $language_manager = \Drupal::languageManager();
     if ($language_manager->isMultilingual()) {
       $languages = $language_manager->getLanguages();
       foreach ($languages as $langcode => $language) {
         $language_options[$langcode] = $language->getName();
       }
+
+      // Add language fieldset.
       $form['language'] = [
         '#type' => 'fieldset',
         '#title' => $this->t('Preferred language'),
-        '#description' => $this->t('The e-mails will be localized in language chosen. Real users have their preference in account settings.'),
+        '#description' => $this->t('The emails will be localized in the chosen language.'),
         '#disabled' => FALSE,
       ];
+
+      // Determine language selection method based on user status.
       if ($subscriber->getUserId()) {
-        // Fallback if user has not defined a language.
+        // Display user's preferred language if defined.
         $form['language']['langcode'] = [
           '#type' => 'item',
           '#title' => $this->t('User language'),
           '#markup' => $subscriber->language()->getName(),
         ];
-      }
-      else {
+      } else {
+        // Allow selecting language for anonymous subscribers.
         $form['language']['langcode'] = [
           '#type' => 'select',
           '#default_value' => $subscriber->language()->getId(),
           '#options' => $language_options,
           '#required' => TRUE,
+        ];
+      }
+    }
+
+    // Add email field for anonymous users.
+    $user = \Drupal::currentUser();
+    if ($user->isAnonymous()) {
+      $form['email'] = [
+        '#type' => 'email',
+        '#title' => $this->t('Email'),
+        '#required' => TRUE,
+      ];
+    } else {
+      // Check if user has an email address.
+      $user_email = $user->getEmail();
+      if (empty($user_email)) {
+        // Provide a message indicating the subscription will be inactive until an email is set.
+        $form['email_message'] = [
+          '#markup' => $this->t('Your subscription will remain inactive until you set an email address.'),
         ];
       }
     }
@@ -79,10 +107,12 @@ class SubscriberForm extends SubscriptionsFormBase {
    * {@inheritdoc}
    */
   protected function getSubmitMessage(FormStateInterface $form_state, $confirm) {
+    // Customize submit message based on form ID.
     if ($this->getFormId() == 'simplenews_subscriber_add_form') {
       return $this->t('Subscriber %label has been added.', ['%label' => $this->entity->label()]);
+    } else {
+      return $this->t('Subscriber %label has been updated.', ['%label' => $this->entity->label()]);
     }
-    return $this->t('Subscriber %label has been updated.', ['%label' => $this->entity->label()]);
   }
 
   /**
@@ -90,7 +120,26 @@ class SubscriberForm extends SubscriptionsFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
+
+    // Process the subscription logic here.
+    $user = \Drupal::currentUser();
+    $email = $user->isAnonymous() ? $form_state->getValue('email') : $user->getEmail();
+
+    if (empty($email)) {
+      // Create subscription with inactive status
+      $this->createSubscription($user, $email, 'inactive');
+    } else {
+      // Create subscription with active status
+      $this->createSubscription($user, $email, 'active');
+    }
+
+    // Redirect to subscriber collection after form submission.
     $form_state->setRedirect('entity.simplenews_subscriber.collection');
+  }
+
+  private function createSubscription($user, $email, $status) {
+    // Logic to create subscription with given status
+    // ...
   }
 
 }

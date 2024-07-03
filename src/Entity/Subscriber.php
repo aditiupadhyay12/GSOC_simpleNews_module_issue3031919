@@ -143,18 +143,20 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
     if (static::$syncing) {
       return $this;
     }
-
+  
     static::$syncing = TRUE;
     $this->set('uid', $account->id());
-    $this->setMail($account->getEmail());
+    if ($account->getEmail()) {
+      $this->setMail($account->getEmail());
+    }
     $this->setLangcode($account->getPreferredLangcode());
     $this->setStatus($account->isActive());
-
+  
     // Copy values for shared fields to existing subscriber.
     foreach ($this->getUserSharedFields($account) as $field_name) {
       $this->set($field_name, $account->get($field_name)->getValue());
     }
-
+  
     static::$syncing = FALSE;
     return $this;
   }
@@ -351,6 +353,8 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
+    $fields = parent::baseFieldDefinitions($entity_type);
+
     $fields['id'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Subscriber ID'))
       ->setDescription(t('Primary key: Unique subscriber ID.'))
@@ -362,22 +366,16 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
       ->setDescription(t('The subscriber UUID.'))
       ->setReadOnly(TRUE);
 
-    $fields['status'] = BaseFieldDefinition::create('boolean')
+      $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Status'))
       ->setDescription(t('Boolean indicating the status of the subscriber.'))
-      ->setDefaultValue(TRUE);
+      ->setDefaultValue(FALSE); // Set default status to inactive.
 
-    $fields['mail'] = BaseFieldDefinition::create('email')
+      $fields['mail'] = BaseFieldDefinition::create('email')
       ->setLabel(t('Email'))
-      ->setDescription(t("The subscriber's email address."))
-      ->setSetting('default_value', '')
-      ->setRequired(TRUE)
-      ->addConstraint('UniqueField', [])
-      ->setDisplayOptions('form', [
-        'type' => 'email_default',
-        'settings' => [],
-      ])
-      ->setDisplayConfigurable('form', TRUE);
+      ->setDescription(t('The email address of the subscriber.'))
+      ->setRequired(FALSE) // Allow email to be optional.
+      ->addConstraint('UniqueField', []);
 
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('User'))
@@ -446,5 +444,4 @@ class Subscriber extends ContentEntityBase implements SubscriberInterface {
     }
     return $subscriber;
   }
-
 }
